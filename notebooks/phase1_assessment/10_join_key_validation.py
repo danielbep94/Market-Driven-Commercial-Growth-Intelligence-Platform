@@ -6,6 +6,7 @@ KEY_NAME_USR  = "snowflake-user"
 KEY_NAME_PWD  = "snowflake-password"
 SF_URL        = "danonenam.east-us-2.azure.snowflakecomputing.com"
 SF_WAREHOUSE  = "PRD_MDP_ANL_WH"
+SF_ROLE       = "PRD_MDP"
 
 try:
     user     = dbutils.secrets.get(scope=KEYVAULT_NAME, key=KEY_NAME_USR)
@@ -23,7 +24,7 @@ except Exception as e:
 def get_sf_options(db_name, schema_name="PUBLIC"):
     return {
         "sfURL": SF_URL, "sfUser": user, "sfPassword": password,
-        "sfDatabase": db_name, "sfSchema": schema_name, "sfWarehouse": SF_WAREHOUSE,
+        "sfDatabase": db_name, "sfSchema": schema_name, "sfWarehouse": SF_WAREHOUSE, "sfRole": SF_ROLE,
     }
 
 # Phase 1 — Join Key Validation (PHASE 2 GATE)

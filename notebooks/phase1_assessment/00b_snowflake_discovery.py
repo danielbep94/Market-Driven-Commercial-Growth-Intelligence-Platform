@@ -9,6 +9,7 @@
 # MAGIC - ✅ `SELECT * FROM PRD_MDP.MDP_DSP.VW_MKT_ECOMM WHERE anio >= 2024` — fully qualifies the object
 # MAGIC
 # MAGIC If a query fails with `does not exist or not authorized`, validate the active Snowflake context and object grants before assuming the object name format is wrong.
+# MAGIC If data discovery reports a query-related read issue while using role `PRD_MDP`, the likely cause is that the underlying table/view was created under a different user and needs to be recreated manually so the connector role can read it. Do not switch to `PRD_MDP_READER`; it uses a different permission model.
 
 # COMMAND ----------
 # MAGIC %md ## ─── EDIT THIS SECTION ──────────────────────────────────────────
@@ -94,7 +95,7 @@ KEY_NAME_USR  = "snowflake-user"
 KEY_NAME_PWD  = "snowflake-password"
 SF_URL        = "danonenam.east-us-2.azure.snowflakecomputing.com"
 SF_WAREHOUSE  = "PRD_MDP_ANL_WH"
-SF_ROLE       = "PRD_MDP_USER"
+SF_ROLE       = "PRD_MDP"
 
 try:
     user     = dbutils.secrets.get(scope=KEYVAULT_NAME, key=KEY_NAME_USR)
