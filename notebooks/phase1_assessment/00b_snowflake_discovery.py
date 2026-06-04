@@ -3,12 +3,12 @@
 # MAGIC # 00b · Source Discovery & Validation
 # MAGIC
 # MAGIC ## Rule for SQL definitions
-# MAGIC The Snowflake Spark connector does **NOT** support `DATABASE.SCHEMA.TABLE` inside the SQL string.
-# MAGIC - ✅ Correct: `SELECT * FROM VW_MKT_ECOMM WHERE anio >= 2024`
-# MAGIC - ✅ Correct: `SELECT * FROM MDP_DSP.VW_MKT_ECOMM WHERE anio >= 2024`  ← cross-schema JOIN
-# MAGIC - ❌ Wrong:  `SELECT * FROM PRD_MDP.MDP_DSP.VW_MKT_ECOMM WHERE anio >= 2024`
+# MAGIC Snowflake object resolution depends on the active Snowflake user, role, database, schema, and warehouse.
+# MAGIC - ✅ `SELECT * FROM VW_MKT_ECOMM WHERE anio >= 2024` — uses the connector `db` + `schema` context
+# MAGIC - ✅ `SELECT * FROM MDP_DSP.VW_MKT_ECOMM WHERE anio >= 2024` — explicitly sets the schema
+# MAGIC - ✅ `SELECT * FROM PRD_MDP.MDP_DSP.VW_MKT_ECOMM WHERE anio >= 2024` — fully qualifies the object
 # MAGIC
-# MAGIC The database goes in the `"db"` key. The SQL uses `SCHEMA.TABLE` or just `TABLE`.
+# MAGIC If a query fails with `does not exist or not authorized`, validate the active Snowflake context and object grants before assuming the object name format is wrong.
 
 # COMMAND ----------
 # MAGIC %md ## ─── EDIT THIS SECTION ──────────────────────────────────────────
@@ -16,7 +16,7 @@
 # MAGIC Each source is a dict with:
 # MAGIC - `"db"`:     Snowflake database (e.g. `"PRD_MDP"`)
 # MAGIC - `"schema"`: Default schema for this source (e.g. `"MDP_DSP"`)
-# MAGIC - `"sql"`:    Query — use `TABLE` or `SCHEMA.TABLE`, never `DB.SCHEMA.TABLE`
+# MAGIC - `"sql"`:    Query — use `TABLE`, `SCHEMA.TABLE`, or `DB.SCHEMA.TABLE` as needed for the active Snowflake context
 # MAGIC
 # MAGIC Set value to `None` for sources not yet ready.
 
@@ -27,7 +27,7 @@ SOURCES = {
     "DATA_MKT": {
         "db":     "PRD_MDP",
         "schema": "MDP_DSP",
-        "sql":    "SELECT * FROM VW_MKT_ECOMM WHERE anio >= 2024",
+        "sql":    "SELECT * FROM PRD_MDP.MDP_DSP.VW_MKT_ECOMM WHERE anio >= 2024",
     },
 
     # ── 2 · Sell-In ──────────────────────────────────────────────────────────
@@ -94,6 +94,7 @@ KEY_NAME_USR  = "snowflake-user"
 KEY_NAME_PWD  = "snowflake-password"
 SF_URL        = "danonenam.east-us-2.azure.snowflakecomputing.com"
 SF_WAREHOUSE  = "PRD_MDP_ANL_WH"
+SF_ROLE       = "PRD_MDP_USER"
 
 try:
     user     = dbutils.secrets.get(scope=KEYVAULT_NAME, key=KEY_NAME_USR)
@@ -122,13 +123,14 @@ def get_sf_opts(db: str, schema: str) -> dict:
         "sfDatabase":  db,
         "sfSchema":    schema,
         "sfWarehouse": SF_WAREHOUSE,
+        "sfRole":      SF_ROLE,
     }
 
 def run_sql(db: str, schema: str, sql: str):
     """
-    Execute SQL against Snowflake.
-    SQL must NOT contain fully-qualified DB.SCHEMA.TABLE references.
-    Use SCHEMA.TABLE or just TABLE — the db/schema are set in connector options.
+    Execute SQL against Snowflake using the requested database/schema/role context.
+    SQL may use TABLE, SCHEMA.TABLE, or DB.SCHEMA.TABLE depending on
+    how Snowflake resolves the object for the active user and role.
     """
     return spark.read.format("snowflake") \
                .options(**get_sf_opts(db, schema)) \
@@ -169,6 +171,69 @@ print(f"Sources pending:   {len(undefined)}/10")
 if undefined:
     print(f"  Pending: {', '.join(undefined.keys())}")
 
+# COMMAND ----------
+# MAGIC %md ## Snowflake Context Diagnostic
+# MAGIC
+# MAGIC Temporary diagnostic cell: run before the validation loop to confirm the active Snowflake user, role, database, schema, warehouse, and whether each configured view is visible to the connector context.
+
+# COMMAND ----------
+def _extract_source_object(sql: str):
+    """Best-effort extraction of the first object after FROM for diagnostics."""
+    tokens = sql.replace("\n", " ").replace("\t", " ").split()
+    for idx, token in enumerate(tokens):
+        if token.lower() == "from" and idx + 1 < len(tokens):
+            return tokens[idx + 1].strip('`";,()')
+    return None
+
+def _split_object_name(db: str, schema: str, object_name: str):
+    parts = [part.strip('`"') for part in object_name.split(".")]
+    if len(parts) == 3:
+        return parts[0], parts[1], parts[2]
+    if len(parts) == 2:
+        return db, parts[0], parts[1]
+    return db, schema, parts[0]
+
+def run_context_diagnostic(source_key: str, cfg: dict):
+    """Print Snowflake context and object visibility for a configured source."""
+    db, schema, sql = cfg["db"], cfg["schema"], cfg["sql"]
+    source_object = _extract_source_object(sql)
+    if not source_object:
+        print(f"  ⚠️  {source_key}: Could not detect a FROM object for diagnostics")
+        return None
+
+    obj_db, obj_schema, obj_name = _split_object_name(db, schema, source_object)
+    diag_sql = f"""
+        SELECT
+            CURRENT_USER() AS current_user,
+            CURRENT_ROLE() AS current_role,
+            CURRENT_DATABASE() AS current_database,
+            CURRENT_SCHEMA() AS current_schema,
+            CURRENT_WAREHOUSE() AS current_warehouse,
+            '{obj_db}' AS requested_database,
+            '{obj_schema}' AS requested_schema,
+            '{obj_name}' AS requested_object,
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM INFORMATION_SCHEMA.VIEWS
+                    WHERE TABLE_SCHEMA = UPPER('{obj_schema}')
+                      AND TABLE_NAME = UPPER('{obj_name}')
+                ) THEN 'FOUND_IN_CURRENT_DATABASE'
+                ELSE 'NOT_FOUND_OR_NOT_AUTHORIZED_IN_CURRENT_DATABASE'
+            END AS current_database_view_visibility
+    """
+    print(f"\nDiagnostic — {source_key}: {source_object}")
+    diag_df = run_sql(obj_db, obj_schema, diag_sql)
+    diag_df.show(truncate=False)
+    return diag_df
+
+for source_key, cfg in defined.items():
+    try:
+        run_context_diagnostic(source_key, cfg)
+    except Exception as e:
+        print(f"\nDiagnostic — {source_key}: FAILED")
+        print(f"  {str(e)[:500]}")
+
 results = {}
 
 for source_key, cfg in defined.items():
@@ -204,11 +269,13 @@ for source_key, cfg in defined.items():
         print(f"  ❌ Step 1 — FAILED")
         print(f"     {err_msg[:300]}")
         if "does not exist or not authorized" in err_msg:
-            print(f"\n  💡 Tip: Check that the view name is correct and")
-            print(f"     does NOT include the database prefix in the SQL.")
-            print(f"     ✅ FROM VW_MKT_ECOMM        (just the view name)")
-            print(f"     ✅ FROM MDP_DSP.VW_MKT_ECOMM (schema.view for cross-schema)")
-            print(f"     ❌ FROM PRD_MDP.MDP_DSP.VW_MKT_ECOMM (db prefix not allowed here)")
+            print(f"\n  💡 Tip: Validate the active Snowflake context and grants.")
+            print(f"     Current connector role: {SF_ROLE} | user: {user} | db: {db} | schema: {schema}")
+            print(f"     Confirm the view exists and this role is authorized to access it.")
+            print(f"     Try the object format that matches your context:")
+            print(f"     ✅ FROM VW_MKT_ECOMM")
+            print(f"     ✅ FROM MDP_DSP.VW_MKT_ECOMM")
+            print(f"     ✅ FROM PRD_MDP.MDP_DSP.VW_MKT_ECOMM")
         results[source_key] = res
         continue
 
@@ -435,7 +502,7 @@ scorecard_md = "\n".join([
 
 md = f"""# Phase 1 — Source Discovery & Validation
 
-**Generated:** {RUN_AT}  |  **Snowflake:** `{SF_URL}`  |  **Warehouse:** `{SF_WAREHOUSE}`
+**Generated:** {RUN_AT}  |  **Snowflake:** `{SF_URL}`  |  **Warehouse:** `{SF_WAREHOUSE}`  |  **Role:** `{SF_ROLE}`
 **Sources profiled:** {len(results)}/10  |  **Pending:** {len(undefined)}/10
 
 ## Scorecard
