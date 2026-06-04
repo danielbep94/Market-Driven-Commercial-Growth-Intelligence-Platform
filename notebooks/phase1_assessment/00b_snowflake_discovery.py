@@ -12,6 +12,7 @@
 # MAGIC If data discovery reports a query-related read issue while using role `PRD_MDP`, the likely cause is that the underlying table/view was created under a different user and needs to be recreated manually so the connector role can read it. Do not switch to `PRD_MDP_READER`; it uses a different permission model.
 
 # COMMAND ----------
+
 # MAGIC %md ## ─── EDIT THIS SECTION ──────────────────────────────────────────
 # MAGIC
 # MAGIC Each source is a dict with:
@@ -22,6 +23,7 @@
 # MAGIC Set value to `None` for sources not yet ready.
 
 # COMMAND ----------
+
 SOURCES = {
 
     # ── 1 · Investment / Marketing ──────────────────────────────────────────
@@ -49,7 +51,11 @@ SOURCES = {
     "DATA_SELL_OUT": None,
 
     # ── 4 · Waste / Merma ────────────────────────────────────────────────────
-    "DATA_WASTE": None,
+    "DATA_WASTE": {
+        "db":     "PRD_MDP",
+        "schema": "MDP_DSP",
+        "sql":    "SELECT * FROM PRD_MDP.MDP_STG.VW_WASTE",
+    },
 
     # ── 5 · Demand Forecast ──────────────────────────────────────────────────
     "DATA_FORECAST": None,
@@ -84,12 +90,15 @@ DOMAIN_LABELS = {
 }
 
 # COMMAND ----------
+
 # MAGIC %md ## ─── DO NOT EDIT BELOW ───────────────────────────────────────────
 
 # COMMAND ----------
+
 # MAGIC %md ## Connection
 
 # COMMAND ----------
+
 KEYVAULT_NAME = "DAN-AM-P-KVT800-R-MDP-DB"
 KEY_NAME_USR  = "snowflake-user"
 KEY_NAME_PWD  = "snowflake-password"
@@ -215,10 +224,13 @@ def analyze_column_names(columns: list) -> dict:
         "special_character_columns": [c for c in columns if special_pattern.search(str(c))],
         "punctuation_only_columns": [c for c in columns if not alnum_pattern.search(str(c))],
     }
+
 # COMMAND ----------
+
 # MAGIC %md ## Validate All Defined Sources
 
 # COMMAND ----------
+
 defined   = {k: v for k, v in SOURCES.items() if v is not None}
 undefined = {k: v for k, v in SOURCES.items() if v is None}
 
@@ -228,11 +240,13 @@ if undefined:
     print(f"  Pending: {', '.join(undefined.keys())}")
 
 # COMMAND ----------
+
 # MAGIC %md ## Snowflake Context Diagnostic
 # MAGIC
 # MAGIC Temporary diagnostic cell: run before the validation loop to confirm the active Snowflake user, role, database, schema, warehouse, and whether each configured view is visible to the connector context.
 
 # COMMAND ----------
+
 def _strip_sql_comments(sql: str) -> str:
     """Remove basic SQL comments before lightweight diagnostic parsing."""
     sql = re.sub(r"/\*.*?\*/", " ", str(sql), flags=re.S)
@@ -616,9 +630,11 @@ for source_key, cfg in defined.items():
     df.unpersist()
 
 # COMMAND ----------
+
 # MAGIC %md ## Summary
 
 # COMMAND ----------
+
 print("\n" + "═" * 70)
 print("SUMMARY SCORECARD")
 print("═" * 70)
@@ -631,9 +647,11 @@ for key in undefined:
     print(f"  {key:<18} {DOMAIN_LABELS.get(key,key):<28} {'':>12}  {'':>6}  ⏳ TBD")
 
 # COMMAND ----------
+
 # MAGIC %md ## Write Output File
 
 # COMMAND ----------
+
 sections = ""
 for key, res in results.items():
     if res["status"] == "ERROR":
