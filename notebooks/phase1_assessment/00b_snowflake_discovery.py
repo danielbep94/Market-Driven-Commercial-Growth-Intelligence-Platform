@@ -2,33 +2,49 @@
 # MAGIC %md
 # MAGIC # 00b · Source Discovery & Validation
 # MAGIC
-# MAGIC **Pattern:** You define the SQL — the notebook profiles whatever comes back.
+# MAGIC ## Rule for SQL definitions
+# MAGIC The Snowflake Spark connector does **NOT** support `DATABASE.SCHEMA.TABLE` inside the SQL string.
+# MAGIC - ✅ Correct: `SELECT * FROM VW_MKT_ECOMM WHERE anio >= 2024`
+# MAGIC - ✅ Correct: `SELECT * FROM MDP_DSP.VW_MKT_ECOMM WHERE anio >= 2024`  ← cross-schema JOIN
+# MAGIC - ❌ Wrong:  `SELECT * FROM PRD_MDP.MDP_DSP.VW_MKT_ECOMM WHERE anio >= 2024`
 # MAGIC
-# MAGIC ## How to use
-# MAGIC 1. Fill in the `SOURCES` dictionary below with your SQL definitions
-# MAGIC 2. Leave `None` for sources not yet defined — notebook skips them with a flag
-# MAGIC 3. Run All
-# MAGIC 4. Review the output printed here
-# MAGIC 5. Commit `docs/phase_outputs/phase1_data_inventory.md` and push
-# MAGIC 6. Tell the agent: **"discovery done, inventory committed"**
-# MAGIC
-# MAGIC The agent reads the inventory and generates Bronze DDL + data contracts per source.
+# MAGIC The database goes in the `"db"` key. The SQL uses `SCHEMA.TABLE` or just `TABLE`.
 
 # COMMAND ----------
-# MAGIC %md ## ─── EDIT THIS SECTION ─────────────────────────────────────────
-# MAGIC Add or update SQL definitions below. Leave `None` for sources not ready yet.
+# MAGIC %md ## ─── EDIT THIS SECTION ──────────────────────────────────────────
+# MAGIC
+# MAGIC Each source is a dict with:
+# MAGIC - `"db"`:     Snowflake database (e.g. `"PRD_MDP"`)
+# MAGIC - `"schema"`: Default schema for this source (e.g. `"MDP_DSP"`)
+# MAGIC - `"sql"`:    Query — use `TABLE` or `SCHEMA.TABLE`, never `DB.SCHEMA.TABLE`
+# MAGIC
+# MAGIC Set value to `None` for sources not yet ready.
 
 # COMMAND ----------
-
 SOURCES = {
+
     # ── 1 · Investment / Marketing ──────────────────────────────────────────
-    "DATA_MKT":
-        "SELECT * FROM PRD_MDP.MDP_DSP.VW_MKT_ECOMM WHERE anio >= 2024",
+    "DATA_MKT": {
+        "db":     "PRD_MDP",
+        "schema": "MDP_DSP",
+        "sql":    "SELECT * FROM VW_MKT_ECOMM WHERE anio >= 2024",
+    },
 
     # ── 2 · Sell-In ──────────────────────────────────────────────────────────
-    "DATA_SELL_IN": None,          # ← paste your SQL when ready
+    "DATA_SELL_IN": None,   # ← replace None with dict when ready
 
     # ── 3 · Sell-Out ─────────────────────────────────────────────────────────
+    # Example with cross-schema JOIN:
+    # "DATA_SELL_OUT": {
+    #     "db":     "PRD_MDP",
+    #     "schema": "MDP_DSP",
+    #     "sql":    """
+    #         SELECT a.*, b.canal
+    #         FROM VW_PDV a
+    #         JOIN OTHER_SCHEMA.VW_CHANNEL b ON a.id = b.id
+    #         WHERE a.anio >= 2024
+    #     """,
+    # },
     "DATA_SELL_OUT": None,
 
     # ── 4 · Waste / Merma ────────────────────────────────────────────────────
@@ -53,7 +69,6 @@ SOURCES = {
     "DATA_CALENDAR": None,
 }
 
-# ── Domain labels (for the output report) ────────────────────────────────────
 DOMAIN_LABELS = {
     "DATA_MKT":       "Investment / Marketing",
     "DATA_SELL_IN":   "Sell-In",
@@ -67,7 +82,8 @@ DOMAIN_LABELS = {
     "DATA_CALENDAR":  "Calendar / Date Dimension",
 }
 
-# MAGIC %md ## ─── DO NOT EDIT BELOW THIS LINE ──────────────────────────────
+# COMMAND ----------
+# MAGIC %md ## ─── DO NOT EDIT BELOW ───────────────────────────────────────────
 
 # COMMAND ----------
 # MAGIC %md ## Connection
@@ -78,10 +94,6 @@ KEY_NAME_USR  = "snowflake-user"
 KEY_NAME_PWD  = "snowflake-password"
 SF_URL        = "danonenam.east-us-2.azure.snowflakecomputing.com"
 SF_WAREHOUSE  = "PRD_MDP_ANL_WH"
-
-# Default context — fully-qualified SQL in SOURCES can override this
-DEFAULT_DB     = "PRD_MDP"
-DEFAULT_SCHEMA = "MDP_DSP"
 
 try:
     user     = dbutils.secrets.get(scope=KEYVAULT_NAME, key=KEY_NAME_USR)
@@ -96,36 +108,36 @@ except Exception as e:
 
 from datetime import datetime
 import pyspark.sql.functions as F
-from pyspark.sql.types import NumericType, DateType, TimestampType
+from pyspark.sql.types import NumericType
 
 RUN_AT      = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 OUTPUT_FILE = "docs/phase_outputs/phase1_data_inventory.md"
 
-# Base Snowflake connector options
-BASE_OPTS = {
-    "sfURL":       SF_URL,
-    "sfUser":      user,
-    "sfPassword":  password,
-    "sfDatabase":  DEFAULT_DB,
-    "sfSchema":    DEFAULT_SCHEMA,
-    "sfWarehouse": SF_WAREHOUSE,
-}
+def get_sf_opts(db: str, schema: str) -> dict:
+    """Build Snowflake connector options for a specific db + schema."""
+    return {
+        "sfURL":       SF_URL,
+        "sfUser":      user,
+        "sfPassword":  password,
+        "sfDatabase":  db,
+        "sfSchema":    schema,
+        "sfWarehouse": SF_WAREHOUSE,
+    }
 
-def run_source_sql(sql: str):
-    """Execute any SQL (can reference any fully-qualified Snowflake table/view)."""
+def run_sql(db: str, schema: str, sql: str):
+    """
+    Execute SQL against Snowflake.
+    SQL must NOT contain fully-qualified DB.SCHEMA.TABLE references.
+    Use SCHEMA.TABLE or just TABLE — the db/schema are set in connector options.
+    """
     return spark.read.format("snowflake") \
-               .options(**BASE_OPTS) \
-               .option("query", sql) \
+               .options(**get_sf_opts(db, schema)) \
+               .option("query", sql.strip()) \
                .load()
 
-def detect_date_col(columns: list) -> str | None:
-    """
-    Auto-detect the temporal column.
-    Priority: anio > año > year > periodo > fecha > date > timestamp columns.
-    Returns column name or None.
-    """
+def detect_date_col(columns: list):
     priority = ["anio", "año", "year", "yr", "periodo", "period",
-                "fecha", "fecha_proceso", "fecha_venta",
+                "fecha", "fecha_proceso", "fecha_venta", "fecha_cierre",
                 "date", "dt", "week", "semana", "mes", "month"]
     col_lower = {c.lower(): c for c in columns}
     for p in priority:
@@ -133,24 +145,20 @@ def detect_date_col(columns: list) -> str | None:
             return col_lower[p]
     return None
 
-def score_source(null_flags, has_date, has_numeric, dup_pct) -> int:
-    """
-    Compute 0-100 readiness score.
-    Completeness 25 | Temporal 25 | Volume 25 | Cardinality/Dups 25
-    """
-    # Completeness: deduct 5 per HIGH null, 2 per WARN null
-    high_nulls = sum(1 for f in null_flags if "HIGH" in f)
-    warn_nulls = sum(1 for f in null_flags if "WARN" in f)
-    completeness = max(0, 25 - (high_nulls * 5) - (warn_nulls * 2))
+def readiness_score(null_results, has_date, has_numeric, dup_pct) -> int:
+    high  = sum(1 for n in null_results if "HIGH" in n["flag"])
+    warn  = sum(1 for n in null_results if "WARN" in n["flag"])
+    comp  = max(0, 25 - high * 5 - warn * 2)
+    temp  = 25 if has_date  else 5
+    vol   = 25 if has_numeric else 15
+    card  = max(0, 25 - min(25, int(dup_pct / 2)))
+    return comp + temp + vol + card
 
-    temporal   = 25 if has_date else 5
-    volume     = 25 if has_numeric else 15
-    cardinality = max(0, 25 - min(25, int(dup_pct / 2)))  # -2 per 1% duplicates
-
-    return completeness + temporal + volume + cardinality
+def score_label(s):
+    return "🟢 READY" if s >= 80 else ("🟡 CONDITIONAL" if s >= 60 else "🔴 NOT READY")
 
 # COMMAND ----------
-# MAGIC %md ## Run Validation Per Source
+# MAGIC %md ## Validate All Defined Sources
 
 # COMMAND ----------
 defined   = {k: v for k, v in SOURCES.items() if v is not None}
@@ -160,59 +168,56 @@ print(f"Sources defined:   {len(defined)}/10")
 print(f"Sources pending:   {len(undefined)}/10")
 if undefined:
     print(f"  Pending: {', '.join(undefined.keys())}")
-print()
 
-results = {}   # key → validation result dict
+results = {}
 
-for source_key, sql in defined.items():
+for source_key, cfg in defined.items():
     label = DOMAIN_LABELS.get(source_key, source_key)
+    db, schema, sql = cfg["db"], cfg["schema"], cfg["sql"]
+
     print("\n" + "═" * 70)
     print(f"  {source_key}  —  {label}")
     print("═" * 70)
-    print(f"  SQL: {sql[:120]}{'...' if len(sql) > 120 else ''}\n")
+    print(f"  db={db}  schema={schema}")
+    print(f"  SQL: {sql.strip()[:100]}{'...' if len(sql.strip()) > 100 else ''}\n")
 
     res = {
-        "key":         source_key,
-        "label":       label,
-        "sql":         sql,
-        "status":      "OK",
-        "total_rows":  0,
-        "total_cols":  0,
-        "schema_rows": [],
-        "null_results":[],
-        "date_col":    None,
-        "date_min":    None,
-        "date_max":    None,
-        "date_distinct":None,
-        "cardinality": {},
-        "numeric_stats":[],
-        "dup_count":   0,
-        "dup_pct":     0.0,
-        "score":       0,
-        "errors":      [],
-        "sample_rows": [],
+        "key": source_key, "label": label, "db": db, "schema": schema, "sql": sql,
+        "status": "OK", "total_rows": 0, "total_cols": 0,
+        "schema_rows": [], "null_results": [], "date_col": None,
+        "date_min": None, "date_max": None, "date_distinct": None,
+        "cardinality": {}, "numeric_stats": [],
+        "dup_count": 0, "dup_pct": 0.0, "score": 0,
+        "errors": [], "sample_rows": [],
     }
 
-    # ── Step 1: Execute & Count ───────────────────────────────────────────────
+    # ── Step 1: Execute ───────────────────────────────────────────────────────
     try:
-        df = run_source_sql(sql)
+        df = run_sql(db, schema, sql)
         res["total_rows"] = df.count()
         res["total_cols"] = len(df.columns)
-        print(f"  ✅ Step 1 — Executed  |  Rows: {res['total_rows']:,}  |  Cols: {res['total_cols']}")
+        print(f"  ✅ Step 1 — OK  |  Rows: {res['total_rows']:,}  |  Cols: {res['total_cols']}")
     except Exception as e:
+        err_msg = str(e)
         res["status"] = "ERROR"
-        res["errors"].append(f"SQL execution failed: {str(e)[:200]}")
-        print(f"  ❌ Step 1 — SQL FAILED: {str(e)[:200]}")
+        res["errors"].append(err_msg[:300])
+        print(f"  ❌ Step 1 — FAILED")
+        print(f"     {err_msg[:300]}")
+        if "does not exist or not authorized" in err_msg:
+            print(f"\n  💡 Tip: Check that the view name is correct and")
+            print(f"     does NOT include the database prefix in the SQL.")
+            print(f"     ✅ FROM VW_MKT_ECOMM        (just the view name)")
+            print(f"     ✅ FROM MDP_DSP.VW_MKT_ECOMM (schema.view for cross-schema)")
+            print(f"     ❌ FROM PRD_MDP.MDP_DSP.VW_MKT_ECOMM (db prefix not allowed here)")
         results[source_key] = res
         continue
 
-    # ── Step 2: Schema Snapshot ───────────────────────────────────────────────
-    print(f"\n  Step 2 — Schema")
+    # ── Step 2: Schema ────────────────────────────────────────────────────────
+    print(f"\n  Step 2 — Schema ({res['total_cols']} columns)")
     print(f"  {'Column':<45} {'Type':<25} Nullable")
     print("  " + "─" * 75)
     for field in df.schema.fields:
-        nullable = "NULL" if field.nullable else "NOT NULL"
-        print(f"  {field.name:<45} {str(field.dataType):<25} {nullable}")
+        print(f"  {field.name:<45} {str(field.dataType):<25} {'NULL' if field.nullable else 'NOT NULL'}")
         res["schema_rows"].append({
             "name": field.name, "type": str(field.dataType), "nullable": field.nullable
         })
@@ -225,99 +230,89 @@ for source_key, sql in defined.items():
         null_pct   = round(null_count / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0
         flag = "⚠️  HIGH" if null_pct > 5 else ("🔶 WARN" if null_pct > 1 else "✅  OK")
         null_flags.append(flag)
-        if null_pct > 1:  # Only print non-zero to keep output clean
+        if null_pct > 0:
             print(f"    {col:<45} {null_pct:>6.2f}%  {flag}")
         res["null_results"].append({"col": col, "null_count": null_count, "null_pct": null_pct, "flag": flag})
     ok_count = sum(1 for f in null_flags if "OK" in f)
-    print(f"  → {ok_count}/{len(df.columns)} columns fully populated")
+    print(f"  → {ok_count}/{len(df.columns)} columns fully populated  |  {len(df.columns)-ok_count} with nulls")
 
-    # ── Step 4: Date / Year Coverage ─────────────────────────────────────────
+    # ── Step 4: Temporal Coverage ─────────────────────────────────────────────
     print(f"\n  Step 4 — Temporal Coverage")
     date_col = detect_date_col(df.columns)
     res["date_col"] = date_col
     if date_col:
-        try:
-            date_stats = df.agg(
-                F.min(date_col).alias("min"),
-                F.max(date_col).alias("max"),
-                F.countDistinct(date_col).alias("distinct")
-            ).collect()[0]
-            res["date_min"]      = str(date_stats["min"])
-            res["date_max"]      = str(date_stats["max"])
-            res["date_distinct"] = date_stats["distinct"]
-            print(f"  Date column: {date_col}")
-            print(f"    Range:    {res['date_min']} → {res['date_max']}")
-            print(f"    Distinct: {res['date_distinct']:,} periods")
-        except Exception as e:
-            print(f"    ⚠️  Could not compute date stats: {str(e)[:100]}")
+        stats = df.agg(
+            F.min(date_col).alias("min"),
+            F.max(date_col).alias("max"),
+            F.countDistinct(date_col).alias("distinct")
+        ).collect()[0]
+        res["date_min"] = str(stats["min"])
+        res["date_max"] = str(stats["max"])
+        res["date_distinct"] = stats["distinct"]
+        print(f"  Date column: '{date_col}'")
+        print(f"    Range:   {res['date_min']} → {res['date_max']}")
+        print(f"    Periods: {res['date_distinct']:,} distinct values")
     else:
-        print(f"  ⚠️  No date column detected (looked for anio, fecha, periodo, date, etc.)")
+        print(f"  ⚠️  No date column auto-detected")
+        print(f"     Columns available: {', '.join(df.columns[:15])}")
 
-    # ── Step 5: Key Field Cardinality ────────────────────────────────────────
-    print(f"\n  Step 5 — Cardinality (join key candidates)")
-    id_keywords = ["marca", "brand", "cliente", "customer", "canal", "channel",
-                   "sku", "producto", "product", "categoria", "category",
-                   "mercado", "market", "region", "zona", "zone"]
-    found_keys = [c for c in df.columns if any(k in c.lower() for k in id_keywords)]
-    for col in found_keys[:8]:  # max 8 key columns
-        try:
-            n = df.select(col).distinct().count()
-            res["cardinality"][col] = n
-            print(f"    {col:<45} {n:>8,} distinct values")
-        except:
-            pass
-    if not found_keys:
-        print(f"    ⚠️  No obvious key columns found — review column list manually")
+    # ── Step 5: Cardinality ───────────────────────────────────────────────────
+    print(f"\n  Step 5 — Key Cardinality")
+    id_kw = ["marca", "brand", "cliente", "customer", "canal", "channel",
+             "sku", "producto", "product", "categoria", "category",
+             "mercado", "market", "region", "zona", "zone", "negocio"]
+    key_cols = [c for c in df.columns if any(k in c.lower() for k in id_kw)]
+    for col in key_cols[:8]:
+        n = df.select(col).distinct().count()
+        res["cardinality"][col] = n
+        print(f"    {col:<45} {n:>8,} distinct")
+    if not key_cols:
+        print(f"  ℹ️  No key columns auto-detected — review schema above")
 
-    # ── Step 6: Numeric Volume Stats ─────────────────────────────────────────
-    print(f"\n  Step 6 — Numeric Volume Checks")
-    num_keywords = ["ventas", "sales", "units", "unidades", "revenue", "ingreso",
-                    "inversion", "spend", "monto", "amount", "qty", "cantidad",
-                    "waste", "merma", "stock", "inv", "precio", "price"]
+    # ── Step 6: Numeric Stats ─────────────────────────────────────────────────
+    print(f"\n  Step 6 — Numeric Volume")
+    num_kw = ["ventas", "sales", "units", "unidades", "revenue", "ingreso",
+              "inversion", "spend", "monto", "amount", "qty", "cantidad",
+              "waste", "merma", "stock", "inv", "precio", "price", "costo", "cost"]
     num_cols = [
         f.name for f in df.schema.fields
         if isinstance(f.dataType, NumericType)
-        and any(k in f.name.lower() for k in num_keywords)
+        and any(k in f.name.lower() for k in num_kw)
     ]
-    has_numeric = False
-    for col in num_cols[:5]:  # max 5 numeric columns
-        try:
-            stats = df.agg(
-                F.min(col).alias("min"), F.max(col).alias("max"),
-                F.mean(col).alias("mean"), F.sum(col).alias("total")
-            ).collect()[0]
-            neg_count = df.filter(F.col(col) < 0).count()
-            neg_flag = f"  ⚠️  {neg_count:,} negatives!" if neg_count > 0 else ""
-            print(f"    {col:<40} min={stats['min']:>12,.1f}  max={stats['max']:>15,.1f}  total={stats['total']:>18,.0f}{neg_flag}")
-            res["numeric_stats"].append({
-                "col": col, "min": float(stats["min"] or 0),
-                "max": float(stats["max"] or 0), "total": float(stats["total"] or 0),
-                "negatives": neg_count
-            })
-            has_numeric = True
-        except:
-            pass
+    has_numeric = bool(num_cols)
+    for col in num_cols[:5]:
+        stats = df.agg(
+            F.min(col).alias("mn"), F.max(col).alias("mx"),
+            F.sum(col).alias("tot")
+        ).collect()[0]
+        negs = df.filter(F.col(col) < 0).count()
+        neg_flag = f"  ⚠️  {negs:,} negatives" if negs > 0 else ""
+        print(f"    {col:<40} min={float(stats['mn'] or 0):>15,.1f}  max={float(stats['mx'] or 0):>15,.1f}  total={float(stats['tot'] or 0):>18,.0f}{neg_flag}")
+        res["numeric_stats"].append({
+            "col": col, "min": float(stats["mn"] or 0),
+            "max": float(stats["mx"] or 0), "total": float(stats["tot"] or 0),
+            "negatives": negs
+        })
     if not num_cols:
-        print(f"    ℹ️  No obvious numeric metric columns detected")
+        print(f"  ℹ️  No numeric metric columns auto-detected")
 
     # ── Step 7: Duplicate Check ───────────────────────────────────────────────
-    print(f"\n  Step 7 — Duplicate Check")
-    natural_key = [date_col] + found_keys[:3] if date_col else found_keys[:4]
-    existing_key = [c for c in natural_key if c and c in df.columns]
-    if len(existing_key) >= 2:
-        deduped    = df.dropDuplicates(existing_key).count()
-        dup_count  = res["total_rows"] - deduped
-        dup_pct    = round(dup_count / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0
+    print(f"\n  Step 7 — Duplicates")
+    nat_key = ([date_col] if date_col else []) + key_cols[:3]
+    existing = [c for c in nat_key if c in df.columns]
+    if len(existing) >= 2:
+        deduped   = df.dropDuplicates(existing).count()
+        dup_count = res["total_rows"] - deduped
+        dup_pct   = round(dup_count / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0
         res["dup_count"] = dup_count
         res["dup_pct"]   = dup_pct
         flag = f"⚠️  {dup_count:,} duplicates ({dup_pct}%)" if dup_count > 0 else "✅  No duplicates"
-        print(f"    Key: {existing_key}")
-        print(f"    {flag}")
+        print(f"    Key: {existing}  →  {flag}")
     else:
-        print(f"    ⚠️  Not enough key columns to check duplicates (need ≥ 2)")
+        print(f"  ℹ️  Not enough key columns to auto-check (need ≥ 2)")
 
-    # ── Step 8: Sample Rows ───────────────────────────────────────────────────
-    print(f"\n  Step 8 — Sample (5 rows)")
+    # ── Step 8: Sample ────────────────────────────────────────────────────────
+    print(f"\n  Step 8 — Sample rows")
     sample = df.limit(5).collect()
     res["sample_rows"] = [r.asDict() for r in sample]
     if sample:
@@ -325,25 +320,17 @@ for source_key, sql in defined.items():
         for k, v in list(first.items())[:10]:
             print(f"    {k:<40} = {v}")
         if len(first) > 10:
-            print(f"    ... +{len(first) - 10} more columns")
+            print(f"    ... +{len(first)-10} more columns")
 
-    # ── Step 9: Readiness Score ───────────────────────────────────────────────
-    res["score"] = score_source(
-        null_flags = [n["flag"] for n in res["null_results"]],
-        has_date   = date_col is not None,
-        has_numeric= has_numeric,
-        dup_pct    = res["dup_pct"]
-    )
-    score = res["score"]
-    label_score = "🟢 READY" if score >= 80 else ("🟡 CONDITIONAL" if score >= 60 else "🔴 NOT READY")
+    # ── Score ─────────────────────────────────────────────────────────────────
+    res["score"] = readiness_score(res["null_results"], date_col is not None, has_numeric, res["dup_pct"])
     print(f"\n  {'─' * 68}")
-    print(f"  READINESS SCORE: {score}/100  {label_score}")
+    print(f"  READINESS: {res['score']}/100  {score_label(res['score'])}")
     print(f"  {'─' * 68}")
-
     results[source_key] = res
 
 # COMMAND ----------
-# MAGIC %md ## Summary Scorecard
+# MAGIC %md ## Summary
 
 # COMMAND ----------
 print("\n" + "═" * 70)
@@ -351,169 +338,138 @@ print("SUMMARY SCORECARD")
 print("═" * 70)
 print(f"  {'Source':<18} {'Domain':<28} {'Rows':>12}  {'Score':>6}  Status")
 print("  " + "─" * 70)
-
 for key, res in results.items():
-    label_score = "🟢 READY" if res["score"] >= 80 else ("🟡 CONDITIONAL" if res["score"] >= 60 else "🔴 NOT READY")
-    print(f"  {key:<18} {res['label']:<28} {res['total_rows']:>12,}  {res['score']:>5}/100  {label_score}")
-
+    status = "❌ ERROR" if res["status"] == "ERROR" else score_label(res["score"])
+    print(f"  {key:<18} {res['label']:<28} {res['total_rows']:>12,}  {res['score']:>5}/100  {status}")
 for key in undefined:
-    label = DOMAIN_LABELS.get(key, key)
-    print(f"  {key:<18} {label:<28} {'':>12}  {'':>6}  ⏳ TBD — SQL not yet defined")
+    print(f"  {key:<18} {DOMAIN_LABELS.get(key,key):<28} {'':>12}  {'':>6}  ⏳ TBD")
 
 # COMMAND ----------
 # MAGIC %md ## Write Output File
 
 # COMMAND ----------
-# ── Build markdown sections ───────────────────────────────────────────────────
-source_sections = ""
-
+sections = ""
 for key, res in results.items():
-    label_score = "🟢 READY" if res["score"] >= 80 else ("🟡 CONDITIONAL" if res["score"] >= 60 else "🔴 NOT READY")
+    if res["status"] == "ERROR":
+        sections += f"""
+---
+## {key} — {res['label']}
+**Status:** ❌ ERROR
+**SQL:** `{res['sql'].strip()[:200]}`
+**Error:** `{res['errors'][0][:300] if res['errors'] else 'Unknown'}`
+"""
+        continue
 
-    # Schema table
     schema_md = "\n".join([
         f"| `{r['name']}` | `{r['type']}` | {'✓' if r['nullable'] else '✗'} |"
         for r in res["schema_rows"]
     ])
-
-    # Null rates table
     null_md = "\n".join([
         f"| `{n['col']}` | {n['null_count']:,} | {n['null_pct']}% | {n['flag']} |"
-        for n in res["null_results"]
-    ])
-
-    # Cardinality table
+        for n in res["null_results"] if n["null_pct"] > 0
+    ]) or "_All columns fully populated ✅_"
     card_md = "\n".join([
-        f"| `{col}` | {n:,} |"
-        for col, n in res["cardinality"].items()
+        f"| `{col}` | {n:,} |" for col, n in res["cardinality"].items()
     ]) or "_No key columns auto-detected — fill in manually_"
-
-    # Numeric stats table
     num_md = "\n".join([
-        f"| `{s['col']}` | {s['min']:,.1f} | {s['max']:,.1f} | {s['total']:,.0f} | {'⚠️' if s['negatives'] > 0 else '✅'} |"
+        f"| `{s['col']}` | {s['min']:,.1f} | {s['max']:,.1f} | {s['total']:,.0f} | {'⚠️' if s['negatives']>0 else '✅'} |"
         for s in res["numeric_stats"]
-    ]) or "_No numeric metric columns auto-detected_"
+    ]) or "_No numeric columns auto-detected_"
 
-    source_sections += f"""
+    sections += f"""
 ---
 
 ## {key} — {res['label']}
 
-**Readiness Score:** {res['score']}/100 {label_score}
-**Rows:** {res['total_rows']:,}  |  **Columns:** {res['total_cols']}
+| | |
+|--|--|
+| **Readiness** | {res['score']}/100 {score_label(res['score'])} |
+| **Database** | `{res['db']}` |
+| **Schema** | `{res['schema']}` |
+| **Rows** | {res['total_rows']:,} |
+| **Columns** | {res['total_cols']} |
+| **Date column** | `{res['date_col'] or 'NOT DETECTED'}` |
+| **Date range** | {res['date_min'] or 'N/A'} → {res['date_max'] or 'N/A'} ({res['date_distinct'] or 'N/A'} periods) |
+| **Duplicates** | {res['dup_count']:,} ({res['dup_pct']}%) |
+
 **SQL:**
 ```sql
-{res['sql']}
+{res['sql'].strip()}
 ```
 
-**Date column detected:** `{res['date_col'] or 'NONE — fill in manually'}`
-**Date range:** {res['date_min'] or 'N/A'} → {res['date_max'] or 'N/A'} ({res['date_distinct'] or 'N/A'} distinct periods)
-**Duplicates:** {res['dup_count']:,} ({res['dup_pct']}%)
-
 ### Schema
-
 | Column | Type | Nullable |
 |--------|------|---------|
 {schema_md}
 
-### Null Rates
-
-| Column | Null Count | Null % | Status |
-|--------|-----------|--------|--------|
+### Null Rates (non-zero only)
 {null_md}
 
 ### Key Field Cardinality
-
-| Column | Distinct Values |
-|--------|----------------|
+| Column | Distinct |
+|--------|---------|
 {card_md}
 
-### Numeric Volume Stats
-
+### Numeric Volume
 | Column | Min | Max | Total | Negatives? |
 |--------|-----|-----|-------|-----------|
 {num_md}
 
-### Open Items — Fill in After Reviewing
-
-- [ ] Are all expected columns present?
+### Open Items — fill in after reviewing
 - [ ] Is the date range correct for this source?
-- [ ] Are the key field cardinalities plausible?
-- [ ] Are there any negative values that need explanation?
-- [ ] What is the natural/business key for this source? (for dedup + joins)
-- [ ] Does this source need a JOIN with another view? If so, which one?
+- [ ] Are the key cardinalities plausible?
+- [ ] What is the business natural key for deduplication?
+- [ ] Does this source need a JOIN with another view?
+- [ ] Are there any negative numeric values that need explanation?
 
 """
 
-# Pending sources section
 pending_md = "\n".join([
-    f"| `{key}` | {DOMAIN_LABELS.get(key, key)} | SQL not yet defined |"
-    for key in undefined
+    f"| `{k}` | {DOMAIN_LABELS.get(k,k)} | SQL not yet defined |"
+    for k in undefined
 ])
-
-# Scorecard table
 scorecard_md = "\n".join([
-    f"| `{key}` | {res['label']} | {res['total_rows']:,} | {res['score']}/100 | {'🟢 READY' if res['score'] >= 80 else ('🟡 CONDITIONAL' if res['score'] >= 60 else '🔴 NOT READY')} |"
-    for key, res in results.items()
+    f"| `{k}` | {res['label']} | {res['total_rows']:,} | {res['score']}/100 | {'❌ ERROR' if res['status']=='ERROR' else score_label(res['score'])} |"
+    for k, res in results.items()
 ])
 
-output_md = f"""# Phase 1 — Source Discovery & Validation
+md = f"""# Phase 1 — Source Discovery & Validation
 
-**Generated:** {RUN_AT}
-**Snowflake:** `{SF_URL}`
-**Warehouse:** `{SF_WAREHOUSE}`
-**Sources defined:** {len(defined)}/10
-**Sources pending:** {len(undefined)}/10
-
----
+**Generated:** {RUN_AT}  |  **Snowflake:** `{SF_URL}`  |  **Warehouse:** `{SF_WAREHOUSE}`
+**Sources profiled:** {len(results)}/10  |  **Pending:** {len(undefined)}/10
 
 ## Scorecard
 
-| Source Key | Domain | Rows | Score | Status |
-|------------|--------|------|-------|--------|
+| Source | Domain | Rows | Score | Status |
+|--------|--------|------|-------|--------|
 {scorecard_md}
 
----
+## Pending Sources
 
-## Pending Sources (SQL not yet defined)
+| Source | Domain | Status |
+|--------|--------|--------|
+{pending_md or "_None — all sources defined ✅_"}
 
-| Source Key | Domain | Status |
-|------------|--------|--------|
-{pending_md if pending_md else "_All sources defined ✅_"}
-
-{source_sections}
+{sections}
 
 ---
 
 ## Next Step
 
-1. Fill in all **Open Items** sections above
-2. Add missing SQL definitions to the `SOURCES` dict and re-run for any pending sources
-3. Commit and push this file:
-   ```
-   git add docs/phase_outputs/phase1_data_inventory.md
-   git commit -m "data: source discovery and validation — {len(defined)}/10 sources"
-   git push origin main
-   ```
-4. Tell the agent: **"discovery done, inventory committed"**
-
-The agent reads this file and generates:
-- Bronze extraction SQL per source
-- Data contracts (column types, nullable rules, expected row ranges)
-- DQ threshold YAML entries
-- Silver transformation logic
+1. Fill in **Open Items** above for each source
+2. Add SQL for pending sources and re-run
+3. `git add docs/phase_outputs/phase1_data_inventory.md`
+4. `git commit -m "data: source discovery {len(results)}/10 sources profiled"`
+5. `git push origin main`
+6. Tell the agent: **"discovery done, inventory committed"**
 """
 
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-    f.write(output_md)
+    f.write(md)
 
-print(f"\n{'═' * 70}")
-print(f"✅ Inventory written to: {OUTPUT_FILE}")
-print(f"{'═' * 70}")
-print(f"")
-print(f"Next steps on your work computer:")
-print(f"  git add docs/phase_outputs/phase1_data_inventory.md")
-print(f"  git commit -m \"data: source discovery {len(defined)}/10 sources\"")
-print(f"  git push origin main")
-print(f"")
-print(f"Then tell the agent: \"discovery done, inventory committed\"")
+print(f"\n{'═'*70}")
+print(f"✅ Output written: {OUTPUT_FILE}")
+print(f"{'═'*70}")
+print("\ngit add docs/phase_outputs/phase1_data_inventory.md")
+print('git commit -m "data: source discovery"')
+print("git push origin main")
