@@ -109,14 +109,46 @@ except Exception as e:
     print(f"🚨 Secret error: {e}")
 
 from datetime import datetime
+import re
+from collections import Counter
 import pyspark.sql.functions as F
 from pyspark.sql.types import NumericType
 
 RUN_AT      = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 OUTPUT_FILE = "docs/phase_outputs/phase1_data_inventory.md"
 
+def qcol(name: str):
+    """Safely reference a Spark DataFrame column by its exact name.
+
+    Spark treats dots in bare strings as nested-field navigation. Wrapping the
+    escaped name in backticks forces exact column resolution for names containing
+    dots, percent signs, parentheses, spaces, quotes/backticks, or mixed casing.
+    """
+    return F.col(f"`{str(name).replace('`', '``')}`")
+
+def agg_alias(prefix: str, idx: int) -> str:
+    """Create simple aggregate aliases that cannot be confused with source names."""
+    return f"__{prefix}_{idx}"
+
+def sql_literal(value) -> str:
+    """Safely quote a scalar value for Snowflake diagnostic SQL."""
+    if value is None:
+        return "NULL"
+    return "'" + str(value).replace("'", "''") + "'"
+
+def quote_snowflake_ident(identifier: str) -> str:
+    """Safely quote one Snowflake identifier part for diagnostics."""
+    return '"' + str(identifier).replace('"', '""') + '"'
+
+def quote_snowflake_object(*parts: str) -> str:
+    """Safely quote a Snowflake object path such as DB.SCHEMA.OBJECT."""
+    return ".".join(quote_snowflake_ident(part) for part in parts if part)
+
 def get_sf_opts(db: str, schema: str) -> dict:
     """Build Snowflake connector options for a specific db + schema."""
+    missing = [name for name, value in {"db": db, "schema": schema}.items() if not value]
+    if missing:
+        raise ValueError(f"Missing required Snowflake config key(s): {', '.join(missing)}")
     return {
         "sfURL":       SF_URL,
         "sfUser":      user,
@@ -127,22 +159,32 @@ def get_sf_opts(db: str, schema: str) -> dict:
         "sfRole":      SF_ROLE,
     }
 
+def validate_source_config(source_key: str, cfg: dict):
+    """Fail fast on incomplete source definitions instead of surfacing opaque connector errors."""
+    if not isinstance(cfg, dict):
+        raise ValueError(f"{source_key}: source config must be a dict or None")
+    missing = [key for key in ("db", "schema", "sql") if not cfg.get(key)]
+    if missing:
+        raise ValueError(f"{source_key}: missing required config key(s): {', '.join(missing)}")
+
 def run_sql(db: str, schema: str, sql: str):
     """
     Execute SQL against Snowflake using the requested database/schema/role context.
     SQL may use TABLE, SCHEMA.TABLE, or DB.SCHEMA.TABLE depending on
     how Snowflake resolves the object for the active user and role.
     """
+    if not sql or not str(sql).strip():
+        raise ValueError("SQL query is empty")
     return spark.read.format("snowflake") \
                .options(**get_sf_opts(db, schema)) \
-               .option("query", sql.strip()) \
+               .option("query", str(sql).strip()) \
                .load()
 
 def detect_date_col(columns: list):
     priority = ["anio", "año", "year", "yr", "periodo", "period",
                 "fecha", "fecha_proceso", "fecha_venta", "fecha_cierre",
                 "date", "dt", "week", "semana", "mes", "month"]
-    col_lower = {c.lower(): c for c in columns}
+    col_lower = {c.strip().lower(): c for c in columns if isinstance(c, str)}
     for p in priority:
         if p in col_lower:
             return col_lower[p]
@@ -160,6 +202,19 @@ def readiness_score(null_results, has_date, has_numeric, dup_pct) -> int:
 def score_label(s):
     return "🟢 READY" if s >= 80 else ("🟡 CONDITIONAL" if s >= 60 else "🔴 NOT READY")
 
+def analyze_column_names(columns: list) -> dict:
+    """Detect column-name risks that commonly break dynamic Spark references."""
+    counts = Counter(columns)
+    lower_counts = Counter(str(c).lower() for c in columns)
+    special_pattern = re.compile(r"[^A-Za-z0-9_]")
+    alnum_pattern = re.compile(r"[A-Za-z0-9]")
+    return {
+        "duplicate_columns": [c for c, n in counts.items() if n > 1],
+        "case_insensitive_duplicates": [c for c, n in lower_counts.items() if n > 1],
+        "leading_trailing_space_columns": [c for c in columns if str(c) != str(c).strip()],
+        "special_character_columns": [c for c in columns if special_pattern.search(str(c))],
+        "punctuation_only_columns": [c for c in columns if not alnum_pattern.search(str(c))],
+    }
 # COMMAND ----------
 # MAGIC %md ## Validate All Defined Sources
 
@@ -178,55 +233,160 @@ if undefined:
 # MAGIC Temporary diagnostic cell: run before the validation loop to confirm the active Snowflake user, role, database, schema, warehouse, and whether each configured view is visible to the connector context.
 
 # COMMAND ----------
+def _strip_sql_comments(sql: str) -> str:
+    """Remove basic SQL comments before lightweight diagnostic parsing."""
+    sql = re.sub(r"/\*.*?\*/", " ", str(sql), flags=re.S)
+    sql = re.sub(r"--.*?(?=\n|$)", " ", sql)
+    return sql
+
+def _split_identifier_parts(identifier: str) -> list:
+    """Split DB.SCHEMA.OBJECT while respecting quoted identifier dots."""
+    parts, current, quote = [], [], None
+    for ch in str(identifier).strip():
+        if quote:
+            current.append(ch)
+            if ch == quote:
+                quote = None
+            continue
+        if ch in ('"', '`'):
+            quote = ch
+            current.append(ch)
+        elif ch == ".":
+            parts.append("".join(current).strip().strip('`"'))
+            current = []
+        else:
+            current.append(ch)
+    if current:
+        parts.append("".join(current).strip().strip('`"'))
+    return [p for p in parts if p]
+
+def _tokenize_sql(sql: str) -> list:
+    """Tokenize enough SQL for FROM/JOIN diagnostics without executing parsing logic."""
+    tokens, current, quote = [], [], None
+    for ch in _strip_sql_comments(sql):
+        if quote:
+            current.append(ch)
+            if ch == quote:
+                quote = None
+            continue
+        if ch in ('"', '`', "'"):
+            quote = ch
+            current.append(ch)
+        elif ch.isspace() or ch in ",;()":
+            if current:
+                tokens.append("".join(current))
+                current = []
+            if ch in "(),":
+                tokens.append(ch)
+        else:
+            current.append(ch)
+    if current:
+        tokens.append("".join(current))
+    return tokens
+
+def _cte_names(tokens: list) -> set:
+    """Best-effort CTE name extraction for queries starting with WITH."""
+    names = set()
+    if not tokens or tokens[0].lower() != "with":
+        return names
+    depth = 0
+    expect_name = True
+    for token in tokens[1:]:
+        low = token.lower()
+        if token == "(":
+            depth += 1
+        elif token == ")":
+            depth = max(0, depth - 1)
+        elif depth == 0 and low == "select":
+            break
+        elif depth == 0 and expect_name and low not in {"recursive", ","}:
+            names.add(token.strip('`"'))
+            expect_name = False
+        elif depth == 0 and low == "as":
+            expect_name = False
+        elif depth == 0 and token == ",":
+            expect_name = True
+    return names
+
+def _extract_source_objects(sql: str) -> list:
+    """Best-effort extraction of physical objects after FROM/JOIN for diagnostics.
+
+    This intentionally avoids subqueries and CTE aliases. It is diagnostic-only;
+    complex SQL should still be validated by Snowflake execution.
+    """
+    tokens = _tokenize_sql(sql)
+    ctes = _cte_names(tokens)
+    refs = []
+    for idx, token in enumerate(tokens[:-1]):
+        if token.lower() not in {"from", "join"}:
+            continue
+        candidate = tokens[idx + 1]
+        if candidate == "(":
+            continue  # subquery; skip because the next token is not a physical object
+        candidate = candidate.strip('`";,()')
+        if not candidate or candidate.lower() in {"select", "lateral", "table"}:
+            continue
+        if candidate.strip('`"') in ctes:
+            continue
+        refs.append(candidate)
+    return refs
+
 def _extract_source_object(sql: str):
-    """Best-effort extraction of the first object after FROM for diagnostics."""
-    tokens = sql.replace("\n", " ").replace("\t", " ").split()
-    for idx, token in enumerate(tokens):
-        if token.lower() == "from" and idx + 1 < len(tokens):
-            return tokens[idx + 1].strip('`";,()')
-    return None
+    """Backward-compatible helper returning the first detected physical object."""
+    objects = _extract_source_objects(sql)
+    return objects[0] if objects else None
 
 def _split_object_name(db: str, schema: str, object_name: str):
-    parts = [part.strip('`"') for part in object_name.split(".")]
-    if len(parts) == 3:
-        return parts[0], parts[1], parts[2]
+    parts = _split_identifier_parts(object_name)
+    if len(parts) >= 3:
+        return parts[-3], parts[-2], parts[-1]
     if len(parts) == 2:
         return db, parts[0], parts[1]
-    return db, schema, parts[0]
+    if len(parts) == 1:
+        return db, schema, parts[0]
+    return db, schema, None
 
 def run_context_diagnostic(source_key: str, cfg: dict):
     """Print Snowflake context and object visibility for a configured source."""
+    validate_source_config(source_key, cfg)
     db, schema, sql = cfg["db"], cfg["schema"], cfg["sql"]
-    source_object = _extract_source_object(sql)
-    if not source_object:
-        print(f"  ⚠️  {source_key}: Could not detect a FROM object for diagnostics")
+    source_objects = _extract_source_objects(sql)
+    if not source_objects:
+        print(f"  ⚠️  {source_key}: Could not detect a physical FROM/JOIN object for diagnostics")
         return None
 
-    obj_db, obj_schema, obj_name = _split_object_name(db, schema, source_object)
-    diag_sql = f"""
-        SELECT
-            CURRENT_USER() AS current_user,
-            CURRENT_ROLE() AS current_role,
-            CURRENT_DATABASE() AS current_database,
-            CURRENT_SCHEMA() AS current_schema,
-            CURRENT_WAREHOUSE() AS current_warehouse,
-            '{obj_db}' AS requested_database,
-            '{obj_schema}' AS requested_schema,
-            '{obj_name}' AS requested_object,
-            CASE
-                WHEN EXISTS (
-                    SELECT 1
-                    FROM INFORMATION_SCHEMA.VIEWS
-                    WHERE TABLE_SCHEMA = UPPER('{obj_schema}')
-                      AND TABLE_NAME = UPPER('{obj_name}')
-                ) THEN 'FOUND_IN_CURRENT_DATABASE'
-                ELSE 'NOT_FOUND_OR_NOT_AUTHORIZED_IN_CURRENT_DATABASE'
-            END AS current_database_view_visibility
-    """
-    print(f"\nDiagnostic — {source_key}: {source_object}")
-    diag_df = run_sql(obj_db, obj_schema, diag_sql)
-    diag_df.show(truncate=False)
-    return diag_df
+    diag_dfs = []
+    for source_object in source_objects:
+        obj_db, obj_schema, obj_name = _split_object_name(db, schema, source_object)
+        if not obj_name:
+            print(f"  ⚠️  {source_key}: Could not split object name: {source_object}")
+            continue
+        info_schema = quote_snowflake_object(obj_db, "INFORMATION_SCHEMA", "TABLES")
+        diag_sql = f"""
+            SELECT
+                CURRENT_USER() AS current_user,
+                CURRENT_ROLE() AS current_role,
+                CURRENT_DATABASE() AS current_database,
+                CURRENT_SCHEMA() AS current_schema,
+                CURRENT_WAREHOUSE() AS current_warehouse,
+                {sql_literal(obj_db)} AS requested_database,
+                {sql_literal(obj_schema)} AS requested_schema,
+                {sql_literal(obj_name)} AS requested_object,
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM {info_schema}
+                        WHERE TABLE_SCHEMA = UPPER({sql_literal(obj_schema)})
+                          AND TABLE_NAME = UPPER({sql_literal(obj_name)})
+                    ) THEN 'FOUND_TABLE_OR_VIEW'
+                    ELSE 'NOT_FOUND_OR_NOT_AUTHORIZED'
+                END AS object_visibility
+        """
+        print(f"\nDiagnostic — {source_key}: {source_object}")
+        diag_df = run_sql(obj_db, obj_schema, diag_sql)
+        diag_df.show(truncate=False)
+        diag_dfs.append(diag_df)
+    return diag_dfs[0] if len(diag_dfs) == 1 else diag_dfs
 
 for source_key, cfg in defined.items():
     try:
@@ -259,7 +419,8 @@ for source_key, cfg in defined.items():
 
     # ── Step 1: Execute ───────────────────────────────────────────────────────
     try:
-        df = run_sql(db, schema, sql)
+        validate_source_config(source_key, cfg)
+        df = run_sql(db, schema, sql).cache()
         res["total_rows"] = df.count()
         res["total_cols"] = len(df.columns)
         print(f"  ✅ Step 1 — OK  |  Rows: {res['total_rows']:,}  |  Cols: {res['total_cols']}")
@@ -290,11 +451,43 @@ for source_key, cfg in defined.items():
             "name": field.name, "type": str(field.dataType), "nullable": field.nullable
         })
 
+    column_diagnostics = analyze_column_names(df.columns)
+    if column_diagnostics["duplicate_columns"]:
+        msg = f"Duplicate column names detected; profiling by name would be ambiguous: {column_diagnostics['duplicate_columns']}"
+        res["status"] = "ERROR"
+        res["errors"].append(msg)
+        print(f"  ❌ {msg}")
+        results[source_key] = res
+        df.unpersist()
+        continue
+    if column_diagnostics["case_insensitive_duplicates"]:
+        print(f"  ⚠️  Case-insensitive duplicate column names may be ambiguous in case-insensitive Spark sessions: {column_diagnostics['case_insensitive_duplicates']}")
+    if column_diagnostics["leading_trailing_space_columns"]:
+        print(f"  ⚠️  Columns with leading/trailing spaces: {column_diagnostics['leading_trailing_space_columns']}")
+    if column_diagnostics["punctuation_only_columns"]:
+        print(f"  ⚠️  Columns containing only punctuation/symbols: {column_diagnostics['punctuation_only_columns']}")
+    if column_diagnostics["special_character_columns"]:
+        preview = column_diagnostics["special_character_columns"][:10]
+        print(f"  ℹ️  Special-character columns detected and will be referenced with qcol(): {preview}{' ...' if len(column_diagnostics['special_character_columns']) > 10 else ''}")
+
+    if res["total_rows"] == 0:
+        print("\n  ⚠️  Source returned 0 rows; skipping row-dependent profiling steps")
+        res["score"] = readiness_score(res["null_results"], False, False, res["dup_pct"])
+        results[source_key] = res
+        df.unpersist()
+        continue
+
     # ── Step 3: Null Rates ────────────────────────────────────────────────────
     print(f"\n  Step 3 — Null Rates")
     null_flags = []
+    null_aliases = {col: agg_alias("null", idx) for idx, col in enumerate(df.columns)}
+    null_exprs = [
+        F.sum(F.when(qcol(col).isNull(), F.lit(1)).otherwise(F.lit(0))).alias(alias)
+        for col, alias in null_aliases.items()
+    ]
+    null_counts = df.agg(*null_exprs).collect()[0].asDict() if null_exprs else {}
     for col in df.columns:
-        null_count = df.filter(F.col(col).isNull()).count()
+        null_count = null_counts.get(null_aliases[col], 0) or 0
         null_pct   = round(null_count / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0
         flag = "⚠️  HIGH" if null_pct > 5 else ("🔶 WARN" if null_pct > 1 else "✅  OK")
         null_flags.append(flag)
@@ -310,9 +503,9 @@ for source_key, cfg in defined.items():
     res["date_col"] = date_col
     if date_col:
         stats = df.agg(
-            F.min(date_col).alias("min"),
-            F.max(date_col).alias("max"),
-            F.countDistinct(date_col).alias("distinct")
+            F.min(qcol(date_col)).alias("min"),
+            F.max(qcol(date_col)).alias("max"),
+            F.countDistinct(qcol(date_col)).alias("distinct")
         ).collect()[0]
         res["date_min"] = str(stats["min"])
         res["date_max"] = str(stats["max"])
@@ -330,38 +523,61 @@ for source_key, cfg in defined.items():
              "sku", "producto", "product", "categoria", "category",
              "mercado", "market", "region", "zona", "zone", "negocio"]
     key_cols = [c for c in df.columns if any(k in c.lower() for k in id_kw)]
-    for col in key_cols[:8]:
-        n = df.select(col).distinct().count()
-        res["cardinality"][col] = n
-        print(f"    {col:<45} {n:>8,} distinct")
-    if not key_cols:
+    sampled_key_cols = key_cols[:8]
+    if sampled_key_cols:
+        card_aliases = {col: agg_alias("card", idx) for idx, col in enumerate(sampled_key_cols)}
+        card_stats = df.agg(*[
+            F.countDistinct(qcol(col)).alias(alias) for col, alias in card_aliases.items()
+        ]).collect()[0].asDict()
+        for col in sampled_key_cols:
+            n = card_stats.get(card_aliases[col], 0) or 0
+            res["cardinality"][col] = n
+            print(f"    {col:<45} {n:>8,} distinct")
+    else:
         print(f"  ℹ️  No key columns auto-detected — review schema above")
 
     # ── Step 6: Numeric Stats ─────────────────────────────────────────────────
     print(f"\n  Step 6 — Numeric Volume")
     num_kw = ["ventas", "sales", "units", "unidades", "revenue", "ingreso",
               "inversion", "spend", "monto", "amount", "qty", "cantidad",
-              "waste", "merma", "stock", "inv", "precio", "price", "costo", "cost"]
+              "waste", "merma", "stock", "inv", "precio", "price", "costo", "cost",
+              "impr", "impresiones", "click", "ctr", "cpc", "cpm"]
     num_cols = [
         f.name for f in df.schema.fields
         if isinstance(f.dataType, NumericType)
         and any(k in f.name.lower() for k in num_kw)
     ]
     has_numeric = bool(num_cols)
-    for col in num_cols[:5]:
-        stats = df.agg(
-            F.min(col).alias("mn"), F.max(col).alias("mx"),
-            F.sum(col).alias("tot")
-        ).collect()[0]
-        negs = df.filter(F.col(col) < 0).count()
-        neg_flag = f"  ⚠️  {negs:,} negatives" if negs > 0 else ""
-        print(f"    {col:<40} min={float(stats['mn'] or 0):>15,.1f}  max={float(stats['mx'] or 0):>15,.1f}  total={float(stats['tot'] or 0):>18,.0f}{neg_flag}")
-        res["numeric_stats"].append({
-            "col": col, "min": float(stats["mn"] or 0),
-            "max": float(stats["mx"] or 0), "total": float(stats["tot"] or 0),
-            "negatives": negs
-        })
-    if not num_cols:
+    sampled_num_cols = num_cols[:5]
+    if sampled_num_cols:
+        num_exprs = []
+        num_aliases = {
+            col: {stat: agg_alias(f"num_{stat}", idx) for stat in ("mn", "mx", "tot", "neg")}
+            for idx, col in enumerate(sampled_num_cols)
+        }
+        for col in sampled_num_cols:
+            aliases = num_aliases[col]
+            num_exprs.extend([
+                F.min(qcol(col)).alias(aliases["mn"]),
+                F.max(qcol(col)).alias(aliases["mx"]),
+                F.sum(qcol(col)).alias(aliases["tot"]),
+                F.sum(F.when(qcol(col) < 0, F.lit(1)).otherwise(F.lit(0))).alias(aliases["neg"]),
+            ])
+        numeric_stats = df.agg(*num_exprs).collect()[0].asDict()
+        for col in sampled_num_cols:
+            aliases = num_aliases[col]
+            mn = numeric_stats.get(aliases["mn"])
+            mx = numeric_stats.get(aliases["mx"])
+            tot = numeric_stats.get(aliases["tot"])
+            negs = numeric_stats.get(aliases["neg"], 0) or 0
+            neg_flag = f"  ⚠️  {negs:,} negatives" if negs > 0 else ""
+            print(f"    {col:<40} min={float(mn or 0):>15,.1f}  max={float(mx or 0):>15,.1f}  total={float(tot or 0):>18,.0f}{neg_flag}")
+            res["numeric_stats"].append({
+                "col": col, "min": float(mn or 0),
+                "max": float(mx or 0), "total": float(tot or 0),
+                "negatives": negs
+            })
+    else:
         print(f"  ℹ️  No numeric metric columns auto-detected")
 
     # ── Step 7: Duplicate Check ───────────────────────────────────────────────
@@ -369,7 +585,8 @@ for source_key, cfg in defined.items():
     nat_key = ([date_col] if date_col else []) + key_cols[:3]
     existing = [c for c in nat_key if c in df.columns]
     if len(existing) >= 2:
-        deduped   = df.dropDuplicates(existing).count()
+        key_projection = [qcol(col).alias(agg_alias("dup_key", idx)) for idx, col in enumerate(existing)]
+        deduped   = df.select(*key_projection).distinct().count()
         dup_count = res["total_rows"] - deduped
         dup_pct   = round(dup_count / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0
         res["dup_count"] = dup_count
@@ -396,6 +613,7 @@ for source_key, cfg in defined.items():
     print(f"  READINESS: {res['score']}/100  {score_label(res['score'])}")
     print(f"  {'─' * 68}")
     results[source_key] = res
+    df.unpersist()
 
 # COMMAND ----------
 # MAGIC %md ## Summary
