@@ -1,0 +1,108 @@
+name: CI — Lint & Unit Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    name: Lint + Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pytest pytest-cov flake8 pyyaml
+
+      - name: Lint with flake8
+        run: |
+          flake8 tests/ \
+            --max-line-length=120 \
+            --ignore=E501,W503 \
+            --exclude=__pycache__,.git
+        continue-on-error: false
+
+      - name: Validate YAML configs
+        run: |
+          python -c "
+          import yaml, glob, sys
+          files = glob.glob('configs/*.yaml') + glob.glob('models/**/*.yaml', recursive=True)
+          errors = []
+          for f in files:
+              try:
+                  yaml.safe_load(open(f))
+                  print(f'  ✅ {f}')
+              except yaml.YAMLError as e:
+                  errors.append(f'  ❌ {f}: {e}')
+                  print(errors[-1])
+          if errors:
+              print(f'\n{len(errors)} YAML error(s) found.')
+              sys.exit(1)
+          print(f'\nAll {len(files)} YAML files valid.')
+          "
+
+      - name: Validate rationale templates
+        run: |
+          python -c "
+          import yaml, re, sys
+          rules = yaml.safe_load(open('models/recommendation_engine/rules_config.yaml'))
+          templates = rules.get('rationale_templates', {})
+          errors = []
+          for action, spec in templates.items():
+              template = spec.get('template', '')
+              # Count variable slots (non-format-spec parts)
+              slots = re.findall(r'\{([a-z_]+)', template)
+              if len(slots) < 2:
+                  errors.append(f'  ❌ Template \"{action}\" has only {len(slots)} variable slot(s) — minimum 2 required')
+              else:
+                  print(f'  ✅ \"{action}\": {len(slots)} variable slots')
+          if errors:
+              print(\"\\n\".join(errors))
+              sys.exit(1)
+          print(f'\\nAll {len(templates)} rationale templates validated.')
+          "
+
+      - name: Run unit tests
+        run: |
+          pytest tests/unit/ \
+            -v \
+            --tb=short \
+            --cov=. \
+            --cov-report=term-missing \
+            --ignore=tests/unit/test_homologation.py \
+            --ignore=tests/unit/test_kpi_sell_out_ratio.py \
+            --ignore=tests/unit/test_kpi_waste_rate.py \
+            --ignore=tests/unit/test_kpi_forecast_accuracy.py \
+            --ignore=tests/unit/test_kpi_growth_quality_score.py \
+            --ignore=tests/unit/test_competitive_risk_score_v1.py \
+            --ignore=tests/unit/test_mmm_adstock_transform.py
+        # Note: stub files (empty placeholders) are excluded from CI until implemented in Phase 4+
+
+      - name: Check no plaintext credentials in configs
+        run: |
+          python -c "
+          import re, glob, sys
+          patterns = [r'password\s*=\s*['\''\"]\S+['\''\"i]', r'secret\s*=\s*['\''\"]\S+['\''\"i]']
+          files = glob.glob('configs/*.yaml') + glob.glob('models/**/*.yaml', recursive=True)
+          found = []
+          for f in files:
+              content = open(f).read().lower()
+              for pat in patterns:
+                  if re.search(pat, content):
+                      found.append(f)
+          if found:
+              print('❌ Potential plaintext credentials found in:', found)
+              sys.exit(1)
+          print('✅ No plaintext credentials detected in config files')
+          "

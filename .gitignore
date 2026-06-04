@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.Python
+env/
+venv/
+.venv/
+pip-wheel-metadata/
+
+# Jupyter / Databricks
+.ipynb_checkpoints/
+*.ipynb
+
+# Environment / secrets — NEVER commit credentials
+.env
+.env.*
+secrets/
+*.pem
+*.key
+*.p8
+*.pfx
+snowflake_private_key.*
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Data files — never commit raw source data
+data/
+*.csv.gz
+*.parquet
+*.avro
+*.orc
+# Exception: homologation mapping files (these are code, not data)
+!homologation/*.csv
+
+# Model artifacts — stored in MLflow, not git
+models/**/*.pkl
+models/**/*.joblib
+models/**/*.bin
+models/**/*.pt
+models/**/*.h5
+# Exception: config files and .gitkeep files
+!models/**/*.yaml
+!models/**/*.json
+!models/**/.gitkeep
+
+# Power BI — binary file; track only specs and themes
+powerbi/*.pbix
+# Exception: placeholder marker
+!powerbi/*.placeholder
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# pytest / coverage
+.coverage
+htmlcov/
+.pytest_cache/

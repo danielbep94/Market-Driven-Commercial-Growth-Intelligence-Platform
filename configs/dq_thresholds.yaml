@@ -1,0 +1,58 @@
+# Data Quality Thresholds — v2.2
+# All threshold values live HERE — never hardcoded in notebooks or Power BI.
+# Changing a threshold requires only updating this file + a new pipeline run.
+
+global:
+  null_rate_error_threshold: 0.05          # > 5% nulls in a NOT-NULL field = ERROR
+  null_rate_warning_threshold: 0.01        # > 1% nulls = WARNING
+  row_count_drop_error_threshold: 0.20     # > 20% drop vs. prior period = ERROR
+  row_count_drop_warning_threshold: 0.10   # > 10% drop = WARNING
+
+# --- Nielsen lag threshold ---
+# Used by: vw_nielsen_lag_status (Snowflake view) → Power BI lag banner on Page 1 + Page 6
+# Rule: if most recent Nielsen period is > nielsen_lag_warning_weeks older than
+#       the internal data period being displayed, show ⚠ banner.
+nielsen_lag_warning_weeks: 6               # Configurable — change here only
+
+# --- GQS stress test threshold ---
+# Used by: kpi_gqs_stress_test.py (Phase 4)
+# If portfolio IQR of Growth Quality Score < this value after Phase 4,
+# weights must be recalibrated before Phase 5 begins.
+gqs_iqr_minimum_threshold: 15             # Points — if IQR < 15, recalibrate weights
+
+# --- Sell-out coverage threshold ---
+sell_out_coverage_low_threshold: 0.70     # Below this → confidence_level = LOW
+sell_out_coverage_medium_threshold: 0.85  # Below this → confidence_level = MEDIUM
+
+# --- Per-source thresholds ---
+sell_in:
+  required_not_null: ["sku_id", "customer_id", "ship_date", "units_shipped"]
+  value_range:
+    units_shipped: {min: 0, max: 10000000}
+    net_revenue: {min: -1000000, max: 100000000}
+
+sell_out:
+  required_not_null: ["sku_id", "store_id", "sell_out_week", "units_sold"]
+  value_range:
+    units_sold: {min: 0, max: 5000000}
+
+waste:
+  required_not_null: ["sku_id", "customer_id", "waste_date", "waste_units"]
+  value_range:
+    waste_units: {min: 0, max: 1000000}
+  # Anomaly: waste_units > sell_in_units in same period → flag is_anomaly = TRUE, do not drop
+
+investment:
+  required_not_null: ["brand_id", "channel_id", "period_month", "total_spend"]
+  value_range:
+    total_spend: {min: 0, max: 500000000}
+
+# --- Waste risk thresholds ---
+waste_risk:
+  high_threshold: 5.0    # % waste rate — above this = HIGH risk territory
+  low_threshold: 2.0     # % waste rate — below this = LOW risk territory
+
+# --- Model performance alert thresholds ---
+model_performance:
+  wape_degradation_alert_pp: 5.0         # Alert if WAPE degrades > 5 percentage points
+  recall_drop_alert: 0.10                # Alert if recall drops > 10pp (Waste Risk model)

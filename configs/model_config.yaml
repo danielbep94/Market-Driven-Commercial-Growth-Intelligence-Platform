@@ -1,0 +1,197 @@
+# ML Model Configuration — v2.3
+
+# ─── Demand Forecast ─────────────────────────────────────────────────────────
+demand_forecast:
+  primary_model: "lightgbm"
+  baseline_model: "prophet"
+  train_channels_separately: true       # NEVER single model with channel as feature
+  channels: ["MODERN_TRADE", "TRADITIONAL_TRADE", "ECOMMERCE", "FOODSERVICE"]
+  holdout_weeks: 13
+  forecast_horizon_weeks: 13
+  primary_metric: "wape"
+  wape_degradation_retrain_threshold_pp: 5.0
+  min_weeks_history_for_training: 26
+  cold_start_strategy: "brand_category_average"  # New SKUs < 13 weeks history
+  cold_start_min_weeks: 4                         # Below this → suppress forecast entirely
+  retirement_lag_weeks: 4
+  sku_filter: "is_reportable = TRUE"
+
+# ─── Waste Risk ───────────────────────────────────────────────────────────────
+waste_risk:
+  primary_model: "lightgbm"
+  # CRITICAL: threshold is stored in MODEL_METADATA per model version.
+  # NEVER hardcode the threshold here or in the monitoring notebook.
+  # The monitoring notebook reads threshold from MODEL_METADATA at runtime.
+  default_threshold_pct: 5.0           # Used at TRAINING TIME only; stored in MODEL_METADATA
+  risk_buckets:
+    low: [0.0, 0.30]
+    medium: [0.30, 0.70]
+    high: [0.70, 1.0]
+  class_imbalance_strategy: "class_weights"
+  optimize_for: "recall"
+  recall_minimum_acceptable: 0.80
+  retraining_weeks_of_new_data: 13
+  inventory_field: "IN_WAREHOUSE"       # Q5 resolved: exclude transit stock
+  prediction_horizon_weeks: 4           # Predict waste exceedance in next 4 weeks
+
+# ─── Investment Efficiency (MMM) ──────────────────────────────────────────────
+# PHASE 5 BLOCKER: confirm adstock_counterfactual_method and saturation_curve_type
+# with Finance and Trade Marketing before building 02_adstock_transform.py
+investment_efficiency:
+  model_type: "mmm_hill_adstock"
+
+  # Target variable
+  target_variable: "incremental_sell_out_units"
+  # Definition: observed sell_out_units minus counterfactual (no-investment baseline)
+  # Counterfactual is derived from adstock decay model — see counterfactual_method below
+
+  # Counterfactual method
+  counterfactual_method: "adstock_decay"
+  # Recommended for v1. No holdout group required. No synthetic control required.
+  # Adstock formula: adstock_t = spend_t + decay_rate × adstock_(t-1)
+  # decay_rate is estimated per brand × channel during EDA / training
+  adstock_decay_rate_bounds: [0.1, 0.9]   # Search range for decay_rate estimation
+  adstock_decay_rate_default: 0.5          # Starting point; overridden by estimated value
+  # Estimated decay_rate stored in MODEL_METADATA per brand × channel after training
+
+  # Saturation / diminishing returns curve
+  saturation_curve_type: "hill_function"
+  # Hill function: response(x) = x^α / (K^α + x^α)
+  #   x = effective investment (after adstock)
+  #   K = half-saturation point (investment level where response = 50% of max)
+  #   α = Hill coefficient (curve steepness)
+  # K and α are estimated per brand × channel; stored in MODEL_METADATA
+  # Hill function preferred over logarithmic: passes through zero; has explicit ceiling
+  hill_alpha_bounds: [0.5, 5.0]         # Search range for α estimation
+  hill_K_bounds_multiplier: [0.1, 10.0] # K search range as multiplier of mean investment
+  saturation_not_observable_flag: true   # Flag if investment range too narrow to fit curve
+
+  # MMM regression full model
+  # sell_out_units = β₀
+  #   + β₁ × hill_transform(adstock(investment), K, α)
+  #   + β₂ × promotion_active
+  #   + β₃ × price_index_vs_category
+  #   + β₄ × nielsen_weighted_distribution
+  #   + β₅ × is_holiday
+  #   + β₆ × sell_out_lag_4w
+  #   + ε
+  features:
+    - "hill_transformed_investment"   # adstock → Hill transformation
+    - "promotion_active"
+    - "price_index_vs_category"
+    - "nielsen_weighted_distribution"
+    - "is_holiday"
+    - "sell_out_lag_4w"
+
+  winsorize_investment_percentile: 0.99   # Before adstock transformation
+  min_months_history: 12
+  attribution_scope: "measured_investment_only"  # Document in every dashboard tooltip
+
+  # Model outputs stored in MODEL_METADATA and MART
+  outputs_to_store:
+    - "adstock_decay_rate"               # Per brand × channel
+    - "hill_K"                           # Half-saturation point
+    - "hill_alpha"                       # Curve steepness
+    - "incremental_units_per_peso"       # Marginal return at current spend
+    - "saturation_reached_flag"          # TRUE if spend within 10% of K
+    - "recommended_spend_range_low"      # Lower bound of optimal spend range
+    - "recommended_spend_range_high"     # Upper bound of optimal spend range
+
+  # Evaluation: quarterly (not weekly — MMM is not a weekly prediction model)
+  evaluation_frequency: "quarterly"
+  evaluation_metrics: ["r_squared_out_of_sample", "directional_accuracy"]
+  evaluation_type_in_performance_log: "QUARTERLY_MMM"
+
+# ─── Competitive Risk (v1 — Rule-Based Composite, NO clustering) ──────────────
+# IMPORTANT: v1 is NOT a clustering model. Clustering is deferred to v2.
+# v1 = weighted composite of 5 observable Nielsen signals.
+# This must be communicated to the commercial team in Phase 0.
+competitive_risk:
+  version: "v1_rule_based_composite"
+  # v2 will introduce clustering when ≥24 months history available for ≥10 brands/category
+
+  # Feature weights for the composite score (0–100 scale)
+  score_weights:
+    share_loss_rate_13w: 0.30          # 13-week share change trend
+    price_gap_widening: 0.25           # Rate of change of price index vs. category
+    numeric_distribution_change_13w: 0.20
+    weighted_distribution_change_13w: 0.15
+    share_yoy_change_pp: 0.10
+
+  # Alert thresholds
+  alert_threshold_score: 70
+  alert_consecutive_periods: 2
+
+  # Partial score handling
+  max_null_components_before_null_score: 2
+  # If > 2 components NULL → return NULL score; do not compute partial
+
+  # Evaluation: retrospective monthly
+  evaluation_frequency: "monthly"
+  evaluation_type_in_performance_log: "MONTHLY_COMPETITIVE_RISK"
+  # Metric: for brands flagged HIGH in week N, did share change ≤ -0.5pp in weeks N+1 to N+8?
+  retrospective_lookforward_weeks: 8
+  retrospective_share_loss_threshold_pp: 0.5
+
+# ─── Recommendation Engine ────────────────────────────────────────────────────
+recommendation_engine:
+  type: "rule_based"  # DO NOT change to ML without commercial leadership sign-off
+  gqs_input_field: "gqs_score_4w_avg"   # 4-week rolling average — never raw weekly GQS
+  min_weeks_history: 4
+  required_kpis: ["gqs_score_4w_avg", "waste_risk_category", "waste_adjusted_roi"]
+
+  output_fields:
+    - primary_action        # INCREASE | MAINTAIN | OPTIMIZE | REDUCE | WATCH
+    - secondary_action      # WASTE_REVIEW | FORECAST_REVIEW | PRICE_REVIEW | null
+    - action_compound       # e.g., "INCREASE + WASTE_REVIEW"
+    - conflict_flag         # TRUE when signals conflict
+    - recommendation_rationale  # Template-rendered; must contain ≥2 metric values
+
+  # Rationale template system: templates defined in rules_config.yaml
+  # Templates use variable slots filled at inference time from brand metrics
+  # Validated by unit test: test_rationale_templates.py
+  rationale_content_rule: "must_contain_at_least_2_metric_values"
+
+# ─── Model Monitoring ─────────────────────────────────────────────────────────
+model_monitoring:
+  schedule: "after_gold_write"   # Every Monday after Gold layer is written
+  output_table: "MGI_PROD.MONITORING.MODEL_PERFORMANCE_LOG"
+
+  # Join logic — see weekly_performance_check.py for implementation
+  join_logic:
+    demand_forecast:
+      prediction_table: "FACT_FORECAST"
+      actual_table: "FACT_SELL_OUT"
+      join_keys: ["brand_key", "channel_key", "week_key"]
+      filter: "is_official_version = TRUE AND actual_units > 0 AND is_reportable = TRUE"
+      metric: "wape"
+
+    waste_risk:
+      prediction_table: "ML_WASTE_RISK_PREDICTIONS"
+      actual_table: "FACT_WASTE"
+      join_keys: ["brand_key", "customer_key"]
+      evaluation_window_weeks: 4
+      ground_truth_derivation: "actual_waste_rate > threshold_from_model_metadata"
+      threshold_source: "MODEL_METADATA"   # NEVER hardcoded
+      metrics: ["recall", "precision"]
+
+    investment_efficiency:
+      evaluation_frequency: "quarterly"
+      metrics: ["r_squared_out_of_sample", "directional_accuracy"]
+
+    competitive_risk:
+      evaluation_frequency: "monthly"
+      lookforward_weeks: 8
+      metric: "true_positive_rate_at_share_loss_threshold"
+
+  alerts:
+    wape_degradation_alert_pp: 5.0       # From dq_thresholds.yaml
+    recall_drop_alert: 0.10              # From dq_thresholds.yaml
+
+  models_to_monitor:
+    - "demand_forecast_lgbm_modern_trade"
+    - "demand_forecast_lgbm_traditional_trade"
+    - "demand_forecast_lgbm_ecommerce"
+    - "demand_forecast_lgbm_foodservice"
+    - "waste_risk_lgbm"
+    - "competitive_risk_v1_composite"

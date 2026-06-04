@@ -1,0 +1,17 @@
+# Growth Quality Score Weights
+# VERSION HISTORY: Every change to these weights must create a new version entry.
+# DO NOT modify existing versions — add a new version.
+
+versions:
+  v1:
+    description: "Initial weights — proposed by data team, pending commercial leadership sign-off"
+    effective_date: null   # Set when approved
+    approved_by: null      # Set when approved
+    weights:
+      sell_out_growth: 0.25
+      share_change: 0.25
+      waste_rate: 0.20        # Inverted (lower waste = higher score)
+      forecast_accuracy: 0.15 # 1 - WAPE
+      waste_adjusted_roi: 0.15
+
+active_version: "v1"  # Change this when a new version is approved

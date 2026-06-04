@@ -1,0 +1,23 @@
+{
+  "name": "Market Growth Intelligence",
+  "dataColors": [
+    "#00C9A7",
+    "#4A90D9",
+    "#F5A623",
+    "#E74C3C",
+    "#8E44AD",
+    "#2ECC71",
+    "#F39C12",
+    "#1ABC9C"
+  ],
+  "background": "#1A1D2E",
+  "foreground": "#FFFFFF",
+  "tableAccent": "#00C9A7",
+  "good": "#2ECC71",
+  "neutral": "#F5A623",
+  "bad": "#E74C3C",
+  "maximum": "#2ECC71",
+  "center": "#F5A623",
+  "minimum": "#E74C3C",
+  "null": "#636E72"
+}

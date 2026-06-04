@@ -1,0 +1,96 @@
+# Pipeline Configuration — v2.2
+# IMPORTANT: No secrets or credentials here. All credentials via Databricks secret scopes.
+# Q8 resolved: Always ingest from data warehouse extract, NEVER directly from ERP.
+# Q1 resolved: Fiscal calendar parameters configurable here — not hardcoded.
+# Q4 resolved: Nielsen period type configurable here.
+
+# --- Architecture guardrail ---
+ingestion_source: "data_warehouse_extract"   # NEVER "erp_direct" — architectural rule
+
+environments:
+  dev:
+    databricks_catalog: "mgi_dev"
+    snowflake_database: "MGI_DEV"
+    snowflake_schema_bronze: "BRONZE"
+    snowflake_schema_silver: "SILVER"
+    snowflake_schema_gold: "GOLD"
+    snowflake_schema_mart: "MART"
+    snowflake_schema_monitoring: "MONITORING"
+  staging:
+    databricks_catalog: "mgi_staging"
+    snowflake_database: "MGI_STAGING"
+    snowflake_schema_bronze: "BRONZE"
+    snowflake_schema_silver: "SILVER"
+    snowflake_schema_gold: "GOLD"
+    snowflake_schema_mart: "MART"
+    snowflake_schema_monitoring: "MONITORING"
+  prod:
+    databricks_catalog: "mgi_prod"
+    snowflake_database: "MGI_PROD"
+    snowflake_schema_bronze: "BRONZE"
+    snowflake_schema_silver: "SILVER"
+    snowflake_schema_gold: "GOLD"
+    snowflake_schema_mart: "MART"
+    snowflake_schema_monitoring: "MONITORING"
+
+# --- Q1: Fiscal Calendar (confirmed with Finance in Phase 0) ---
+# If fiscal = Gregorian, set fiscal_offset_weeks: 0 and fiscal_year_start_month: 1
+fiscal_calendar:
+  fiscal_year_start_month: 1       # [CONFIRM WITH FINANCE] 1 = January, 4 = April, etc.
+  fiscal_offset_weeks: 0           # [CONFIRM WITH FINANCE] 0 = no offset from Gregorian
+  fiscal_period_type: "monthly"    # monthly | 4-weekly | 13-period
+
+# --- Q4: Nielsen cadence ---
+nielsen:
+  period_type: "4-weekly"          # [CONFIRM WITH MARKET INTELLIGENCE] monthly | 4-weekly | period-based
+  lag_warning_threshold_weeks: 6   # Moved to dq_thresholds.yaml — kept here as reference only
+
+# --- Forecast version policy (blocker decision) ---
+forecast:
+  official_version_policy: "period_close_frozen"
+  # Options: "period_close_frozen" (recommended) | "most_recent_snapshot"
+  # Rationale: comparing a mid-week revision against actuals inflates accuracy.
+  # [CONFIRM WITH DEMAND PLANNING BEFORE PHASE 3]
+
+pipeline:
+  schedule: "0 2 * * 1"            # Every Monday at 2:00 AM UTC
+  retry_attempts: 3
+  retry_delay_minutes: 15
+  alert_email: "[TBD — set in Phase 0]"
+  powerbi_connection: "snowflake_only"  # Reminder: Power BI never reads from Databricks
+
+sources:
+  sell_in:
+    extract_type: "data_warehouse"
+    expected_delivery_day: "sunday"
+    expected_delivery_hour: 23
+    min_row_count_pct_vs_prior_week: 0.80
+  sell_out:
+    extract_type: "data_warehouse"
+    expected_delivery_day: "sunday"
+    expected_delivery_hour: 23
+    min_row_count_pct_vs_prior_week: 0.75
+  waste:
+    extract_type: "data_warehouse"
+    expected_delivery_day: "monday"
+    expected_delivery_hour: 2
+    min_row_count_pct_vs_prior_week: 0.60
+  investment:
+    extract_type: "data_warehouse"
+    expected_delivery_day: "first_monday_of_month"
+    expected_delivery_hour: 6
+    min_row_count_pct_vs_prior_period: 0.70
+  forecast:
+    extract_type: "data_warehouse"
+    expected_delivery_day: "sunday"
+    expected_delivery_hour: 20
+    min_row_count_pct_vs_prior_week: 0.80
+  nielsen:
+    extract_type: "data_warehouse"
+    expected_delivery_day: "TBD_confirm_with_market_intelligence"
+    expected_delivery_hour: 0
+    min_row_count_pct_vs_prior_period: 0.85
+  inventory:
+    extract_type: "data_warehouse"
+    stock_type_default: "IN_WAREHOUSE"  # Q5 resolved: exclude transit stock by default
+    include_transit_stock: false

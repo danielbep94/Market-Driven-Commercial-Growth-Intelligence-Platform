@@ -1,0 +1,207 @@
+# Recommendation Engine — Rule Configuration
+# Version: 3.0 (v2.3 plan)
+# Status: PENDING commercial leadership sign-off before Phase 5 build begins
+#
+# KEY DESIGN DECISIONS (v2.3):
+# 1. GQS input: gqs_score_4w_avg (4-week rolling average) — NEVER raw weekly GQS
+# 2. Output: compound actions (primary + secondary) — no single-label collapse
+# 3. Rationale: template with variable substitution — must contain ≥2 metric values
+# 4. Templates are version-controlled here alongside the rules that trigger them
+
+# ─── Primary Action Rules ─────────────────────────────────────────────────────
+# NOTE on waste and primary action: waste_risk_category = HIGH does NOT block INCREASE.
+# It adds WASTE_REVIEW as a secondary action. The commercial team should invest AND
+# fix waste simultaneously — not reduce investment because of waste risk alone.
+
+primary_action_rules:
+  increase_investment:
+    conditions:
+      gqs_score_4w_avg: ">=75"
+      waste_adjusted_roi: ">=1.5"
+      share_change_pp: ">=0"
+    action: "INCREASE"
+
+  maintain_strategy:
+    conditions:
+      gqs_score_4w_avg: ">=60"
+      waste_adjusted_roi: ">=1.0"
+    action: "MAINTAIN"
+
+  optimize_allocation:
+    conditions:
+      waste_adjusted_roi: "<1.0"
+      gqs_score_4w_avg: ">=50"
+    action: "OPTIMIZE"
+
+  reduce_exit:
+    conditions:
+      gqs_score_4w_avg: "<40"
+      waste_adjusted_roi: "<0.8"
+      share_change_pp: "<-1.0"
+    action: "REDUCE"
+
+  default_watch:
+    conditions: []
+    action: "WATCH"
+
+# ─── Secondary Action Triggers ────────────────────────────────────────────────
+# Evaluated independently of primary action.
+# Multiple secondary triggers can stack (e.g., WASTE_REVIEW+FORECAST_REVIEW).
+
+secondary_action_triggers:
+  WASTE_REVIEW:
+    condition:
+      waste_risk_category: "HIGH"
+    sets_conflict_flag: true           # conflict_flag = TRUE when combined with INCREASE or MAINTAIN
+
+  FORECAST_REVIEW:
+    condition:
+      consecutive_forecast_miss_periods: ">=3"
+    sets_conflict_flag: false
+
+  PRICE_REVIEW:
+    condition:
+      price_index_vs_category: ">1.15"
+      share_change_pp: "<-0.5"
+    sets_conflict_flag: false
+
+# ─── Rationale Templates ──────────────────────────────────────────────────────
+# One template per compound action combination.
+# Variable slots use {variable_name} syntax. Filled at inference time from brand metrics.
+# RULE: every rendered rationale must contain ≥2 actual metric values from {variable_name} slots.
+# VALIDATION: test_rationale_templates.py verifies this for every template.
+# VERSION: when templates change, increment this file's version and create a changelog entry below.
+
+rationale_templates:
+  INCREASE:
+    template: >
+      {brand_name} shows a {gqs_score_4w_avg}-point quality score (smoothed, 4-week average)
+      and {roi}x waste-adjusted ROI. Share is gaining {share_change_pp}pp vs. prior period.
+      All signals support increased investment.
+    required_variables: ["brand_name", "gqs_score_4w_avg", "roi", "share_change_pp"]
+
+  "INCREASE + WASTE_REVIEW":
+    template: >
+      {brand_name} qualifies for increased investment: {gqs_score_4w_avg}-point quality score,
+      {roi}x ROI, and {share_change_pp}pp share gain. However, Waste Risk Score is {waste_risk_score:.0%},
+      above the HIGH threshold ({waste_risk_threshold:.0%}). Increase investment AND implement a
+      waste reduction plan concurrently — do not increase without one in place.
+    required_variables: ["brand_name", "gqs_score_4w_avg", "roi", "share_change_pp", "waste_risk_score", "waste_risk_threshold"]
+
+  "INCREASE + FORECAST_REVIEW":
+    template: >
+      {brand_name} shows strong commercial performance ({gqs_score_4w_avg} quality score, {roi}x ROI).
+      Increase investment. Separately, the demand forecast has missed actuals for
+      {consecutive_forecast_misses} consecutive periods — address forecast inputs with demand planning
+      independently of the investment decision.
+    required_variables: ["brand_name", "gqs_score_4w_avg", "roi", "consecutive_forecast_misses"]
+
+  "INCREASE + WASTE_REVIEW + FORECAST_REVIEW":
+    template: >
+      {brand_name} shows strong growth ({gqs_score_4w_avg} score, {roi}x ROI, {share_change_pp}pp share gain).
+      Two issues require parallel attention: (1) Waste Risk at {waste_risk_score:.0%} — requires waste
+      reduction plan before increasing investment; (2) Forecast has missed {consecutive_forecast_misses}
+      consecutive periods — review demand planning inputs.
+    required_variables: ["brand_name", "gqs_score_4w_avg", "roi", "share_change_pp", "waste_risk_score", "consecutive_forecast_misses"]
+
+  MAINTAIN:
+    template: >
+      {brand_name} shows solid commercial health: {gqs_score_4w_avg}-point quality score,
+      {roi}x ROI. No strategic change recommended. Review again in 4 weeks.
+    required_variables: ["brand_name", "gqs_score_4w_avg", "roi"]
+
+  "MAINTAIN + WASTE_REVIEW":
+    template: >
+      {brand_name} is performing solidly ({gqs_score_4w_avg} score, {roi}x ROI).
+      Maintain investment strategy. Address the elevated Waste Risk Score ({waste_risk_score:.0%})
+      operationally — this is a supply chain issue, not a commercial one at this stage.
+    required_variables: ["brand_name", "gqs_score_4w_avg", "roi", "waste_risk_score"]
+
+  "MAINTAIN + FORECAST_REVIEW":
+    template: >
+      Commercial performance is solid ({gqs_score_4w_avg} score, {roi}x ROI). Maintain investment.
+      However, forecast has missed actuals for {consecutive_forecast_misses} consecutive periods.
+      Review forecast inputs with demand planning — the investment strategy is not the problem.
+    required_variables: ["brand_name", "gqs_score_4w_avg", "roi", "consecutive_forecast_misses"]
+
+  "MAINTAIN + PRICE_REVIEW":
+    template: >
+      {brand_name} is commercially stable ({gqs_score_4w_avg} score, {roi}x ROI). Maintain investment.
+      However, price index is {price_index:.2f}x vs. category average while share has changed
+      {share_change_pp}pp. Review price positioning before the gap widens further.
+    required_variables: ["brand_name", "gqs_score_4w_avg", "roi", "price_index", "share_change_pp"]
+
+  OPTIMIZE:
+    template: >
+      {brand_name} shows {gqs_score_4w_avg}-point quality score but waste-adjusted ROI is {roi}x
+      — below the 1.0x threshold. Do not reduce total investment. Reallocate the same budget
+      to higher-performing channels or promotion types to recover ROI.
+    required_variables: ["brand_name", "gqs_score_4w_avg", "roi"]
+
+  "OPTIMIZE + WASTE_REVIEW":
+    template: >
+      {brand_name} has sub-threshold ROI ({roi}x) and HIGH waste risk ({waste_risk_score:.0%}).
+      Reallocate investment within current budget to higher-performing activations. Simultaneously
+      review waste — the combination of poor ROI and high waste is a structural problem.
+    required_variables: ["brand_name", "roi", "waste_risk_score"]
+
+  REDUCE:
+    template: >
+      {brand_name} shows declining commercial health: {gqs_score_4w_avg}-point quality score,
+      {share_change_pp}pp share loss, and {roi}x ROI. Reduce investment in this brand × channel.
+      If the trend continues for 2 or more additional periods, initiate an exit review.
+    required_variables: ["brand_name", "gqs_score_4w_avg", "share_change_pp", "roi"]
+
+  "REDUCE + WASTE_REVIEW":
+    template: >
+      {brand_name} shows declining performance ({gqs_score_4w_avg} score, {share_change_pp}pp
+      share loss, {roi}x ROI) AND HIGH waste risk ({waste_risk_score:.0%}). Reduce investment
+      and initiate a waste review simultaneously — both issues are compounding.
+    required_variables: ["brand_name", "gqs_score_4w_avg", "share_change_pp", "roi", "waste_risk_score"]
+
+  WATCH:
+    template: >
+      Signals for {brand_name} are mixed or insufficient: {weeks_of_history} weeks of history
+      available (minimum {min_weeks_required} required for a reliable recommendation).
+      No investment action recommended this period. Review again next planning cycle.
+    required_variables: ["brand_name", "weeks_of_history", "min_weeks_required"]
+
+# ─── Template Version Changelog ───────────────────────────────────────────────
+template_changelog:
+  - version: "3.0"
+    date: "2026-06"
+    changes: "Initial template set for all compound action combinations. Added required_variables validation contract."
+  # Add new entries here when templates change — never edit existing versions
+
+# ─── Compound Action Examples (for commercial team review) ────────────────────
+compound_action_examples:
+  - scenario: "High GQS (85) + High Waste Risk (72%) + Strong ROI (2.4x)"
+    primary_action: "INCREASE"
+    secondary_action: "WASTE_REVIEW"
+    action_compound: "INCREASE + WASTE_REVIEW"
+    conflict_flag: true
+    rationale_rendered: >
+      Brand Alpha qualifies for increased investment: 85-point quality score, 2.4x ROI,
+      and +1.2pp share gain. However, Waste Risk Score is 72%, above the HIGH threshold (70%).
+      Increase investment AND implement a waste reduction plan concurrently — do not increase without one in place.
+
+  - scenario: "GQS 65 + Low Waste + ROI 1.2x + 4 consecutive forecast misses"
+    primary_action: "MAINTAIN"
+    secondary_action: "FORECAST_REVIEW"
+    action_compound: "MAINTAIN + FORECAST_REVIEW"
+    conflict_flag: false
+    rationale_rendered: >
+      Brand Beta shows solid commercial performance (65 quality score, 1.2x ROI). Maintain investment.
+      However, the demand forecast has missed actuals for 4 consecutive periods — address forecast
+      inputs with demand planning independently of the investment decision.
+
+  - scenario: "GQS 30 + High Waste + ROI 0.6x + share loss -2.1pp"
+    primary_action: "REDUCE"
+    secondary_action: "WASTE_REVIEW"
+    action_compound: "REDUCE + WASTE_REVIEW"
+    conflict_flag: false
+    rationale_rendered: >
+      Brand Delta shows declining commercial health: 30-point quality score, -2.1pp share loss,
+      and 0.6x ROI. Reduce investment in this brand × channel. If the trend continues for 2 or more
+      additional periods, initiate an exit review. Also: Waste Risk Score is 81% — initiate waste
+      review simultaneously — both issues are compounding.

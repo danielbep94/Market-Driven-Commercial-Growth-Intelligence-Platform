@@ -1,0 +1,50 @@
+name: Deploy to Staging / Prod
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "staging"
+        type: choice
+        options: [staging, prod]
+
+jobs:
+  deploy:
+    name: Deploy — ${{ github.event.inputs.environment || 'staging' }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate environment parameter
+        run: |
+          ENV="${{ github.event.inputs.environment || 'staging' }}"
+          if [[ "$ENV" != "staging" && "$ENV" != "prod" ]]; then
+            echo "❌ Invalid environment: $ENV. Must be staging or prod."
+            exit 1
+          fi
+          echo "Deploying to: $ENV"
+
+      - name: Deploy to Databricks (placeholder)
+        run: |
+          echo "TODO: Deploy notebooks to Databricks ${ENVIRONMENT} workspace"
+          echo "TODO: Update Databricks Workflows job definitions"
+          echo "TODO: Trigger pipeline smoke test in ${ENVIRONMENT}"
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment || 'staging' }}
+
+      # Production deployment requires additional approval gate
+      - name: Production safeguard check
+        if: ${{ github.event.inputs.environment == 'prod' }}
+        run: |
+          echo "⚠️  Production deployment — ensure Phase 0 blockers are resolved:"
+          echo "  1. Sell-out definition table signed"
+          echo "  2. MMM counterfactual method confirmed"
+          echo "  3. GQS weights signed off"
+          echo "  4. All data contracts approved"
