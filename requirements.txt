@@ -1,0 +1,33 @@
+# Market Growth Intelligence Platform — Python dependencies
+# ──────────────────────────────────────────────────────────
+# Databricks clusters already include PySpark, MLflow, and Delta Lake.
+# This file covers:
+#   1. Local development / CI (pytest, linting, YAML validation)
+#   2. Any pip-installable packages needed in Databricks init scripts
+
+# ── Testing & CI (personal laptop / GitHub Actions) ─────────────────────────
+pytest>=7.4.0
+pytest-cov>=4.1.0
+flake8>=6.1.0
+pyyaml>=6.0.1
+
+# ── Data science (available via Databricks ML Runtime — listed for local dev) ─
+# These are pre-installed on Databricks ML Runtime 14.x+.
+# Install locally only if running notebooks outside of Databricks.
+lightgbm>=4.1.0
+scikit-learn>=1.3.0
+pandas>=2.1.0
+numpy>=1.24.0
+scipy>=1.11.0
+shap>=0.43.0
+
+# ── Forecasting ──────────────────────────────────────────────────────────────
+# prophet>=1.1.5   # Uncomment if using Prophet; heavy dependency
+# neuralprophet>=0.8.0  # Alternative to Prophet
+
+# ── Snowflake connector (for local scripts — Databricks uses native connector) ─
+# snowflake-connector-python>=3.6.0  # Uncomment for local Snowflake access
+# snowflake-sqlalchemy>=1.5.0
+
+# ── Utilities ────────────────────────────────────────────────────────────────
+python-dateutil>=2.8.2

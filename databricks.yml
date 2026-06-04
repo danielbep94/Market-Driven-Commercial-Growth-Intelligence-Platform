@@ -1,0 +1,72 @@
+# Databricks Asset Bundles — Market Growth Intelligence Platform
+# Docs: https://docs.databricks.com/dev-tools/bundles/index.html
+#
+# Usage on work computer:
+#   databricks bundle validate        # Check config
+#   databricks bundle deploy --target dev
+#   databricks bundle deploy --target staging
+#   databricks bundle deploy --target prod
+
+bundle:
+  name: market-growth-intelligence
+
+variables:
+  snowflake_database:
+    description: "Target Snowflake database (MGI_DEV / MGI_STAGING / MGI_PROD)"
+    default: "MGI_DEV"
+
+targets:
+  dev:
+    mode: development
+    default: true
+    variables:
+      snowflake_database: MGI_DEV
+    workspace:
+      host: ${var.databricks_host}        # Set via: export DATABRICKS_HOST=https://...
+      root_path: /Repos/${workspace.current_user.userName}/Market-Driven-Commercial-Growth-Intelligence-Platform
+
+  staging:
+    mode: development
+    variables:
+      snowflake_database: MGI_STAGING
+    workspace:
+      host: ${var.databricks_host}
+
+  prod:
+    mode: production
+    variables:
+      snowflake_database: MGI_PROD
+    workspace:
+      host: ${var.databricks_host}
+
+resources:
+  jobs:
+    phase1_data_assessment:
+      name: "Phase 1 — Data Assessment"
+      description: "Run all Phase 1 profiling notebooks sequentially"
+      tasks:
+        - task_key: profile_sell_in
+          notebook_task:
+            notebook_path: ./notebooks/phase1_assessment/01_data_profiling_sell_in.py
+            base_parameters:
+              environment: ${bundle.target}
+        - task_key: profile_sell_out
+          depends_on: [{task_key: profile_sell_in}]
+          notebook_task:
+            notebook_path: ./notebooks/phase1_assessment/02_data_profiling_sell_out.py
+            base_parameters:
+              environment: ${bundle.target}
+        - task_key: join_key_validation
+          depends_on:
+            - {task_key: profile_sell_in}
+            - {task_key: profile_sell_out}
+          notebook_task:
+            notebook_path: ./notebooks/phase1_assessment/10_join_key_validation.py
+            base_parameters:
+              environment: ${bundle.target}
+        - task_key: readiness_scorecard
+          depends_on: [{task_key: join_key_validation}]
+          notebook_task:
+            notebook_path: ./notebooks/phase1_assessment/13_data_readiness_scorecard.py
+            base_parameters:
+              environment: ${bundle.target}

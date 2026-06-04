@@ -67,3 +67,10 @@ powerbi/*.pbix
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Allow Databricks config (non-sensitive)
+!databricks.yml
+!.databricks/project.json
+
+# Databricks CLI local state (sensitive — not committed)
+.databricks/state/
