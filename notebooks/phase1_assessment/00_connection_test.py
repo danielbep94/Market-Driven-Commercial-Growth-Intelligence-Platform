@@ -1,158 +1,159 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Connection Test — Run This First
+# MAGIC # 00 · Connection Test — Run This First
 # MAGIC
-# MAGIC **Purpose:** Verify that Databricks can reach Snowflake before running any profiling.
-# MAGIC Run this notebook once. Fix any ❌ before proceeding to notebook 01.
+# MAGIC **Purpose:** Verify Azure Key Vault secrets are accessible and Snowflake connection works.
 # MAGIC
-# MAGIC **No data is read.** This only tests connectivity and secret access.
+# MAGIC **Run once before any profiling notebook. Fix any ❌ before proceeding.**
+# MAGIC
+# MAGIC No data is read from production tables — only connectivity is tested.
 
 # COMMAND ----------
-# MAGIC %md ## 1. Verify Secret Scope is Accessible
+# MAGIC %md ## Configuration
+# MAGIC
+# MAGIC Update `DB_NAME` and `SCHEMA_NAME` to point to your source data in Snowflake.
+# MAGIC These are the **source tables** you want to profile in Phase 1.
 
 # COMMAND ----------
-SCOPE = "MGI_SECRETS"
+# ── UPDATE THESE to match your Snowflake environment ────────────────────────
+DB_NAME     = "YOUR_SOURCE_DATABASE"   # e.g. "MDP_PRD" or "DANONE_DW"
+SCHEMA_NAME = "YOUR_SOURCE_SCHEMA"     # e.g. "COMMERCIAL" or "SELL_IN"
 
-required_secrets = [
-    "SNOWFLAKE_ACCOUNT",
-    "SNOWFLAKE_USER",
-    "SNOWFLAKE_WAREHOUSE",
-    "SNOWFLAKE_ROLE",
-    "SNOWFLAKE_DB_PREFIX",
-]
+# ── Azure Key Vault scope — do not change ───────────────────────────────────
+KEYVAULT_NAME = "DAN-AM-P-KVT800-R-MDP-DB"
+KEY_NAME_USR  = "snowflake-user"
+KEY_NAME_PWD  = "snowflake-password"
 
-print("Checking Databricks Secret Scope: MGI_SECRETS")
-print("=" * 50)
-all_ok = True
-for key in required_secrets:
-    try:
-        val = dbutils.secrets.get(scope=SCOPE, key=key)
-        # Don't print the value — just confirm it exists and is non-empty
-        status = "✅ OK" if val and len(val.strip()) > 0 else "⚠️  EMPTY"
-        print(f"  {key:<35} {status}")
-    except Exception as e:
-        print(f"  {key:<35} ❌ MISSING — {str(e)[:60]}")
-        all_ok = False
-
-if not all_ok:
-    print("\n❌ Fix missing secrets before continuing.")
-    print("   Run: scripts/setup_databricks_secrets_windows.ps1 (Windows)")
-    print("   Or:  scripts/setup_databricks_secrets.sh (Mac/Linux)")
-    dbutils.notebook.exit("SECRET_SETUP_INCOMPLETE")
-else:
-    print("\n✅ All secrets found.")
+SF_URL        = "danonenam.east-us-2.azure.snowflakecomputing.com"
+SF_WAREHOUSE  = "PRD_MDP_ANL_WH"
 
 # COMMAND ----------
-# MAGIC %md ## 2. Read Connection Parameters
+# MAGIC %md ## 1. Retrieve Secrets from Azure Key Vault
 
 # COMMAND ----------
-sf_account   = dbutils.secrets.get(scope=SCOPE, key="SNOWFLAKE_ACCOUNT")
-sf_user      = dbutils.secrets.get(scope=SCOPE, key="SNOWFLAKE_USER")
-sf_warehouse = dbutils.secrets.get(scope=SCOPE, key="SNOWFLAKE_WAREHOUSE")
-sf_role      = dbutils.secrets.get(scope=SCOPE, key="SNOWFLAKE_ROLE")
-sf_db_prefix = dbutils.secrets.get(scope=SCOPE, key="SNOWFLAKE_DB_PREFIX")
+print(f"Retrieving secrets from scope: {KEYVAULT_NAME}")
+print("-" * 50)
 
-ENVIRONMENT  = "DEV"                          # Change to STAGING or PROD when ready
-SF_DATABASE  = f"{sf_db_prefix}_{ENVIRONMENT}"
-
-# Does the workspace use password or private key?
 try:
-    sf_private_key = dbutils.secrets.get(scope=SCOPE, key="SNOWFLAKE_PRIVATE_KEY")
-    AUTH_METHOD = "private_key"
-except:
-    try:
-        sf_password = dbutils.secrets.get(scope=SCOPE, key="SNOWFLAKE_PASSWORD")
-        AUTH_METHOD = "password"
-    except:
-        AUTH_METHOD = "none"
+    user     = dbutils.secrets.get(scope=KEYVAULT_NAME, key=KEY_NAME_USR)
+    password = dbutils.secrets.get(scope=KEYVAULT_NAME, key=KEY_NAME_PWD)
+    print(f"  ✅ {KEY_NAME_USR}   — retrieved")
+    print(f"  ✅ {KEY_NAME_PWD}  — retrieved")
+    SECRETS_OK = True
+except NameError:
+    print("  🚨 Not running in Databricks. Using MOCK credentials.")
+    user, password = "MOCK_USER", "MOCK_PASSWORD"
+    SECRETS_OK = False
+except Exception as e:
+    print(f"  ❌ Secret retrieval failed: {e}")
+    print(f"\n  Fix: verify the Azure Key Vault '{KEYVAULT_NAME}' is linked to this Databricks workspace.")
+    print(f"  Check: Settings → Admin Console → Secret Scopes → {KEYVAULT_NAME}")
+    SECRETS_OK = False
+    dbutils.notebook.exit("SECRET_RETRIEVAL_FAILED")
 
-print(f"Account:    [REDACTED].snowflakecomputing.com")
-print(f"User:       [REDACTED]")
-print(f"Warehouse:  [REDACTED]")
-print(f"Role:       [REDACTED]")
-print(f"Database:   {SF_DATABASE}")
-print(f"Auth method: {AUTH_METHOD}")
+# COMMAND ----------
+# MAGIC %md ## 2. Build Connection Options
+
+# COMMAND ----------
+sfOptions = {
+    "sfURL":       SF_URL,
+    "sfUser":      user,
+    "sfPassword":  password,
+    "sfDatabase":  DB_NAME,
+    "sfSchema":    SCHEMA_NAME,
+    "sfWarehouse": SF_WAREHOUSE,
+}
+
+print("Connection parameters:")
+print(f"  sfURL:       {SF_URL}")
+print(f"  sfUser:      [REDACTED]")
+print(f"  sfPassword:  [REDACTED]")
+print(f"  sfDatabase:  {DB_NAME}")
+print(f"  sfSchema:    {SCHEMA_NAME}")
+print(f"  sfWarehouse: {SF_WAREHOUSE}")
 
 # COMMAND ----------
 # MAGIC %md ## 3. Test Snowflake Connection
 
 # COMMAND ----------
-# Build Snowflake options dict for Spark connector
-sf_options = {
-    "sfURL":       f"{sf_account}.snowflakecomputing.com",
-    "sfUser":      sf_user,
-    "sfWarehouse": sf_warehouse,
-    "sfRole":      sf_role,
-    "sfDatabase":  SF_DATABASE,
-    "sfSchema":    "BRONZE",
-}
-
-if AUTH_METHOD == "private_key":
-    sf_options["pem_private_key"] = sf_private_key
-elif AUTH_METHOD == "password":
-    sf_options["sfPassword"] = sf_password
-else:
-    print("❌ No authentication method found. Run secret setup script.")
-    dbutils.notebook.exit("NO_AUTH_METHOD")
-
 print("Testing Snowflake connection...")
+
 try:
     test_df = spark.read \
         .format("snowflake") \
-        .options(**sf_options) \
-        .option("query", "SELECT CURRENT_TIMESTAMP() AS ts, CURRENT_DATABASE() AS db, CURRENT_WAREHOUSE() AS wh") \
+        .options(**sfOptions) \
+        .option("query", "SELECT CURRENT_TIMESTAMP() AS ts, CURRENT_DATABASE() AS db, CURRENT_WAREHOUSE() AS wh, CURRENT_USER() AS usr") \
         .load()
-    
+
     row = test_df.collect()[0]
-    print(f"\n✅ Connection successful!")
-    print(f"   Timestamp:  {row['TS']}")
-    print(f"   Database:   {row['DB']}")
-    print(f"   Warehouse:  {row['WH']}")
+    print(f"\n  ✅ Connection successful!")
+    print(f"     Timestamp:  {row['TS']}")
+    print(f"     Database:   {row['DB']}")
+    print(f"     Warehouse:  {row['WH']}")
+    print(f"     User:       [REDACTED]")
+    CONN_OK = True
+
 except Exception as e:
-    print(f"\n❌ Connection failed: {e}")
-    print("\nCommon fixes:")
-    print("  1. Check SNOWFLAKE_ACCOUNT format (should be: abc12345.region)")
-    print("  2. Verify your Snowflake role has access to the warehouse")
-    print("  3. Check that the Snowflake warehouse is running (not suspended)")
-    print("  4. Verify private key format (no header/footer lines, single line)")
+    err = str(e)
+    print(f"\n  ❌ Connection failed.")
+    print(f"\n  Error: {err[:300]}")
+    print("\n  Common fixes:")
+    print("    1. Is DB_NAME correct? It must exist in Snowflake.")
+    print("    2. Is the warehouse PRD_MDP_ANL_WH running (not suspended)?")
+    print("    3. Does the Snowflake user have USAGE on that warehouse and database?")
+    print("    4. Is the Snowflake Spark connector installed on this cluster?")
+    print("       (Cluster Libraries → Install → Maven → net.snowflake:spark-snowflake_2.12:2.12.0-spark_3.3)")
+    CONN_OK = False
     dbutils.notebook.exit("CONNECTION_FAILED")
 
 # COMMAND ----------
-# MAGIC %md ## 4. Verify Database Exists
+# MAGIC %md ## 4. Check Available Schemas in Source Database
 
 # COMMAND ----------
+print(f"Listing schemas in {DB_NAME}:")
 try:
     schemas_df = spark.read \
         .format("snowflake") \
-        .options(**sf_options) \
-        .option("query", f"SHOW SCHEMAS IN DATABASE {SF_DATABASE}") \
+        .options(**sfOptions) \
+        .option("query", f"SHOW SCHEMAS IN DATABASE {DB_NAME}") \
         .load()
-    
-    schema_names = [row["name"] for row in schemas_df.collect()]
-    
-    expected = ["BRONZE", "SILVER", "GOLD", "MART", "MONITORING", "FEATURE_STORE"]
-    print(f"\nSchemas in {SF_DATABASE}:")
-    for s in expected:
-        status = "✅" if s in schema_names else "⚠️  MISSING — run scripts/setup_snowflake_schemas.sh"
-        print(f"  {s:<20} {status}")
-    
-    print(f"\nAll schemas found: {', '.join(schema_names)}")
-
+    schemas_df.select("name").show(30, truncate=False)
 except Exception as e:
-    print(f"⚠️  Could not list schemas: {e}")
-    print(f"   The database {SF_DATABASE} may not exist yet.")
-    print(f"   Run: scripts/setup_snowflake_schemas.sh {ENVIRONMENT.lower()}")
+    print(f"  ⚠️  Could not list schemas: {str(e)[:200]}")
+    print(f"     Possible reason: user lacks SHOW SCHEMAS privilege on {DB_NAME}")
 
 # COMMAND ----------
-# MAGIC %md ## 5. Summary
+# MAGIC %md ## 5. Quick Table Discovery (Optional)
 
 # COMMAND ----------
-print("=" * 50)
-print("CONNECTION TEST COMPLETE")
-print("=" * 50)
-print(f"  Secrets:    ✅ All {len(required_secrets)} found")
-print(f"  Auth:       ✅ {AUTH_METHOD}")
-print(f"  Snowflake:  ✅ Connected")
-print("")
-print("Next step: Open notebook 01_data_profiling_sell_in.py")
-print("Update SOURCE_TABLE to match your actual Bronze table name, then Run All.")
+print(f"Listing tables in {DB_NAME}.{SCHEMA_NAME}:")
+try:
+    tables_df = spark.read \
+        .format("snowflake") \
+        .options(**sfOptions) \
+        .option("query", f"SHOW TABLES IN {DB_NAME}.{SCHEMA_NAME}") \
+        .load()
+    tables_df.select("name", "rows", "created_on").show(50, truncate=False)
+except Exception as e:
+    print(f"  ⚠️  Could not list tables: {str(e)[:200]}")
+    print(f"     Update SCHEMA_NAME to a schema that exists in {DB_NAME}")
+
+# COMMAND ----------
+# MAGIC %md ## 6. Result
+
+# COMMAND ----------
+print("=" * 55)
+print("CONNECTION TEST RESULT")
+print("=" * 55)
+if SECRETS_OK and CONN_OK:
+    print("  ✅ Azure Key Vault secrets: OK")
+    print("  ✅ Snowflake connection: OK")
+    print("")
+    print("  → Ready to run notebook 01_data_profiling_sell_in.py")
+    print("")
+    print("  ACTION REQUIRED before notebook 01:")
+    print(f"  Update DB_NAME and SOURCE_TABLE in notebook 01")
+    print(f"  to point to your sell-in source table in Snowflake.")
+else:
+    print("  ❌ Fix the errors above before continuing.")
+print("=" * 55)

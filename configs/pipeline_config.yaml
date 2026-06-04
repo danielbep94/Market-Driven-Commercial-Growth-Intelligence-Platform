@@ -94,3 +94,18 @@ sources:
     extract_type: "data_warehouse"
     stock_type_default: "IN_WAREHOUSE"  # Q5 resolved: exclude transit stock by default
     include_transit_stock: false
+
+# ─── Snowflake Connection (non-sensitive parameters only) ─────────────────────
+# Secrets (user/password) live in Azure Key Vault scope: DAN-AM-P-KVT800-R-MDP-DB
+# Access in notebooks via: dbutils.secrets.get(scope=KEYVAULT_NAME, key=KEY_NAME)
+snowflake:
+  account_url: "danonenam.east-us-2.azure.snowflakecomputing.com"
+  warehouse: "PRD_MDP_ANL_WH"
+  secret_scope: "DAN-AM-P-KVT800-R-MDP-DB"
+  secret_key_user: "snowflake-user"
+  secret_key_password: "snowflake-password"
+  # Target database structure (to be created via scripts/setup_snowflake_schemas.sh)
+  databases:
+    dev:     "MGI_DEV"
+    staging: "MGI_STAGING"
+    prod:    "MGI_PROD"
