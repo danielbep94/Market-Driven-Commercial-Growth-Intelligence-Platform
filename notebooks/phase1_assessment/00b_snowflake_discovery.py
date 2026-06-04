@@ -118,6 +118,7 @@ except Exception as e:
     print(f"🚨 Secret error: {e}")
 
 from datetime import datetime
+import os
 import re
 from collections import Counter
 import pyspark.sql.functions as F
@@ -768,6 +769,7 @@ md = f"""# Phase 1 — Source Discovery & Validation
 6. Tell the agent: **"discovery done, inventory committed"**
 """
 
+os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(md)
 
