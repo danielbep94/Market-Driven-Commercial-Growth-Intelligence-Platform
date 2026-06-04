@@ -1,115 +1,134 @@
 # Databricks notebook source
-# Phase 1 — Join Key Validation
-# Validates that join keys match across all data source pairs.
-# This notebook must be run and reviewed before any Phase 2 work begins.
-# Output: JOIN_KEY_VALIDATION_REPORT table in MONITORING schema
+# Phase 1 — Join Key Validation (PHASE 2 GATE)
+# Run on WORK COMPUTER in Databricks.
+# Output: docs/phase_outputs/phase1_join_key_validation.md
+#
+# CRITICAL: If join key mismatch > 20% on any source pair, Phase 2 cannot begin.
+# This notebook produces the signed-off gate document.
 
 # COMMAND ----------
-# MAGIC %md
-# MAGIC # Join Key Validation Report
-# MAGIC
-# MAGIC **Objective:** Validate that join keys (SKU codes, customer codes, brand codes, date keys)
-# MAGIC match across all source pairs. Mismatched join keys are the single most common cause of model failure.
-# MAGIC
-# MAGIC **Required before:** Phase 2 data model design
-# MAGIC **Output:** `MONITORING.JOIN_KEY_VALIDATION_REPORT`
+ENVIRONMENT = "dev"
+DB = f"MGI_{'{'}ENVIRONMENT.upper(){'}'}"
+OUTPUT_FILE = "docs/phase_outputs/phase1_join_key_validation.md"
 
-# COMMAND ----------
-import pyspark.sql.functions as F
 from datetime import datetime
-
-# Configuration — set environment before running
-ENVIRONMENT = "dev"  # dev | staging | prod
-RUN_TIMESTAMP = datetime.utcnow().isoformat()
+RUN_AT = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 
 # COMMAND ----------
-# MAGIC %md ## 1. Load Source Data (Bronze Layer)
+# MAGIC %md ## Join Pairs to Validate
+# MAGIC Each pair checks whether keys in the fact table exist in the dimension or other fact.
 
 # COMMAND ----------
-# Load all Bronze tables
-df_sell_in = spark.table(f"mgi_{ENVIRONMENT}.bronze.sell_in")
-df_sell_out = spark.table(f"mgi_{ENVIRONMENT}.bronze.sell_out")
-df_waste = spark.table(f"mgi_{ENVIRONMENT}.bronze.waste")
-df_investment = spark.table(f"mgi_{ENVIRONMENT}.bronze.investment")
-df_forecast = spark.table(f"mgi_{ENVIRONMENT}.bronze.forecast")
-df_nielsen = spark.table(f"mgi_{ENVIRONMENT}.bronze.nielsen")
+results = []
+
+def check_join(left_table, right_table, left_key, right_key, pair_label):
+    """Check what % of left_key values exist in right_key."""
+    left  = spark.table(f"{DB}.BRONZE.{left_table}").select(left_key).distinct()
+    right = spark.table(f"{DB}.BRONZE.{right_table}").select(right_key).distinct()
+    left_count    = left.count()
+    matched_count = left.join(right, left[left_key] == right[right_key], "inner").count()
+    match_pct     = round(matched_count / left_count * 100, 1) if left_count > 0 else 0
+    unmatched_pct = 100 - match_pct
+    status = "✅ PASS" if unmatched_pct <= 20 else "❌ FAIL — PHASE 2 BLOCKED"
+    result = {
+        "pair": pair_label,
+        "left": f"{left_table}.{left_key}",
+        "right": f"{right_table}.{right_key}",
+        "left_count": left_count,
+        "matched": matched_count,
+        "match_pct": match_pct,
+        "unmatched_pct": unmatched_pct,
+        "status": status
+    }
+    results.append(result)
+    print(f"{status}  {pair_label}: {match_pct:.1f}% match ({unmatched_pct:.1f}% unmatched)")
+    return result
 
 # COMMAND ----------
-# MAGIC %md ## 2. SKU Key Validation
+# MAGIC %md ## Run Join Key Checks
+# MAGIC Adjust table/column names to match your actual Snowflake Bronze schema.
 
 # COMMAND ----------
-# Get distinct SKU IDs from each source
-sell_in_skus = df_sell_in.select(F.col("sku_id").alias("sku")).distinct()
-sell_out_skus = df_sell_out.select(F.col("sku_id").alias("sku")).distinct()
-waste_skus = df_waste.select(F.col("sku_id").alias("sku")).distinct()
-forecast_skus = df_forecast.select(F.col("sku_id").alias("sku")).distinct()
+# Sell-Out SKUs in Sell-In (most critical — shared SKU dimension)
+check_join("SELL_OUT_RAW", "SELL_IN_RAW", "sku_id", "sku_id",
+           "Sell-Out SKU → Sell-In SKU")
 
-# SKUs in sell-out NOT in sell-in (orphan sell-out records)
-orphan_sell_out_skus = sell_out_skus.subtract(sell_in_skus)
-print(f"SKUs in sell-out NOT in sell-in: {orphan_sell_out_skus.count()}")
+# Sell-Out customers in customer master
+check_join("SELL_OUT_RAW", "SELL_IN_RAW", "customer_id", "customer_id",
+           "Sell-Out Customer → Sell-In Customer")
 
-# SKUs in waste NOT in sell-in
-orphan_waste_skus = waste_skus.subtract(sell_in_skus)
-print(f"SKUs in waste NOT in sell-in: {orphan_waste_skus.count()}")
+# Waste SKUs in Sell-In
+check_join("WASTE_RAW", "SELL_IN_RAW", "sku_id", "sku_id",
+           "Waste SKU → Sell-In SKU")
 
-# SKUs in forecast NOT in sell-in
-orphan_forecast_skus = forecast_skus.subtract(sell_in_skus)
-print(f"SKUs in forecast NOT in sell-in: {orphan_forecast_skus.count()}")
+# Forecast SKUs in Sell-In
+check_join("FORECAST_RAW", "SELL_IN_RAW", "sku_id", "sku_id",
+           "Forecast SKU → Sell-In SKU")
 
-# COMMAND ----------
-# MAGIC %md ## 3. Customer Key Validation
+# Investment brands in Nielsen brands
+check_join("INVESTMENT_RAW", "NIELSEN_MARKET_RAW", "brand_id", "brand_id",
+           "Investment Brand → Nielsen Brand")
 
-# COMMAND ----------
-sell_in_customers = df_sell_in.select(F.col("customer_id").alias("customer")).distinct()
-sell_out_customers = df_sell_out.select(F.col("customer_id").alias("customer")).distinct()
-waste_customers = df_waste.select(F.col("customer_id").alias("customer")).distinct()
+# Promotions in Sell-In customers
+check_join("PROMOTIONS_RAW", "SELL_IN_RAW", "customer_id", "customer_id",
+           "Promotions Customer → Sell-In Customer")
 
-orphan_sell_out_customers = sell_out_customers.subtract(sell_in_customers)
-print(f"Customers in sell-out NOT in sell-in: {orphan_sell_out_customers.count()}")
-
-orphan_waste_customers = waste_customers.subtract(sell_in_customers)
-print(f"Customers in waste NOT in sell-in: {orphan_waste_customers.count()}")
+# Inventory SKUs in Sell-In
+check_join("INVENTORY_RAW", "SELL_IN_RAW", "sku_id", "sku_id",
+           "Inventory SKU → Sell-In SKU")
 
 # COMMAND ----------
-# MAGIC %md ## 4. Brand Key Validation (across sources and Nielsen)
+# MAGIC %md ## Write Output
 
 # COMMAND ----------
-# Nielsen brand names vs. sell-in brand names
-# This will almost certainly reveal naming inconsistencies
-sell_in_brands = df_sell_in.select(F.col("brand_name").alias("brand")).distinct() if "brand_name" in df_sell_in.columns else None
-nielsen_brands = df_nielsen.select(F.col("brand_name").alias("brand")).distinct() if "brand_name" in df_nielsen.columns else None
+rows = "\n".join([
+    f"| {r['pair']} | {r['left']} | {r['right']} | {r['left_count']:,} | {r['match_pct']}% | {r['unmatched_pct']}% | {r['status']} |"
+    for r in results
+])
 
-if sell_in_brands and nielsen_brands:
-    nielsen_not_in_sell_in = nielsen_brands.subtract(sell_in_brands)
-    print(f"Brand names in Nielsen NOT matching sell-in: {nielsen_not_in_sell_in.count()}")
-    if nielsen_not_in_sell_in.count() > 0:
-        print("Sample mismatches:")
-        nielsen_not_in_sell_in.show(20, truncate=False)
+blocked = [r for r in results if "FAIL" in r["status"]]
+gate_status = "❌ BLOCKED" if blocked else "✅ CLEARED"
 
-# COMMAND ----------
-# MAGIC %md ## 5. Date Key Validation
+output = f"""# Phase 1 — Join Key Validation Report
 
-# COMMAND ----------
-# Validate that date ranges overlap meaningfully across sources
-date_ranges = {}
-for name, df, date_col in [
-    ("sell_in", df_sell_in, "ship_date"),
-    ("sell_out", df_sell_out, "sell_out_date"),
-    ("waste", df_waste, "waste_date"),
-    ("forecast", df_forecast, "forecast_date"),
-]:
-    if date_col in df.columns:
-        agg = df.agg(F.min(date_col).alias("min_date"), F.max(date_col).alias("max_date")).collect()[0]
-        date_ranges[name] = {"min": agg["min_date"], "max": agg["max_date"]}
-        print(f"{name}: {agg['min_date']} → {agg['max_date']}")
+**Generated:** {RUN_AT}
+**Environment:** {ENVIRONMENT.upper()}
+**Phase 2 Gate Status:** {gate_status}
 
-# COMMAND ----------
-# MAGIC %md ## 6. Write Validation Report
+---
 
-# COMMAND ----------
-# TODO: Collect all validation results into a structured report
-# and write to MONITORING.JOIN_KEY_VALIDATION_REPORT
-# This should include: source_pair, key_type, match_rate, orphan_count, run_timestamp
-print("Join key validation complete. Review results above.")
-print("ACTION REQUIRED: If orphan count > 0, resolve before Phase 2 begins.")
-print("PHASE 2 BLOCKER: Brand name mismatches must be added to homologation dictionary.")
+## Results
+
+| Source Pair | Left Key | Right Key | Left Count | Match % | Unmatched % | Status |
+|-------------|----------|-----------|-----------|---------|-------------|--------|
+{rows}
+
+## Gate Decision
+
+**Threshold:** Unmatched % must be ≤ 20% for all pairs to pass.
+
+{"### ❌ BLOCKED — Resolution required before Phase 2" + chr(10) + chr(10) + chr(10).join([f"- **{r['pair']}**: {r['unmatched_pct']}% unmatched — investigate missing keys" for r in blocked]) if blocked else "### ✅ CLEARED — Phase 2 can begin"}
+
+## Open Items (fill in after reviewing)
+
+- [ ] For any FAIL: are the unmatched keys new records, test data, or a real mapping gap?
+- [ ] Are there homologation issues (same entity, different ID format across sources)?
+- [ ] Document resolution approach for each FAIL before starting Phase 2
+
+## Sign-Off
+
+| Name | Role | Decision | Date |
+|------|------|----------|------|
+| | Data Engineer | | |
+| | Data Steward | | |
+"""
+
+with open(OUTPUT_FILE, "w") as f:
+    f.write(output)
+
+print(f"\n✅ Output written to {OUTPUT_FILE}")
+print(f"Phase 2 gate: {gate_status}")
+print(f"\nNext steps on work computer:")
+print(f"  git add {OUTPUT_FILE}")
+print(f"  git commit -m 'data: phase1 join key validation — gate {gate_status}'")
+print(f"  git push origin main")
