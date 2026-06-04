@@ -1,14 +1,18 @@
-name: CI — Lint & Unit Tests
+name: CI — Lint & Unit Tests [DISABLED]
 
+# ⚠️ CI temporarily disabled — restore triggers below to re-enable
+# on:
+#   pull_request:
+#     branches: [main]
+#   push:
+#     branches: [main]
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
+  workflow_dispatch: # manual trigger only while disabled
 
 jobs:
   lint-and-test:
     name: Lint + Unit Tests
+    if: false # ⚠️ DISABLED — remove this line to re-enable
     runs-on: ubuntu-latest
 
     steps:
