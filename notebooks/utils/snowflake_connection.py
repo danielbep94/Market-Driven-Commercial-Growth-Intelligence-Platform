@@ -18,6 +18,7 @@ KEY_NAME_PWD  = "snowflake-password"
 
 SF_URL        = "danonenam.east-us-2.azure.snowflakecomputing.com"
 SF_WAREHOUSE  = "PRD_MDP_ANL_WH"
+SF_ROLE       = "PRD_MDP"
 
 # COMMAND ----------
 try:
@@ -50,6 +51,7 @@ def get_sf_options(db_name: str, schema_name: str = "PUBLIC") -> dict:
         "sfDatabase":  db_name,
         "sfSchema":    schema_name,
         "sfWarehouse": SF_WAREHOUSE,
+        "sfRole":      SF_ROLE,
     }
 
 
@@ -70,5 +72,6 @@ def read_sf_query(db_name: str, schema_name: str, query: str):
 print(f"Snowflake utility ready.")
 print(f"  URL:       {SF_URL}")
 print(f"  Warehouse: {SF_WAREHOUSE}")
+print(f"  Role:      {SF_ROLE}")
 print(f"  User:      [REDACTED]")
 print(f"\nUsage: sfOptions = get_sf_options('MY_DB', 'MY_SCHEMA')")

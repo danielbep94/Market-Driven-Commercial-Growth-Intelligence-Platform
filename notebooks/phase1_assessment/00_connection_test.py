@@ -16,8 +16,8 @@
 
 # COMMAND ----------
 # ── UPDATE THESE to match your Snowflake environment ────────────────────────
-DB_NAME     = "YOUR_SOURCE_DATABASE"   # e.g. "MDP_PRD" or "DANONE_DW"
-SCHEMA_NAME = "YOUR_SOURCE_SCHEMA"     # e.g. "COMMERCIAL" or "SELL_IN"
+DB_NAME     = "PRD_MDP"   # Source database for MDP data discovery
+SCHEMA_NAME = "MDP_DSP"   # Source schema for MDP data discovery
 
 # ── Azure Key Vault scope — do not change ───────────────────────────────────
 KEYVAULT_NAME = "DAN-AM-P-KVT800-R-MDP-DB"
@@ -26,6 +26,7 @@ KEY_NAME_PWD  = "snowflake-password"
 
 SF_URL        = "danonenam.east-us-2.azure.snowflakecomputing.com"
 SF_WAREHOUSE  = "PRD_MDP_ANL_WH"
+SF_ROLE       = "PRD_MDP"
 
 # COMMAND ----------
 # MAGIC %md ## 1. Retrieve Secrets from Azure Key Vault
@@ -62,6 +63,7 @@ sfOptions = {
     "sfDatabase":  DB_NAME,
     "sfSchema":    SCHEMA_NAME,
     "sfWarehouse": SF_WAREHOUSE,
+    "sfRole":      SF_ROLE,
 }
 
 print("Connection parameters:")
@@ -71,6 +73,7 @@ print(f"  sfPassword:  [REDACTED]")
 print(f"  sfDatabase:  {DB_NAME}")
 print(f"  sfSchema:    {SCHEMA_NAME}")
 print(f"  sfWarehouse: {SF_WAREHOUSE}")
+print(f"  sfRole:      {SF_ROLE}")
 
 # COMMAND ----------
 # MAGIC %md ## 3. Test Snowflake Connection
@@ -82,7 +85,7 @@ try:
     test_df = spark.read \
         .format("snowflake") \
         .options(**sfOptions) \
-        .option("query", "SELECT CURRENT_TIMESTAMP() AS ts, CURRENT_DATABASE() AS db, CURRENT_WAREHOUSE() AS wh, CURRENT_USER() AS usr") \
+        .option("query", "SELECT CURRENT_TIMESTAMP() AS ts, CURRENT_DATABASE() AS db, CURRENT_WAREHOUSE() AS wh, CURRENT_USER() AS usr, CURRENT_ROLE() AS role") \
         .load()
 
     row = test_df.collect()[0]
@@ -91,6 +94,7 @@ try:
     print(f"     Database:   {row['DB']}")
     print(f"     Warehouse:  {row['WH']}")
     print(f"     User:       [REDACTED]")
+    print(f"     Role:       {row['ROLE']}")
     CONN_OK = True
 
 except Exception as e:
@@ -100,8 +104,9 @@ except Exception as e:
     print("\n  Common fixes:")
     print("    1. Is DB_NAME correct? It must exist in Snowflake.")
     print("    2. Is the warehouse PRD_MDP_ANL_WH running (not suspended)?")
-    print("    3. Does the Snowflake user have USAGE on that warehouse and database?")
-    print("    4. Is the Snowflake Spark connector installed on this cluster?")
+    print("    3. Does the Snowflake user have USAGE on PRD_MDP_ANL_WH and PRD_MDP?")
+    print("    4. Confirm the connector role is PRD_MDP; PRD_MDP_READER uses a different permission model.")
+    print("    5. Is the Snowflake Spark connector installed on this cluster?")
     print("       (Cluster Libraries → Install → Maven → net.snowflake:spark-snowflake_2.12:2.12.0-spark_3.3)")
     CONN_OK = False
     dbutils.notebook.exit("CONNECTION_FAILED")
