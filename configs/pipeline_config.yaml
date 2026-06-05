@@ -38,23 +38,35 @@ environments:
 
 # --- Enterprise Metadata Catalog (Phase 1 output) ---
 # Written by: notebooks/phase1_assessment/00c_enterprise_catalog_writer.py
-# Target:     MDP_ANALYTICS.METADATA.* (10 tables)
+# Storage:    Databricks Delta Lake (no Snowflake DDL permissions required)
+#
+# Option A — Unity Catalog (preferred if workspace has Unity Catalog):
+#   delta_catalog: "mgi_dev"       # your Unity Catalog name
+#   delta_schema:  "metadata"
+#
+# Option B — DBFS / Hive metastore (works in any Databricks workspace):
+#   delta_catalog: null             # null = use Hive metastore
+#   delta_schema:  "mgi_metadata"   # auto-created if missing
+#
+# CSVs are also written to docs/phase_outputs/ and committed to Git.
 metadata_catalog:
-  target_database: "MDP_ANALYTICS"
-  target_schema: "METADATA"
+  delta_catalog: null              # set to your Unity Catalog name if available
+  delta_schema: "mgi_metadata"
   tables:
-    - DATASET_INVENTORY
-    - COLUMN_INVENTORY
-    - RELATIONSHIP_MATRIX
-    - BUSINESS_DOMAIN_PROFILE
-    - DATA_QUALITY_ASSESSMENT
-    - GRAIN_ASSESSMENT
-    - DIMENSION_CANDIDATES
-    - JOIN_VALIDATION_REPORT
-    - BUSINESS_GLOSSARY
-    - ENTERPRISE_READINESS_SCORECARD
-  refresh_mode: "overwrite"   # Each discovery run replaces previous results
+    - dataset_inventory
+    - column_inventory
+    - relationship_matrix
+    - business_domain_profile
+    - data_quality_assessment
+    - grain_assessment
+    - dimension_candidates
+    - join_validation_report
+    - business_glossary
+    - enterprise_readiness_scorecard
+  refresh_mode: "overwrite"        # each run replaces previous results
   run_after: "00b_snowflake_discovery"
+  snowflake_ddl_required: false    # ← no CREATE SCHEMA needed
+
 
 # --- Q1: Fiscal Calendar (confirmed with Finance in Phase 0) ---
 # If fiscal = Gregorian, set fiscal_offset_weeks: 0 and fiscal_year_start_month: 1

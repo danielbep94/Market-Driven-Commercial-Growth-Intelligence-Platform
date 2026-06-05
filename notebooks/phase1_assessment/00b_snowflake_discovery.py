@@ -29,17 +29,16 @@
 # MAGIC The `db` key goes in connector options. SQL uses `SCHEMA.TABLE` or just `TABLE`.
 
 # COMMAND ----------
-
 # MAGIC %md ## ─── SECTION A: SOURCES CONFIGURATION ──────────────────────────────
 # MAGIC
 # MAGIC Configure each source below. Set `None` for sources not yet ready.
 # MAGIC
 # MAGIC Keys per source dict:
-# MAGIC - `"db"`:         Snowflake database (e.g. `"PRD_MDP"`)
-# MAGIC - `"schema"`:    Default schema (e.g. `"MDP_DSP"`)
-# MAGIC - `"sql"`:       Query — use `TABLE` or `SCHEMA.TABLE`, never `DB.SCHEMA.TABLE`
+# MAGIC - `"db"`:     Snowflake database (e.g. `"PRD_MDP"`)
+# MAGIC - `"schema"`: Default schema (e.g. `"MDP_DSP"`)
+# MAGIC - `"sql"`:    Query — use `TABLE` or `SCHEMA.TABLE`, never `DB.SCHEMA.TABLE`
 # MAGIC - `"grain_hint"`: Optional human description to be validated (e.g. `"FECHA × MARCA × CAMPANA"`)
-# MAGIC
+
 # COMMAND ----------
 
 SOURCES = {
@@ -56,6 +55,65 @@ SOURCES = {
     "DATA_SELL_IN": None,   # ← replace None with dict when ready
 
     # ── 3 · Sell-Out ─────────────────────────────────────────────────────────
+    "DATA_SELL_OUT": {
+        "db":     "PRD_MDP",
+        "schema": "MDP_DSP",
+        "sql":    """
+          WITH fact_filtered AS (
+    SELECT
+        PER_ID,
+        STORE,
+        UPC,
+        VOL_SELL_OUT,
+        PCS_SELL_OUT,
+        AMOUNT_SELL_OUT,
+        VOL_INV,
+        PCS_INV,
+        AVG_SELL
+    FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
+    WHERE PER_ID >= 20250101
+)
+
+SELECT
+    -- Period Catalog
+    per.DAY_ID,
+    per.YEAR_ID,
+    per.MONTH_LONG_DES_ESP,
+
+    -- CBU Catalog
+    cbu.CBU_CODE,
+    cbu.CBU_DSC,
+    cbu.CBU_SAP,
+
+    -- Store Catalog
+    st.CHAIN,
+    st.FORMAT,
+    st.SUBCHAIN,
+
+    -- Product Catalog (pon aquí solo las columnas necesarias)
+    prod.INT_ID,
+    prod.CBU_ID,
+    
+    -- Fact Metrics
+    f.UPC,
+    f.VOL_SELL_OUT,
+    f.PCS_SELL_OUT,
+    f.AMOUNT_SELL_OUT,
+    f.VOL_INV,
+    f.PCS_INV,
+    f.AVG_SELL
+FROM fact_filtered f
+INNER JOIN PRD_MDP.MDP_DWH.V_D_PERIOD per
+    ON f.PER_ID = per.PER_ID
+INNER JOIN PRD_MDP.MDP_DSP.VW_D_STORE_RM st
+    ON f.STORE = st.INT_ID
+INNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
+    ON f.UPC = prod.INT_ID
+INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
+    ON prod.CBU_ID = cbu.CBU_ID;
+        """,
+    },
+
     "DATA_SELL_OUT": None,
     # Example when ready:
     # "DATA_SELL_OUT": {
@@ -66,10 +124,14 @@ SOURCES = {
     # },
 
     # ── 4 · Waste / Merma ────────────────────────────────────────────────────
+    # NOTE: VW_WASTE lives in MDP_STG, not MDP_DSP.
+    # The schema key must match the object's actual schema.
+    # SQL must NOT include the database prefix — use SCHEMA.TABLE only.
     "DATA_WASTE": {
-        "db":     "PRD_MDP",
-        "schema": "MDP_DSP",
-        "sql":    "SELECT * FROM PRD_MDP.MDP_STG.VW_WASTE",
+        "db":         "PRD_MDP",
+        "schema":     "MDP_STG",
+        "sql":        "SELECT * FROM VW_WASTE",
+        "grain_hint": "FECHA × SKU × CADENA",
     },
 
     # ── 5 · Demand Forecast ──────────────────────────────────────────────────
@@ -105,15 +167,12 @@ DOMAIN_LABELS = {
 }
 
 # COMMAND ----------
-
-%md ## ─── SECTION B: DO NOT EDIT BELOW ───────────────────────────────────
+# MAGIC %md ## ─── SECTION B: DO NOT EDIT BELOW ───────────────────────────────────
 
 # COMMAND ----------
-
 # MAGIC %md ## B1 · Imports & Connection Setup
 
 # COMMAND ----------
-
 import yaml, csv, os, itertools
 from datetime import datetime
 from collections import defaultdict
@@ -145,25 +204,11 @@ RUN_AT      = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 OUTPUT_DIR  = "docs/phase_outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# ── Utility helpers ───────────────────────────────────────────────────────────
-def qcol(name: str):
-    """Safely reference a Spark DataFrame column by exact name.
-
-    Wrapping in backticks forces exact column resolution for names containing
-    dots, percent signs, parentheses, spaces, or mixed casing.
-    """
-    return F.col(f"`{str(name).replace('`', '``')}`")
-
-
 # ── Snowflake helpers ─────────────────────────────────────────────────────────
 def get_sf_opts(db: str, schema: str) -> dict:
-    missing = [n for n, v in {"db": db, "schema": schema}.items() if not v]
-    if missing:
-        raise ValueError(f"Missing required Snowflake config key(s): {', '.join(missing)}")
     return {
         "sfURL": SF_URL, "sfUser": user, "sfPassword": password,
         "sfDatabase": db, "sfSchema": schema, "sfWarehouse": SF_WAREHOUSE,
-        "sfRole": SF_ROLE,
     }
 
 def validate_source_config(source_key: str, cfg: dict):
@@ -197,11 +242,9 @@ def run_info_schema(db: str, schema: str, object_name: str):
         return {}
 
 # COMMAND ----------
-
 # MAGIC %md ## B2 · Load Config Files
 
 # COMMAND ----------
-
 # ── DQ Rules ─────────────────────────────────────────────────────────────────
 DQ_RULES = {}
 try:
@@ -223,11 +266,9 @@ except Exception as e:
     print(f"⚠️  Could not load business_glossary_seed.yaml: {e}")
 
 # COMMAND ----------
-
 # MAGIC %md ## B3 · Business Key Taxonomy (for Domain Profile & Dimension Discovery)
 
 # COMMAND ----------
-
 # Columns to profile with value-frequency tables (EA1)
 BUSINESS_KEY_COLS = {
     "marca", "cadena", "chain", "canal", "sku", "upc", "format", "formato",
@@ -268,11 +309,9 @@ def detect_date_col(columns: list):
             return col_lower[p]
     return None
 
-
 # COMMAND ----------
-
 # MAGIC %md ## B4 · Main Discovery Loop
-# MAGIC 
+
 # COMMAND ----------
 
 defined   = {k: v for k, v in SOURCES.items() if v is not None}
@@ -786,11 +825,9 @@ for source_key, cfg in defined.items():
     df.unpersist()
 
 # COMMAND ----------
-
-%md ## B5 · Summary Scorecard
+# MAGIC %md ## B5 · Summary Scorecard
 
 # COMMAND ----------
-
 print("\n" + "═" * 80)
 print("ENTERPRISE READINESS SUMMARY")
 print("═" * 80)
@@ -813,14 +850,12 @@ for key in undefined:
     print(f"  {key:<18} {DOMAIN_LABELS.get(key,key):<26} {'':>10}  {'':>9} {'':>8} {'':>8} {'':>9} {'':>9} {'':>7}  ⏳ TBD")
 
 print(f"\n  Run notebook 00c_enterprise_catalog_writer.py to generate all 10 CSV outputs")
-print(f"  and persist results to Snowflake MDP_ANALYTICS.METADATA schema.")
+print(f"  and persist results as Databricks Delta tables (no Snowflake DDL permissions required).")
 
 # COMMAND ----------
-
-%md ## B6 · Pass Results to 00c (via notebook exit value or shared storage)
+# MAGIC %md ## B6 · Pass Results to 00c (via notebook exit value or shared storage)
 
 # COMMAND ----------
-
 # The `results` dict is available as a module-level variable.
 # When running in sequence via %run, 00c will access it directly.
 # If running independently, serialize to a temp Delta table or JSON file.
