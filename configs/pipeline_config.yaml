@@ -16,6 +16,7 @@ environments:
     snowflake_schema_gold: "GOLD"
     snowflake_schema_mart: "MART"
     snowflake_schema_monitoring: "MONITORING"
+    snowflake_schema_metadata: "METADATA"
   staging:
     databricks_catalog: "mgi_staging"
     snowflake_database: "MGI_STAGING"
@@ -24,6 +25,7 @@ environments:
     snowflake_schema_gold: "GOLD"
     snowflake_schema_mart: "MART"
     snowflake_schema_monitoring: "MONITORING"
+    snowflake_schema_metadata: "METADATA"
   prod:
     databricks_catalog: "mgi_prod"
     snowflake_database: "MGI_PROD"
@@ -32,6 +34,27 @@ environments:
     snowflake_schema_gold: "GOLD"
     snowflake_schema_mart: "MART"
     snowflake_schema_monitoring: "MONITORING"
+    snowflake_schema_metadata: "METADATA"
+
+# --- Enterprise Metadata Catalog (Phase 1 output) ---
+# Written by: notebooks/phase1_assessment/00c_enterprise_catalog_writer.py
+# Target:     MDP_ANALYTICS.METADATA.* (10 tables)
+metadata_catalog:
+  target_database: "MDP_ANALYTICS"
+  target_schema: "METADATA"
+  tables:
+    - DATASET_INVENTORY
+    - COLUMN_INVENTORY
+    - RELATIONSHIP_MATRIX
+    - BUSINESS_DOMAIN_PROFILE
+    - DATA_QUALITY_ASSESSMENT
+    - GRAIN_ASSESSMENT
+    - DIMENSION_CANDIDATES
+    - JOIN_VALIDATION_REPORT
+    - BUSINESS_GLOSSARY
+    - ENTERPRISE_READINESS_SCORECARD
+  refresh_mode: "overwrite"   # Each discovery run replaces previous results
+  run_after: "00b_snowflake_discovery"
 
 # --- Q1: Fiscal Calendar (confirmed with Finance in Phase 0) ---
 # If fiscal = Gregorian, set fiscal_offset_weeks: 0 and fiscal_year_start_month: 1

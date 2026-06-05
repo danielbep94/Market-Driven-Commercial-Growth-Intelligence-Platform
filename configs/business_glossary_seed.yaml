@@ -1,0 +1,376 @@
+# Business Glossary Seed — Enterprise Metadata Catalog
+# Version: 1.0
+# Purpose: Pre-populated business definitions merged into business_glossary.csv.
+#          Any column NOT listed here gets a "[TO BE DEFINED]" template row.
+#
+# Fields:
+#   column_name:       Exact column name as it appears in Snowflake (UPPERCASE)
+#   business_name:     Human-readable business label
+#   definition:        Plain-language definition of what the column represents
+#   calculation_logic: How the value is computed (if applicable)
+#   unit:              Unit of measure (MXN, USD, Units, %, Date, etc.)
+#   owner:             Business owner team
+#   datasets:          List of datasets where this column appears (or "ALL")
+#   is_business_key:   true if this column is a primary business dimension key
+#   dimension:         Which master dimension this column belongs to
+
+columns:
+
+  # ── Product Dimension ──────────────────────────────────────────────────────
+  - column_name: UPC
+    business_name: Universal Product Code
+    definition: >
+      Unique numeric barcode assigned to each consumer-facing product SKU.
+      Used as the primary product join key between Sell-Out, Pricing, and Promotions.
+      Expected to be ~94% null in DATA_MKT (brand-level investment campaigns).
+    calculation_logic: "Assigned by GS1 / Product Master"
+    unit: "Code"
+    owner: "Supply Chain / Commercial Operations"
+    datasets: ["DATA_MKT", "DATA_SELL_OUT", "DATA_PRICE", "DATA_PROMO"]
+    is_business_key: true
+    dimension: DIM_PRODUCT
+
+  - column_name: SKU
+    business_name: Stock Keeping Unit
+    definition: >
+      Internal Danone product identifier at the lowest level of the product hierarchy.
+      Primary join key for Sell-In, Waste, Forecast, and Inventory datasets.
+    calculation_logic: "Assigned by Danone Product Master"
+    unit: "Code"
+    owner: "Supply Chain / S&OP"
+    datasets: ["DATA_SELL_IN", "DATA_WASTE", "DATA_FORECAST", "DATA_INVENTORY"]
+    is_business_key: true
+    dimension: DIM_PRODUCT
+
+  - column_name: INT_ID
+    business_name: Internal Product ID
+    definition: >
+      Danone internal ERP product identifier. Used as a bridge key to join
+      Sell-In data (which may use INT_ID) to the UPC/SKU universe.
+    calculation_logic: "ERP system-assigned"
+    unit: "Code"
+    owner: "IT / Commercial Operations"
+    datasets: ["DATA_SELL_IN"]
+    is_business_key: true
+    dimension: DIM_PRODUCT
+
+  - column_name: CBU_CODE
+    business_name: Consumer Business Unit Code
+    definition: >
+      Nielsen's proprietary product identifier used in market share data.
+      Must be homologated (mapped) to internal SKU/UPC before joining Nielsen
+      data to internal sell-out or sell-in data.
+    calculation_logic: "Assigned by Nielsen"
+    unit: "Code"
+    owner: "Market Intelligence"
+    datasets: ["DATA_NIELSEN"]
+    is_business_key: true
+    dimension: DIM_PRODUCT
+
+  - column_name: DESCRIPCION
+    business_name: Product Description
+    definition: "Short text description of the product as it appears in the source system."
+    calculation_logic: "Source system attribute"
+    unit: "Text"
+    owner: "Commercial Operations"
+    datasets: ["ALL"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  # ── Brand / Hierarchy ──────────────────────────────────────────────────────
+  - column_name: MARCA
+    business_name: Brand
+    definition: >
+      Danone brand name (e.g. OIKOS, ACTIVIA, ACTIMEL, DANUP, DANONE).
+      The most reliable cross-dataset join key — 0% null in DATA_MKT.
+      Used as fallback join when UPC is unavailable.
+    calculation_logic: "Product hierarchy attribute"
+    unit: "Text"
+    owner: "Marketing"
+    datasets: ["DATA_MKT", "DATA_WASTE", "DATA_SELL_OUT", "DATA_NIELSEN"]
+    is_business_key: true
+    dimension: DIM_BRAND
+
+  - column_name: CATEGORIA
+    business_name: Product Category
+    definition: >
+      Level-1 product hierarchy grouping (e.g. YOGURT, BEBIDAS, QUESOS).
+      Used for category-level performance analysis and Nielsen benchmarking.
+    calculation_logic: "Product hierarchy attribute"
+    unit: "Text"
+    owner: "Commercial / Marketing"
+    datasets: ["DATA_MKT", "DATA_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_BRAND
+
+  - column_name: SUBCATEGORIA
+    business_name: Product Subcategory
+    definition: "Level-2 product hierarchy grouping below CATEGORIA."
+    calculation_logic: "Product hierarchy attribute"
+    unit: "Text"
+    owner: "Commercial / Marketing"
+    datasets: ["DATA_MKT"]
+    is_business_key: false
+    dimension: DIM_BRAND
+
+  # ── Customer / Channel Dimension ───────────────────────────────────────────
+  - column_name: CADENA
+    business_name: Retail Chain (Spanish)
+    definition: >
+      Retailer chain name in Spanish (e.g. WALMART, OXXO, CHEDRAUI).
+      Used in DATA_MKT and DATA_WASTE as the customer dimension key.
+      Must be homologated to CHAIN in DATA_SELL_OUT (may differ in spelling).
+    calculation_logic: "Customer master attribute"
+    unit: "Text"
+    owner: "Commercial / Key Account Management"
+    datasets: ["DATA_MKT", "DATA_WASTE", "DATA_SELL_IN"]
+    is_business_key: true
+    dimension: DIM_CUSTOMER
+
+  - column_name: CHAIN
+    business_name: Retail Chain (English)
+    definition: >
+      Retailer chain name as used in sell-out data (may be English equivalent of CADENA).
+      Primary customer join key in DATA_SELL_OUT. Verify homologation with CADENA
+      before using both in the same query.
+    calculation_logic: "Customer master attribute"
+    unit: "Text"
+    owner: "Commercial / Key Account Management"
+    datasets: ["DATA_SELL_OUT", "DATA_PRICE"]
+    is_business_key: true
+    dimension: DIM_CUSTOMER
+
+  - column_name: SUBCHAIN
+    business_name: Sub-Chain / Banner
+    definition: "Sub-level of CHAIN — typically identifies individual retail banners within a chain."
+    calculation_logic: "Customer hierarchy attribute"
+    unit: "Text"
+    owner: "Commercial"
+    datasets: ["DATA_SELL_OUT"]
+    is_business_key: false
+    dimension: DIM_CUSTOMER
+
+  - column_name: FORMAT
+    business_name: Store Format
+    definition: >
+      Store format classification (e.g. HYPERMARKET, SUPERMARKET, CONVENIENCE).
+      Used for channel mix analysis and promotional targeting.
+    calculation_logic: "Customer master attribute"
+    unit: "Text"
+    owner: "Commercial / Trade Marketing"
+    datasets: ["DATA_SELL_OUT"]
+    is_business_key: false
+    dimension: DIM_CUSTOMER
+
+  - column_name: CANAL
+    business_name: Trade Channel
+    definition: >
+      High-level trade channel classification (e.g. ECOMMERCE, MODERN_TRADE).
+      Used in both marketing investment and sell-out for channel-level P&L.
+    calculation_logic: "Customer hierarchy attribute"
+    unit: "Text"
+    owner: "Commercial"
+    datasets: ["DATA_MKT", "DATA_WASTE"]
+    is_business_key: false
+    dimension: DIM_CUSTOMER
+
+  # ── Time Dimension ─────────────────────────────────────────────────────────
+  - column_name: FECHA
+    business_name: Transaction Date
+    definition: >
+      Full calendar date of the transaction, campaign, or event.
+      Confirmed as auto-detected date column in DATA_MKT.
+      Used for temporal alignment across all datasets.
+    calculation_logic: "Source system timestamp truncated to DATE"
+    unit: "Date (YYYY-MM-DD)"
+    owner: "Data Engineering"
+    datasets: ["DATA_MKT", "DATA_SELL_IN", "DATA_WASTE", "DATA_PRICE"]
+    is_business_key: true
+    dimension: DIM_DATE
+
+  - column_name: DAY_ID
+    business_name: Day Surrogate Key
+    definition: >
+      Day-level surrogate key in Sell-Out data. May be stored as DATE or INTEGER (YYYYMMDD).
+      Must be transformed to DATE format for joins with FECHA: TO_DATE(CAST(DAY_ID AS STRING), 'YYYYMMDD').
+    calculation_logic: "Date surrogate — may require format transform"
+    unit: "Date or Integer (YYYYMMDD)"
+    owner: "Data Engineering"
+    datasets: ["DATA_SELL_OUT"]
+    is_business_key: true
+    dimension: DIM_DATE
+
+  - column_name: ANIO
+    business_name: Year
+    definition: "Calendar year as an integer (e.g. 2024). Used as a partition key and for annual aggregations."
+    calculation_logic: "YEAR(FECHA)"
+    unit: "Integer (YYYY)"
+    owner: "Data Engineering"
+    datasets: ["DATA_MKT", "DATA_SELL_IN"]
+    is_business_key: false
+    dimension: DIM_DATE
+
+  - column_name: MES
+    business_name: Month
+    definition: "Calendar month as an integer (1–12). Used for monthly aggregations."
+    calculation_logic: "MONTH(FECHA)"
+    unit: "Integer (1-12)"
+    owner: "Data Engineering"
+    datasets: ["DATA_WASTE", "DATA_SELL_IN"]
+    is_business_key: false
+    dimension: DIM_DATE
+
+  - column_name: YEAR_ID
+    business_name: Nielsen Year ID
+    definition: "Nielsen proprietary year period identifier. Must be mapped to calendar year for temporal joins."
+    calculation_logic: "Assigned by Nielsen"
+    unit: "Code"
+    owner: "Market Intelligence"
+    datasets: ["DATA_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_DATE
+
+  # ── Marketing Dimension ────────────────────────────────────────────────────
+  - column_name: CAMPANA
+    business_name: Campaign Name
+    definition: "Marketing campaign identifier or name. Used for campaign-level investment and effectiveness analysis."
+    calculation_logic: "Source system attribute"
+    unit: "Text"
+    owner: "Marketing"
+    datasets: ["DATA_MKT"]
+    is_business_key: false
+    dimension: DIM_MARKETING
+
+  - column_name: MEDIO
+    business_name: Media Type
+    definition: "Media type used in the campaign (e.g. TV, DIGITAL, OOH, RADIO, PRINT)."
+    calculation_logic: "Source system attribute"
+    unit: "Text"
+    owner: "Marketing / Media Agency"
+    datasets: ["DATA_MKT"]
+    is_business_key: false
+    dimension: DIM_MARKETING
+
+  - column_name: PLATAFORMA
+    business_name: Platform
+    definition: "Digital platform (e.g. FACEBOOK, GOOGLE, YOUTUBE, AMAZON) within the DIGITAL media type."
+    calculation_logic: "Source system attribute"
+    unit: "Text"
+    owner: "Marketing / Media Agency"
+    datasets: ["DATA_MKT"]
+    is_business_key: false
+    dimension: DIM_MARKETING
+
+  - column_name: OBJETIVO
+    business_name: Funnel Objective
+    definition: "Marketing funnel objective (e.g. AWARENESS, CONSIDERATION, CONVERSION, RETENTION)."
+    calculation_logic: "Assigned at campaign creation"
+    unit: "Text"
+    owner: "Marketing"
+    datasets: ["DATA_MKT"]
+    is_business_key: false
+    dimension: DIM_MARKETING
+
+  # ── Key Metrics ────────────────────────────────────────────────────────────
+  - column_name: INVERSION_REAL
+    business_name: Actual Marketing Investment
+    definition: >
+      Actual marketing spend in local currency (MXN) as invoiced/actualized.
+      Differs from INVERSION_PRESUPUESTADA (budgeted). Used in MMM as the
+      primary media investment input variable.
+    calculation_logic: "Actualized spend from finance reconciliation"
+    unit: "MXN"
+    owner: "Marketing Finance"
+    datasets: ["DATA_MKT"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: INVERSION_PRESUPUESTADA
+    business_name: Budgeted Marketing Investment
+    definition: "Planned/budgeted marketing spend. Used for budget vs actual variance analysis."
+    calculation_logic: "Annual budget allocation"
+    unit: "MXN"
+    owner: "Marketing Finance"
+    datasets: ["DATA_MKT"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: VOL_SELL_OUT
+    business_name: Consumer Sales Volume
+    definition: >
+      Total volume sold to consumers at point of sale, measured in the base unit
+      of the product (e.g. units, kg, liters depending on category).
+      Primary sell-out volume metric for market share and revenue analytics.
+    calculation_logic: "Sum of POS scanner data within the reporting period"
+    unit: "Units / kg / L (category-specific)"
+    owner: "Commercial Analytics"
+    datasets: ["DATA_SELL_OUT"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: PCS_SELL_OUT
+    business_name: Consumer Sales in Pieces
+    definition: "Total consumer sales counted in individual pieces (pcs). Used when volume units differ from sellable pieces."
+    calculation_logic: "Sum of POS scanner pieces within the reporting period"
+    unit: "Pieces"
+    owner: "Commercial Analytics"
+    datasets: ["DATA_SELL_OUT"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: UNIDADES_MERMA
+    business_name: Waste Units
+    definition: >
+      Units destroyed or written off due to expiry, damage, or quality issues.
+      Used in waste rate calculation: UNIDADES_MERMA / UNIDADES_SELL_IN.
+      Zero is a valid value (no waste in the period).
+    calculation_logic: "Reported by retailer / warehouse management system"
+    unit: "Units"
+    owner: "Supply Chain / Commercial"
+    datasets: ["DATA_WASTE"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: MARKET_SHARE
+    business_name: Market Share (%)
+    definition: >
+      Danone brand share of total category sales within the Nielsen measurement universe.
+      Used as the primary external benchmark in MMM and strategic planning.
+    calculation_logic: "Danone Category Sales / Total Market Category Sales × 100"
+    unit: "%"
+    owner: "Market Intelligence"
+    datasets: ["DATA_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: PRECIO
+    business_name: Retail Price
+    definition: "Observed regular shelf price at the point of sale for the UPC/Chain combination."
+    calculation_logic: "Sourced from pricing data provider or retailer data"
+    unit: "MXN"
+    owner: "Revenue Growth Management"
+    datasets: ["DATA_PRICE"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: FORECAST_UNITS
+    business_name: Forecasted Units
+    definition: "Demand planning forecast for the SKU/customer/period combination. Used as MMM baseline and inventory planning input."
+    calculation_logic: "Statistical forecast model output + demand planner adjustments"
+    unit: "Units"
+    owner: "Demand Planning / S&OP"
+    datasets: ["DATA_FORECAST"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: STOCK_UNITS
+    business_name: Stock on Hand
+    definition: >
+      Units physically available in the Danone warehouse or in-transit.
+      By default, excludes transit stock (see pipeline_config.yaml: include_transit_stock: false).
+    calculation_logic: "Warehouse management system snapshot at close of business"
+    unit: "Units"
+    owner: "Supply Chain"
+    datasets: ["DATA_INVENTORY"]
+    is_business_key: false
+    dimension: null

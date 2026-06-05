@@ -1,0 +1,337 @@
+# Data Quality Rules Catalog — Enterprise Metadata Catalog
+# Version: 1.0
+# Purpose: Configurable DQ rules consumed by 00b_snowflake_discovery.py (Step 4 — DQ Validation).
+#
+# Rule Types:
+#   mandatory:       Column must have 0% nulls for PASS.
+#   allowed_values:  Exhaustive list of valid values. Any value outside = violation.
+#   value_range:     Numeric min/max bounds. Violations = flagged rows.
+#   pattern:         Regex the value must match (e.g. date formats, codes).
+#   unique:          Column must be unique within the dataset (candidate PK check).
+#
+# Severity:
+#   CRITICAL  → blocks integration (readiness score −15)
+#   HIGH      → integration possible with documented mitigation (readiness score −8)
+#   MEDIUM    → monitoring alert only (readiness score −3)
+#   LOW       → informational (readiness score 0)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_MKT — Investment / Marketing (VW_MKT_ECOMM)
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_MKT:
+  MARCA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Brand must always be populated — primary business dimension"
+  FECHA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Transaction/campaign date — required for temporal joins"
+  ANIO:
+    mandatory: true
+    severity: HIGH
+    description: "Year partition key — must match YEAR(FECHA)"
+  INVERSION_REAL:
+    mandatory: false
+    severity: MEDIUM
+    value_range:
+      min: 0
+      max: 500000000
+    description: "Actual marketing investment in local currency — must be non-negative"
+  INVERSION_PRESUPUESTADA:
+    mandatory: false
+    severity: MEDIUM
+    value_range:
+      min: 0
+      max: 500000000
+    description: "Budgeted investment — must be non-negative"
+  UPC:
+    mandatory: false
+    severity: LOW
+    description: "UPC expected to be ~94% null for eComm brand-level campaigns — document as known"
+  CADENA:
+    mandatory: false
+    severity: MEDIUM
+    description: "Retailer chain — expected for channel-level investment breakdowns"
+  CANAL:
+    mandatory: false
+    severity: MEDIUM
+    allowed_values:
+      - "ECOMMERCE"
+      - "MODERN_TRADE"
+      - "TRADITIONAL_TRADE"
+      - "DIGITAL"
+      - "OOH"
+      - "TV"
+      - "RADIO"
+      - "PRINT"
+      - "OTHER"
+    description: "Marketing channel — must be a recognized business value"
+  CAMPANA:
+    mandatory: false
+    severity: LOW
+    description: "Campaign name — informational, used for domain profiling"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_SELL_OUT — Point-of-Sale / Consumer Sales
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_SELL_OUT:
+  UPC:
+    mandatory: true
+    severity: CRITICAL
+    description: "Product UPC — primary join key to product dimension"
+  CHAIN:
+    mandatory: true
+    severity: CRITICAL
+    description: "Retailer chain — required for customer dimension join"
+  DAY_ID:
+    mandatory: true
+    severity: CRITICAL
+    description: "Transaction day surrogate key — required for time dimension join"
+  VOL_SELL_OUT:
+    mandatory: false
+    severity: HIGH
+    value_range:
+      min: 0
+      max: 50000000
+    description: "Consumer sales volume in units — must be non-negative"
+  PCS_SELL_OUT:
+    mandatory: false
+    severity: HIGH
+    value_range:
+      min: 0
+      max: 50000000
+    description: "Consumer sales in pieces — must be non-negative"
+  SUBCHAIN:
+    mandatory: false
+    severity: MEDIUM
+    description: "Sub-chain / banner — used for granular retail analytics"
+  FORMAT:
+    mandatory: false
+    severity: MEDIUM
+    allowed_values:
+      - "HYPERMARKET"
+      - "SUPERMARKET"
+      - "CONVENIENCE"
+      - "WHOLESALE"
+      - "DRUGSTORE"
+      - "ONLINE"
+      - "OTHER"
+    description: "Store format — must be a recognized value for segmentation"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_SELL_IN — Factory / Distributor Shipments
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_SELL_IN:
+  SKU:
+    mandatory: true
+    severity: CRITICAL
+    description: "SKU — primary product join key for sell-in"
+  INT_ID:
+    mandatory: false
+    severity: HIGH
+    description: "Internal Danone product ID — join to product master"
+  CADENA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Customer/chain for sell-in transaction"
+  FECHA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Shipment date — required for temporal alignment"
+  UNIDADES:
+    mandatory: false
+    severity: HIGH
+    value_range:
+      min: 0
+      max: 10000000
+    description: "Shipped units — must be non-negative"
+  MONTO:
+    mandatory: false
+    severity: HIGH
+    value_range:
+      min: -1000000
+      max: 100000000
+    description: "Invoice amount — negatives allowed for returns/credits"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_WASTE — Waste / Merma
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_WASTE:
+  SKU:
+    mandatory: true
+    severity: CRITICAL
+    description: "SKU identifier — required for product-level waste analytics"
+  CADENA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Customer chain — required for waste by retailer analytics"
+  MARCA:
+    mandatory: true
+    severity: HIGH
+    description: "Brand — join key to brand dimension"
+  FECHA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Waste date — required for temporal alignment"
+  UNIDADES_MERMA:
+    mandatory: false
+    severity: HIGH
+    value_range:
+      min: 0
+      max: 1000000
+    description: "Waste units — must be non-negative; zero is valid (no waste)"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_FORECAST — Demand Forecast
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_FORECAST:
+  SKU:
+    mandatory: true
+    severity: CRITICAL
+    description: "SKU — must match sell-in SKU universe"
+  CADENA:
+    mandatory: false
+    severity: HIGH
+    description: "Customer chain forecast target"
+  FECHA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Forecast period date — required"
+  FORECAST_UNITS:
+    mandatory: true
+    severity: HIGH
+    value_range:
+      min: 0
+      max: 50000000
+    description: "Forecasted units — must be non-negative"
+  VERSION:
+    mandatory: false
+    severity: MEDIUM
+    description: "Forecast version identifier — used to select official version"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_NIELSEN — Nielsen Market Share
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_NIELSEN:
+  CBU_CODE:
+    mandatory: false
+    severity: HIGH
+    description: "Nielsen product code — must be homologated to internal SKU/UPC"
+  MARCA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Brand — primary dimension for market share analysis"
+  CATEGORIA:
+    mandatory: true
+    severity: HIGH
+    description: "Category — required for competitive benchmarking"
+  YEAR_ID:
+    mandatory: true
+    severity: CRITICAL
+    description: "Nielsen year period — required for temporal join"
+  MARKET_SHARE:
+    mandatory: false
+    severity: HIGH
+    value_range:
+      min: 0
+      max: 100
+    description: "Market share % — must be between 0 and 100"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_PRICE — Pricing
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_PRICE:
+  UPC:
+    mandatory: true
+    severity: CRITICAL
+    description: "UPC — product join key for pricing"
+  CHAIN:
+    mandatory: true
+    severity: CRITICAL
+    description: "Retailer chain — price varies by customer"
+  FECHA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Effective price date"
+  PRECIO:
+    mandatory: true
+    severity: CRITICAL
+    value_range:
+      min: 0.01
+      max: 100000
+    description: "Price — must be strictly positive"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_PROMO — Promotions
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_PROMO:
+  UPC:
+    mandatory: false
+    severity: HIGH
+    description: "Product UPC for promotion — may be at brand level"
+  CADENA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Retailer chain — promotions are customer-specific"
+  FECHA_INICIO:
+    mandatory: true
+    severity: CRITICAL
+    description: "Promotion start date"
+  FECHA_FIN:
+    mandatory: true
+    severity: CRITICAL
+    description: "Promotion end date — must be >= FECHA_INICIO"
+  DESCUENTO_PCT:
+    mandatory: false
+    severity: HIGH
+    value_range:
+      min: 0
+      max: 100
+    description: "Discount percentage — must be between 0 and 100"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_INVENTORY — Inventory / Stock
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_INVENTORY:
+  SKU:
+    mandatory: true
+    severity: CRITICAL
+    description: "SKU — product join key for inventory"
+  FECHA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Inventory snapshot date"
+  STOCK_UNITS:
+    mandatory: false
+    severity: HIGH
+    value_range:
+      min: 0
+      max: 100000000
+    description: "Stock on hand — must be non-negative (zero is valid)"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_CALENDAR — Date Dimension
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_CALENDAR:
+  DATE_ID:
+    mandatory: true
+    severity: CRITICAL
+    unique: true
+    description: "Primary key of calendar — must be unique and never null"
+  YEAR:
+    mandatory: true
+    severity: CRITICAL
+    description: "Calendar year"
+  MONTH:
+    mandatory: true
+    severity: CRITICAL
+    description: "Calendar month (1-12)"
+  WEEK:
+    mandatory: false
+    severity: HIGH
+    description: "ISO week number"
+  IS_FISCAL:
+    mandatory: false
+    severity: LOW
+    description: "Flag for fiscal vs calendar period alignment"
