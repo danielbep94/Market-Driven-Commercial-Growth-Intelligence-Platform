@@ -1,6 +1,6 @@
 # Phase 1 — Source Discovery & Validation
 
-**Generated:** 2026-06-04 22:10 UTC  |  **Snowflake:** `danonenam.east-us-2.azure.snowflakecomputing.com`  |  **Warehouse:** `PRD_MDP_ANL_WH`  |  **Role:** `PRD_MDP`
+**Generated:** 2026-06-05 01:42 UTC  |  **Snowflake:** `danonenam.east-us-2.azure.snowflakecomputing.com`  |  **Warehouse:** `PRD_MDP_ANL_WH`  |  **Role:** `PRD_MDP`
 **Sources profiled:** 2/10  |  **Pending:** 8/10
 
 ## Scorecard
