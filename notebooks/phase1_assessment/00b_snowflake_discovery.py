@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # 00b · Enterprise Source Discovery & Metadata Catalog
 # MAGIC
-# MAGIC ## Purpose
+># MAGIC ## Purpose
 # MAGIC This notebook replaces the original profiling-only discovery script and transforms it into
 # MAGIC a full **Enterprise Metadata Catalog engine**. It runs 9 structured steps per source and
 # MAGIC stores all results in a shared `results` dict consumed by `00c_enterprise_catalog_writer.py`.
@@ -124,14 +124,10 @@ INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
     # },
 
     # ── 4 · Waste / Merma ────────────────────────────────────────────────────
-    # NOTE: VW_WASTE lives in MDP_STG, not MDP_DSP.
-    # The schema key must match the object's actual schema.
-    # SQL must NOT include the database prefix — use SCHEMA.TABLE only.
     "DATA_WASTE": {
-        "db":         "PRD_MDP",
-        "schema":     "MDP_STG",
-        "sql":        "SELECT * FROM VW_WASTE",
-        "grain_hint": "FECHA × SKU × CADENA",
+        "db":     "PRD_MDP",
+        "schema": "MDP_DSP",
+        "sql":    "SELECT * FROM PRD_MDP.MDP_STG.VW_WASTE",
     },
 
     # ── 5 · Demand Forecast ──────────────────────────────────────────────────
@@ -850,7 +846,7 @@ for key in undefined:
     print(f"  {key:<18} {DOMAIN_LABELS.get(key,key):<26} {'':>10}  {'':>9} {'':>8} {'':>8} {'':>9} {'':>9} {'':>7}  ⏳ TBD")
 
 print(f"\n  Run notebook 00c_enterprise_catalog_writer.py to generate all 10 CSV outputs")
-print(f"  and persist results as Databricks Delta tables (no Snowflake DDL permissions required).")
+print(f"  and persist results to Snowflake MDP_ANALYTICS.METADATA schema.")
 
 # COMMAND ----------
 # MAGIC %md ## B6 · Pass Results to 00c (via notebook exit value or shared storage)
