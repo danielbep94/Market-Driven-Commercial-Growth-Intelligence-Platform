@@ -56,14 +56,63 @@ SOURCES = {
     "DATA_SELL_IN": None,   # ← replace None with dict when ready
 
     # ── 3 · Sell-Out ─────────────────────────────────────────────────────────
-    "DATA_SELL_OUT": None,
-    # Example when ready:
-    # "DATA_SELL_OUT": {
-    #     "db":         "PRD_MDP",
-    #     "schema":     "MDP_DSP",
-    #     "sql":        "SELECT * FROM VW_FACT_SELL_OUT WHERE anio >= 2024",
-    #     "grain_hint": "DAY_ID × UPC × CHAIN",
-    # },
+    "DATA_SELL_OUT":  {
+        "db":         "PRD_MDP",
+        "schema":     "MDP_DSP",
+        "sql":        """WITH fact_filtered AS (
+        SELECT
+            PER_ID,
+            STORE,
+            UPC,
+            VOL_SELL_OUT,
+            PCS_SELL_OUT,
+            AMOUNT_SELL_OUT,
+            VOL_INV,
+            PCS_INV,
+            AVG_SELL
+        FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
+        WHERE PER_ID >= 20250101
+    )
+    
+    SELECT
+        -- Period Catalog
+        per.DAY_ID,
+        per.YEAR_ID,
+        per.MONTH_LONG_DES_ESP,
+    
+        -- CBU Catalog
+        cbu.CBU_CODE,
+        cbu.CBU_DSC,
+        cbu.CBU_SAP,
+    
+        -- Store Catalog
+        st.CHAIN,
+        st.FORMAT,
+        st.SUBCHAIN,
+    
+        -- Product Catalog (pon aquí solo las columnas necesarias)
+        prod.INT_ID,
+        prod.CBU_ID,
+        
+        -- Fact Metrics
+        f.UPC,
+        f.VOL_SELL_OUT,
+        f.PCS_SELL_OUT,
+        f.AMOUNT_SELL_OUT,
+        f.VOL_INV,
+        f.PCS_INV,
+        f.AVG_SELL
+    FROM fact_filtered f
+    INNER JOIN PRD_MDP.MDP_DWH.V_D_PERIOD per
+        ON f.PER_ID = per.PER_ID
+    INNER JOIN PRD_MDP.MDP_DSP.VW_D_STORE_RM st
+        ON f.STORE = st.INT_ID
+    INNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
+        ON f.UPC = prod.INT_ID
+    INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
+        ON prod.CBU_ID = cbu.CBU_ID;""",
+        "grain_hint": "DAY_ID × UPC × CHAIN"
+    },
 
     # ── 4 · Waste / Merma ────────────────────────────────────────────────────
     "DATA_WASTE": {
@@ -105,6 +154,7 @@ DOMAIN_LABELS = {
 }
 
 # COMMAND ----------
+
 # MAGIC %md ## ─── SECTION B: DO NOT EDIT BELOW ───────────────────────────────────
 
 # COMMAND ----------
@@ -397,6 +447,7 @@ def detect_date_col(columns: list):
 # COMMAND ----------
 
 # MAGIC %md ## B4 · Main Discovery Loop
+
 # COMMAND ----------
 
 defined   = {k: v for k, v in SOURCES.items() if v is not None}
@@ -921,6 +972,7 @@ for source_key, cfg in defined.items():
     df.unpersist()
 
 # COMMAND ----------
+
 # MAGIC %md ## B5 · Summary Scorecard
 
 # COMMAND ----------
@@ -950,6 +1002,7 @@ print(f"\n  Run notebook 00c_enterprise_catalog_writer.py to generate all 10 CSV
 print(f"  and persist results to Snowflake MDP_ANALYTICS.METADATA schema.")
 
 # COMMAND ----------
+
 # MAGIC %md ## B6 · Pass Results to 00c (via notebook exit value or shared storage)
 
 # COMMAND ----------
@@ -976,3 +1029,7 @@ try:
 except Exception as _e:
     print(f"⚠️  Could not serialize results cache: {_e}")
     print(f"   → Run 00c in the same session immediately after this notebook.")
+
+# COMMAND ----------
+
+
