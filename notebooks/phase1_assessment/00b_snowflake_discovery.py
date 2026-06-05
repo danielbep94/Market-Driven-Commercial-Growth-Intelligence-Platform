@@ -45,7 +45,7 @@
 SOURCES = {
 
     # ── 1 · Investment / Marketing ──────────────────────────────────────────
-    "DATA_MKT": {
+    "DATA_MKT_ON": {
         "db":         "PRD_MDP",
         "schema":     "MDP_DSP",
         "sql":        "SELECT * FROM VW_MKT_ECOMM WHERE anio >= 2024",
@@ -55,64 +55,64 @@ SOURCES = {
     # ── 2 · Sell-In ──────────────────────────────────────────────────────────
     "DATA_SELL_IN": None,   # ← replace None with dict when ready
 
-    # ── 3 · Sell-Out ─────────────────────────────────────────────────────────
-    "DATA_SELL_OUT":  {
-        "db":         "PRD_MDP",
-        "schema":     "MDP_DSP",
-        "sql":        """WITH fact_filtered AS (
-        SELECT
-            PER_ID,
-            STORE,
-            UPC,
-            VOL_SELL_OUT,
-            PCS_SELL_OUT,
-            AMOUNT_SELL_OUT,
-            VOL_INV,
-            PCS_INV,
-            AVG_SELL
-        FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
-        WHERE PER_ID >= 20250101
-    )
+    # # ── 3 · Sell-Out ─────────────────────────────────────────────────────────
+    # "DATA_SELL_OUT":  {
+    #     "db":         "PRD_MDP",
+    #     "schema":     "MDP_DSP",
+    #     "sql":        """WITH fact_filtered AS (
+    #     SELECT
+    #         PER_ID,
+    #         STORE,
+    #         UPC,
+    #         VOL_SELL_OUT,
+    #         PCS_SELL_OUT,
+    #         AMOUNT_SELL_OUT,
+    #         VOL_INV,
+    #         PCS_INV,
+    #         AVG_SELL
+    #     FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
+    #     WHERE PER_ID >= 20250101
+    # )
     
-    SELECT
-        -- Period Catalog
-        per.DAY_ID,
-        per.YEAR_ID,
-        per.MONTH_LONG_DES_ESP,
+    # SELECT
+    #     -- Period Catalog
+    #     per.DAY_ID,
+    #     per.YEAR_ID,
+    #     per.MONTH_LONG_DES_ESP,
     
-        -- CBU Catalog
-        cbu.CBU_CODE,
-        cbu.CBU_DSC,
-        cbu.CBU_SAP,
+    #     -- CBU Catalog
+    #     cbu.CBU_CODE,
+    #     cbu.CBU_DSC,
+    #     cbu.CBU_SAP,
     
-        -- Store Catalog
-        st.CHAIN,
-        st.FORMAT,
-        st.SUBCHAIN,
+    #     -- Store Catalog
+    #     st.CHAIN,
+    #     st.FORMAT,
+    #     st.SUBCHAIN,
     
-        -- Product Catalog (pon aquí solo las columnas necesarias)
-        prod.INT_ID,
-        prod.CBU_ID,
+    #     -- Product Catalog (pon aquí solo las columnas necesarias)
+    #     prod.INT_ID,
+    #     prod.CBU_ID,
         
-        -- Fact Metrics
-        f.UPC,
-        f.VOL_SELL_OUT,
-        f.PCS_SELL_OUT,
-        f.AMOUNT_SELL_OUT,
-        f.VOL_INV,
-        f.PCS_INV,
-        f.AVG_SELL
-    FROM fact_filtered f
-    INNER JOIN PRD_MDP.MDP_DWH.V_D_PERIOD per
-        ON f.PER_ID = per.PER_ID
-    INNER JOIN PRD_MDP.MDP_DSP.VW_D_STORE_RM st
-        ON f.STORE = st.INT_ID
-    INNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
-        ON f.UPC = prod.INT_ID
-    INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
-        ON prod.CBU_ID = cbu.CBU_ID;""",
-        "grain_hint": "DAY_ID × UPC × CHAIN"
-    },
+    #     -- Fact Metrics
+    #     f.UPC,
+    #     f.VOL_SELL_OUT,
+    #     f.PCS_SELL_OUT,
+    #     f.AMOUNT_SELL_OUT,
+    #     f.VOL_INV,
+    #     f.PCS_INV,
+    #     f.AVG_SELL
+    # FROM fact_filtered f
+    # INNER JOIN PRD_MDP.MDP_DWH.V_D_PERIOD per
+    #     ON f.PER_ID = per.PER_ID
+    # INNER JOIN PRD_MDP.MDP_DSP.VW_D_STORE_RM st
+    #     ON f.STORE = st.INT_ID
+    # INNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
+    #     ON f.UPC = prod.INT_ID
+    # INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
+    #     ON prod.CBU_ID = cbu.CBU_ID;""",
+    #     "grain_hint": "DAY_ID × UPC × CHAIN"
+    # },
 
     # ── 4 · Waste / Merma ────────────────────────────────────────────────────
     "DATA_WASTE": {
@@ -122,7 +122,13 @@ SOURCES = {
     },
 
     # ── 5 · Demand Forecast ──────────────────────────────────────────────────
-    "DATA_FORECAST": None,
+       "DATA_MKT_OFF": {
+        "db":         "PRD_MDP",
+        "schema":     "MDP_DSP",
+        "sql":        "SELECT * from PRD_MDP.MDP_STG.FACT_MEDIA_OFF WHERE anio >= 2024",
+        "grain_hint": "FECHA × MARCA × CAMPANA × MEDIO",
+    },
+
 
     # ── 6 · Nielsen / Market Share ───────────────────────────────────────────
     "DATA_NIELSEN": None,
