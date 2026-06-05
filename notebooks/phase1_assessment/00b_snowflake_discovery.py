@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # 00b · Enterprise Source Discovery & Metadata Catalog
 # MAGIC
-<<<<<<< HEAD
+# MAGIC <<<<<<< HEAD
 # MAGIC ## Purpose
 # MAGIC This notebook replaces the original profiling-only discovery script and transforms it into
 # MAGIC a full **Enterprise Metadata Catalog engine**. It runs 9 structured steps per source and
@@ -30,8 +30,9 @@
 # MAGIC The `db` key goes in connector options. SQL uses `SCHEMA.TABLE` or just `TABLE`.
 
 # COMMAND ----------
+
 # MAGIC %md ## ─── SECTION A: SOURCES CONFIGURATION ──────────────────────────────
-=======
+# MAGIC =======
 # MAGIC ## Rule for SQL definitions
 # MAGIC Snowflake object resolution depends on the active Snowflake user, role, database, schema, and warehouse.
 # MAGIC - ✅ `SELECT * FROM VW_MKT_ECOMM WHERE anio >= 2024` — uses the connector `db` + `schema` context
@@ -44,22 +45,22 @@
 # COMMAND ----------
 
 # MAGIC %md ## ─── EDIT THIS SECTION ──────────────────────────────────────────
->>>>>>> f4a62afb7c099871a80062d0d10ad5eb4194f254
+# MAGIC >>>>>>> f4a62afb7c099871a80062d0d10ad5eb4194f254
 # MAGIC
 # MAGIC Configure each source below. Set `None` for sources not yet ready.
 # MAGIC
 # MAGIC Keys per source dict:
 # MAGIC - `"db"`:     Snowflake database (e.g. `"PRD_MDP"`)
-<<<<<<< HEAD
+# MAGIC <<<<<<< HEAD
 # MAGIC - `"schema"`: Default schema (e.g. `"MDP_DSP"`)
 # MAGIC - `"sql"`:    Query — use `TABLE` or `SCHEMA.TABLE`, never `DB.SCHEMA.TABLE`
 # MAGIC - `"grain_hint"`: Optional human description to be validated (e.g. `"FECHA × MARCA × CAMPANA"`)
-=======
+# MAGIC =======
 # MAGIC - `"schema"`: Default schema for this source (e.g. `"MDP_DSP"`)
 # MAGIC - `"sql"`:    Query — use `TABLE`, `SCHEMA.TABLE`, or `DB.SCHEMA.TABLE` as needed for the active Snowflake context
 # MAGIC
 # MAGIC Set value to `None` for sources not yet ready.
->>>>>>> f4a62afb7c099871a80062d0d10ad5eb4194f254
+# MAGIC >>>>>>> f4a62afb7c099871a80062d0d10ad5eb4194f254
 
 # COMMAND ----------
 
@@ -194,13 +195,16 @@ DOMAIN_LABELS = {
 }
 
 # COMMAND ----------
+
 <<<<<<< HEAD
-# MAGIC %md ## ─── SECTION B: DO NOT EDIT BELOW ───────────────────────────────────
+%md ## ─── SECTION B: DO NOT EDIT BELOW ───────────────────────────────────
 
 # COMMAND ----------
+
 # MAGIC %md ## B1 · Imports & Connection Setup
 
 # COMMAND ----------
+
 import yaml, csv, os, itertools
 from datetime import datetime
 from collections import defaultdict
@@ -212,7 +216,7 @@ from pyspark.sql.window import Window
 # ── Credentials ───────────────────────────────────────────────────────────────
 =======
 
-# MAGIC %md ## ─── DO NOT EDIT BELOW ───────────────────────────────────────────
+%md ## ─── DO NOT EDIT BELOW ───────────────────────────────────────────
 
 # COMMAND ----------
 
@@ -344,9 +348,11 @@ def run_info_schema(db: str, schema: str, object_name: str):
         return {}
 
 # COMMAND ----------
+
 # MAGIC %md ## B2 · Load Config Files
 
 # COMMAND ----------
+
 # ── DQ Rules ─────────────────────────────────────────────────────────────────
 DQ_RULES = {}
 try:
@@ -368,9 +374,11 @@ except Exception as e:
     print(f"⚠️  Could not load business_glossary_seed.yaml: {e}")
 
 # COMMAND ----------
+
 # MAGIC %md ## B3 · Business Key Taxonomy (for Domain Profile & Dimension Discovery)
 
 # COMMAND ----------
+
 # Columns to profile with value-frequency tables (EA1)
 BUSINESS_KEY_COLS = {
     "marca", "cadena", "chain", "canal", "sku", "upc", "format", "formato",
@@ -420,39 +428,41 @@ def detect_date_col(columns: list):
     return None
 
 <<<<<<< HEAD
+
 # COMMAND ----------
+
 # MAGIC %md ## B4 · Main Discovery Loop
-=======
-def readiness_score(null_results, has_date, has_numeric, dup_pct) -> int:
-    high  = sum(1 for n in null_results if "HIGH" in n["flag"])
-    warn  = sum(1 for n in null_results if "WARN" in n["flag"])
-    comp  = max(0, 25 - high * 5 - warn * 2)
-    temp  = 25 if has_date  else 5
-    vol   = 25 if has_numeric else 15
-    card  = max(0, 25 - min(25, int(dup_pct / 2)))
-    return comp + temp + vol + card
-
-def score_label(s):
-    return "🟢 READY" if s >= 80 else ("🟡 CONDITIONAL" if s >= 60 else "🔴 NOT READY")
-
-def analyze_column_names(columns: list) -> dict:
-    """Detect column-name risks that commonly break dynamic Spark references."""
-    counts = Counter(columns)
-    lower_counts = Counter(str(c).lower() for c in columns)
-    special_pattern = re.compile(r"[^A-Za-z0-9_]")
-    alnum_pattern = re.compile(r"[A-Za-z0-9]")
-    return {
-        "duplicate_columns": [c for c, n in counts.items() if n > 1],
-        "case_insensitive_duplicates": [c for c, n in lower_counts.items() if n > 1],
-        "leading_trailing_space_columns": [c for c in columns if str(c) != str(c).strip()],
-        "special_character_columns": [c for c in columns if special_pattern.search(str(c))],
-        "punctuation_only_columns": [c for c in columns if not alnum_pattern.search(str(c))],
-    }
+# MAGIC =======
+# MAGIC def readiness_score(null_results, has_date, has_numeric, dup_pct) -> int:
+# MAGIC     high  = sum(1 for n in null_results if "HIGH" in n["flag"])
+# MAGIC     warn  = sum(1 for n in null_results if "WARN" in n["flag"])
+# MAGIC     comp  = max(0, 25 - high * 5 - warn * 2)
+# MAGIC     temp  = 25 if has_date  else 5
+# MAGIC     vol   = 25 if has_numeric else 15
+# MAGIC     card  = max(0, 25 - min(25, int(dup_pct / 2)))
+# MAGIC     return comp + temp + vol + card
+# MAGIC
+# MAGIC def score_label(s):
+# MAGIC     return "🟢 READY" if s >= 80 else ("🟡 CONDITIONAL" if s >= 60 else "🔴 NOT READY")
+# MAGIC
+# MAGIC def analyze_column_names(columns: list) -> dict:
+# MAGIC     """Detect column-name risks that commonly break dynamic Spark references."""
+# MAGIC     counts = Counter(columns)
+# MAGIC     lower_counts = Counter(str(c).lower() for c in columns)
+# MAGIC     special_pattern = re.compile(r"[^A-Za-z0-9_]")
+# MAGIC     alnum_pattern = re.compile(r"[A-Za-z0-9]")
+# MAGIC     return {
+# MAGIC         "duplicate_columns": [c for c, n in counts.items() if n > 1],
+# MAGIC         "case_insensitive_duplicates": [c for c, n in lower_counts.items() if n > 1],
+# MAGIC         "leading_trailing_space_columns": [c for c in columns if str(c) != str(c).strip()],
+# MAGIC         "special_character_columns": [c for c in columns if special_pattern.search(str(c))],
+# MAGIC         "punctuation_only_columns": [c for c in columns if not alnum_pattern.search(str(c))],
+# MAGIC     }
 
 # COMMAND ----------
 
 # MAGIC %md ## Validate All Defined Sources
->>>>>>> f4a62afb7c099871a80062d0d10ad5eb4194f254
+# MAGIC >>>>>>> f4a62afb7c099871a80062d0d10ad5eb4194f254
 
 # COMMAND ----------
 
@@ -467,6 +477,7 @@ if undefined:
 <<<<<<< HEAD
 results = {}  # Shared across this notebook and 00c
 =======
+
 # COMMAND ----------
 
 # MAGIC %md ## Snowflake Context Diagnostic
@@ -1281,10 +1292,12 @@ for source_key, cfg in defined.items():
     df.unpersist()
 
 # COMMAND ----------
+
 <<<<<<< HEAD
-# MAGIC %md ## B5 · Summary Scorecard
+%md ## B5 · Summary Scorecard
 
 # COMMAND ----------
+
 print("\n" + "═" * 80)
 print("ENTERPRISE READINESS SUMMARY")
 print("═" * 80)
@@ -1294,7 +1307,7 @@ print("  " + "─" * 115)
 
 =======
 
-# MAGIC %md ## Summary
+%md ## Summary
 
 # COMMAND ----------
 
@@ -1322,16 +1335,18 @@ print(f"\n  Run notebook 00c_enterprise_catalog_writer.py to generate all 10 CSV
 print(f"  and persist results to Snowflake MDP_ANALYTICS.METADATA schema.")
 
 # COMMAND ----------
+
 <<<<<<< HEAD
-# MAGIC %md ## B6 · Pass Results to 00c (via notebook exit value or shared storage)
+%md ## B6 · Pass Results to 00c (via notebook exit value or shared storage)
 
 # COMMAND ----------
+
 # The `results` dict is available as a module-level variable.
 # When running in sequence via %run, 00c will access it directly.
 # If running independently, serialize to a temp Delta table or JSON file.
 =======
 
-# MAGIC %md ## Write Output File
+%md ## Write Output File
 
 # COMMAND ----------
 
