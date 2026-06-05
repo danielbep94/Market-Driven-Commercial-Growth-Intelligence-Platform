@@ -29,6 +29,7 @@
 # MAGIC The `db` key goes in connector options. SQL uses `SCHEMA.TABLE` or just `TABLE`.
 
 # COMMAND ----------
+
 # MAGIC %md ## ─── SECTION A: SOURCES CONFIGURATION ──────────────────────────────
 # MAGIC
 # MAGIC Configure each source below. Set `None` for sources not yet ready.
@@ -107,9 +108,11 @@ DOMAIN_LABELS = {
 # MAGIC %md ## ─── SECTION B: DO NOT EDIT BELOW ───────────────────────────────────
 
 # COMMAND ----------
+
 # MAGIC %md ## B1 · Imports & Connection Setup
 
 # COMMAND ----------
+
 import yaml, csv, os, itertools
 from datetime import datetime
 from collections import defaultdict
@@ -179,9 +182,11 @@ def run_info_schema(db: str, schema: str, object_name: str):
         return {}
 
 # COMMAND ----------
+
 # MAGIC %md ## B2 · Load Config Files
 
 # COMMAND ----------
+
 # ── DQ Rules ─────────────────────────────────────────────────────────────────
 DQ_RULES = {}
 try:
@@ -203,9 +208,11 @@ except Exception as e:
     print(f"⚠️  Could not load business_glossary_seed.yaml: {e}")
 
 # COMMAND ----------
+
 # MAGIC %md ## B3 · Business Key Taxonomy (for Domain Profile & Dimension Discovery)
 
 # COMMAND ----------
+
 # Columns to profile with value-frequency tables (EA1)
 BUSINESS_KEY_COLS = {
     "marca", "cadena", "chain", "canal", "sku", "upc", "format", "formato",
@@ -247,8 +254,8 @@ def detect_date_col(columns: list):
     return None
 
 # COMMAND ----------
-# MAGIC %md ## B4 · Main Discovery Loop
 
+# MAGIC %md ## B4 · Main Discovery Loop
 # COMMAND ----------
 
 defined   = {k: v for k, v in SOURCES.items() if v is not None}
@@ -765,6 +772,7 @@ for source_key, cfg in defined.items():
 # MAGIC %md ## B5 · Summary Scorecard
 
 # COMMAND ----------
+
 print("\n" + "═" * 80)
 print("ENTERPRISE READINESS SUMMARY")
 print("═" * 80)
@@ -793,6 +801,7 @@ print(f"  and persist results to Snowflake MDP_ANALYTICS.METADATA schema.")
 # MAGIC %md ## B6 · Pass Results to 00c (via notebook exit value or shared storage)
 
 # COMMAND ----------
+
 # The `results` dict is available as a module-level variable.
 # When running in sequence via %run, 00c will access it directly.
 # If running independently, serialize to a temp Delta table or JSON file.
