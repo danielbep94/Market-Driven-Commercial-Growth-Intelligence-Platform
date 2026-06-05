@@ -1,13 +1,14 @@
 # Phase 1 — Source Discovery & Validation
 
-**Generated:** 2026-06-05 01:42 UTC  |  **Snowflake:** `danonenam.east-us-2.azure.snowflakecomputing.com`  |  **Warehouse:** `PRD_MDP_ANL_WH`  |  **Role:** `PRD_MDP`
-**Sources profiled:** 2/10  |  **Pending:** 8/10
+**Generated:** 2026-06-05 02:01 UTC  |  **Snowflake:** `danonenam.east-us-2.azure.snowflakecomputing.com`  |  **Warehouse:** `PRD_MDP_ANL_WH`  |  **Role:** `PRD_MDP`
+**Sources profiled:** 3/10  |  **Pending:** 7/10
 
 ## Scorecard
 
 | Source | Domain | Rows | Score | Status |
 |--------|--------|------|-------|--------|
 | `DATA_MKT` | Investment / Marketing | 46,642 | 50/100 | 🔴 NOT READY |
+| `DATA_SELL_OUT` | Sell-Out | 1,251,545,145 | 75/100 | 🟡 CONDITIONAL |
 | `DATA_WASTE` | Waste / Merma | 7,099,255 | 65/100 | 🟡 CONDITIONAL |
 
 ## Pending Sources
@@ -15,7 +16,6 @@
 | Source | Domain | Status |
 |--------|--------|--------|
 | `DATA_SELL_IN` | Sell-In | SQL not yet defined |
-| `DATA_SELL_OUT` | Sell-Out | SQL not yet defined |
 | `DATA_FORECAST` | Demand Forecast | SQL not yet defined |
 | `DATA_NIELSEN` | Nielsen / Market Share | SQL not yet defined |
 | `DATA_PRICE` | Price | SQL not yet defined |
@@ -226,6 +226,124 @@ SELECT * FROM PRD_MDP.MDP_DSP.VW_MKT_ECOMM WHERE anio >= 2024
 
 ---
 
+## DATA_SELL_OUT — Sell-Out
+
+| | |
+|--|--|
+| **Readiness** | 75/100 🟡 CONDITIONAL |
+| **Database** | `PRD_MDP` |
+| **Schema** | `MDP_DSP` |
+| **Rows** | 1,251,545,145 |
+| **Columns** | 18 |
+| **Date column** | `NOT DETECTED` |
+| **Date range** | N/A → N/A (N/A periods) |
+| **Duplicates** | 0 (0.0%) |
+
+**SQL:**
+```sql
+WITH fact_filtered AS (
+    SELECT
+        PER_ID,
+        STORE,
+        UPC,
+        VOL_SELL_OUT,
+        PCS_SELL_OUT,
+        AMOUNT_SELL_OUT,
+        VOL_INV,
+        PCS_INV,
+        AVG_SELL
+    FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
+    WHERE PER_ID >= 20250101
+)
+
+SELECT
+    -- Period Catalog
+    per.DAY_ID,
+    per.YEAR_ID,
+    per.MONTH_LONG_DES_ESP,
+
+    -- CBU Catalog
+    cbu.CBU_CODE,
+    cbu.CBU_DSC,
+    cbu.CBU_SAP,
+
+    -- Store Catalog
+    st.CHAIN,
+    st.FORMAT,
+    st.SUBCHAIN,
+
+    -- Product Catalog (pon aquí solo las columnas necesarias)
+    prod.INT_ID,
+    prod.CBU_ID,
+    
+    -- Fact Metrics
+    f.UPC,
+    f.VOL_SELL_OUT,
+    f.PCS_SELL_OUT,
+    f.AMOUNT_SELL_OUT,
+    f.VOL_INV,
+    f.PCS_INV,
+    f.AVG_SELL
+FROM fact_filtered f
+INNER JOIN PRD_MDP.MDP_DWH.V_D_PERIOD per
+    ON f.PER_ID = per.PER_ID
+INNER JOIN PRD_MDP.MDP_DSP.VW_D_STORE_RM st
+    ON f.STORE = st.INT_ID
+INNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
+    ON f.UPC = prod.INT_ID
+INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
+    ON prod.CBU_ID = cbu.CBU_ID;
+```
+
+### Schema
+| Column | Type | Nullable |
+|--------|------|---------|
+| `DAY_ID` | `StringType()` | ✓ |
+| `YEAR_ID` | `DecimalType(38,0)` | ✓ |
+| `MONTH_LONG_DES_ESP` | `StringType()` | ✓ |
+| `CBU_CODE` | `StringType()` | ✓ |
+| `CBU_DSC` | `StringType()` | ✓ |
+| `CBU_SAP` | `StringType()` | ✓ |
+| `CHAIN` | `StringType()` | ✓ |
+| `FORMAT` | `StringType()` | ✓ |
+| `SUBCHAIN` | `StringType()` | ✓ |
+| `INT_ID` | `StringType()` | ✓ |
+| `CBU_ID` | `DecimalType(1,0)` | ✗ |
+| `UPC` | `StringType()` | ✓ |
+| `VOL_SELL_OUT` | `DecimalType(18,6)` | ✓ |
+| `PCS_SELL_OUT` | `DecimalType(18,6)` | ✓ |
+| `AMOUNT_SELL_OUT` | `DecimalType(18,6)` | ✓ |
+| `VOL_INV` | `DecimalType(18,6)` | ✓ |
+| `PCS_INV` | `DecimalType(18,6)` | ✓ |
+| `AVG_SELL` | `DecimalType(18,6)` | ✓ |
+
+### Null Rates (non-zero only)
+| `SUBCHAIN` | 417,091,659 | 33.33% | ⚠️  HIGH |
+| `VOL_SELL_OUT` | 1,024,368 | 0.08% | ✅  OK |
+| `VOL_INV` | 1,024,368 | 0.08% | ✅  OK |
+
+### Key Field Cardinality
+| Column | Distinct |
+|--------|---------|
+_No key columns auto-detected — fill in manually_
+
+### Numeric Volume
+| Column | Min | Max | Total | Negatives? |
+|--------|-----|-----|-------|-----------|
+| `AMOUNT_SELL_OUT` | -573,482.0 | 927,659.0 | 76,197,161,871 | ⚠️ |
+| `VOL_INV` | -650,985.6 | 64,801,965.6 | 92,032,669,009 | ⚠️ |
+| `PCS_INV` | -4,339,904.0 | 9,000,273.0 | 62,460,777,092 | ⚠️ |
+
+### Open Items — fill in after reviewing
+- [ ] Is the date range correct for this source?
+- [ ] Are the key cardinalities plausible?
+- [ ] What is the business natural key for deduplication?
+- [ ] Does this source need a JOIN with another view?
+- [ ] Are there any negative numeric values that need explanation?
+
+
+---
+
 ## DATA_WASTE — Waste / Merma
 
 | | |
@@ -298,6 +416,6 @@ SELECT * FROM PRD_MDP.MDP_STG.VW_WASTE
 1. Fill in **Open Items** above for each source
 2. Add SQL for pending sources and re-run
 3. `git add docs/phase_outputs/phase1_data_inventory.md`
-4. `git commit -m "data: source discovery 2/10 sources profiled"`
+4. `git commit -m "data: source discovery 3/10 sources profiled"`
 5. `git push origin main`
 6. Tell the agent: **"discovery done, inventory committed"**
