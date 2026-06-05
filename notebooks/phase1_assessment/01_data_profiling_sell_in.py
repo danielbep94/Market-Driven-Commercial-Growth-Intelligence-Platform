@@ -39,6 +39,7 @@ KEY_NAME_USR  = "snowflake-user"
 KEY_NAME_PWD  = "snowflake-password"
 SF_URL        = "danonenam.east-us-2.azure.snowflakecomputing.com"
 SF_WAREHOUSE  = "PRD_MDP_ANL_WH"
+SF_ROLE       = "PRD_MDP"
 
 try:
     user     = dbutils.secrets.get(scope=KEYVAULT_NAME, key=KEY_NAME_USR)
@@ -53,7 +54,7 @@ except Exception as e:
 
 sfOptions = {
     "sfURL": SF_URL, "sfUser": user, "sfPassword": password,
-    "sfDatabase": DB_NAME, "sfSchema": SCHEMA_NAME, "sfWarehouse": SF_WAREHOUSE,
+    "sfDatabase": DB_NAME, "sfSchema": SCHEMA_NAME, "sfWarehouse": SF_WAREHOUSE, "sfRole": SF_ROLE,
 }
 
 # COMMAND ----------

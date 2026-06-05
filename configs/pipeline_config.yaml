@@ -124,6 +124,7 @@ sources:
 snowflake:
   account_url: "danonenam.east-us-2.azure.snowflakecomputing.com"
   warehouse: "PRD_MDP_ANL_WH"
+  role: "PRD_MDP"
   secret_scope: "DAN-AM-P-KVT800-R-MDP-DB"
   secret_key_user: "snowflake-user"
   secret_key_password: "snowflake-password"
