@@ -114,6 +114,7 @@ DOMAIN_LABELS = {
 # COMMAND ----------
 
 import yaml, csv, os, itertools
+from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
 
@@ -181,31 +182,171 @@ def run_info_schema(db: str, schema: str, object_name: str):
         print(f"  ⚠️  INFORMATION_SCHEMA query failed: {str(e)[:150]}")
         return {}
 
+
+def load_yaml_config(path: str, default: dict | None = None) -> dict:
+    """Load an optional YAML config file, returning defaults when it is absent or empty."""
+    default = default or {}
+    config_path = Path(path)
+
+    if not config_path.exists():
+        print(f"ℹ️  Optional config not found: {config_path}. Using defaults.")
+        return default
+
+    with config_path.open("r", encoding="utf-8") as f:
+        return yaml.safe_load(f) or default
+
+def normalize_identifier_for_match(column_name: str) -> str:
+    """Normalize an identifier for matching only; never use this to reference Spark columns."""
+    clean_name = str(column_name).strip()
+
+    if clean_name.startswith("`") and clean_name.endswith("`"):
+        clean_name = clean_name[1:-1]
+
+    if clean_name.startswith('"') and clean_name.endswith('"'):
+        clean_name = clean_name[1:-1]
+
+    return clean_name.upper()
+
+def resolve_dataframe_column_name(columns: list[str], requested_name: str) -> str | None:
+    """Return the exact dataframe column name for a requested/configured identifier."""
+    requested_text = str(requested_name).strip()
+
+    if requested_text in columns:
+        return requested_text
+
+    # Snowflake sometimes returns quoted identifiers as literal double-quote characters
+    # in Spark schemas. Prefer exact matches, then try common quoted/unquoted variants.
+    quoted_requested = f'"{requested_text}"'
+    if quoted_requested in columns:
+        return quoted_requested
+
+    if requested_text.startswith('"') and requested_text.endswith('"'):
+        unquoted_requested = requested_text[1:-1]
+        if unquoted_requested in columns:
+            return unquoted_requested
+
+    requested_key = normalize_identifier_for_match(requested_text)
+    for column in columns:
+        if normalize_identifier_for_match(column) == requested_key:
+            return column
+
+    return None
+
+def spark_safe_col(column_name: str):
+    """
+    Return a safely escaped Spark Column reference for an exact dataframe column name.
+
+    Handles special characters such as dots, spaces, parentheses, percent signs,
+    hyphens, internal backticks, and literal Snowflake double-quoted identifiers.
+
+    Example:
+        IMPR_(ABS.TOP)_%   -> col("`IMPR_(ABS.TOP)_%`")
+        "IMPR_(ABS.TOP)_%" -> col("`"IMPR_(ABS.TOP)_%"`")
+    """
+    clean_name = str(column_name).strip()
+
+    # Remove accidental outer backticks only once. Backticks are Spark quoting
+    # syntax, not part of Snowflake column names surfaced through df.columns.
+    if clean_name.startswith("`") and clean_name.endswith("`"):
+        clean_name = clean_name[1:-1]
+
+    # Do NOT strip double quotes here. Spark schemas can contain literal
+    # double-quote characters for Snowflake quoted identifiers; stripping them
+    # changes the real column name and causes UNRESOLVED_COLUMN errors.
+
+    # Escape internal backticks in the Spark identifier literal.
+    clean_name = clean_name.replace("`", "``")
+
+    return F.col(f"`{clean_name}`")
+
+def spark_safe_df_col(df, column_name: str):
+    """Resolve a requested/configured identifier to an exact df column and safely reference it."""
+    resolved_name = resolve_dataframe_column_name(df.columns, column_name)
+    if resolved_name is None:
+        raise KeyError(f"Column not found in dataframe schema: {column_name}")
+    return spark_safe_col(resolved_name)
+
+def distinct_count_for_columns(df, columns: list[str]) -> int:
+    """Count distinct row combinations using safe temporary aliases for arbitrary column names."""
+    alias_map = {original_col: f"col_{idx}" for idx, original_col in enumerate(columns)}
+    return (
+        df.select(*[spark_safe_col(original_col).alias(alias) for original_col, alias in alias_map.items()])
+          .dropDuplicates(list(alias_map.values()))
+          .count()
+    )
+
+def validate_spark_safe_col_helper():
+    """Small runtime validation for columns containing dots, quotes, parentheses, and percent signs."""
+    test_df = spark.createDataFrame(
+        [(1, 2, 3, 4)],
+        ["IMPR_(ABS.TOP)_%", '"IMPR_(ABS.TOP)_%"', '"IMPR_(TOP)"', "IMPRESIONES"]
+    )
+
+    test_df.select(
+        spark_safe_col("IMPR_(ABS.TOP)_%"),
+        spark_safe_col('"IMPR_(ABS.TOP)_%"'),
+        spark_safe_col('"IMPR_(TOP)"'),
+        spark_safe_col("IMPRESIONES")
+    ).show()
+
+    # Also prove that an unquoted configured name can resolve to a dataframe
+    # column whose real Spark schema name includes literal double quotes.
+    quoted_only_df = spark.createDataFrame(
+        [(1, 2)],
+        ['"IMPR_(ABS.TOP)_%"', '"IMPR_(TOP)"']
+    )
+    quoted_only_df.select(
+        spark_safe_df_col(quoted_only_df, "IMPR_(ABS.TOP)_%"),
+        spark_safe_df_col(quoted_only_df, "IMPR_(TOP)")
+    ).show()
+
+    quoted_only_df.select(
+        F.sum(
+            F.when(spark_safe_df_col(quoted_only_df, "IMPR_(ABS.TOP)_%").isNull(), 1).otherwise(0)
+        ).alias("null_count")
+    ).show()
+
 # COMMAND ----------
 
 # MAGIC %md ## B2 · Load Config Files
 
 # COMMAND ----------
 
-# ── DQ Rules ─────────────────────────────────────────────────────────────────
-DQ_RULES = {}
+# ── Helper Validation ─────────────────────────────────────────────────────────
 try:
-    with open("configs/dq_rules_catalog.yaml", "r") as f:
-        DQ_RULES = yaml.safe_load(f) or {}
-    print(f"✅ DQ rules loaded — {len(DQ_RULES)} datasets configured")
+    validate_spark_safe_col_helper()
+    print("✅ spark_safe_col validation passed for special-character columns")
+except NameError:
+    print("ℹ️  Spark session not available; spark_safe_col validation skipped.")
 except Exception as e:
-    print(f"⚠️  Could not load dq_rules_catalog.yaml: {e}")
+    print(f"⚠️  spark_safe_col validation could not run in this environment: {str(e)[:150]}")
+
+# ── DQ Rules ─────────────────────────────────────────────────────────────────
+DQ_RULES = load_yaml_config(
+    "configs/dq_rules_catalog.yaml",
+    default={"rules": {}}
+)
+DQ_RULES = DQ_RULES.get("rules", DQ_RULES)
+print(f"✅ DQ rules available — {len(DQ_RULES)} dataset/rule entries")
 
 # ── Business Glossary Seed ────────────────────────────────────────────────────
 GLOSSARY_SEED = {}
-try:
-    with open("configs/business_glossary_seed.yaml", "r") as f:
-        seed_data = yaml.safe_load(f) or {}
-    for entry in seed_data.get("columns", []):
-        GLOSSARY_SEED[entry["column_name"].upper()] = entry
-    print(f"✅ Glossary seed loaded — {len(GLOSSARY_SEED)} column definitions")
-except Exception as e:
-    print(f"⚠️  Could not load business_glossary_seed.yaml: {e}")
+seed_data = load_yaml_config(
+    "configs/business_glossary_seed.yaml",
+    default={"glossary": {}}
+)
+
+for column_name, entry in seed_data.get("glossary", {}).items():
+    normalized_entry = dict(entry or {})
+    normalized_entry.setdefault("column_name", column_name)
+    GLOSSARY_SEED[str(column_name).upper()] = normalized_entry
+
+for entry in seed_data.get("columns", []):
+    column_name = entry.get("column_name")
+    if column_name:
+        GLOSSARY_SEED[str(column_name).upper()] = entry
+
+print(f"✅ Glossary seed available — {len(GLOSSARY_SEED)} column definitions")
 
 # COMMAND ----------
 
@@ -247,10 +388,10 @@ DATE_PRIORITY = ["anio", "año", "year", "yr", "periodo", "period",
                  "date", "dt", "week", "semana", "mes", "month", "day_id"]
 
 def detect_date_col(columns: list):
-    col_lower = {c.lower(): c for c in columns}
+    col_lookup = {normalize_identifier_for_match(c).lower(): c for c in columns}
     for p in DATE_PRIORITY:
-        if p in col_lower:
-            return col_lower[p]
+        if p in col_lookup:
+            return col_lookup[p]
     return None
 
 # COMMAND ----------
@@ -318,6 +459,9 @@ for source_key, cfg in defined.items():
         res["total_rows"] = df.count()
         res["total_cols"] = len(df.columns)
         print(f"  ✅ Step 1 — OK  |  Rows: {res['total_rows']:,}  |  Cols: {res['total_cols']}")
+        print("  Available columns:")
+        for available_col in df.columns:
+            print(f"    {repr(available_col)}")
     except Exception as e:
         err_msg = str(e)
         res["status"] = "ERROR"
@@ -341,14 +485,14 @@ for source_key, cfg in defined.items():
 
     for field in df.schema.fields:
         col = field.name
-        col_lower = col.lower()
+        col_lower = normalize_identifier_for_match(col).lower()
 
         # Null analysis
-        null_count   = df.filter(F.col(col).isNull()).count()
+        null_count   = df.filter(spark_safe_col(col).isNull()).count()
         null_pct     = round(null_count / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0.0
 
         # Distinct count (every column — not keyword filtered)
-        distinct_cnt = df.select(col).distinct().count()
+        distinct_cnt = df.select(spark_safe_col(col)).distinct().count()
 
         # PK candidate: unique + never null
         is_pk_cand   = (distinct_cnt == res["total_rows"] and null_pct == 0.0)
@@ -356,10 +500,11 @@ for source_key, cfg in defined.items():
         # Sample values: top 5 by frequency (capped at 200 chars)
         try:
             top_vals = (
-                df.groupBy(col).count()
+                df.select(spark_safe_col(col).alias("__value"))
+                  .groupBy("__value").count()
                   .orderBy(F.desc("count"))
                   .limit(5)
-                  .select(col)
+                  .select("__value")
                   .rdd.flatMap(lambda x: x)
                   .collect()
             )
@@ -368,14 +513,15 @@ for source_key, cfg in defined.items():
             sample_str = ""
 
         # Native Snowflake type (falls back to PySpark if INFORMATION_SCHEMA unavailable)
-        sf_info   = res["sf_types"].get(col.upper(), {})
+        col_match_key = normalize_identifier_for_match(col)
+        sf_info   = res["sf_types"].get(col_match_key, {})
         sf_type   = sf_info.get("DATA_TYPE", str(field.dataType))
 
         # Dimension classification
         dim_class = classify_dimension(col_lower)
 
         # Glossary linkage
-        in_glossary = col.upper() in GLOSSARY_SEED
+        in_glossary = normalize_identifier_for_match(col) in GLOSSARY_SEED
 
         null_flag = "⚠️ HIGH" if null_pct > 5 else ("🔶 WARN" if null_pct > 1 else "✅ OK")
 
@@ -400,28 +546,30 @@ for source_key, cfg in defined.items():
 
     # ── Step 3: Business Domain Profile ──────────────────────────────────────
     print(f"\n  Step 3 — Business Domain Profile")
-    bus_key_found = [c for c in df.columns if c.lower() in BUSINESS_KEY_COLS]
+    bus_key_found = [c for c in df.columns if normalize_identifier_for_match(c).lower() in BUSINESS_KEY_COLS]
     print(f"  Business key columns found: {bus_key_found or 'none'}")
 
     for col in bus_key_found:
         try:
             freq_df = (
-                df.groupBy(col).count()
+                df.select(spark_safe_col(col).alias("__value"))
+                  .groupBy("__value").count()
                   .withColumn("freq_pct", F.round(F.col("count") / res["total_rows"] * 100, 2))
                   .orderBy(F.desc("count"))
                   .limit(50)
             )
             rows = freq_df.collect()
-            print(f"\n    {col} — top {min(10, len(rows))} values (of {df.select(col).distinct().count()} distinct):")
+            distinct_values = df.select(spark_safe_col(col).alias("__value")).distinct().count()
+            print(f"\n    {col} — top {min(10, len(rows))} values (of {distinct_values} distinct):")
             for r in rows[:10]:
-                val = str(r[col]) if r[col] is not None else "(null)"
+                val = str(r["__value"]) if r["__value"] is not None else "(null)"
                 print(f"      {val:<40} {r['count']:>10,}  {r['freq_pct']:>6.2f}%")
 
             for r in rows:
                 res["domain_profile"].append({
                     "dataset":    source_key,
                     "column":     col,
-                    "value":      str(r[col]) if r[col] is not None else "(null)",
+                    "value":      str(r["__value"]) if r["__value"] is not None else "(null)",
                     "frequency":  r["count"],
                     "coverage_pct": r["freq_pct"],
                 })
@@ -442,7 +590,8 @@ for source_key, cfg in defined.items():
         print("  " + "─" * 110)
 
     for col_name, rules in source_rules.items():
-        col_exists = col_name in df.columns
+        actual_col_name = resolve_dataframe_column_name(df.columns, col_name)
+        col_exists = actual_col_name is not None
         severity   = rules.get("severity", "MEDIUM")
 
         for rule_type, rule_val in rules.items():
@@ -460,7 +609,7 @@ for source_key, cfg in defined.items():
                         expected_str = "0% null"
                         actual_str   = "column absent"
                     else:
-                        col_entry = next((c for c in res["col_inventory"] if c["column"] == col_name), {})
+                        col_entry = next((c for c in res["col_inventory"] if c["column"] == actual_col_name), {})
                         npct = col_entry.get("null_pct", 0)
                         expected_str = "0.00% null"
                         actual_str   = f"{npct:.2f}% null"
@@ -468,7 +617,7 @@ for source_key, cfg in defined.items():
 
                 elif rule_type == "allowed_values" and col_exists:
                     allowed = rule_val
-                    bad_count = df.filter(~F.col(col_name).isin(allowed) & F.col(col_name).isNotNull()).count()
+                    bad_count = df.filter(~spark_safe_col(actual_col_name).isin(allowed) & spark_safe_col(actual_col_name).isNotNull()).count()
                     expected_str = f"0 violations"
                     actual_str   = f"{bad_count:,} violations"
                     status = "PASS" if bad_count == 0 else f"FAIL — {bad_count:,} bad values"
@@ -478,9 +627,9 @@ for source_key, cfg in defined.items():
                     mx = rule_val.get("max")
                     oob = 0
                     if mn is not None:
-                        oob += df.filter(F.col(col_name) < mn).count()
+                        oob += df.filter(spark_safe_col(actual_col_name) < mn).count()
                     if mx is not None:
-                        oob += df.filter(F.col(col_name) > mx).count()
+                        oob += df.filter(spark_safe_col(actual_col_name) > mx).count()
                     expected_str = f"[{mn}, {mx}]"
                     actual_str   = f"{oob:,} out-of-range"
                     status = "PASS" if oob == 0 else f"FAIL — {oob:,} OOB rows"
@@ -528,9 +677,9 @@ for source_key, cfg in defined.items():
 
     if date_col:
         stats = df.agg(
-            F.min(qcol(date_col)).alias("min"),
-            F.max(qcol(date_col)).alias("max"),
-            F.countDistinct(qcol(date_col)).alias("distinct")
+            F.min(spark_safe_col(date_col)).alias("min"),
+            F.max(spark_safe_col(date_col)).alias("max"),
+            F.countDistinct(spark_safe_col(date_col)).alias("distinct")
         ).collect()[0]
         res["date_min"]      = str(stats["min"])
         res["date_max"]      = str(stats["max"])
@@ -545,7 +694,7 @@ for source_key, cfg in defined.items():
             if isinstance(field_type, (DateType, TimestampType)):
                 w = Window.orderBy("week")
                 gap_df = (
-                    df.withColumn("week", F.date_trunc("week", F.col(date_col)))
+                    df.withColumn("week", F.date_trunc("week", spark_safe_col(date_col)))
                       .groupBy("week").agg(F.count("*").alias("cnt"))
                       .withColumn("prev_week", F.lag("week").over(w))
                       .withColumn("gap_weeks", F.datediff("week", "prev_week") / 7)
@@ -596,7 +745,7 @@ for source_key, cfg in defined.items():
                 break
             checked += 1
             try:
-                deduped = df.dropDuplicates(list(combo)).count()
+                deduped = distinct_count_for_columns(df, list(combo))
                 uniq_pct = round(deduped / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0.0
                 confidence = (
                     "✅ PERFECT" if uniq_pct == 100
@@ -645,11 +794,11 @@ for source_key, cfg in defined.items():
     for col in num_cols:
         try:
             stats = df.agg(
-                F.min(col).alias("mn"), F.max(col).alias("mx"),
-                F.sum(col).alias("tot"), F.mean(col).alias("avg")
+                F.min(spark_safe_col(col)).alias("mn"), F.max(spark_safe_col(col)).alias("mx"),
+                F.sum(spark_safe_col(col)).alias("tot"), F.mean(spark_safe_col(col)).alias("avg")
             ).collect()[0]
-            negs  = df.filter(F.col(col) < 0).count()
-            zeros = df.filter(F.col(col) == 0).count()
+            negs  = df.filter(spark_safe_col(col) < 0).count()
+            zeros = df.filter(spark_safe_col(col) == 0).count()
             mn_v  = float(stats["mn"] or 0)
             mx_v  = float(stats["mx"] or 0)
             tot_v = float(stats["tot"] or 0)
@@ -674,7 +823,7 @@ for source_key, cfg in defined.items():
 
     if len(dup_key) >= 2:
         try:
-            deduped   = df.dropDuplicates(dup_key).count()
+            deduped   = distinct_count_for_columns(df, dup_key)
             dup_count = res["total_rows"] - deduped
             dup_pct   = round(dup_count / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0.0
             res["dup_count"] = dup_count
@@ -713,7 +862,10 @@ for source_key, cfg in defined.items():
 
     # Dimension 3: Joinability (25 pts) — placeholder, updated by 00c after cross-dataset validation
     # Conservative estimate based on business key null rates
-    bk_cols_present = [c for c in res["col_inventory"] if c["column"].lower() in BUSINESS_KEY_COLS]
+    bk_cols_present = [
+        c for c in res["col_inventory"]
+        if normalize_identifier_for_match(c["column"]).lower() in BUSINESS_KEY_COLS
+    ]
     if bk_cols_present:
         avg_null = sum(c["null_pct"] for c in bk_cols_present) / len(bk_cols_present)
         sc_joinability = max(0, round(25 - avg_null / 4))
