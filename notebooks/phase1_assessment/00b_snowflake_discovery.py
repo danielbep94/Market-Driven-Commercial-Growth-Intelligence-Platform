@@ -114,6 +114,7 @@ DOMAIN_LABELS = {
 # COMMAND ----------
 
 import yaml, csv, os, itertools
+from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
 
@@ -181,31 +182,113 @@ def run_info_schema(db: str, schema: str, object_name: str):
         print(f"  ⚠️  INFORMATION_SCHEMA query failed: {str(e)[:150]}")
         return {}
 
+
+def load_yaml_config(path: str, default: dict | None = None) -> dict:
+    """Load an optional YAML config file, returning defaults when it is absent or empty."""
+    default = default or {}
+    config_path = Path(path)
+
+    if not config_path.exists():
+        print(f"ℹ️  Optional config not found: {config_path}. Using defaults.")
+        return default
+
+    with config_path.open("r", encoding="utf-8") as f:
+        return yaml.safe_load(f) or default
+
+def spark_safe_col(column_name: str):
+    """
+    Return a safely escaped Spark Column reference for schema-derived column names.
+
+    Handles special characters such as dots, spaces, parentheses, percent signs,
+    hyphens, internal backticks, and Snowflake-style quoted column references.
+
+    Example:
+        IMPR_(ABS.TOP)_% -> col("`IMPR_(ABS.TOP)_%`")
+    """
+    clean_name = str(column_name).strip()
+
+    # Remove accidental outer backticks only once.
+    if clean_name.startswith("`") and clean_name.endswith("`"):
+        clean_name = clean_name[1:-1]
+
+    # Remove accidental outer double quotes only once.
+    if clean_name.startswith('"') and clean_name.endswith('"'):
+        clean_name = clean_name[1:-1]
+
+    # Escape internal backticks in the Spark identifier literal.
+    clean_name = clean_name.replace("`", "``")
+
+    return F.col(f"`{clean_name}`")
+
+def distinct_count_for_columns(df, columns: list[str]) -> int:
+    """Count distinct row combinations using safe temporary aliases for arbitrary column names."""
+    alias_map = {original_col: f"col_{idx}" for idx, original_col in enumerate(columns)}
+    return (
+        df.select(*[spark_safe_col(original_col).alias(alias) for original_col, alias in alias_map.items()])
+          .dropDuplicates(list(alias_map.values()))
+          .count()
+    )
+
+def validate_spark_safe_col_helper():
+    """Small runtime validation for columns containing dots, parentheses, and percent signs."""
+    test_df = spark.createDataFrame(
+        [(1, 2, 3)],
+        ["IMPR_(ABS.TOP)_%", "IMPR_(TOP)", "IMPRESIONES"]
+    )
+
+    test_df.select(
+        spark_safe_col("IMPR_(ABS.TOP)_%"),
+        spark_safe_col("IMPR_(TOP)"),
+        spark_safe_col("IMPRESIONES")
+    ).show()
+
+    test_df.select(
+        F.sum(
+            F.when(spark_safe_col("IMPR_(ABS.TOP)_%").isNull(), 1).otherwise(0)
+        ).alias("null_count")
+    ).show()
+
 # COMMAND ----------
 
 # MAGIC %md ## B2 · Load Config Files
 
 # COMMAND ----------
 
-# ── DQ Rules ─────────────────────────────────────────────────────────────────
-DQ_RULES = {}
+# ── Helper Validation ─────────────────────────────────────────────────────────
 try:
-    with open("configs/dq_rules_catalog.yaml", "r") as f:
-        DQ_RULES = yaml.safe_load(f) or {}
-    print(f"✅ DQ rules loaded — {len(DQ_RULES)} datasets configured")
+    validate_spark_safe_col_helper()
+    print("✅ spark_safe_col validation passed for special-character columns")
+except NameError:
+    print("ℹ️  Spark session not available; spark_safe_col validation skipped.")
 except Exception as e:
-    print(f"⚠️  Could not load dq_rules_catalog.yaml: {e}")
+    print(f"⚠️  spark_safe_col validation could not run in this environment: {str(e)[:150]}")
+
+# ── DQ Rules ─────────────────────────────────────────────────────────────────
+DQ_RULES = load_yaml_config(
+    "configs/dq_rules_catalog.yaml",
+    default={"rules": {}}
+)
+DQ_RULES = DQ_RULES.get("rules", DQ_RULES)
+print(f"✅ DQ rules available — {len(DQ_RULES)} dataset/rule entries")
 
 # ── Business Glossary Seed ────────────────────────────────────────────────────
 GLOSSARY_SEED = {}
-try:
-    with open("configs/business_glossary_seed.yaml", "r") as f:
-        seed_data = yaml.safe_load(f) or {}
-    for entry in seed_data.get("columns", []):
-        GLOSSARY_SEED[entry["column_name"].upper()] = entry
-    print(f"✅ Glossary seed loaded — {len(GLOSSARY_SEED)} column definitions")
-except Exception as e:
-    print(f"⚠️  Could not load business_glossary_seed.yaml: {e}")
+seed_data = load_yaml_config(
+    "configs/business_glossary_seed.yaml",
+    default={"glossary": {}}
+)
+
+for column_name, entry in seed_data.get("glossary", {}).items():
+    normalized_entry = dict(entry or {})
+    normalized_entry.setdefault("column_name", column_name)
+    GLOSSARY_SEED[str(column_name).upper()] = normalized_entry
+
+for entry in seed_data.get("columns", []):
+    column_name = entry.get("column_name")
+    if column_name:
+        GLOSSARY_SEED[str(column_name).upper()] = entry
+
+print(f"✅ Glossary seed available — {len(GLOSSARY_SEED)} column definitions")
 
 # COMMAND ----------
 
@@ -318,6 +401,9 @@ for source_key, cfg in defined.items():
         res["total_rows"] = df.count()
         res["total_cols"] = len(df.columns)
         print(f"  ✅ Step 1 — OK  |  Rows: {res['total_rows']:,}  |  Cols: {res['total_cols']}")
+        print("  Available columns:")
+        for available_col in df.columns:
+            print(f"    {repr(available_col)}")
     except Exception as e:
         err_msg = str(e)
         res["status"] = "ERROR"
@@ -344,11 +430,11 @@ for source_key, cfg in defined.items():
         col_lower = col.lower()
 
         # Null analysis
-        null_count   = df.filter(F.col(col).isNull()).count()
+        null_count   = df.filter(spark_safe_col(col).isNull()).count()
         null_pct     = round(null_count / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0.0
 
         # Distinct count (every column — not keyword filtered)
-        distinct_cnt = df.select(col).distinct().count()
+        distinct_cnt = df.select(spark_safe_col(col)).distinct().count()
 
         # PK candidate: unique + never null
         is_pk_cand   = (distinct_cnt == res["total_rows"] and null_pct == 0.0)
@@ -356,10 +442,11 @@ for source_key, cfg in defined.items():
         # Sample values: top 5 by frequency (capped at 200 chars)
         try:
             top_vals = (
-                df.groupBy(col).count()
+                df.select(spark_safe_col(col).alias("__value"))
+                  .groupBy("__value").count()
                   .orderBy(F.desc("count"))
                   .limit(5)
-                  .select(col)
+                  .select("__value")
                   .rdd.flatMap(lambda x: x)
                   .collect()
             )
@@ -406,22 +493,24 @@ for source_key, cfg in defined.items():
     for col in bus_key_found:
         try:
             freq_df = (
-                df.groupBy(col).count()
+                df.select(spark_safe_col(col).alias("__value"))
+                  .groupBy("__value").count()
                   .withColumn("freq_pct", F.round(F.col("count") / res["total_rows"] * 100, 2))
                   .orderBy(F.desc("count"))
                   .limit(50)
             )
             rows = freq_df.collect()
-            print(f"\n    {col} — top {min(10, len(rows))} values (of {df.select(col).distinct().count()} distinct):")
+            distinct_values = df.select(spark_safe_col(col).alias("__value")).distinct().count()
+            print(f"\n    {col} — top {min(10, len(rows))} values (of {distinct_values} distinct):")
             for r in rows[:10]:
-                val = str(r[col]) if r[col] is not None else "(null)"
+                val = str(r["__value"]) if r["__value"] is not None else "(null)"
                 print(f"      {val:<40} {r['count']:>10,}  {r['freq_pct']:>6.2f}%")
 
             for r in rows:
                 res["domain_profile"].append({
                     "dataset":    source_key,
                     "column":     col,
-                    "value":      str(r[col]) if r[col] is not None else "(null)",
+                    "value":      str(r["__value"]) if r["__value"] is not None else "(null)",
                     "frequency":  r["count"],
                     "coverage_pct": r["freq_pct"],
                 })
@@ -468,7 +557,7 @@ for source_key, cfg in defined.items():
 
                 elif rule_type == "allowed_values" and col_exists:
                     allowed = rule_val
-                    bad_count = df.filter(~F.col(col_name).isin(allowed) & F.col(col_name).isNotNull()).count()
+                    bad_count = df.filter(~spark_safe_col(col_name).isin(allowed) & spark_safe_col(col_name).isNotNull()).count()
                     expected_str = f"0 violations"
                     actual_str   = f"{bad_count:,} violations"
                     status = "PASS" if bad_count == 0 else f"FAIL — {bad_count:,} bad values"
@@ -478,9 +567,9 @@ for source_key, cfg in defined.items():
                     mx = rule_val.get("max")
                     oob = 0
                     if mn is not None:
-                        oob += df.filter(F.col(col_name) < mn).count()
+                        oob += df.filter(spark_safe_col(col_name) < mn).count()
                     if mx is not None:
-                        oob += df.filter(F.col(col_name) > mx).count()
+                        oob += df.filter(spark_safe_col(col_name) > mx).count()
                     expected_str = f"[{mn}, {mx}]"
                     actual_str   = f"{oob:,} out-of-range"
                     status = "PASS" if oob == 0 else f"FAIL — {oob:,} OOB rows"
@@ -528,9 +617,9 @@ for source_key, cfg in defined.items():
 
     if date_col:
         stats = df.agg(
-            F.min(qcol(date_col)).alias("min"),
-            F.max(qcol(date_col)).alias("max"),
-            F.countDistinct(qcol(date_col)).alias("distinct")
+            F.min(spark_safe_col(date_col)).alias("min"),
+            F.max(spark_safe_col(date_col)).alias("max"),
+            F.countDistinct(spark_safe_col(date_col)).alias("distinct")
         ).collect()[0]
         res["date_min"]      = str(stats["min"])
         res["date_max"]      = str(stats["max"])
@@ -545,7 +634,7 @@ for source_key, cfg in defined.items():
             if isinstance(field_type, (DateType, TimestampType)):
                 w = Window.orderBy("week")
                 gap_df = (
-                    df.withColumn("week", F.date_trunc("week", F.col(date_col)))
+                    df.withColumn("week", F.date_trunc("week", spark_safe_col(date_col)))
                       .groupBy("week").agg(F.count("*").alias("cnt"))
                       .withColumn("prev_week", F.lag("week").over(w))
                       .withColumn("gap_weeks", F.datediff("week", "prev_week") / 7)
@@ -596,7 +685,7 @@ for source_key, cfg in defined.items():
                 break
             checked += 1
             try:
-                deduped = df.dropDuplicates(list(combo)).count()
+                deduped = distinct_count_for_columns(df, list(combo))
                 uniq_pct = round(deduped / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0.0
                 confidence = (
                     "✅ PERFECT" if uniq_pct == 100
@@ -645,11 +734,11 @@ for source_key, cfg in defined.items():
     for col in num_cols:
         try:
             stats = df.agg(
-                F.min(col).alias("mn"), F.max(col).alias("mx"),
-                F.sum(col).alias("tot"), F.mean(col).alias("avg")
+                F.min(spark_safe_col(col)).alias("mn"), F.max(spark_safe_col(col)).alias("mx"),
+                F.sum(spark_safe_col(col)).alias("tot"), F.mean(spark_safe_col(col)).alias("avg")
             ).collect()[0]
-            negs  = df.filter(F.col(col) < 0).count()
-            zeros = df.filter(F.col(col) == 0).count()
+            negs  = df.filter(spark_safe_col(col) < 0).count()
+            zeros = df.filter(spark_safe_col(col) == 0).count()
             mn_v  = float(stats["mn"] or 0)
             mx_v  = float(stats["mx"] or 0)
             tot_v = float(stats["tot"] or 0)
@@ -674,7 +763,7 @@ for source_key, cfg in defined.items():
 
     if len(dup_key) >= 2:
         try:
-            deduped   = df.dropDuplicates(dup_key).count()
+            deduped   = distinct_count_for_columns(df, dup_key)
             dup_count = res["total_rows"] - deduped
             dup_pct   = round(dup_count / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0.0
             res["dup_count"] = dup_count
