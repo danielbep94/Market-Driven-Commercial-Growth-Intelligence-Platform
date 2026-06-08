@@ -36,9 +36,11 @@
 # MAGIC | 10 | `enterprise_readiness_scorecard.csv` | `METADATA.ENTERPRISE_READINESS_SCORECARD` | 6-dim score |
 
 # COMMAND ----------
+
 # MAGIC %md ## ─── SECTION A: CONFIGURATION ────────────────────────────────────────────
 
 # COMMAND ----------
+
 import json, csv, os, yaml
 from datetime import datetime
 from collections import defaultdict
@@ -93,9 +95,11 @@ except Exception as e:
     DELTA_AVAILABLE = False
 
 # COMMAND ----------
+
 # MAGIC %md ## ─── SECTION B: LOAD RESULTS FROM 00b ─────────────────────────────────
 
 # COMMAND ----------
+
 # ── Attempt to use in-memory `results` from the same session first ────────────
 try:
     _ = results  # set by 00b in the same session
@@ -123,9 +127,11 @@ except Exception as e:
     print(f"⚠️  Glossary seed not loaded: {e}")
 
 # COMMAND ----------
+
 # MAGIC %md ## ─── SECTION C: OUTPUT HELPERS ──────────────────────────────────────────
 
 # COMMAND ----------
+
 DOMAIN_LABELS = {
     "DATA_MKT": "Investment / Marketing", "DATA_SELL_IN": "Sell-In",
     "DATA_SELL_OUT": "Sell-Out", "DATA_WASTE": "Waste / Merma",
@@ -176,9 +182,11 @@ def write_csv_and_delta(rows: list, fieldnames: list, csv_filename: str, delta_t
     _written_files.append((csv_filename, delta_table, len(rows), delta_status))
 
 # COMMAND ----------
+
 # MAGIC %md ## Output 1 — Dataset Inventory
 
 # COMMAND ----------
+
 print("=" * 60)
 print("OUTPUT 1 — Dataset Inventory")
 print("=" * 60)
@@ -221,9 +229,11 @@ FIELDS_DATASET = list(dataset_rows[0].keys()) if dataset_rows else []
 write_csv_and_delta(dataset_rows, FIELDS_DATASET, "phase1_dataset_inventory.csv", "DATASET_INVENTORY")
 
 # COMMAND ----------
+
 # MAGIC %md ## Output 2 — Column Inventory
 
 # COMMAND ----------
+
 print("=" * 60)
 print("OUTPUT 2 — Column Inventory")
 print("=" * 60)
@@ -263,9 +273,11 @@ FIELDS_COL = [
 write_csv_and_delta(all_col_rows, FIELDS_COL, "phase1_column_inventory.csv", "COLUMN_INVENTORY")
 
 # COMMAND ----------
+
 # MAGIC %md ## Output 3 — Cross-Dataset Relationship Matrix
 
 # COMMAND ----------
+
 print("=" * 60)
 print("OUTPUT 3 — Cross-Dataset Relationship Matrix")
 print("=" * 60)
@@ -334,9 +346,11 @@ write_csv_and_delta(
 )
 
 # COMMAND ----------
+
 # MAGIC %md ## Output 4 — Business Domain Profile
 
 # COMMAND ----------
+
 print("=" * 60)
 print("OUTPUT 4 — Business Domain Profile")
 print("=" * 60)
@@ -360,9 +374,11 @@ write_csv_and_delta(
 )
 
 # COMMAND ----------
+
 # MAGIC %md ## Output 5 — Data Quality Assessment
 
 # COMMAND ----------
+
 print("=" * 60)
 print("OUTPUT 5 — Data Quality Assessment")
 print("=" * 60)
@@ -389,9 +405,11 @@ write_csv_and_delta(
 )
 
 # COMMAND ----------
+
 # MAGIC %md ## Output 6 — Grain Assessment
 
 # COMMAND ----------
+
 print("=" * 60)
 print("OUTPUT 6 — Grain Assessment")
 print("=" * 60)
@@ -418,9 +436,11 @@ write_csv_and_delta(
 )
 
 # COMMAND ----------
+
 # MAGIC %md ## Output 7 — Dimension Candidates
 
 # COMMAND ----------
+
 print("=" * 60)
 print("OUTPUT 7 — Dimension Candidates")
 print("=" * 60)
@@ -479,9 +499,11 @@ write_csv_and_delta(
 )
 
 # COMMAND ----------
+
 # MAGIC %md ## Output 8 — Join Validation Report
 
 # COMMAND ----------
+
 print("=" * 60)
 print("OUTPUT 8 — Join Validation Report")
 print("=" * 60)
@@ -614,9 +636,11 @@ write_csv_and_delta(
 )
 
 # COMMAND ----------
+
 # MAGIC %md ## Output 9 — Business Glossary
 
 # COMMAND ----------
+
 print("=" * 60)
 print("OUTPUT 9 — Business Glossary")
 print("=" * 60)
@@ -675,9 +699,11 @@ print(f"\n  Documented:   {documented} columns")
 print(f"  Undocumented: {undocumented} columns — add definitions to configs/business_glossary_seed.yaml")
 
 # COMMAND ----------
+
 # MAGIC %md ## Output 10 — Enterprise Readiness Scorecard
 
 # COMMAND ----------
+
 print("=" * 60)
 print("OUTPUT 10 — Enterprise Readiness Scorecard")
 print("=" * 60)
@@ -747,9 +773,11 @@ write_csv_and_delta(
 )
 
 # COMMAND ----------
+
 # MAGIC %md ## Final Summary
 
 # COMMAND ----------
+
 print("\n" + "═" * 72)
 print("ENTERPRISE METADATA CATALOG — GENERATION COMPLETE")
 print("═" * 72)
@@ -793,3 +821,7 @@ print()
 print(f"  {'═' * 70}")
 print(f"  {'✅ ALL OUTPUTS COMPLETE' if all_ok else '⚠️  SOME OUTPUTS FAILED — review above'}")
 print(f"  {'═' * 70}")
+
+# COMMAND ----------
+
+
