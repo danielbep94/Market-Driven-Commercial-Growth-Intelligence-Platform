@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # 00b · Enterprise Source Discovery & Metadata Catalog
 # MAGIC
-># MAGIC ## Purpose
+# MAGIC ># MAGIC ## Purpose
 # MAGIC This notebook replaces the original profiling-only discovery script and transforms it into
 # MAGIC a full **Enterprise Metadata Catalog engine**. It runs 9 structured steps per source and
 # MAGIC stores all results in a shared `results` dict consumed by `00c_enterprise_catalog_writer.py`.
@@ -29,6 +29,7 @@
 # MAGIC The `db` key goes in connector options. SQL uses `SCHEMA.TABLE` or just `TABLE`.
 
 # COMMAND ----------
+
 # MAGIC %md ## ─── SECTION A: SOURCES CONFIGURATION ──────────────────────────────
 # MAGIC
 # MAGIC Configure each source below. Set `None` for sources not yet ready.
@@ -44,10 +45,17 @@
 SOURCES = {
 
     # ── 1 · Investment / Marketing ──────────────────────────────────────────
-    "DATA_MKT": {
+    "DATA_MKT_ON": {
         "db":         "PRD_MDP",
         "schema":     "MDP_DSP",
         "sql":        "SELECT * FROM VW_MKT_ECOMM WHERE anio >= 2024",
+        "grain_hint": "FECHA × MARCA × CAMPANA × MEDIO",
+    },
+
+    "DATA_MKT_OFF":  {
+        "db":         "PRD_MDP",
+        "schema":     "MDP_STG",
+        "sql":        "SELECT * FROM FACT_MEDIA_OFF WHERE anio >= 2024",
         "grain_hint": "FECHA × MARCA × CAMPANA × MEDIO",
     },
 
@@ -55,79 +63,13 @@ SOURCES = {
     "DATA_SELL_IN": None,   # ← replace None with dict when ready
 
     # ── 3 · Sell-Out ─────────────────────────────────────────────────────────
-    "DATA_SELL_OUT": {
-        "db":     "PRD_MDP",
-        "schema": "MDP_DSP",
-        "sql":    """
-          WITH fact_filtered AS (
-    SELECT
-        PER_ID,
-        STORE,
-        UPC,
-        VOL_SELL_OUT,
-        PCS_SELL_OUT,
-        AMOUNT_SELL_OUT,
-        VOL_INV,
-        PCS_INV,
-        AVG_SELL
-    FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
-    WHERE PER_ID >= 20250101
-)
-
-SELECT
-    -- Period Catalog
-    per.DAY_ID,
-    per.YEAR_ID,
-    per.MONTH_LONG_DES_ESP,
-
-    -- CBU Catalog
-    cbu.CBU_CODE,
-    cbu.CBU_DSC,
-    cbu.CBU_SAP,
-
-    -- Store Catalog
-    st.CHAIN,
-    st.FORMAT,
-    st.SUBCHAIN,
-
-    -- Product Catalog (pon aquí solo las columnas necesarias)
-    prod.INT_ID,
-    prod.CBU_ID,
-    
-    -- Fact Metrics
-    f.UPC,
-    f.VOL_SELL_OUT,
-    f.PCS_SELL_OUT,
-    f.AMOUNT_SELL_OUT,
-    f.VOL_INV,
-    f.PCS_INV,
-    f.AVG_SELL
-FROM fact_filtered f
-INNER JOIN PRD_MDP.MDP_DWH.V_D_PERIOD per
-    ON f.PER_ID = per.PER_ID
-INNER JOIN PRD_MDP.MDP_DSP.VW_D_STORE_RM st
-    ON f.STORE = st.INT_ID
-INNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
-    ON f.UPC = prod.INT_ID
-INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
-    ON prod.CBU_ID = cbu.CBU_ID;
-        """,
-    },
-
     "DATA_SELL_OUT": None,
-    # Example when ready:
-    # "DATA_SELL_OUT": {
-    #     "db":         "PRD_MDP",
-    #     "schema":     "MDP_DSP",
-    #     "sql":        "SELECT * FROM VW_FACT_SELL_OUT WHERE anio >= 2024",
-    #     "grain_hint": "DAY_ID × UPC × CHAIN",
-    # },
 
     # ── 4 · Waste / Merma ────────────────────────────────────────────────────
     "DATA_WASTE": {
         "db":     "PRD_MDP",
-        "schema": "MDP_DSP",
-        "sql":    "SELECT * FROM PRD_MDP.MDP_STG.VW_WASTE",
+        "schema": "MDP_STG",  # Aligned with the view's actual schema
+        "sql":    "SELECT * FROM VW_WASTE", # Removed fully qualified path to rely on db/schema config
     },
 
     # ── 5 · Demand Forecast ──────────────────────────────────────────────────
@@ -150,7 +92,8 @@ INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
 }
 
 DOMAIN_LABELS = {
-    "DATA_MKT":       "Investment / Marketing",
+    "DATA_MKT_ON":    "Investment / Marketing (Online)",
+    "DATA_MKT_OFF":   "Investment / Marketing (Offline)",
     "DATA_SELL_IN":   "Sell-In",
     "DATA_SELL_OUT":  "Sell-Out",
     "DATA_WASTE":     "Waste / Merma",
@@ -163,12 +106,15 @@ DOMAIN_LABELS = {
 }
 
 # COMMAND ----------
+
 # MAGIC %md ## ─── SECTION B: DO NOT EDIT BELOW ───────────────────────────────────
 
 # COMMAND ----------
+
 # MAGIC %md ## B1 · Imports & Connection Setup
 
 # COMMAND ----------
+
 import yaml, csv, os, itertools
 from datetime import datetime
 from collections import defaultdict
@@ -238,9 +184,11 @@ def run_info_schema(db: str, schema: str, object_name: str):
         return {}
 
 # COMMAND ----------
+
 # MAGIC %md ## B2 · Load Config Files
 
 # COMMAND ----------
+
 # ── DQ Rules ─────────────────────────────────────────────────────────────────
 DQ_RULES = {}
 try:
@@ -262,9 +210,11 @@ except Exception as e:
     print(f"⚠️  Could not load business_glossary_seed.yaml: {e}")
 
 # COMMAND ----------
+
 # MAGIC %md ## B3 · Business Key Taxonomy (for Domain Profile & Dimension Discovery)
 
 # COMMAND ----------
+
 # Columns to profile with value-frequency tables (EA1)
 BUSINESS_KEY_COLS = {
     "marca", "cadena", "chain", "canal", "sku", "upc", "format", "formato",
@@ -306,9 +256,18 @@ def detect_date_col(columns: list):
     return None
 
 # COMMAND ----------
+
 # MAGIC %md ## B4 · Main Discovery Loop
 
 # COMMAND ----------
+
+import itertools
+from pyspark.sql import functions as F
+from pyspark.sql.window import Window
+from pyspark.sql.types import NumericType, DateType, TimestampType
+
+# Define the missing column-quoting helper function to handle special characters
+qcol = lambda c: F.col(f"`{c}`")
 
 defined   = {k: v for k, v in SOURCES.items() if v is not None}
 undefined = {k: v for k, v in SOURCES.items() if v is None}
@@ -396,11 +355,11 @@ for source_key, cfg in defined.items():
         col_lower = col.lower()
 
         # Null analysis
-        null_count   = df.filter(F.col(col).isNull()).count()
+        null_count   = df.filter(qcol(col).isNull()).count()
         null_pct     = round(null_count / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0.0
 
-        # Distinct count (every column — not keyword filtered)
-        distinct_cnt = df.select(col).distinct().count()
+        # Distinct count
+        distinct_cnt = df.select(qcol(col)).distinct().count()
 
         # PK candidate: unique + never null
         is_pk_cand   = (distinct_cnt == res["total_rows"] and null_pct == 0.0)
@@ -408,10 +367,10 @@ for source_key, cfg in defined.items():
         # Sample values: top 5 by frequency (capped at 200 chars)
         try:
             top_vals = (
-                df.groupBy(col).count()
+                df.groupBy(qcol(col)).count()
                   .orderBy(F.desc("count"))
                   .limit(5)
-                  .select(col)
+                  .select(qcol(col))
                   .rdd.flatMap(lambda x: x)
                   .collect()
             )
@@ -419,7 +378,7 @@ for source_key, cfg in defined.items():
         except Exception:
             sample_str = ""
 
-        # Native Snowflake type (falls back to PySpark if INFORMATION_SCHEMA unavailable)
+        # Native Snowflake type
         sf_info   = res["sf_types"].get(col.upper(), {})
         sf_type   = sf_info.get("DATA_TYPE", str(field.dataType))
 
@@ -458,13 +417,13 @@ for source_key, cfg in defined.items():
     for col in bus_key_found:
         try:
             freq_df = (
-                df.groupBy(col).count()
+                df.groupBy(qcol(col)).count()
                   .withColumn("freq_pct", F.round(F.col("count") / res["total_rows"] * 100, 2))
                   .orderBy(F.desc("count"))
                   .limit(50)
             )
             rows = freq_df.collect()
-            print(f"\n    {col} — top {min(10, len(rows))} values (of {df.select(col).distinct().count()} distinct):")
+            print(f"\n    {col} — top {min(10, len(rows))} values (of {df.select(qcol(col)).distinct().count()} distinct):")
             for r in rows[:10]:
                 val = str(r[col]) if r[col] is not None else "(null)"
                 print(f"      {val:<40} {r['count']:>10,}  {r['freq_pct']:>6.2f}%")
@@ -503,7 +462,7 @@ for source_key, cfg in defined.items():
 
             expected_str = ""
             actual_str   = ""
-            status        = "PASS"
+            status       = "PASS"
 
             try:
                 if rule_type == "mandatory":
@@ -520,7 +479,7 @@ for source_key, cfg in defined.items():
 
                 elif rule_type == "allowed_values" and col_exists:
                     allowed = rule_val
-                    bad_count = df.filter(~F.col(col_name).isin(allowed) & F.col(col_name).isNotNull()).count()
+                    bad_count = df.filter(~qcol(col_name).isin(allowed) & qcol(col_name).isNotNull()).count()
                     expected_str = f"0 violations"
                     actual_str   = f"{bad_count:,} violations"
                     status = "PASS" if bad_count == 0 else f"FAIL — {bad_count:,} bad values"
@@ -530,9 +489,9 @@ for source_key, cfg in defined.items():
                     mx = rule_val.get("max")
                     oob = 0
                     if mn is not None:
-                        oob += df.filter(F.col(col_name) < mn).count()
+                        oob += df.filter(qcol(col_name) < mn).count()
                     if mx is not None:
-                        oob += df.filter(F.col(col_name) > mx).count()
+                        oob += df.filter(qcol(col_name) > mx).count()
                     expected_str = f"[{mn}, {mx}]"
                     actual_str   = f"{oob:,} out-of-range"
                     status = "PASS" if oob == 0 else f"FAIL — {oob:,} OOB rows"
@@ -597,7 +556,7 @@ for source_key, cfg in defined.items():
             if isinstance(field_type, (DateType, TimestampType)):
                 w = Window.orderBy("week")
                 gap_df = (
-                    df.withColumn("week", F.date_trunc("week", F.col(date_col)))
+                    df.withColumn("week", F.date_trunc("week", qcol(date_col)))
                       .groupBy("week").agg(F.count("*").alias("cnt"))
                       .withColumn("prev_week", F.lag("week").over(w))
                       .withColumn("gap_weeks", F.datediff("week", "prev_week") / 7)
@@ -697,11 +656,11 @@ for source_key, cfg in defined.items():
     for col in num_cols:
         try:
             stats = df.agg(
-                F.min(col).alias("mn"), F.max(col).alias("mx"),
-                F.sum(col).alias("tot"), F.mean(col).alias("avg")
+                F.min(qcol(col)).alias("mn"), F.max(qcol(col)).alias("mx"),
+                F.sum(qcol(col)).alias("tot"), F.mean(qcol(col)).alias("avg")
             ).collect()[0]
-            negs  = df.filter(F.col(col) < 0).count()
-            zeros = df.filter(F.col(col) == 0).count()
+            negs  = df.filter(qcol(col) < 0).count()
+            zeros = df.filter(qcol(col) == 0).count()
             mn_v  = float(stats["mn"] or 0)
             mx_v  = float(stats["mx"] or 0)
             tot_v = float(stats["tot"] or 0)
@@ -743,7 +702,6 @@ for source_key, cfg in defined.items():
     print(f"\n  Step 9 — Enterprise Readiness Score")
 
     # Dimension 1: Completeness (20 pts)
-    # Based on mandatory column null violations from DQ rules
     mandatory_fails = sum(
         1 for r in res["dq_results"]
         if r["rule_type"] == "mandatory" and not r["passed"]
@@ -755,16 +713,14 @@ for source_key, cfg in defined.items():
     sc_completeness = max(0, 20 - mandatory_fails * 5) if mandatory_total > 0 else 15
 
     # Dimension 2: Consistency (20 pts)
-    # Based on overall DQ rule pass rate (allowed_values + value_range + unique)
     consistency_rules = [r for r in res["dq_results"] if r["rule_type"] != "mandatory"]
     if consistency_rules:
         pass_rate = sum(1 for r in consistency_rules if r["passed"]) / len(consistency_rules)
         sc_consistency = round(pass_rate * 20)
     else:
-        sc_consistency = 10  # no rules configured — partial score
+        sc_consistency = 10
 
-    # Dimension 3: Joinability (25 pts) — placeholder, updated by 00c after cross-dataset validation
-    # Conservative estimate based on business key null rates
+    # Dimension 3: Joinability (25 pts)
     bk_cols_present = [c for c in res["col_inventory"] if c["column"].lower() in BUSINESS_KEY_COLS]
     if bk_cols_present:
         avg_null = sum(c["null_pct"] for c in bk_cols_present) / len(bk_cols_present)
@@ -821,9 +777,11 @@ for source_key, cfg in defined.items():
     df.unpersist()
 
 # COMMAND ----------
+
 # MAGIC %md ## B5 · Summary Scorecard
 
 # COMMAND ----------
+
 print("\n" + "═" * 80)
 print("ENTERPRISE READINESS SUMMARY")
 print("═" * 80)
@@ -849,9 +807,11 @@ print(f"\n  Run notebook 00c_enterprise_catalog_writer.py to generate all 10 CSV
 print(f"  and persist results to Snowflake MDP_ANALYTICS.METADATA schema.")
 
 # COMMAND ----------
+
 # MAGIC %md ## B6 · Pass Results to 00c (via notebook exit value or shared storage)
 
 # COMMAND ----------
+
 # The `results` dict is available as a module-level variable.
 # When running in sequence via %run, 00c will access it directly.
 # If running independently, serialize to a temp Delta table or JSON file.
@@ -874,3 +834,7 @@ try:
 except Exception as _e:
     print(f"⚠️  Could not serialize results cache: {_e}")
     print(f"   → Run 00c in the same session immediately after this notebook.")
+
+# COMMAND ----------
+
+

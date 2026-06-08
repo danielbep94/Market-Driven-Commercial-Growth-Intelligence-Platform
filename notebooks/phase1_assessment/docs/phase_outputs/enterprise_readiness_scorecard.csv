@@ -1,4 +1,4 @@
 run_at,dataset,domain,status,row_count,score_completeness,score_completeness_max,score_consistency,score_consistency_max,score_joinability,score_joinability_max,score_temporal,score_temporal_max,score_documentation,score_documentation_max,score_grain,score_grain_max,enterprise_score,enterprise_score_max,readiness_status,dq_rules_pass,dq_rules_fail,best_grain,notes
-2026-06-05 16:17 UTC,DATA_MKT_ON,DATA_MKT_ON,OK,46642,15,20,10,20,15,25,15,15,0,10,3,10,58,100,NOT READY,0,0,CAMPANA × FECHA,FECHA × MARCA × CAMPANA × MEDIO
-2026-06-05 16:17 UTC,DATA_WASTE,Waste / Merma,OK,7099255,15,20,10,20,25,25,15,15,0,10,3,10,68,100,CONDITIONAL,0,0,SKU × FORMATO,
-2026-06-05 16:17 UTC,DATA_MKT_OFF,DATA_MKT_OFF,OK,522003,15,20,10,20,14,25,15,15,0,10,3,10,57,100,NOT READY,0,0,MARCA × FECHA,FECHA × MARCA × CAMPANA × MEDIO
+2026-06-08 16:20 UTC,DATA_MKT_ON,DATA_MKT_ON,OK,46642,15,20,10,20,15,25,15,15,0,10,3,10,58,100,NOT READY,0,0,CAMPANA × FECHA,FECHA × MARCA × CAMPANA × MEDIO
+2026-06-08 16:20 UTC,DATA_MKT_OFF,DATA_MKT_OFF,OK,522003,15,20,10,20,14,25,15,15,0,10,3,10,57,100,NOT READY,0,0,MARCA × FECHA,FECHA × MARCA × CAMPANA × MEDIO
+2026-06-08 16:20 UTC,DATA_WASTE,Waste / Merma,OK,7099255,15,20,10,20,25,25,15,15,0,10,3,10,68,100,CONDITIONAL,0,0,SKU × FORMATO,
