@@ -43,33 +43,91 @@
 # COMMAND ----------
 
 SOURCES = {
-
     # ── 1 · Investment / Marketing ──────────────────────────────────────────
     "DATA_MKT_ON": {
-        "db":         "PRD_MDP",
-        "schema":     "MDP_DSP",
-        "sql":        "SELECT * FROM VW_MKT_ECOMM WHERE anio >= 2024",
+        "db": "PRD_MDP",
+        "schema": "MDP_DSP",
+        "sql": "SELECT * FROM VW_MKT_ECOMM WHERE anio >= 2024",
         "grain_hint": "FECHA × MARCA × CAMPANA × MEDIO",
     },
 
-    "DATA_MKT_OFF":  {
-        "db":         "PRD_MDP",
-        "schema":     "MDP_STG",
-        "sql":        "SELECT * FROM FACT_MEDIA_OFF WHERE anio >= 2024",
+    "DATA_MKT_OFF": {
+        "db": "PRD_MDP",
+        "schema": "MDP_STG",
+        "sql": "SELECT * FROM FACT_MEDIA_OFF WHERE anio >= 2024",
         "grain_hint": "FECHA × MARCA × CAMPANA × MEDIO",
     },
 
-    # ── 2 · Sell-In ──────────────────────────────────────────────────────────
-    "DATA_SELL_IN": None,   # ← replace None with dict when ready
+    # ── 2 · Sell-Out ────────────────────────────────────────────────────────
+    "DATA_SELL_OUT": {
+        "db": "PRD_MDP",
+        "schema": "MDP_STG",
+        "sql": """
+WITH fact_filtered AS (
+    SELECT
+        PER_ID,
+        STORE,
+        UPC,
+        VOL_SELL_OUT,
+        PCS_SELL_OUT,
+        AMOUNT_SELL_OUT,
+        VOL_INV,
+        PCS_INV,
+        AVG_SELL,
+        CBU_ID
+    FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
+    WHERE PER_ID >= 20250101
+)
 
-    # ── 3 · Sell-Out ─────────────────────────────────────────────────────────
-    "DATA_SELL_OUT": None,
+SELECT
+    -- Period Catalog
+    per."DAY" AS DAY,
+
+    -- CBU Catalog
+    cbu.CBU_DSC,
+    cbu.CBU_SAP,
+
+    -- Store Catalog
+    st.CHAIN,
+    st.FORMAT,
+    st.SUBCHAIN,
+
+    -- Product Catalog
+    prod.INT_ID,
+    prod.CBU_ID,
+
+    -- Fact Metrics
+    f.UPC,
+    f.VOL_SELL_OUT,
+    f.PCS_SELL_OUT,
+    f.AMOUNT_SELL_OUT,
+    f.VOL_INV,
+    f.PCS_INV,
+    f.AVG_SELL
+FROM fact_filtered f
+INNER JOIN PRD_MDP.MDP_DWH.V_D_PERIOD per
+    ON f.PER_ID = per.PER_ID
+INNER JOIN PRD_MDP.MDP_DSP.VW_D_STORE_RM st
+    ON f.STORE = st.INT_ID
+   AND f.CBU_ID = st.CBU_ID
+INNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
+    ON TO_VARCHAR(f.UPC) = TO_VARCHAR(prod.INT_ID)
+   AND f.CBU_ID = prod.CBU_ID
+INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
+    ON prod.CBU_ID = cbu.CBU_ID
+""",
+        "grain_hint": "DAY × CBU × CHAIN × FORMAT × SUBCHAIN × UPC",
+    },
+
+    # ── 3 · Sell-In ─────────────────────────────────────────────────────────
+    "DATA_SELL_IN": None,
 
     # ── 4 · Waste / Merma ────────────────────────────────────────────────────
     "DATA_WASTE": {
-        "db":     "PRD_MDP",
-        "schema": "MDP_STG",  # Aligned with the view's actual schema
-        "sql":    "SELECT * FROM VW_WASTE", # Removed fully qualified path to rely on db/schema config
+        "db": "PRD_MDP",
+        "schema": "MDP_STG",
+        "sql": "SELECT * FROM VW_WASTE",
+        "grain_hint": "Depende de la vista VW_WASTE",
     },
 
     # ── 5 · Demand Forecast ──────────────────────────────────────────────────
@@ -92,17 +150,17 @@ SOURCES = {
 }
 
 DOMAIN_LABELS = {
-    "DATA_MKT_ON":    "Investment / Marketing (Online)",
-    "DATA_MKT_OFF":   "Investment / Marketing (Offline)",
-    "DATA_SELL_IN":   "Sell-In",
-    "DATA_SELL_OUT":  "Sell-Out",
-    "DATA_WASTE":     "Waste / Merma",
-    "DATA_FORECAST":  "Demand Forecast",
-    "DATA_NIELSEN":   "Nielsen / Market Share",
-    "DATA_PRICE":     "Price",
-    "DATA_PROMO":     "Promotions",
+    "DATA_MKT_ON": "Investment / Marketing (Online)",
+    "DATA_MKT_OFF": "Investment / Marketing (Offline)",
+    "DATA_SELL_IN": "Sell-In",
+    "DATA_SELL_OUT": "Sell-Out",
+    "DATA_WASTE": "Waste / Merma",
+    "DATA_FORECAST": "Demand Forecast",
+    "DATA_NIELSEN": "Nielsen / Market Share",
+    "DATA_PRICE": "Price",
+    "DATA_PROMO": "Promotions",
     "DATA_INVENTORY": "Inventory / Stock",
-    "DATA_CALENDAR":  "Calendar / Date Dimension",
+    "DATA_CALENDAR": "Calendar / Date Dimension",
 }
 
 # COMMAND ----------

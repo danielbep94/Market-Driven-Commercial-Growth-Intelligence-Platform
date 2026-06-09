@@ -8540,13 +8540,2095 @@
     "enterprise_score": 57,
     "errors": []
   },
+  "DATA_SELL_OUT": {
+    "key": "DATA_SELL_OUT",
+    "label": "Sell-Out",
+    "db": "PRD_MDP",
+    "schema": "MDP_STG",
+    "sql": "\nWITH fact_filtered AS (\n    SELECT\n        PER_ID,\n        STORE,\n        UPC,\n        VOL_SELL_OUT,\n        PCS_SELL_OUT,\n        AMOUNT_SELL_OUT,\n        VOL_INV,\n        PCS_INV,\n        AVG_SELL,\n        CBU_ID\n    FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT\n    WHERE PER_ID >= 20250101\n)\n\nSELECT\n    -- Period Catalog\n    per.\"DAY\" AS DAY,\n\n    -- CBU Catalog\n    cbu.CBU_DSC,\n    cbu.CBU_SAP,\n\n    -- Store Catalog\n    st.CHAIN,\n    st.FORMAT,\n    st.SUBCHAIN,\n\n    -- Product Catalog\n    prod.INT_ID,\n    prod.CBU_ID,\n\n    -- Fact Metrics\n    f.UPC,\n    f.VOL_SELL_OUT,\n    f.PCS_SELL_OUT,\n    f.AMOUNT_SELL_OUT,\n    f.VOL_INV,\n    f.PCS_INV,\n    f.AVG_SELL\nFROM fact_filtered f\nINNER JOIN PRD_MDP.MDP_DWH.V_D_PERIOD per\n    ON f.PER_ID = per.PER_ID\nINNER JOIN PRD_MDP.MDP_DSP.VW_D_STORE_RM st\n    ON f.STORE = st.INT_ID\n   AND f.CBU_ID = st.CBU_ID\nINNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod\n    ON TO_VARCHAR(f.UPC) = TO_VARCHAR(prod.INT_ID)\n   AND f.CBU_ID = prod.CBU_ID\nINNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu\n    ON prod.CBU_ID = cbu.CBU_ID\n",
+    "grain_hint": "DAY \u00d7 CBU \u00d7 CHAIN \u00d7 FORMAT \u00d7 SUBCHAIN \u00d7 UPC",
+    "status": "OK",
+    "total_rows": 337685257,
+    "total_cols": 15,
+    "sf_types": {},
+    "col_inventory": [
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "DAY",
+        "pyspark_type": "DateType()",
+        "sf_type": "DateType()",
+        "nullable": true,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 522,
+        "is_pk_candidate": false,
+        "sample_values": "2026-03-08 | 2026-05-17 | 2026-03-05 | 2026-05-24 | 2026-05-03",
+        "dimension_class": "FACT / MEASURE",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CBU_DSC",
+        "pyspark_type": "StringType()",
+        "sf_type": "StringType()",
+        "nullable": true,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 3,
+        "is_pk_candidate": false,
+        "sample_values": "DANONE | BONAFONT | BEC",
+        "dimension_class": "FACT / MEASURE",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CBU_SAP",
+        "pyspark_type": "StringType()",
+        "sf_type": "StringType()",
+        "nullable": true,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 3,
+        "is_pk_candidate": false,
+        "sample_values": "EDP | WATERS | BEC",
+        "dimension_class": "FACT / MEASURE",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "pyspark_type": "StringType()",
+        "sf_type": "StringType()",
+        "nullable": true,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 13,
+        "is_pk_candidate": false,
+        "sample_values": "WALMART | SORIANA | TIENDAS CHEDRAUI | CASALEY | COMERCIAL CITY FRESKO",
+        "dimension_class": "DIM_CUSTOMER",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "pyspark_type": "StringType()",
+        "sf_type": "StringType()",
+        "nullable": true,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 46,
+        "is_pk_candidate": false,
+        "sample_values": "WM-BODEGA AURRERA | WM-BOD AURRERA EXPRESS | WM-SUPER CENTER | SO-HIPERMERCADOS | WM-MI BODEGA AURRERA",
+        "dimension_class": "DIM_CUSTOMER",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "pyspark_type": "StringType()",
+        "sf_type": "StringType()",
+        "nullable": true,
+        "null_count": 254796379,
+        "null_pct": 75.45,
+        "null_flag": "\u26a0\ufe0f HIGH",
+        "distinct_count": 35,
+        "is_pk_candidate": false,
+        "sample_values": "WM-BAE | WM-BODEGA AURRERA | WM-MI BODEGA | SOR-HIPER",
+        "dimension_class": "DIM_CUSTOMER",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "pyspark_type": "StringType()",
+        "sf_type": "StringType()",
+        "nullable": true,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 1142,
+        "is_pk_candidate": false,
+        "sample_values": "7501032397845 | 7501032398255 | 7501032395957 | 7501032398576 | 7501032397609",
+        "dimension_class": "DIM_PRODUCT",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CBU_ID",
+        "pyspark_type": "DecimalType(1,0)",
+        "sf_type": "DecimalType(1,0)",
+        "nullable": false,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 3,
+        "is_pk_candidate": false,
+        "sample_values": "1 | 2 | 3",
+        "dimension_class": "FACT / MEASURE",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "pyspark_type": "StringType()",
+        "sf_type": "StringType()",
+        "nullable": true,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 1142,
+        "is_pk_candidate": false,
+        "sample_values": "7501032397845 | 7501032398255 | 7501032395957 | 7501032398576 | 7501032397609",
+        "dimension_class": "DIM_PRODUCT",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "VOL_SELL_OUT",
+        "pyspark_type": "DecimalType(18,6)",
+        "sf_type": "DecimalType(18,6)",
+        "nullable": true,
+        "null_count": 218368,
+        "null_pct": 0.06,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 29456,
+        "is_pk_candidate": false,
+        "sample_values": "0.000000 | 0.900000 | 1.000000 | 1.800000 | 2.000000",
+        "dimension_class": "FACT / MEASURE",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "PCS_SELL_OUT",
+        "pyspark_type": "DecimalType(18,6)",
+        "sf_type": "DecimalType(18,6)",
+        "nullable": true,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 9193,
+        "is_pk_candidate": false,
+        "sample_values": "0.000000 | 1.000000 | 2.000000 | 3.000000 | 4.000000",
+        "dimension_class": "FACT / MEASURE",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "AMOUNT_SELL_OUT",
+        "pyspark_type": "DecimalType(18,6)",
+        "sf_type": "DecimalType(18,6)",
+        "nullable": true,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 1222908,
+        "is_pk_candidate": false,
+        "sample_values": "0.000000 | 15.000000 | 30.000000 | 40.000000 | 45.000000",
+        "dimension_class": "FACT / MEASURE",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "VOL_INV",
+        "pyspark_type": "DecimalType(18,6)",
+        "sf_type": "DecimalType(18,6)",
+        "nullable": true,
+        "null_count": 218368,
+        "null_pct": 0.06,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 130543,
+        "is_pk_candidate": false,
+        "sample_values": "0.000000 | 7.200000 | 9.000000 | 5.400000 | 6.000000",
+        "dimension_class": "FACT / MEASURE",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "PCS_INV",
+        "pyspark_type": "DecimalType(18,6)",
+        "sf_type": "DecimalType(18,6)",
+        "nullable": true,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 27888,
+        "is_pk_candidate": false,
+        "sample_values": "0.000000 | 8.000000 | 6.000000 | 12.000000 | 7.000000",
+        "dimension_class": "FACT / MEASURE",
+        "in_glossary": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "AVG_SELL",
+        "pyspark_type": "DecimalType(18,6)",
+        "sf_type": "DecimalType(18,6)",
+        "nullable": true,
+        "null_count": 0,
+        "null_pct": 0.0,
+        "null_flag": "\u2705 OK",
+        "distinct_count": 78954,
+        "is_pk_candidate": false,
+        "sample_values": "0.000000 | 0.290000 | 0.110000 | 0.140000 | 0.430000",
+        "dimension_class": "FACT / MEASURE",
+        "in_glossary": false
+      }
+    ],
+    "domain_profile": [
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "WALMART",
+        "frequency": 194045914,
+        "coverage_pct": 57.46
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "SORIANA",
+        "frequency": 58999296,
+        "coverage_pct": 17.47
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "TIENDAS CHEDRAUI",
+        "frequency": 36093384,
+        "coverage_pct": 10.69
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "CASALEY",
+        "frequency": 12461351,
+        "coverage_pct": 3.69
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "COMERCIAL CITY FRESKO",
+        "frequency": 9498233,
+        "coverage_pct": 2.81
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "HEB",
+        "frequency": 7753927,
+        "coverage_pct": 2.3
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "FUTURAMA",
+        "frequency": 7364020,
+        "coverage_pct": 2.18
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "ZORRO",
+        "frequency": 3867946,
+        "coverage_pct": 1.15
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "CALIMAX",
+        "frequency": 3423776,
+        "coverage_pct": 1.01
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "SAMS",
+        "frequency": 3364169,
+        "coverage_pct": 1.0
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "OXXO",
+        "frequency": 496257,
+        "coverage_pct": 0.15
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "CITY CLUB",
+        "frequency": 181132,
+        "coverage_pct": 0.05
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "CHAIN",
+        "value": "COSTCO",
+        "frequency": 135852,
+        "coverage_pct": 0.04
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "WM-BODEGA AURRERA",
+        "frequency": 59342580,
+        "coverage_pct": 17.57
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "WM-BOD AURRERA EXPRESS",
+        "frequency": 53007191,
+        "coverage_pct": 15.7
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "WM-SUPER CENTER",
+        "frequency": 38777826,
+        "coverage_pct": 11.48
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "SO-HIPERMERCADOS",
+        "frequency": 34483805,
+        "coverage_pct": 10.21
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "WM-MI BODEGA AURRERA",
+        "frequency": 33177234,
+        "coverage_pct": 9.82
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CH-TIENDAS",
+        "frequency": 18141619,
+        "coverage_pct": 5.37
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "SO-SUPER",
+        "frequency": 9829402,
+        "coverage_pct": 2.91
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "WM-SUPERAMA",
+        "frequency": 9699252,
+        "coverage_pct": 2.87
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "SO-MERCADOS",
+        "frequency": 9102575,
+        "coverage_pct": 2.7
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CH-SUPERCHE",
+        "frequency": 7176896,
+        "coverage_pct": 2.13
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CH-SUPERCITO",
+        "frequency": 7099750,
+        "coverage_pct": 2.1
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "HEB",
+        "frequency": 6573647,
+        "coverage_pct": 1.95
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CL-EXPRESS",
+        "frequency": 6293310,
+        "coverage_pct": 1.86
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "SO-EXPRESS",
+        "frequency": 4973486,
+        "coverage_pct": 1.47
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CL-FIESTA",
+        "frequency": 4643013,
+        "coverage_pct": 1.37
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CCF-LA COMER",
+        "frequency": 4201053,
+        "coverage_pct": 1.24
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "ZORRO",
+        "frequency": 3836853,
+        "coverage_pct": 1.14
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CALIMAX",
+        "frequency": 3423776,
+        "coverage_pct": 1.01
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "SAMS CLUB",
+        "frequency": 3364169,
+        "coverage_pct": 1.0
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CH-SELECTO",
+        "frequency": 3363478,
+        "coverage_pct": 1.0
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "FU-ALSUPER",
+        "frequency": 2745065,
+        "coverage_pct": 0.81
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "FU-AL SUPER STORE",
+        "frequency": 2712091,
+        "coverage_pct": 0.8
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CCF-FRESKO",
+        "frequency": 2354641,
+        "coverage_pct": 0.7
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CCF-CITY MARKET",
+        "frequency": 1713469,
+        "coverage_pct": 0.51
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CL-SUPER",
+        "frequency": 1432466,
+        "coverage_pct": 0.42
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CCF-SUMESA",
+        "frequency": 1174896,
+        "coverage_pct": 0.35
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "HEB-MI TIENDA",
+        "frequency": 1080178,
+        "coverage_pct": 0.32
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "FU-ALSUPER STORE PLUS",
+        "frequency": 771947,
+        "coverage_pct": 0.23
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "FU-ALSUPER DIFERENCIADO",
+        "frequency": 730559,
+        "coverage_pct": 0.22
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "SO-CEDIS",
+        "frequency": 610028,
+        "coverage_pct": 0.18
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "OXXO",
+        "frequency": 496257,
+        "coverage_pct": 0.15
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "FU-FRESH MARKET",
+        "frequency": 222326,
+        "coverage_pct": 0.07
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CH-CEDIS",
+        "frequency": 203586,
+        "coverage_pct": 0.06
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CITY CLUB",
+        "frequency": 181132,
+        "coverage_pct": 0.05
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "COSTCO",
+        "frequency": 135793,
+        "coverage_pct": 0.04
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "FU-ALSUPER EXPRESS",
+        "frequency": 131651,
+        "coverage_pct": 0.04
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CH-DARK STORE",
+        "frequency": 108055,
+        "coverage_pct": 0.03
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "HEB-CEDIS",
+        "frequency": 100102,
+        "coverage_pct": 0.03
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CL-FRESH",
+        "frequency": 82152,
+        "coverage_pct": 0.02
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CCF-CEDIS",
+        "frequency": 54174,
+        "coverage_pct": 0.02
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "FU-CEDIS",
+        "frequency": 50381,
+        "coverage_pct": 0.01
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "WM-MEDIMART",
+        "frequency": 41096,
+        "coverage_pct": 0.01
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CASH AND CARRY",
+        "frequency": 31093,
+        "coverage_pct": 0.01
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "CL-CEDIS",
+        "frequency": 10410,
+        "coverage_pct": 0.0
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "WM BOD AURRERA EXPRESS",
+        "frequency": 735,
+        "coverage_pct": 0.0
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "FORMAT",
+        "value": "COSTCO-ECOMMERCE",
+        "frequency": 59,
+        "coverage_pct": 0.0
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "(null)",
+        "frequency": 254796379,
+        "coverage_pct": 75.45
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "WM-BAE",
+        "frequency": 15762751,
+        "coverage_pct": 4.67
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "WM-BODEGA AURRERA",
+        "frequency": 13114853,
+        "coverage_pct": 3.88
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "WM-MI BODEGA",
+        "frequency": 8879218,
+        "coverage_pct": 2.63
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "SOR-HIPER",
+        "frequency": 8426389,
+        "coverage_pct": 2.5
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "WM-SUPERCENTER",
+        "frequency": 7799597,
+        "coverage_pct": 2.31
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "NA",
+        "frequency": 4343619,
+        "coverage_pct": 1.29
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CH-CHEDRAUI",
+        "frequency": 4074567,
+        "coverage_pct": 1.21
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "SOR-SUPER",
+        "frequency": 2636604,
+        "coverage_pct": 0.78
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "SOR-MERCADO",
+        "frequency": 2223016,
+        "coverage_pct": 0.66
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "WM-WM EXPRESS",
+        "frequency": 2089007,
+        "coverage_pct": 0.62
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "FUT-AL SUPER",
+        "frequency": 1711728,
+        "coverage_pct": 0.51
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "SOR-MEGA",
+        "frequency": 1554189,
+        "coverage_pct": 0.46
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "HEB-HEB",
+        "frequency": 1512683,
+        "coverage_pct": 0.45
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CH-SUPERCHE",
+        "frequency": 1389024,
+        "coverage_pct": 0.41
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "SOR-EXPRESS",
+        "frequency": 1244493,
+        "coverage_pct": 0.37
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CF-COMERCIAL MEXICANA",
+        "frequency": 1039718,
+        "coverage_pct": 0.31
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "SAM-SAMS",
+        "frequency": 914003,
+        "coverage_pct": 0.27
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CH-SUPERCITO",
+        "frequency": 821406,
+        "coverage_pct": 0.24
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CH-SELECTO",
+        "frequency": 752758,
+        "coverage_pct": 0.22
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CF-FRESKO",
+        "frequency": 678872,
+        "coverage_pct": 0.2
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CAL-CALIMAX",
+        "frequency": 552875,
+        "coverage_pct": 0.16
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CF-CITY MARKET",
+        "frequency": 298756,
+        "coverage_pct": 0.09
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "OXXO",
+        "frequency": 239801,
+        "coverage_pct": 0.07
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CF-SUMESA",
+        "frequency": 232524,
+        "coverage_pct": 0.07
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "SOR-CEDIS",
+        "frequency": 141205,
+        "coverage_pct": 0.04
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "HEB-MI TIENDA",
+        "frequency": 129171,
+        "coverage_pct": 0.04
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CL-CASA LEY",
+        "frequency": 106660,
+        "coverage_pct": 0.03
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CL-EXPRESS",
+        "frequency": 70880,
+        "coverage_pct": 0.02
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CH-CEDIS",
+        "frequency": 70068,
+        "coverage_pct": 0.02
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "SOR-CITY CLUB",
+        "frequency": 32101,
+        "coverage_pct": 0.01
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "FUT-FUTURAMA",
+        "frequency": 20494,
+        "coverage_pct": 0.01
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "WM-CEDIS",
+        "frequency": 16161,
+        "coverage_pct": 0.0
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CAL-CEDIS",
+        "frequency": 7772,
+        "coverage_pct": 0.0
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "SUBCHAIN",
+        "value": "CAL-AL PRECIO",
+        "frequency": 1915,
+        "coverage_pct": 0.0
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032397845",
+        "frequency": 2733871,
+        "coverage_pct": 0.81
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032398255",
+        "frequency": 2728212,
+        "coverage_pct": 0.81
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032395957",
+        "frequency": 2635497,
+        "coverage_pct": 0.78
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032398576",
+        "frequency": 2632250,
+        "coverage_pct": 0.78
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032397609",
+        "frequency": 2624150,
+        "coverage_pct": 0.78
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032395100",
+        "frequency": 2616132,
+        "coverage_pct": 0.77
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032398385",
+        "frequency": 2610357,
+        "coverage_pct": 0.77
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "75030896",
+        "frequency": 2590636,
+        "coverage_pct": 0.77
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032332013",
+        "frequency": 2588268,
+        "coverage_pct": 0.77
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "75034009",
+        "frequency": 2582250,
+        "coverage_pct": 0.76
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "75036409",
+        "frequency": 2555366,
+        "coverage_pct": 0.76
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "75012533",
+        "frequency": 2534544,
+        "coverage_pct": 0.75
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104006281",
+        "frequency": 2477911,
+        "coverage_pct": 0.73
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104001972",
+        "frequency": 2411732,
+        "coverage_pct": 0.71
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104006526",
+        "frequency": 2405832,
+        "coverage_pct": 0.71
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032395230",
+        "frequency": 2375988,
+        "coverage_pct": 0.7
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032398514",
+        "frequency": 2374481,
+        "coverage_pct": 0.7
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "75009076",
+        "frequency": 2351883,
+        "coverage_pct": 0.7
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "75009090",
+        "frequency": 2294661,
+        "coverage_pct": 0.68
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032398439",
+        "frequency": 2280630,
+        "coverage_pct": 0.68
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032395933",
+        "frequency": 2266869,
+        "coverage_pct": 0.67
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "75026196",
+        "frequency": 2247100,
+        "coverage_pct": 0.67
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104003174",
+        "frequency": 2226831,
+        "coverage_pct": 0.66
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7506443105713",
+        "frequency": 2205683,
+        "coverage_pct": 0.65
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032398491",
+        "frequency": 2202392,
+        "coverage_pct": 0.65
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7506443100466",
+        "frequency": 2170768,
+        "coverage_pct": 0.64
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "75009083",
+        "frequency": 2153401,
+        "coverage_pct": 0.64
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104008193",
+        "frequency": 2130929,
+        "coverage_pct": 0.63
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032398392",
+        "frequency": 2121649,
+        "coverage_pct": 0.63
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104006755",
+        "frequency": 2120300,
+        "coverage_pct": 0.63
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104007943",
+        "frequency": 2104746,
+        "coverage_pct": 0.62
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104000159",
+        "frequency": 2086247,
+        "coverage_pct": 0.62
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104005635",
+        "frequency": 2068800,
+        "coverage_pct": 0.61
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "31200454560",
+        "frequency": 2065721,
+        "coverage_pct": 0.61
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032300036",
+        "frequency": 1969337,
+        "coverage_pct": 0.58
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "75036393",
+        "frequency": 1959458,
+        "coverage_pct": 0.58
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032310974",
+        "frequency": 1914471,
+        "coverage_pct": 0.57
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032335052",
+        "frequency": 1908671,
+        "coverage_pct": 0.57
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032311155",
+        "frequency": 1899554,
+        "coverage_pct": 0.56
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032398088",
+        "frequency": 1866257,
+        "coverage_pct": 0.55
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032300081",
+        "frequency": 1819781,
+        "coverage_pct": 0.54
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032300104",
+        "frequency": 1810815,
+        "coverage_pct": 0.54
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7506443100473",
+        "frequency": 1809888,
+        "coverage_pct": 0.54
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104007905",
+        "frequency": 1784912,
+        "coverage_pct": 0.53
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104100422",
+        "frequency": 1766086,
+        "coverage_pct": 0.52
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7506443106451",
+        "frequency": 1738930,
+        "coverage_pct": 0.51
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7501032332020",
+        "frequency": 1734658,
+        "coverage_pct": 0.51
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "75061678",
+        "frequency": 1721501,
+        "coverage_pct": 0.51
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "758104006656",
+        "frequency": 1705639,
+        "coverage_pct": 0.51
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "INT_ID",
+        "value": "7506443101074",
+        "frequency": 1689703,
+        "coverage_pct": 0.5
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032397845",
+        "frequency": 2733871,
+        "coverage_pct": 0.81
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032398255",
+        "frequency": 2728212,
+        "coverage_pct": 0.81
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032395957",
+        "frequency": 2635497,
+        "coverage_pct": 0.78
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032398576",
+        "frequency": 2632250,
+        "coverage_pct": 0.78
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032397609",
+        "frequency": 2624150,
+        "coverage_pct": 0.78
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032395100",
+        "frequency": 2616132,
+        "coverage_pct": 0.77
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032398385",
+        "frequency": 2610357,
+        "coverage_pct": 0.77
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "75030896",
+        "frequency": 2590636,
+        "coverage_pct": 0.77
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032332013",
+        "frequency": 2588268,
+        "coverage_pct": 0.77
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "75034009",
+        "frequency": 2582250,
+        "coverage_pct": 0.76
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "75036409",
+        "frequency": 2555366,
+        "coverage_pct": 0.76
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "75012533",
+        "frequency": 2534544,
+        "coverage_pct": 0.75
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104006281",
+        "frequency": 2477911,
+        "coverage_pct": 0.73
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104001972",
+        "frequency": 2411732,
+        "coverage_pct": 0.71
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104006526",
+        "frequency": 2405832,
+        "coverage_pct": 0.71
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032395230",
+        "frequency": 2375988,
+        "coverage_pct": 0.7
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032398514",
+        "frequency": 2374481,
+        "coverage_pct": 0.7
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "75009076",
+        "frequency": 2351883,
+        "coverage_pct": 0.7
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "75009090",
+        "frequency": 2294661,
+        "coverage_pct": 0.68
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032398439",
+        "frequency": 2280630,
+        "coverage_pct": 0.68
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032395933",
+        "frequency": 2266869,
+        "coverage_pct": 0.67
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "75026196",
+        "frequency": 2247100,
+        "coverage_pct": 0.67
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104003174",
+        "frequency": 2226831,
+        "coverage_pct": 0.66
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7506443105713",
+        "frequency": 2205683,
+        "coverage_pct": 0.65
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032398491",
+        "frequency": 2202392,
+        "coverage_pct": 0.65
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7506443100466",
+        "frequency": 2170768,
+        "coverage_pct": 0.64
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "75009083",
+        "frequency": 2153401,
+        "coverage_pct": 0.64
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104008193",
+        "frequency": 2130929,
+        "coverage_pct": 0.63
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032398392",
+        "frequency": 2121649,
+        "coverage_pct": 0.63
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104006755",
+        "frequency": 2120300,
+        "coverage_pct": 0.63
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104007943",
+        "frequency": 2104746,
+        "coverage_pct": 0.62
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104000159",
+        "frequency": 2086247,
+        "coverage_pct": 0.62
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104005635",
+        "frequency": 2068800,
+        "coverage_pct": 0.61
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "31200454560",
+        "frequency": 2065721,
+        "coverage_pct": 0.61
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032300036",
+        "frequency": 1969337,
+        "coverage_pct": 0.58
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "75036393",
+        "frequency": 1959458,
+        "coverage_pct": 0.58
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032310974",
+        "frequency": 1914471,
+        "coverage_pct": 0.57
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032335052",
+        "frequency": 1908671,
+        "coverage_pct": 0.57
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032311155",
+        "frequency": 1899554,
+        "coverage_pct": 0.56
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032398088",
+        "frequency": 1866257,
+        "coverage_pct": 0.55
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032300081",
+        "frequency": 1819781,
+        "coverage_pct": 0.54
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032300104",
+        "frequency": 1810815,
+        "coverage_pct": 0.54
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7506443100473",
+        "frequency": 1809888,
+        "coverage_pct": 0.54
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104007905",
+        "frequency": 1784912,
+        "coverage_pct": 0.53
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104100422",
+        "frequency": 1766086,
+        "coverage_pct": 0.52
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7506443106451",
+        "frequency": 1738930,
+        "coverage_pct": 0.51
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7501032332020",
+        "frequency": 1734658,
+        "coverage_pct": 0.51
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "75061678",
+        "frequency": 1721501,
+        "coverage_pct": 0.51
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "758104006656",
+        "frequency": 1705639,
+        "coverage_pct": 0.51
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "column": "UPC",
+        "value": "7506443101074",
+        "frequency": 1689703,
+        "coverage_pct": 0.5
+      }
+    ],
+    "dq_results": [],
+    "dq_pass_count": 0,
+    "dq_fail_count": 0,
+    "date_col": null,
+    "date_min": null,
+    "date_max": null,
+    "date_distinct": null,
+    "temporal_gaps": 0,
+    "grain_candidates": [
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN",
+        "columns_used": [
+          "CHAIN"
+        ],
+        "combo_size": 1,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": true
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "FORMAT",
+        "columns_used": [
+          "FORMAT"
+        ],
+        "combo_size": 1,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "SUBCHAIN",
+        "columns_used": [
+          "SUBCHAIN"
+        ],
+        "combo_size": 1,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "INT_ID",
+        "columns_used": [
+          "INT_ID"
+        ],
+        "combo_size": 1,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "UPC",
+        "columns_used": [
+          "UPC"
+        ],
+        "combo_size": 1,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 FORMAT",
+        "columns_used": [
+          "CHAIN",
+          "FORMAT"
+        ],
+        "combo_size": 2,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 SUBCHAIN",
+        "columns_used": [
+          "CHAIN",
+          "SUBCHAIN"
+        ],
+        "combo_size": 2,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 INT_ID",
+        "columns_used": [
+          "CHAIN",
+          "INT_ID"
+        ],
+        "combo_size": 2,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 UPC",
+        "columns_used": [
+          "CHAIN",
+          "UPC"
+        ],
+        "combo_size": 2,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "FORMAT \u00d7 SUBCHAIN",
+        "columns_used": [
+          "FORMAT",
+          "SUBCHAIN"
+        ],
+        "combo_size": 2,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "FORMAT \u00d7 INT_ID",
+        "columns_used": [
+          "FORMAT",
+          "INT_ID"
+        ],
+        "combo_size": 2,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "FORMAT \u00d7 UPC",
+        "columns_used": [
+          "FORMAT",
+          "UPC"
+        ],
+        "combo_size": 2,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "SUBCHAIN \u00d7 INT_ID",
+        "columns_used": [
+          "SUBCHAIN",
+          "INT_ID"
+        ],
+        "combo_size": 2,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "SUBCHAIN \u00d7 UPC",
+        "columns_used": [
+          "SUBCHAIN",
+          "UPC"
+        ],
+        "combo_size": 2,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "INT_ID \u00d7 UPC",
+        "columns_used": [
+          "INT_ID",
+          "UPC"
+        ],
+        "combo_size": 2,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 FORMAT \u00d7 SUBCHAIN",
+        "columns_used": [
+          "CHAIN",
+          "FORMAT",
+          "SUBCHAIN"
+        ],
+        "combo_size": 3,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 FORMAT \u00d7 INT_ID",
+        "columns_used": [
+          "CHAIN",
+          "FORMAT",
+          "INT_ID"
+        ],
+        "combo_size": 3,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 FORMAT \u00d7 UPC",
+        "columns_used": [
+          "CHAIN",
+          "FORMAT",
+          "UPC"
+        ],
+        "combo_size": 3,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 SUBCHAIN \u00d7 INT_ID",
+        "columns_used": [
+          "CHAIN",
+          "SUBCHAIN",
+          "INT_ID"
+        ],
+        "combo_size": 3,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 SUBCHAIN \u00d7 UPC",
+        "columns_used": [
+          "CHAIN",
+          "SUBCHAIN",
+          "UPC"
+        ],
+        "combo_size": 3,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 INT_ID \u00d7 UPC",
+        "columns_used": [
+          "CHAIN",
+          "INT_ID",
+          "UPC"
+        ],
+        "combo_size": 3,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "FORMAT \u00d7 SUBCHAIN \u00d7 INT_ID",
+        "columns_used": [
+          "FORMAT",
+          "SUBCHAIN",
+          "INT_ID"
+        ],
+        "combo_size": 3,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "FORMAT \u00d7 SUBCHAIN \u00d7 UPC",
+        "columns_used": [
+          "FORMAT",
+          "SUBCHAIN",
+          "UPC"
+        ],
+        "combo_size": 3,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "FORMAT \u00d7 INT_ID \u00d7 UPC",
+        "columns_used": [
+          "FORMAT",
+          "INT_ID",
+          "UPC"
+        ],
+        "combo_size": 3,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "SUBCHAIN \u00d7 INT_ID \u00d7 UPC",
+        "columns_used": [
+          "SUBCHAIN",
+          "INT_ID",
+          "UPC"
+        ],
+        "combo_size": 3,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 FORMAT \u00d7 SUBCHAIN \u00d7 INT_ID",
+        "columns_used": [
+          "CHAIN",
+          "FORMAT",
+          "SUBCHAIN",
+          "INT_ID"
+        ],
+        "combo_size": 4,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 FORMAT \u00d7 SUBCHAIN \u00d7 UPC",
+        "columns_used": [
+          "CHAIN",
+          "FORMAT",
+          "SUBCHAIN",
+          "UPC"
+        ],
+        "combo_size": 4,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 FORMAT \u00d7 INT_ID \u00d7 UPC",
+        "columns_used": [
+          "CHAIN",
+          "FORMAT",
+          "INT_ID",
+          "UPC"
+        ],
+        "combo_size": 4,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 SUBCHAIN \u00d7 INT_ID \u00d7 UPC",
+        "columns_used": [
+          "CHAIN",
+          "SUBCHAIN",
+          "INT_ID",
+          "UPC"
+        ],
+        "combo_size": 4,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "FORMAT \u00d7 SUBCHAIN \u00d7 INT_ID \u00d7 UPC",
+        "columns_used": [
+          "FORMAT",
+          "SUBCHAIN",
+          "INT_ID",
+          "UPC"
+        ],
+        "combo_size": 4,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "candidate_grain": "CHAIN \u00d7 FORMAT \u00d7 SUBCHAIN \u00d7 INT_ID \u00d7 UPC",
+        "columns_used": [
+          "CHAIN",
+          "FORMAT",
+          "SUBCHAIN",
+          "INT_ID",
+          "UPC"
+        ],
+        "combo_size": 5,
+        "uniqueness_pct": 0.0,
+        "confidence": "\ud83d\udd34 LOW",
+        "is_best": false
+      }
+    ],
+    "numeric_stats": [
+      {
+        "dataset": "DATA_SELL_OUT",
+        "col": "CBU_ID",
+        "min": 1.0,
+        "max": 3.0,
+        "sum": 423240785.0,
+        "avg": 1.2534,
+        "negatives": 0,
+        "zeros": 0
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "col": "VOL_SELL_OUT",
+        "min": -9206.4,
+        "max": 42586.0,
+        "sum": 1060813673.9895,
+        "avg": 3.143460021,
+        "negatives": 23668,
+        "zeros": 180868237
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "col": "PCS_SELL_OUT",
+        "min": -1918.0,
+        "max": 42586.0,
+        "sum": 1004870220.92,
+        "avg": 2.9757598239,
+        "negatives": 23708,
+        "zeros": 180992793
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "col": "AMOUNT_SELL_OUT",
+        "min": -573482.0,
+        "max": 927659.0,
+        "sum": 20759354522.44042,
+        "avg": 61.4754541163,
+        "negatives": 99197,
+        "zeros": 181392271
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "col": "VOL_INV",
+        "min": -650985.6,
+        "max": 64801965.6,
+        "sum": 17578482765.35567,
+        "avg": 52.0895037064,
+        "negatives": 3699217,
+        "zeros": 25579158
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "col": "PCS_INV",
+        "min": -4339904.0,
+        "max": 9000273.0,
+        "sum": 15368764143.0,
+        "avg": 45.512096914,
+        "negatives": 3682440,
+        "zeros": 25718942
+      },
+      {
+        "dataset": "DATA_SELL_OUT",
+        "col": "AVG_SELL",
+        "min": -17.24,
+        "max": 37585.8,
+        "sum": 997403902.248824,
+        "avg": 2.9536495348,
+        "negatives": 28910,
+        "zeros": 26125347
+      }
+    ],
+    "dup_count": 0,
+    "dup_pct": 0.0,
+    "dup_key_used": [],
+    "score_completeness": 15,
+    "score_consistency": 10,
+    "score_joinability": 21,
+    "score_temporal": 0,
+    "score_documentation": 0,
+    "score_grain": 3,
+    "enterprise_score": 49,
+    "errors": []
+  },
   "DATA_WASTE": {
     "key": "DATA_WASTE",
     "label": "Waste / Merma",
     "db": "PRD_MDP",
     "schema": "MDP_STG",
     "sql": "SELECT * FROM VW_WASTE",
-    "grain_hint": "",
+    "grain_hint": "Depende de la vista VW_WASTE",
     "status": "OK",
     "total_rows": 7099255,
     "total_cols": 14,
@@ -8763,7 +10845,7 @@
         "null_count": 4507,
         "null_pct": 0.06,
         "null_flag": "\u2705 OK",
-        "distinct_count": 16,
+        "distinct_count": 15,
         "is_pk_candidate": false,
         "sample_values": "LINEA | LINE | LANZAMIENTO | PLANT BASED | INNO",
         "dimension_class": "FACT / MEASURE",
@@ -8778,7 +10860,7 @@
         "null_count": 23,
         "null_pct": 0.0,
         "null_flag": "\u2705 OK",
-        "distinct_count": 28,
+        "distinct_count": 27,
         "is_pk_candidate": false,
         "sample_values": "DANONE | OIKOS | DANONINO | DANY | ACTIVIA",
         "dimension_class": "DIM_PRODUCT",
@@ -8790,10 +10872,10 @@
         "pyspark_type": "StringType()",
         "sf_type": "TEXT",
         "nullable": true,
-        "null_count": 36659,
+        "null_count": 36611,
         "null_pct": 0.52,
         "null_flag": "\u2705 OK",
-        "distinct_count": 585,
+        "distinct_count": 597,
         "is_pk_candidate": false,
         "sample_values": "DANY125G | DANONE220G | DANETTE100G | DANONE900G | ACTIVIA225G",
         "dimension_class": "FACT / MEASURE",
@@ -8823,7 +10905,7 @@
         "null_count": 1383426,
         "null_pct": 19.49,
         "null_flag": "\u26a0\ufe0f HIGH",
-        "distinct_count": 508463,
+        "distinct_count": 410590,
         "is_pk_candidate": false,
         "sample_values": "0.0 | 25.0 | 45.0 | 17.0",
         "dimension_class": "FACT / MEASURE",
@@ -8838,7 +10920,7 @@
         "null_count": 1385291,
         "null_pct": 19.51,
         "null_flag": "\u26a0\ufe0f HIGH",
-        "distinct_count": 86333,
+        "distinct_count": 61046,
         "is_pk_candidate": false,
         "sample_values": "0.0 | 1.0 | 0.9 | 2.0",
         "dimension_class": "FACT / MEASURE",
@@ -9357,7 +11439,7 @@
         "dataset": "DATA_WASTE",
         "column": "MARCA",
         "value": "DANONE",
-        "frequency": 1882785,
+        "frequency": 1882797,
         "coverage_pct": 26.52
       },
       {
@@ -9399,7 +11481,7 @@
         "dataset": "DATA_WASTE",
         "column": "MARCA",
         "value": "SILK",
-        "frequency": 309298,
+        "frequency": 309311,
         "coverage_pct": 4.36
       },
       {
@@ -9427,7 +11509,7 @@
         "dataset": "DATA_WASTE",
         "column": "MARCA",
         "value": "OCEAN SPRAY",
-        "frequency": 137241,
+        "frequency": 137242,
         "coverage_pct": 1.93
       },
       {
@@ -9511,7 +11593,7 @@
         "dataset": "DATA_WASTE",
         "column": "MARCA",
         "value": "OCEAN",
-        "frequency": 98,
+        "frequency": 97,
         "coverage_pct": 0.0
       },
       {
@@ -9526,13 +11608,6 @@
         "column": "MARCA",
         "value": "MULTI",
         "frequency": 75,
-        "coverage_pct": 0.0
-      },
-      {
-        "dataset": "DATA_WASTE",
-        "column": "MARCA",
-        "value": "EN BLANCO",
-        "frequency": 25,
         "coverage_pct": 0.0
       },
       {
@@ -10438,22 +12513,22 @@
       {
         "dataset": "DATA_WASTE",
         "col": "\"Waste ($)\"",
-        "min": -18866272.25573439,
+        "min": -18866272.2557,
         "max": 15596809.15,
-        "sum": 2992742016.037951,
-        "avg": 523.5884446574505,
-        "negatives": 125113,
-        "zeros": 1639517
+        "sum": 2992742016.167902,
+        "avg": 523.5884446801858,
+        "negatives": 124210,
+        "zeros": 1641371
       },
       {
         "dataset": "DATA_WASTE",
         "col": "\"Waste (KG)\"",
-        "min": -646512.2805947961,
-        "max": 212288.50673139503,
-        "sum": 65365578.261558525,
-        "avg": 11.439620246392614,
-        "negatives": 125031,
-        "zeros": 1745520
+        "min": -646512.2806,
+        "max": 212288.5067,
+        "sum": 65365578.26214557,
+        "avg": 11.439620246495352,
+        "negatives": 124110,
+        "zeros": 1747327
       }
     ],
     "dup_count": 7065766,
