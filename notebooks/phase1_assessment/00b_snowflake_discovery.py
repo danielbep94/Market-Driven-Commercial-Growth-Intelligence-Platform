@@ -34,11 +34,27 @@
 # MAGIC
 # MAGIC Configure each source below. Set `None` for sources not yet ready.
 # MAGIC
-# MAGIC Keys per source dict:
-# MAGIC - `"db"`:     Snowflake database (e.g. `"PRD_MDP"`)
-# MAGIC - `"schema"`: Default schema (e.g. `"MDP_DSP"`)
-# MAGIC - `"sql"`:    Query — use `TABLE` or `SCHEMA.TABLE`, never `DB.SCHEMA.TABLE`
-# MAGIC - `"grain_hint"`: Optional human description to be validated (e.g. `"FECHA × MARCA × CAMPANA"`)
+# MAGIC **Required keys** per source dict:
+# MAGIC - `"db"`:         Snowflake database (e.g. `"PRD_MDP"`)
+# MAGIC - `"schema"`:     Default schema (e.g. `"MDP_DSP"`)
+# MAGIC - `"sql"`:        Query — use `TABLE` or `SCHEMA.TABLE`, never `DB.SCHEMA.TABLE`
+# MAGIC
+# MAGIC **Optional keys** (all have safe defaults if omitted):
+# MAGIC - `"grain_hint"`:          Human description of expected grain (e.g. `"FECHA × MARCA × CAMPANA"`)
+# MAGIC - `"business_keys"`:       List of column names to profile with value-frequency tables (Step 3).
+# MAGIC                            If omitted, the global BUSINESS_KEY_COLS fallback is used.
+# MAGIC                            Missing columns are warned and skipped — never an error.
+# MAGIC - `"date_col"`:            Exact column name containing the primary date/period.
+# MAGIC                            If omitted, auto-detection via DATE_PRIORITY is used.
+# MAGIC - `"date_format"`:         Source format, e.g. `"yyyy-MM-dd"`, `"yyyyMMdd"`, `"yyyy"`.
+# MAGIC                            Required only when `date_requires_cast: true`.
+# MAGIC - `"date_requires_cast"`:  `true` if the column is stored as STRING or INTEGER and needs
+# MAGIC                            to_date() before temporal analysis. Defaults to `false`.
+# MAGIC - `"grain_cols"`:          Explicit list of columns that define the table grain, e.g.
+# MAGIC                            `["FECHA", "MARCA", "CAMPANA", "MEDIO"]`. When provided,
+# MAGIC                            Step 6 tests the exact combination first (priority), then
+# MAGIC                            explores additional candidates. If omitted, auto-discovery
+# MAGIC                            from BUSINESS_KEY_COLS is used.
 
 # COMMAND ----------
 
@@ -48,14 +64,24 @@ SOURCES = {
         "db": "PRD_MDP",
         "schema": "MDP_DSP",
         "sql": "SELECT * FROM VW_MKT_ECOMM WHERE anio >= 2024",
-        "grain_hint": "FECHA × MARCA × CAMPANA × MEDIO",
+        "grain_hint":        "FECHA × MARCA × CAMPANA × MEDIO",
+        "business_keys":     ["MARCA", "CADENA", "CANAL", "CAMPANA", "MEDIO", "PLATAFORMA", "OBJETIVO"],
+        "date_col":          "FECHA",
+        "date_format":       "yyyy-MM-dd",
+        "date_requires_cast": False,
+        "grain_cols":        ["FECHA", "MARCA", "CAMPANA", "MEDIO"],
     },
 
     "DATA_MKT_OFF": {
         "db": "PRD_MDP",
         "schema": "MDP_STG",
         "sql": "SELECT * FROM FACT_MEDIA_OFF WHERE anio >= 2024",
-        "grain_hint": "FECHA × MARCA × CAMPANA × MEDIO",
+        "grain_hint":        "FECHA × MARCA × CAMPANA × MEDIO",
+        "business_keys":     ["MARCA", "CADENA", "CANAL", "CAMPANA", "MEDIO"],
+        "date_col":          "FECHA",
+        "date_format":       "yyyy-MM-dd",
+        "date_requires_cast": False,
+        "grain_cols":        ["FECHA", "MARCA", "CAMPANA", "MEDIO"],
     },
 
     # ── 2 · Sell-Out ────────────────────────────────────────────────────────
@@ -116,10 +142,30 @@ INNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
 INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
     ON prod.CBU_ID = cbu.CBU_ID
 """,
-        "grain_hint": "DAY × CBU × CHAIN × FORMAT × SUBCHAIN × UPC",
+        "grain_hint":        "DAY × CBU × CHAIN × FORMAT × SUBCHAIN × UPC",
+        "business_keys":     ["CHAIN", "FORMAT", "SUBCHAIN", "UPC", "CBU_DSC"],
+        # DAY comes from the period catalog join — it is a proper DATE column
+        "date_col":          "DAY",
+        "date_format":       "yyyy-MM-dd",
+        "date_requires_cast": False,
+        # Grain declared explicitly — avoids the 40-combo cap problem
+        "grain_cols":        ["DAY", "UPC", "CHAIN", "FORMAT", "SUBCHAIN", "CBU_ID"],
     },
 
     # ── 3 · Sell-In ─────────────────────────────────────────────────────────
+    # TODO: identify the Sell-In view/table in PRD_MDP and uncomment.
+    # Template:
+    #   "DATA_SELL_IN": {
+    #       "db":                "PRD_MDP",
+    #       "schema":            "MDP_STG",
+    #       "sql":               "SELECT * FROM VW_SELL_IN WHERE anio >= 2024",
+    #       "grain_hint":        "FECHA × SKU × CADENA",
+    #       "business_keys":     ["SKU", "CADENA", "MARCA"],
+    #       "date_col":          "FECHA",
+    #       "date_format":       "yyyy-MM-dd",
+    #       "date_requires_cast": False,
+    #       "grain_cols":        ["FECHA", "SKU", "CADENA"],
+    #   },
     "DATA_SELL_IN": None,
 
     # ── 4 · Waste / Merma ────────────────────────────────────────────────────
@@ -127,7 +173,14 @@ INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
         "db": "PRD_MDP",
         "schema": "MDP_STG",
         "sql": "SELECT * FROM VW_WASTE",
-        "grain_hint": "Depende de la vista VW_WASTE",
+        # grain_hint, business_keys, date_col, and grain_cols will be filled in
+        # after the first run reveals the actual columns in VW_WASTE.
+        "grain_hint":        "[TO BE CONFIRMED after first run]",
+        "business_keys":     ["SKU", "CADENA", "MARCA"],     # assumed — validate after Step 2
+        "date_col":          "FECHA",                        # assumed — validate after Step 2
+        "date_format":       "yyyy-MM-dd",
+        "date_requires_cast": False,
+        "grain_cols":        ["FECHA", "SKU", "CADENA"],     # assumed — validate after Step 6
     },
 
     # ── 5 · Demand Forecast ──────────────────────────────────────────────────
@@ -273,14 +326,52 @@ except Exception as e:
 
 # COMMAND ----------
 
-# Columns to profile with value-frequency tables (EA1)
-BUSINESS_KEY_COLS = {
+# ── B3a: Global fallback — used when a source does not declare "business_keys" ────
+# Matching is case-insensitive: column names are lowercased before comparison.
+# Add names here to expand profiling across ALL sources that lack a declaration.
+BUSINESS_KEY_COLS_FALLBACK = {
     "marca", "cadena", "chain", "canal", "sku", "upc", "format", "formato",
     "categoria", "subcategoria", "campana", "medio", "plataforma", "objetivo",
     "subchain", "int_id", "cbu_code", "brand", "category", "subcategory",
 }
 
-# Dimension taxonomy (EA4)
+def resolve_business_keys(cfg: dict, df_columns: list) -> tuple:
+    """
+    Resolve the list of business-key columns to profile for a given source.
+
+    Resolution order:
+    1. Source-level "business_keys" list (Section A config)  ← preferred
+    2. Global BUSINESS_KEY_COLS_FALLBACK set                 ← automatic fallback
+
+    For source-level declarations:
+    - Each declared column is validated against df_columns (case-insensitive).
+    - Columns that exist are returned as-is (preserving original casing from the DataFrame).
+    - Columns that do NOT exist are logged as warnings and skipped — never an error.
+
+    Returns:
+        (resolved_cols, missing_cols)
+        resolved_cols: list of column names (as they appear in the DataFrame)
+        missing_cols:  list of declared names that were not found
+    """
+    declared = cfg.get("business_keys")      # None if key absent
+    col_map  = {c.upper(): c for c in df_columns}   # UPPER → original casing
+
+    if declared is not None:
+        # Source-level declaration: validate each entry
+        resolved, missing = [], []
+        for name in declared:
+            canonical = col_map.get(name.upper())
+            if canonical is not None:
+                resolved.append(canonical)
+            else:
+                missing.append(name)
+        return resolved, missing
+    else:
+        # Fallback: match by lowercase name against global set
+        resolved = [c for c in df_columns if c.lower() in BUSINESS_KEY_COLS_FALLBACK]
+        return resolved, []
+
+# ── B3b: Dimension taxonomy (EA4) — unchanged ────────────────────────────────
 DIM_TAXONOMY = {
     "DIM_PRODUCT":   {"upc", "sku", "int_id", "cbu_code", "descripcion", "marca",
                       "product_id", "cod_producto", "ean", "gtin"},
@@ -301,17 +392,63 @@ def classify_dimension(col_lower: str) -> str:
             return dim
     return "FACT / MEASURE"
 
-# Date column detection priority list
+# ── B3c: Date column resolution ───────────────────────────────────────────────
+# Auto-detection fallback list — used when "date_col" is not declared in SOURCES.
 DATE_PRIORITY = ["anio", "año", "year", "yr", "periodo", "period",
                  "fecha", "fecha_proceso", "fecha_venta", "fecha_cierre",
                  "date", "dt", "week", "semana", "mes", "month", "day_id"]
 
-def detect_date_col(columns: list):
-    col_lower = {c.lower(): c for c in columns}
+def resolve_date_col(cfg: dict, df_columns: list) -> tuple:
+    """
+    Resolve the date column and whether it needs casting.
+
+    Resolution order:
+    1. cfg["date_col"]  — explicit declaration, validated against df_columns.
+       If declared but not found → warning, falls back to auto-detection.
+    2. DATE_PRIORITY auto-detection (case-insensitive match).
+
+    Returns:
+        (date_col, requires_cast, date_format, resolution_method)
+        date_col:         column name as it appears in the DataFrame, or None
+        requires_cast:    True if to_date() must be called before temporal analysis
+        date_format:      Spark date format string (e.g. "yyyyMMdd") or None
+        resolution_method: "DECLARED" | "AUTO_DETECTED" | "NOT_FOUND"
+    """
+    declared_name   = cfg.get("date_col")
+    requires_cast   = cfg.get("date_requires_cast", False)
+    date_format     = cfg.get("date_format")
+    col_map         = {c.upper(): c for c in df_columns}
+
+    if declared_name is not None:
+        canonical = col_map.get(declared_name.upper())
+        if canonical is not None:
+            return canonical, requires_cast, date_format, "DECLARED"
+        else:
+            print(f"  ⚠️  Declared date_col '{declared_name}' not found in DataFrame. "
+                  f"Falling back to auto-detection.")
+            # fall through to auto-detection
+
+    col_lower_map = {c.lower(): c for c in df_columns}
     for p in DATE_PRIORITY:
-        if p in col_lower:
-            return col_lower[p]
-    return None
+        if p in col_lower_map:
+            return col_lower_map[p], False, None, "AUTO_DETECTED"
+
+    return None, False, None, "NOT_FOUND"
+
+def get_date_series(df, date_col: str, requires_cast: bool, date_format: str):
+    """
+    Return a DataFrame column expression for temporal analysis.
+    If requires_cast is True, wraps the column in to_date(col, format).
+    Returns a tuple (df_with_date, working_col_name) where working_col_name
+    is the alias used in subsequent agg/window expressions.
+    """
+    WORKING_ALIAS = "__date_working__"
+    if requires_cast and date_format:
+        df_with = df.withColumn(WORKING_ALIAS,
+                                F.to_date(qcol(date_col), date_format))
+    else:
+        df_with = df.withColumn(WORKING_ALIAS, qcol(date_col).cast("date"))
+    return df_with, WORKING_ALIAS
 
 # COMMAND ----------
 
@@ -469,36 +606,56 @@ for source_key, cfg in defined.items():
 
     # ── Step 3: Business Domain Profile ──────────────────────────────────────
     print(f"\n  Step 3 — Business Domain Profile")
-    bus_key_found = [c for c in df.columns if c.lower() in BUSINESS_KEY_COLS]
-    print(f"  Business key columns found: {bus_key_found or 'none'}")
+
+    bus_key_found, bus_key_missing = resolve_business_keys(cfg, df.columns)
+    resolution_mode = "source-declared" if cfg.get("business_keys") is not None else "global fallback"
+    print(f"  Resolution mode:           {resolution_mode}")
+    if bus_key_missing:
+        for _m in bus_key_missing:
+            print(f"  ⚠️  Declared business key '{_m}' not found in DataFrame — skipped")
+        res["errors"].append(
+            f"Step 3: declared business key(s) not found: {bus_key_missing}"
+        )
+    print(f"  Columns to profile ({len(bus_key_found)}): {bus_key_found or 'none'}")
 
     for col in bus_key_found:
         try:
+            _null_count_step3 = df.filter(qcol(col).isNull()).count()
+            _distinct_step3   = df.select(qcol(col)).distinct().count()
+            _top_n            = min(50, _distinct_step3)   # never request more rows than exist
+
             freq_df = (
                 df.groupBy(qcol(col)).count()
                   .withColumn("freq_pct", F.round(F.col("count") / res["total_rows"] * 100, 2))
                   .orderBy(F.desc("count"))
-                  .limit(50)
+                  .limit(_top_n)
             )
             rows = freq_df.collect()
-            print(f"\n    {col} — top {min(10, len(rows))} values (of {df.select(qcol(col)).distinct().count()} distinct):")
+            print(f"\n    {col}  (distinct={_distinct_step3:,}  null={_null_count_step3:,})")
+            print(f"      {'Value':<40} {'Count':>10}  {'Pct':>7}")
+            print(f"      {'─'*40} {'─'*10}  {'─'*7}")
             for r in rows[:10]:
                 val = str(r[col]) if r[col] is not None else "(null)"
                 print(f"      {val:<40} {r['count']:>10,}  {r['freq_pct']:>6.2f}%")
+            if len(rows) > 10:
+                print(f"      ... ({len(rows) - 10} more values in CSV output)")
 
             for r in rows:
                 res["domain_profile"].append({
-                    "dataset":    source_key,
-                    "column":     col,
-                    "value":      str(r[col]) if r[col] is not None else "(null)",
-                    "frequency":  r["count"],
+                    "dataset":      source_key,
+                    "column":       col,
+                    "value":        str(r[col]) if r[col] is not None else "(null)",
+                    "frequency":    r["count"],
                     "coverage_pct": r["freq_pct"],
                 })
         except Exception as e:
             print(f"    ⚠️  Could not profile {col}: {str(e)[:100]}")
 
     if not bus_key_found:
-        print(f"  ℹ️  No business key columns matched. Check BUSINESS_KEY_COLS list.")
+        _hint = ("Check 'business_keys' list in SOURCES config."
+                 if cfg.get("business_keys") is not None
+                 else "Add column names to BUSINESS_KEY_COLS_FALLBACK or declare 'business_keys' in SOURCES.")
+        print(f"  ℹ️  No business key columns matched. {_hint}")
 
     # ── Step 4: DQ Rules Validation ──────────────────────────────────────────
     print(f"\n  Step 4 — DQ Rules Validation")
@@ -592,117 +749,218 @@ for source_key, cfg in defined.items():
 
     # ── Step 5: Temporal Coverage + Gap Detection ─────────────────────────────
     print(f"\n  Step 5 — Temporal Coverage")
-    date_col = detect_date_col(df.columns)
+    date_col, _requires_cast, _date_fmt, _resolution = resolve_date_col(cfg, df.columns)
     res["date_col"] = date_col
 
     if date_col:
-        stats = df.agg(
-            F.min(qcol(date_col)).alias("min"),
-            F.max(qcol(date_col)).alias("max"),
-            F.countDistinct(qcol(date_col)).alias("distinct")
+        print(f"  Date column: '{date_col}'  (resolution={_resolution}  "
+              f"requires_cast={_requires_cast}  format={_date_fmt or 'native'})")
+
+        # Build a date-typed series for all temporal operations
+        try:
+            df_dated, _working = get_date_series(df, date_col, _requires_cast, _date_fmt)
+        except Exception as _e:
+            print(f"  ❌ Date cast failed: {str(_e)[:150]}")
+            print(f"     Fix: set 'date_requires_cast' and 'date_format' correctly in SOURCES config.")
+            res["errors"].append(f"Step 5: date cast failed: {str(_e)[:150]}")
+            df_dated, _working = df, date_col   # fall back to raw column
+
+        # Check for invalid/null dates after cast
+        _null_after_cast = df_dated.filter(F.col(_working).isNull()).count()
+        if _null_after_cast > 0 and _requires_cast:
+            _null_pct_date = round(_null_after_cast / res["total_rows"] * 100, 2)
+            print(f"  ⚠️  {_null_after_cast:,} rows ({_null_pct_date}%) produced NULL after "
+                  f"to_date('{date_col}', '{_date_fmt}') — likely malformed values or wrong format.")
+            res["errors"].append(
+                f"Step 5: {_null_after_cast} null dates after cast — verify date_format"
+            )
+
+        stats = df_dated.agg(
+            F.min(F.col(_working)).alias("min"),
+            F.max(F.col(_working)).alias("max"),
+            F.countDistinct(F.col(_working)).alias("distinct")
         ).collect()[0]
         res["date_min"]      = str(stats["min"])
         res["date_max"]      = str(stats["max"])
         res["date_distinct"] = stats["distinct"]
-        print(f"  Date column: '{date_col}'")
         print(f"    Range:   {res['date_min']} → {res['date_max']}")
         print(f"    Periods: {res['date_distinct']:,} distinct values")
 
-        # Weekly gap detection
+        # Weekly gap detection — always works now because _working is always cast to date
         try:
-            field_type = df.schema[date_col].dataType
-            if isinstance(field_type, (DateType, TimestampType)):
-                w = Window.orderBy("week")
-                gap_df = (
-                    df.withColumn("week", F.date_trunc("week", qcol(date_col)))
-                      .groupBy("week").agg(F.count("*").alias("cnt"))
-                      .withColumn("prev_week", F.lag("week").over(w))
-                      .withColumn("gap_weeks", F.datediff("week", "prev_week") / 7)
-                      .filter(F.col("gap_weeks") > 2)
-                )
-                res["temporal_gaps"] = gap_df.count()
-                if res["temporal_gaps"] > 0:
-                    print(f"    ⚠️  {res['temporal_gaps']} gap(s) > 2 consecutive weeks detected")
-                    gap_df.select("prev_week", "week", "gap_weeks").show(5, truncate=False)
-                else:
-                    print(f"    ✅ No temporal gaps > 2 consecutive weeks")
+            w = Window.orderBy("_week")
+            gap_df = (
+                df_dated
+                  .withColumn("_week", F.date_trunc("week", F.col(_working)))
+                  .groupBy("_week").agg(F.count("*").alias("cnt"))
+                  .withColumn("prev_week", F.lag("_week").over(w))
+                  .withColumn("gap_weeks", F.datediff("_week", "prev_week") / 7)
+                  .filter(F.col("gap_weeks") > 2)
+            )
+            res["temporal_gaps"] = gap_df.count()
+            if res["temporal_gaps"] > 0:
+                print(f"    ⚠️  {res['temporal_gaps']} gap(s) > 2 consecutive weeks detected:")
+                gap_df.select("prev_week", "_week", "gap_weeks").show(5, truncate=False)
+            else:
+                print(f"    ✅ No temporal gaps > 2 consecutive weeks")
         except Exception as e:
             print(f"    ⚠️  Gap detection skipped: {str(e)[:100]}")
     else:
-        print(f"  ⚠️  No date column auto-detected")
+        print(f"  ⚠️  No date column found (resolution={_resolution})")
+        print(f"     Fix: add 'date_col': '<column_name>' to this source's config in SOURCES.")
         print(f"     Available columns: {', '.join(df.columns[:15])}")
 
-    # ── Step 6: Automatic Grain Detection ────────────────────────────────────
-    print(f"\n  Step 6 — Automatic Grain Detection")
+    # ── Step 6: Grain Detection ───────────────────────────────────────────────
+    # Strategy:
+    # A. If "grain_cols" is declared in the source config → test that exact combination
+    #    first (priority pass). Then explore additional candidates for confirmation.
+    # B. If "grain_cols" is absent → fall back to automatic pool-based brute-force.
+    # The MAX_CHECKS cap only applies to brute-force candidates, not the declared grain.
+    print(f"\n  Step 6 — Grain Detection")
     if grain_hint:
-        print(f"  Hint from config: '{grain_hint}'")
+        print(f"  Grain hint (config):  '{grain_hint}'")
 
-    # Candidate grain columns: date + business key columns present in dataset
+    declared_grain_cols = cfg.get("grain_cols")  # list or None
+    col_map_upper = {c.upper(): c for c in df.columns}
+
+    # ── 6a: Validate declared grain_cols ────────────────────────────────────
+    declared_grain_resolved = []
+    if declared_grain_cols:
+        _missing_grain = []
+        for _g in declared_grain_cols:
+            _canonical = col_map_upper.get(_g.upper())
+            if _canonical:
+                declared_grain_resolved.append(_canonical)
+            else:
+                _missing_grain.append(_g)
+        if _missing_grain:
+            print(f"  ⚠️  Declared grain_cols not found in DataFrame: {_missing_grain}")
+            print(f"     These columns are excluded from grain validation.")
+            res["errors"].append(f"Step 6: declared grain_cols not found: {_missing_grain}")
+        print(f"  Declared grain ({len(declared_grain_resolved)} cols): {declared_grain_resolved}")
+
+    # ── 6b: Test declared grain first (priority pass) ────────────────────────
+    best_uniqueness = 0.0
+    _declared_result = None
+
+    if declared_grain_resolved:
+        try:
+            deduped  = df.dropDuplicates(declared_grain_resolved).count()
+            uniq_pct = round(deduped / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0.0
+            confidence = (
+                "✅ PERFECT" if uniq_pct == 100
+                else ("🟡 HIGH"   if uniq_pct >= 95
+                else ("🔶 MEDIUM" if uniq_pct >= 80
+                else "🔴 LOW"))
+            )
+            combo_str = " × ".join(declared_grain_resolved)
+            print(f"\n  {'Candidate Combination':<60} {'Unique %':>10} {'Status':>12}")
+            print("  " + "─" * 85)
+            print(f"  [DECLARED] {combo_str:<49} {uniq_pct:>9.2f}%  {confidence}")
+            _declared_result = {
+                "dataset":         source_key,
+                "candidate_grain": combo_str,
+                "columns_used":    declared_grain_resolved,
+                "combo_size":      len(declared_grain_resolved),
+                "uniqueness_pct":  uniq_pct,
+                "confidence":      confidence,
+                "is_best":         False,
+                "source":          "DECLARED",
+            }
+            res["grain_candidates"].append(_declared_result)
+            best_uniqueness = uniq_pct
+
+            if uniq_pct < 100:
+                print(f"  ℹ️  Declared grain is not perfect ({uniq_pct}%). "
+                      f"Investigating additional candidates below.")
+        except Exception as e:
+            print(f"  ⚠️  Declared grain test failed: {str(e)[:100]}")
+
+    # ── 6c: Build exploration pool ────────────────────────────────────────────
+    # Pool = business keys already found in Step 3 + date column + any declared grain cols
+    # Exclude columns already tested as the declared grain to avoid redundancy.
+    _grain_date_keywords = {
+        "fecha", "day_id", "anio", "mes", "year_id", "fecha_proceso",
+        "fecha_venta", "week", "semana", "periodo", "date", "dt"
+    }
     grain_candidates_pool = [
         c for c in df.columns
-        if c.lower() in (BUSINESS_KEY_COLS | {
-            "fecha", "day_id", "anio", "mes", "year_id", "fecha_proceso",
-            "fecha_venta", "week", "semana", "periodo", "date", "dt"
-        })
+        if c.lower() in (BUSINESS_KEY_COLS_FALLBACK | _grain_date_keywords)
+        and c not in declared_grain_resolved
     ]
-
-    if date_col and date_col not in grain_candidates_pool:
+    if date_col and date_col not in grain_candidates_pool and date_col not in declared_grain_resolved:
         grain_candidates_pool.insert(0, date_col)
 
-    grain_candidates_pool = grain_candidates_pool[:10]  # cap search space
+    # Add any declared grain columns not already in the pool (ensures they appear
+    # in smaller sub-combinations as well)
+    for _g in declared_grain_resolved:
+        if _g not in grain_candidates_pool:
+            grain_candidates_pool.insert(0, _g)
 
-    print(f"  Candidate pool ({len(grain_candidates_pool)} cols): {grain_candidates_pool}")
-    print(f"  {'Candidate Combination':<60} {'Unique %':>10} {'Status':>12}")
-    print("  " + "─" * 85)
+    grain_candidates_pool = grain_candidates_pool[:12]   # raised from 10 to 12
 
-    best_uniqueness = 0.0
-    checked = 0
-    MAX_CHECKS = 40  # avoid Cartesian explosion
+    if grain_candidates_pool and best_uniqueness < 100.0:
+        if not declared_grain_resolved:
+            print(f"\n  {'Candidate Combination':<60} {'Unique %':>10} {'Status':>12}")
+            print("  " + "─" * 85)
+        print(f"  Exploration pool ({len(grain_candidates_pool)} cols): {grain_candidates_pool}")
 
-    for combo_size in range(1, min(6, len(grain_candidates_pool) + 1)):
-        for combo in itertools.combinations(grain_candidates_pool, combo_size):
-            if checked >= MAX_CHECKS:
+        MAX_CHECKS = 50   # raised from 40
+        checked = 0
+
+        for combo_size in range(1, min(6, len(grain_candidates_pool) + 1)):
+            for combo in itertools.combinations(grain_candidates_pool, combo_size):
+                if checked >= MAX_CHECKS:
+                    break
+                # Skip if this combo is a superset of the declared grain (already tested)
+                if declared_grain_resolved and set(declared_grain_resolved).issubset(set(combo)):
+                    continue
+                checked += 1
+                try:
+                    deduped  = df.dropDuplicates(list(combo)).count()
+                    uniq_pct = round(deduped / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0.0
+                    confidence = (
+                        "✅ PERFECT" if uniq_pct == 100
+                        else ("🟡 HIGH"   if uniq_pct >= 95
+                        else ("🔶 MEDIUM" if uniq_pct >= 80
+                        else "🔴 LOW"))
+                    )
+                    combo_str = " × ".join(combo)
+                    print(f"  [AUTO]     {combo_str:<49} {uniq_pct:>9.2f}%  {confidence}")
+
+                    res["grain_candidates"].append({
+                        "dataset":         source_key,
+                        "candidate_grain": combo_str,
+                        "columns_used":    list(combo),
+                        "combo_size":      combo_size,
+                        "uniqueness_pct":  uniq_pct,
+                        "confidence":      confidence,
+                        "is_best":         False,
+                        "source":          "AUTO",
+                    })
+
+                    if uniq_pct > best_uniqueness:
+                        best_uniqueness = uniq_pct
+
+                    if uniq_pct == 100.0:
+                        break
+
+                except Exception as e:
+                    print(f"  ⚠️  Skipped {combo}: {str(e)[:80]}")
+
+            if best_uniqueness == 100.0:
                 break
-            checked += 1
-            try:
-                deduped = df.dropDuplicates(list(combo)).count()
-                uniq_pct = round(deduped / res["total_rows"] * 100, 2) if res["total_rows"] > 0 else 0.0
-                confidence = (
-                    "✅ PERFECT" if uniq_pct == 100
-                    else ("🟡 HIGH" if uniq_pct >= 95
-                    else ("🔶 MEDIUM" if uniq_pct >= 80
-                    else "🔴 LOW"))
-                )
-                combo_str = " × ".join(combo)
-                print(f"  {combo_str:<60} {uniq_pct:>9.2f}%  {confidence}")
 
-                res["grain_candidates"].append({
-                    "dataset":        source_key,
-                    "candidate_grain": combo_str,
-                    "columns_used":   list(combo),
-                    "combo_size":     combo_size,
-                    "uniqueness_pct": uniq_pct,
-                    "confidence":     confidence,
-                    "is_best":        False,
-                })
-
-                if uniq_pct > best_uniqueness:
-                    best_uniqueness = uniq_pct
-
-                if uniq_pct == 100.0:
-                    break  # perfect grain found — stop this combo_size
-
-            except Exception as e:
-                print(f"  ⚠️  Skipped {combo}: {str(e)[:80]}")
-
-        if best_uniqueness == 100.0:
-            break  # don't try larger combos
-
-    # Mark best candidate
+    # ── 6d: Mark best candidate ───────────────────────────────────────────────
     if res["grain_candidates"]:
         best = max(res["grain_candidates"], key=lambda x: x["uniqueness_pct"])
         best["is_best"] = True
-        print(f"\n  ★ Best grain: '{best['candidate_grain']}'  ({best['uniqueness_pct']}%)")
+        _best_src = best.get("source", "")
+        print(f"\n  ★ Best grain [{_best_src}]: '{best['candidate_grain']}'  "
+              f"({best['uniqueness_pct']}%)")
+        if best["uniqueness_pct"] < 95:
+            print(f"  ⚠️  Best grain uniqueness is below 95%. "
+                  f"Consider adding more columns to 'grain_cols' in SOURCES config.")
 
     # ── Step 7: Numeric Volume + Anomaly Flags ────────────────────────────────
     print(f"\n  Step 7 — Numeric Volume")
