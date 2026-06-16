@@ -153,21 +153,162 @@ INNER JOIN PRD_MDP.MDP_DWH.VW_CBU_RM cbu
     },
 
     # ── 3 · Sell-In ─────────────────────────────────────────────────────────
-    # TODO: identify the Sell-In view/table in PRD_MDP and uncomment.
-    # Template:
-    #   "DATA_SELL_IN": {
-    #       "db":                "PRD_MDP",
-    #       "schema":            "MDP_STG",
-    #       "sql":               "SELECT * FROM VW_SELL_IN WHERE anio >= 2024",
-    #       "grain_hint":        "FECHA × SKU × CADENA",
-    #       "business_keys":     ["SKU", "CADENA", "MARCA"],
-    #       "date_col":          "FECHA",
-    #       "date_format":       "yyyy-MM-dd",
-    #       "date_requires_cast": False,
-    #       "grain_cols":        ["FECHA", "SKU", "CADENA"],
-    #   },
-    "DATA_SELL_IN": None,
+    "DATA_SELL_IN": {
+        "db":                "PRD_MDP",
+        "schema":            "MDP_STG",
+        "sql":               """WITH CTE_DICCIONARIO AS (
+    SELECT
+        SAL_ORG_COD,
+        NEW_CUS_IDT,
+        NEW_CUS_NAM_DSC,
+        OLD_CUS_IDT,
+        OLD_CUS_NAM_DSC,
+        NEW_CUS_CHL_ARE_DSC,
+        OLD_CUS_CHL_ARE_DSC,
+        NEW_CUS_ADR_CTY_DSC,
+        OLD_CUS_ADR_CTY_DSC,
+        NEW_CUS_SAL_RGN_COD,
+        OLD_CUS_SAL_RGN_COD
+    FROM (
+        SELECT
+            *,
+            ROW_NUMBER() OVER(PARTITION BY OLD_CUS_IDT, SAL_ORG_COD ORDER BY OLD_CUS_IDT, SAL_ORG_COD) AS SE_REPITE
+        FROM PRD_MEX.MEX_DSP_OTC.VW_D_CUSTOMER_DICTONARY
+    ) Q
+    WHERE SE_REPITE = 1
+),
 
+CTE_CONSOLIDADO AS (
+    -- ==============================================================================
+    -- 1) WATERS CBU
+    -- ==============================================================================
+    SELECT
+        DATE_TRUNC(MONTH, TO_DATE(TO_VARCHAR(FAC.BIL_DAT), 'YYYYMMDD')) AS FECHA,
+        IFNULL(DC1.NEW_CUS_IDT, CASE 
+            WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT 
+            ELSE CLI.CUS_IDT 
+        END) AS CLIENTE,
+        CONCAT('0068', IFNULL(DC1.NEW_CUS_IDT, CASE 
+            WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT 
+            ELSE CLI.CUS_IDT 
+        END)) AS CLIENTE_ID,
+        PRO.LV2_UMB_BRD_DSC       AS MARCA,
+        CLI.CUS_SAL_RGN_DSC_EXT   AS REGION,
+        CLI.CUS_SAL_PLT_COD       AS ID_CEDIS,
+        CLI.CUS_SAL_PLT_DSC       AS CEDIS_DSC,
+        CLI.PXY_CAT_1ST_DSC       AS CLUSTER,
+        FAC.CBU                   AS CBU,
+        PER.MONTH_ID              AS MES,
+        SUM(FAC.LITER)            AS VOLUMEN,
+        SUM(FAC.BIL_INV)          AS VALOR
+    FROM PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV AS FAC
+    LEFT JOIN PRD_MEX.MEX_DSP_OTC.V_D_CLIENT AS CLI
+        ON FAC.SHP_CUS_IDT = CLI.CUS_IDT
+        AND FAC.SAL_ORG_COD = CLI.SAL_ORG_COD
+    LEFT JOIN CTE_DICCIONARIO DC
+        ON CLI.CUS_IDT = DC.OLD_CUS_IDT
+        AND FAC.SAL_ORG_COD = DC.SAL_ORG_COD
+    LEFT JOIN CTE_DICCIONARIO DC1
+        ON CASE 
+            WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT 
+            ELSE CLI.CUS_IDT 
+        END = DC1.OLD_CUS_IDT
+        AND FAC.SAL_ORG_COD = DC1.SAL_ORG_COD
+    LEFT JOIN PRD_MEX.MEX_DSP_OTC.V_D_PERIOD AS PER
+        ON FAC.BIL_DAT = PER.PER_ID
+    LEFT JOIN PRD_MEX.MEX_DSP_OTC.V_D_ITEM AS PRO
+        ON FAC.MAT_IDT = PRO.MAT_IDT
+    WHERE FAC.CBU IN ('WATERS')
+      AND CLI.CUS_UNI_COD = '1'
+      AND FAC.BIL_DOC_TYP_COD NOT IN ('ZINT', 'ZPIO')
+      AND FAC.CUS_IND_KEY_COD NOT IN ('ZMXH') 
+      AND FAC.MAT_IDT NOT IN ('167435', '175017', '175018', '156735', '156737', '156738', '156759', '157441')
+    GROUP BY
+        DATE_TRUNC(MONTH, TO_DATE(TO_VARCHAR(FAC.BIL_DAT), 'YYYYMMDD')),
+        IFNULL(DC1.NEW_CUS_IDT, CASE WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT ELSE CLI.CUS_IDT END),
+        CONCAT('0068', IFNULL(DC1.NEW_CUS_IDT, CASE WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT ELSE CLI.CUS_IDT END)),
+        PRO.LV2_UMB_BRD_DSC,
+        CLI.CUS_SAL_RGN_DSC_EXT,
+        CLI.CUS_SAL_PLT_COD,
+        CLI.CUS_SAL_PLT_DSC,
+        CLI.PXY_CAT_1ST_DSC,
+        FAC.CBU,
+        PER.MONTH_ID
+
+    UNION ALL
+
+    -- ==============================================================================
+    -- 2) CBU EDP
+    -- ==============================================================================
+    SELECT
+        DATE_TRUNC(MONTH, TO_DATE(TO_VARCHAR(FAC.BIL_DAT), 'YYYYMMDD')) AS FECHA,
+        IFNULL(DC1.NEW_CUS_IDT, CASE 
+            WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT 
+            ELSE CLI.CUS_IDT 
+        END) AS CLIENTE,
+        CONCAT('0049', IFNULL(DC1.NEW_CUS_IDT, CASE 
+            WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT 
+            ELSE CLI.CUS_IDT 
+        END)) AS CLIENTE_ID,
+        PRO.LV2_UMB_BRD_DSC         AS MARCA,
+        CLI.CUS_SAL_RGN_DSC_EXT     AS REGION,
+        CLI.CUS_SAL_PLT_COD         AS ID_CEDIS,
+        CLI.CUS_SAL_PLT_DSC         AS CEDIS_DSC,
+        CLI.PXY_CAT_1ST_DSC         AS CLUSTER,
+        FAC.CBU                     AS CBU,
+        PER.MONTH_ID                AS MES,
+        SUM(FAC.BIL_NET_KGR / 1000) AS VOLUMEN,
+        SUM(FAC.BIL_INV)            AS VALOR
+    FROM PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV AS FAC
+    LEFT JOIN PRD_MEX.MEX_DSP_OTC.V_D_CLIENT AS CLI
+        ON FAC.SHP_CUS_IDT = CLI.CUS_IDT
+        AND FAC.SAL_ORG_COD = CLI.SAL_ORG_COD
+    LEFT JOIN CTE_DICCIONARIO DC
+        ON CLI.CUS_IDT = DC.OLD_CUS_IDT
+        AND FAC.SAL_ORG_COD = DC.SAL_ORG_COD
+    LEFT JOIN CTE_DICCIONARIO DC1
+        ON CASE 
+            WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT 
+            ELSE CLI.CUS_IDT 
+        END = DC1.OLD_CUS_IDT
+        AND FAC.SAL_ORG_COD = DC1.SAL_ORG_COD
+    LEFT JOIN PRD_MEX.MEX_DSP_OTC.V_D_PERIOD AS PER
+        ON FAC.BIL_DAT = PER.PER_ID
+    LEFT JOIN PRD_MEX.MEX_DSP_OTC.V_D_ITEM AS PRO
+        ON FAC.MAT_IDT = PRO.MAT_IDT
+    WHERE FAC.SAL_ORG_COD IN ('0049')
+      AND CLI.CUS_UNI_COD = '1'
+      AND FAC.BIL_DOC_TYP_COD NOT IN ('ZINT', 'ZPIO')
+      AND FAC.CUS_1ST_IND_COD NOT IN ('ZMX12')
+      AND PRO.LV2_UMB_BRD_DSC NOT IN ('FERRERO', 'KINDER', 'MARS', 'CODISTRIBUCION')
+    GROUP BY
+        DATE_TRUNC(MONTH, TO_DATE(TO_VARCHAR(FAC.BIL_DAT), 'YYYYMMDD')),
+        IFNULL(DC1.NEW_CUS_IDT, CASE WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT ELSE CLI.CUS_IDT END),
+        CONCAT('0049', IFNULL(DC1.NEW_CUS_IDT, CASE WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT ELSE CLI.CUS_IDT END)),
+        PRO.LV2_UMB_BRD_DSC,
+        CLI.CUS_SAL_RGN_DSC_EXT,
+        CLI.CUS_SAL_PLT_COD,
+        CLI.CUS_SAL_PLT_DSC,
+        CLI.PXY_CAT_1ST_DSC,
+        FAC.CBU,
+        PER.MONTH_ID
+)
+
+-- ==============================================================================
+-- 3) FINAL SELECT WITH SINGLE DATE FILTER
+-- ==============================================================================
+SELECT *
+FROM CTE_CONSOLIDADO
+WHERE FECHA >= '2025-01-01';
+""",
+        "grain_hint":        "FECHA × SKU × CADENA",
+        "business_keys":     ["SKU", "CADENA", "MARCA"],
+        "date_col":          "FECHA",
+        "date_format":       "yyyy-MM-dd",
+        "date_requires_cast": False,
+        "grain_cols":        ["FECHA", "SKU", "CADENA"],
+    },
+   
     # ── 4 · Waste / Merma ────────────────────────────────────────────────────
     "DATA_WASTE": {
         "db": "PRD_MDP",
