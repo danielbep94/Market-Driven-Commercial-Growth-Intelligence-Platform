@@ -46,9 +46,18 @@ from datetime import datetime
 from collections import defaultdict
 import pyspark.sql.functions as F
 from pyspark.sql.types import StringType
+import time as _time
 
+# COMMAND ----------
+# MAGIC %run ../utils/execution_logger
+
+# COMMAND ----------
 OUTPUT_DIR = "docs/phase_outputs"
 RUN_AT     = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+_NB_START  = _time.time()
+ENVIRONMENT = "dev"
+_nb_errors  = []
+_nb_warnings = []
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ── Delta Lake persistence target ────────────────────────────────────────────
@@ -823,5 +832,32 @@ print(f"  {'✅ ALL OUTPUTS COMPLETE' if all_ok else '⚠️  SOME OUTPUTS FAILE
 print(f"  {'═' * 70}")
 
 # COMMAND ----------
+# MAGIC %md ## Execution Log
 
+# COMMAND ----------
+_nb_status      = "PARTIAL" if not all_ok else "SUCCESS"
+_delta_failures = [fname for fname, _, _, dstatus in _written_files if "❌" in str(dstatus)]
+if _delta_failures:
+    _nb_warnings.extend([f"Delta write failed for: {f}" for f in _delta_failures])
 
+write_execution_log(
+    notebook_id  = "00c_enterprise_catalog_writer",
+    source_name  = None,
+    status       = _nb_status,
+    duration_sec = _time.time() - _NB_START,
+    errors       = _nb_errors,
+    warnings     = _nb_warnings,
+    metrics      = {
+        "outputs_written":  len(_written_files),
+        "all_csv_ok":       all_ok,
+        "delta_available":  DELTA_AVAILABLE,
+        "delta_schema":     DELTA_SCHEMA,
+        "sources_profiled": len(results),
+        "outputs": [
+            {"file": fname, "rows": rows, "delta": str(dstatus)[:80]}
+            for fname, _, rows, dstatus in _written_files
+        ],
+    },
+    output_files = [f"{OUTPUT_DIR}/{fname}" for fname, _, _, _ in _written_files],
+    environment  = ENVIRONMENT,
+)

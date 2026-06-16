@@ -225,6 +225,14 @@ DOMAIN_LABELS = {
 # MAGIC %md ## B1 · Imports & Connection Setup
 
 # COMMAND ----------
+# MAGIC %run ../utils/execution_logger
+
+# COMMAND ----------
+import time as _time
+_NB_START    = _time.time()
+ENVIRONMENT = "dev"
+
+# COMMAND ----------
 
 import yaml, csv, os, itertools
 from datetime import datetime
@@ -530,6 +538,26 @@ for source_key, cfg in defined.items():
         res["errors"].append(err_msg[:300])
         print(f"  ❌ Step 1 — FAILED: {err_msg[:300]}")
         results[source_key] = res
+        # Per-source log: TABLE_NOT_FOUND / CONNECTION_FAILED
+        write_execution_log(
+            notebook_id  = "00b_snowflake_discovery",
+            source_name  = source_key,
+            status       = "ERROR",
+            duration_sec = _time.time() - _NB_START,
+            errors       = [make_error(
+                step          = "Step 1 — Execute SQL + Row Count",
+                category      = "TABLE_NOT_FOUND",
+                severity      = "CRITICAL",
+                message       = err_msg[:300],
+                raw_exception = err_msg,
+                resolution    = "Verify db/schema/sql in SOURCES config for this source",
+                is_blocking   = True,
+            )],
+            warnings     = [],
+            metrics      = {"db": db, "schema": schema},
+            output_files = [],
+            environment  = ENVIRONMENT,
+        )
         continue
 
     # Attempt INFORMATION_SCHEMA pull for native types
@@ -1092,6 +1120,53 @@ for source_key, cfg in defined.items():
     results[source_key] = res
     df.unpersist()
 
+    # ── Per-source execution log (one record per source) ─────────────────────
+    _src_status  = "ERROR" if res["status"] == "ERROR" else (
+        "PARTIAL" if res["errors"] else "SUCCESS"
+    )
+    _src_errors  = [
+        make_error(
+            step      = "Discovery loop",
+            category  = "SCHEMA_MISMATCH",
+            severity  = "HIGH",
+            message   = err_msg,
+        )
+        for err_msg in res["errors"]
+    ]
+    write_execution_log(
+        notebook_id  = "00b_snowflake_discovery",
+        source_name  = source_key,
+        status       = _src_status,
+        duration_sec = _time.time() - _NB_START,
+        errors       = _src_errors,
+        warnings     = [
+            f"Declared business key not found: {m}"
+            for m in [e for e in res.get("errors", []) if "business key" in e.lower()]
+        ],
+        metrics      = {
+            "total_rows":        res["total_rows"],
+            "total_cols":        res["total_cols"],
+            "date_col":          res.get("date_col"),
+            "date_min":          res.get("date_min"),
+            "date_max":          res.get("date_max"),
+            "date_distinct":     res.get("date_distinct"),
+            "temporal_gaps":     res.get("temporal_gaps", 0),
+            "dup_count":         res.get("dup_count", 0),
+            "dup_pct":           res.get("dup_pct", 0.0),
+            "dq_pass_count":     res.get("dq_pass_count", 0),
+            "dq_fail_count":     res.get("dq_fail_count", 0),
+            "score_completeness": res.get("score_completeness", 0),
+            "score_consistency":  res.get("score_consistency", 0),
+            "score_joinability":  res.get("score_joinability", 0),
+            "score_temporal":     res.get("score_temporal", 0),
+            "score_documentation": res.get("score_documentation", 0),
+            "score_grain":        res.get("score_grain", 0),
+            "enterprise_score":   res.get("enterprise_score", 0),
+        },
+        output_files = [f"{OUTPUT_DIR}/_discovery_results_cache.json"],
+        environment  = ENVIRONMENT,
+    )
+
 # COMMAND ----------
 
 # MAGIC %md ## B5 · Summary Scorecard
@@ -1153,4 +1228,30 @@ except Exception as _e:
 
 # COMMAND ----------
 
+# MAGIC %md ## B7 · Aggregate Execution Log (Run Summary)
 
+# COMMAND ----------
+# One additional summary record covering the full notebook run
+_summary_errors_count = sum(1 for r in results.values() if r.get("status") == "ERROR")
+_summary_ok_count     = len(results) - _summary_errors_count
+write_execution_log(
+    notebook_id  = "00b_snowflake_discovery",
+    source_name  = "__ALL_SOURCES__",
+    status       = "ERROR" if _summary_errors_count == len(results) else (
+                   "PARTIAL" if _summary_errors_count > 0 else "SUCCESS"),
+    duration_sec = _time.time() - _NB_START,
+    errors       = [],
+    warnings     = ([f"{len(undefined)} source(s) still None in SOURCES config: {list(undefined.keys())}"]
+                    if undefined else []),
+    metrics      = {
+        "sources_defined":  len(defined),
+        "sources_pending":  len(undefined),
+        "sources_ok":       _summary_ok_count,
+        "sources_errored":  _summary_errors_count,
+        "enterprise_scores": {
+            k: r.get("enterprise_score", 0) for k, r in results.items()
+        },
+    },
+    output_files = [f"{OUTPUT_DIR}/_discovery_results_cache.json"],
+    environment  = ENVIRONMENT,
+)

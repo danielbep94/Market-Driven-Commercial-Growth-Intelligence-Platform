@@ -1,4 +1,12 @@
 # Databricks notebook source
+# MAGIC %run ../utils/execution_logger
+
+# COMMAND ----------
+import time as _time
+_NB_START    = _time.time()
+ENVIRONMENT = "dev"
+_nb_errors   = []
+_nb_warnings = []
 
 # ── Azure Key Vault Connection ────────────────────────────────────────────────
 KEYVAULT_NAME = "DAN-AM-P-KVT800-R-MDP-DB"
@@ -113,3 +121,40 @@ with open(OUTPUT_FILE, "w") as f:
 print(f"✅ Scorecard written to {OUTPUT_FILE}")
 print(f"Phase 2 gate: {phase2_gate}")
 print("\nCommit and push — then tell the agent: 'Phase 1 complete, scorecard committed'")
+
+# COMMAND ----------
+# MAGIC %md ## Execution Log
+
+# COMMAND ----------
+# Flag NOT READY sources as HIGH errors, CONDITIONAL as warnings
+for src, s in source_scores.items():
+    score = total_score(s)
+    if score < 60:
+        _nb_errors.append(make_error(
+            step      = "Readiness Scorecard",
+            category  = "NULL_RATE_CRITICAL",
+            severity  = "HIGH",
+            message   = f"{src} score = {score}/100 (NOT READY) — Phase 2 blocked",
+            resolution = "Review profiling output for this source and address open items",
+            is_blocking = True,
+        ))
+    elif score < 80:
+        _nb_warnings.append(f"{src} score = {score}/100 (CONDITIONAL) — document mitigation")
+
+_nb_status = "ERROR" if any_not_ready else "SUCCESS"
+write_execution_log(
+    notebook_id  = "13_data_readiness_scorecard",
+    source_name  = "ALL_SOURCES",
+    status       = _nb_status,
+    duration_sec = _time.time() - _NB_START,
+    errors       = _nb_errors,
+    warnings     = _nb_warnings,
+    metrics      = {
+        "phase2_gate":   phase2_gate,
+        "any_not_ready": any_not_ready,
+        "scores":        {src: total_score(s) for src, s in source_scores.items()},
+        "labels":        {src: readiness_label(total_score(s)) for src, s in source_scores.items()},
+    },
+    output_files = [OUTPUT_FILE],
+    environment  = ENVIRONMENT,
+)

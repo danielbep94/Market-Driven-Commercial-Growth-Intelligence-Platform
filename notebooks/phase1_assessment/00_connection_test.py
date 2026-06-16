@@ -9,10 +9,20 @@
 # MAGIC No data is read from production tables — only connectivity is tested.
 
 # COMMAND ----------
+# MAGIC %run ../utils/execution_logger
+
+# COMMAND ----------
 # MAGIC %md ## Configuration
 # MAGIC
 # MAGIC Update `DB_NAME` and `SCHEMA_NAME` to point to your source data in Snowflake.
 # MAGIC These are the **source tables** you want to profile in Phase 1.
+
+# COMMAND ----------
+import time as _time
+_NB_START = _time.time()
+ENVIRONMENT = "dev"
+_nb_errors   = []
+_nb_warnings = []
 
 # COMMAND ----------
 # ── UPDATE THESE to match your Snowflake environment ────────────────────────
@@ -161,4 +171,48 @@ if SECRETS_OK and CONN_OK:
     print(f"  to point to your sell-in source table in Snowflake.")
 else:
     print("  ❌ Fix the errors above before continuing.")
+    if not SECRETS_OK:
+        _nb_errors.append(make_error(
+            step        = "Step 1 — Retrieve Secrets",
+            category    = "SECRET_RETRIEVAL_FAILED",
+            severity    = "CRITICAL",
+            message     = f"Secret retrieval failed for scope: {KEYVAULT_NAME}",
+            resolution  = "Link Azure Key Vault scope in Databricks → Settings → Secret Scopes",
+            is_blocking = True,
+        ))
+    if SECRETS_OK and not CONN_OK:
+        _nb_errors.append(make_error(
+            step        = "Step 3 — Test Snowflake Connection",
+            category    = "CONNECTION_FAILED",
+            severity    = "CRITICAL",
+            message     = f"Snowflake connection failed: {SF_URL} / {SF_WAREHOUSE}",
+            resolution  = "Verify warehouse is running and connector JAR is installed on cluster",
+            is_blocking = True,
+        ))
 print("=" * 55)
+
+# COMMAND ----------
+# MAGIC %md ## Execution Log
+
+# COMMAND ----------
+_nb_status  = "SUCCESS" if (SECRETS_OK and CONN_OK) else "ERROR"
+_nb_metrics = {
+    "secrets_ok":  SECRETS_OK,
+    "conn_ok":     CONN_OK,
+    "sf_url":      SF_URL,
+    "sf_warehouse": SF_WAREHOUSE,
+    "sf_role":     SF_ROLE,
+    "db_name":     DB_NAME,
+    "schema_name": SCHEMA_NAME,
+}
+write_execution_log(
+    notebook_id  = "00_connection_test",
+    source_name  = None,
+    status       = _nb_status,
+    duration_sec = _time.time() - _NB_START,
+    errors       = _nb_errors,
+    warnings     = _nb_warnings,
+    metrics      = _nb_metrics,
+    output_files = [],
+    environment  = ENVIRONMENT,
+)

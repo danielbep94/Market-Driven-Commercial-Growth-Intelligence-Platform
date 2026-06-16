@@ -1,4 +1,12 @@
 # Databricks notebook source
+# MAGIC %run ../utils/execution_logger
+
+# COMMAND ----------
+import time as _time
+_NB_START    = _time.time()
+ENVIRONMENT = "dev"
+_nb_errors   = []
+_nb_warnings = []
 
 # ── Azure Key Vault Connection ────────────────────────────────────────────────
 KEYVAULT_NAME = "DAN-AM-P-KVT800-R-MDP-DB"
@@ -160,3 +168,42 @@ print(f"\nNext steps on work computer:")
 print(f"  git add {OUTPUT_FILE}")
 print(f"  git commit -m 'data: phase1 join key validation — gate {gate_status}'")
 print(f"  git push origin main")
+
+# COMMAND ----------
+# MAGIC %md ## Execution Log
+
+# COMMAND ----------
+# Blocked pairs become CRITICAL errors in the log
+for r in blocked:
+    _nb_errors.append(make_error(
+        step        = "Join Key Validation",
+        category    = "JOIN_KEY_MISMATCH",
+        severity    = "CRITICAL",
+        message     = f"{r['pair']}: {r['unmatched_pct']}% unmatched — Phase 2 BLOCKED",
+        resolution  = "Investigate missing keys; document resolution before Phase 2",
+        is_blocking = True,
+    ))
+
+_nb_status = "ERROR" if blocked else "SUCCESS"
+write_execution_log(
+    notebook_id  = "10_join_key_validation",
+    source_name  = "CROSS_SOURCE",
+    status       = _nb_status,
+    duration_sec = _time.time() - _NB_START,
+    errors       = _nb_errors,
+    warnings     = _nb_warnings,
+    metrics      = {
+        "environment":      ENVIRONMENT,
+        "gate_status":      gate_status,
+        "pairs_total":      len(results),
+        "pairs_blocked":    len(blocked),
+        "pairs_passed":     len(results) - len(blocked),
+        "pair_results":     [
+            {"pair": r["pair"], "match_pct": r["match_pct"],
+             "unmatched_pct": r["unmatched_pct"], "status": r["status"]}
+            for r in results
+        ],
+    },
+    output_files = [OUTPUT_FILE],
+    environment  = ENVIRONMENT,
+)

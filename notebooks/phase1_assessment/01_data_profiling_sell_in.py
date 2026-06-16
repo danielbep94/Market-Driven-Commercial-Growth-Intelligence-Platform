@@ -12,6 +12,16 @@
 # MAGIC Then tell the agent: "sell_in profiling done, results committed"
 
 # COMMAND ----------
+# MAGIC %run ../utils/execution_logger
+
+# COMMAND ----------
+import time as _time
+_NB_START    = _time.time()
+ENVIRONMENT = "dev"
+_nb_errors   = []
+_nb_warnings = []
+
+# COMMAND ----------
 # MAGIC %md ## Configuration — UPDATE THESE
 
 # COMMAND ----------
@@ -68,7 +78,30 @@ RUN_AT = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 SOURCE_LABEL = f"{DB_NAME}.{SCHEMA_NAME}.{TABLE_NAME}"
 
 print(f"Loading: {SOURCE_LABEL}")
-df = spark.read.format("snowflake").options(**sfOptions).option("dbtable", TABLE_NAME).load()
+try:
+    df = spark.read.format("snowflake").options(**sfOptions).option("dbtable", TABLE_NAME).load()
+except Exception as _load_err:
+    _nb_errors.append(make_error(
+        step        = "Step 1 — Load Table",
+        category    = "TABLE_NOT_FOUND",
+        severity    = "CRITICAL",
+        message     = f"Could not load table {SOURCE_LABEL}: {str(_load_err)[:200]}",
+        raw_exception = str(_load_err),
+        resolution  = "Verify DB_NAME, SCHEMA_NAME, TABLE_NAME are correct",
+        is_blocking = True,
+    ))
+    write_execution_log(
+        notebook_id  = "01_data_profiling_sell_in",
+        source_name  = "SELL_IN",
+        status       = "ERROR",
+        duration_sec = _time.time() - _NB_START,
+        errors       = _nb_errors,
+        warnings     = _nb_warnings,
+        metrics      = {"source": SOURCE_LABEL},
+        output_files = [],
+        environment  = ENVIRONMENT,
+    )
+    dbutils.notebook.exit("TABLE_NOT_FOUND")
 
 total_rows = df.count()
 total_cols = len(df.columns)
@@ -97,6 +130,8 @@ for col in df.columns:
     flag       = "⚠️  HIGH" if null_pct > 5 else ("🔶 WARN" if null_pct > 1 else "✅  OK")
     null_results.append({"col": col, "null_count": null_count, "null_pct": null_pct, "flag": flag})
     print(f"  {col:<45} {null_pct:>6.2f}%  {flag}")
+    if null_pct > 5:
+        _nb_warnings.append(f"High null rate: {col} = {null_pct}%")
 
 # COMMAND ----------
 # MAGIC %md ## 4. Date Range & Temporal Coverage
@@ -132,6 +167,7 @@ if COL_DATE in df.columns:
     else:
         print(f"  ✅ No gaps > 2 consecutive weeks")
 else:
+    _nb_warnings.append(f"Date column '{COL_DATE}' not found — update COL_DATE variable")
     print(f"  ⚠️  Date column '{COL_DATE}' not found — update COL_DATE variable")
 
 # COMMAND ----------
@@ -273,3 +309,33 @@ print("  git commit -m 'data: phase1 sell_in profiling'")
 print("  git push origin main")
 print("")
 print("Then tell the agent: 'sell_in profiling done, results committed'")
+
+# COMMAND ----------
+# MAGIC %md ## Execution Log
+
+# COMMAND ----------
+_nb_status  = "ERROR" if _nb_errors else ("PARTIAL" if _nb_warnings else "SUCCESS")
+_nb_metrics = {
+    "source":          SOURCE_LABEL,
+    "total_rows":      total_rows,
+    "total_cols":      total_cols,
+    "date_min":        date_info.get("min"),
+    "date_max":        date_info.get("max"),
+    "date_distinct":   date_info.get("distinct"),
+    "dup_count":       dup_count if isinstance(dup_count, int) else -1,
+    "cardinality_sku": cardinality.get("SKU"),
+    "cardinality_customer": cardinality.get("Customer"),
+    "high_null_cols":  [r["col"] for r in null_results if r["null_pct"] > 5],
+    "output_file":     OUTPUT_FILE,
+}
+write_execution_log(
+    notebook_id  = "01_data_profiling_sell_in",
+    source_name  = "SELL_IN",
+    status       = _nb_status,
+    duration_sec = _time.time() - _NB_START,
+    errors       = _nb_errors,
+    warnings     = _nb_warnings,
+    metrics      = _nb_metrics,
+    output_files = [OUTPUT_FILE],
+    environment  = ENVIRONMENT,
+)
