@@ -1,0 +1,156 @@
+# =============================================================================
+# Product Key Crosswalk
+# =============================================================================
+#
+# Formalizes the relationships between product identifiers across data sources.
+# SKU is the canonical product key (see column_name_mapping.yaml for rationale).
+#
+# All non-canonical keys require a resolution table join to reach SKU.
+# This file documents those joins so that feature engineering, DQ validation,
+# and the semantic registry can trace product identity across sources.
+#
+# Generated: 2026-06-20
+# =============================================================================
+
+product_keys:
+
+  # ─── Canonical key ───────────────────────────────────────────────────────
+  SKU:
+    canonical: true
+    type: VARCHAR           # from INFORMATION_SCHEMA (pending snapshot)
+    glossary_ref: SKU
+    description: >
+      Stock Keeping Unit — internal product identifier used across
+      operational systems (ERP, supply chain, planning).
+    sources:
+      - dataset: DATA_SELL_IN
+        column_in_source: SKU
+        notes: "Direct match — no resolution needed."
+      - dataset: DATA_WASTE
+        column_in_source: SKU
+        notes: "Direct match."
+      - dataset: DATA_FORECAST
+        column_in_source: SKU
+        notes: "Direct match."
+      - dataset: DATA_INVENTORY
+        column_in_source: SKU
+        notes: "Direct match."
+    resolution_table: null   # native key — no join needed
+
+  # ─── Non-canonical keys ──────────────────────────────────────────────────
+  UPC:
+    canonical: false
+    type: VARCHAR
+    glossary_ref: UPC
+    description: >
+      Universal Product Code — external barcode used by retail / POS
+      systems. Prevalent in sell-out and market-facing data.
+    sources:
+      - dataset: DATA_MKT
+        column_in_source: UPC
+      - dataset: DATA_SELL_OUT
+        column_in_source: UPC
+      - dataset: DATA_PRICE
+        column_in_source: UPC
+      - dataset: DATA_PROMO
+        column_in_source: UPC
+    resolution:
+      join_to: SKU
+      resolution_table: "homologation.product_crosswalk"
+      join_condition: "product_crosswalk.UPC = source.UPC"
+      result_column: "product_crosswalk.SKU"
+      notes: >
+        The homologation/ directory should contain or reference this
+        crosswalk table. Verify the table exists and is current.
+
+  INT_ID:
+    canonical: false
+    type: VARCHAR
+    glossary_ref: INT_ID
+    description: >
+      Internal Product ID — legacy internal identifier used in some
+      sell-in data flows alongside SKU.
+    sources:
+      - dataset: DATA_SELL_IN
+        column_in_source: INT_ID
+    resolution:
+      join_to: SKU
+      resolution_table: "homologation.product_crosswalk"
+      join_condition: "product_crosswalk.INT_ID = source.INT_ID"
+      result_column: "product_crosswalk.SKU"
+      notes: "Used as secondary identifier in sell-in; SKU is primary."
+
+  CBU_CODE:
+    canonical: false
+    type: VARCHAR
+    glossary_ref: CBU_CODE
+    description: >
+      Consumer Business Unit Code — Nielsen-specific product identifier
+      used in market measurement data.
+    sources:
+      - dataset: DATA_NIELSEN
+        column_in_source: CBU_CODE
+    resolution:
+      join_to: SKU
+      resolution_table: "homologation.product_crosswalk"
+      join_condition: "product_crosswalk.CBU_CODE = source.CBU_CODE"
+      result_column: "product_crosswalk.SKU"
+      notes: >
+        Nielsen data uses its own product hierarchy (INP_*, CSTM_*).
+        CBU_CODE is the bridge key into internal product master.
+
+  # ─── Nielsen-specific product columns (NOT keys, but related) ────────────
+  # These appear in semantic layouts as grain columns but are NOT product keys.
+  # They are product attributes/dimensions within the Nielsen hierarchy.
+  EAN_CODE:
+    canonical: false
+    type: VARCHAR
+    glossary_ref: null
+    description: >
+      European Article Number — used in some Nielsen data alongside
+      product_id. Functionally similar to UPC.
+    sources: []
+    resolution:
+      join_to: UPC
+      notes: "EAN ↔ UPC mapping is typically 1:1 for domestic products."
+
+
+# =============================================================================
+# Cross-source join patterns
+# =============================================================================
+# Documents the common join patterns needed to link data across sources
+# via product keys.
+
+join_patterns:
+
+  sell_in_to_sell_out:
+    description: "Link factory shipments to retail sell-through"
+    left_source: DATA_SELL_IN
+    left_key: SKU
+    right_source: DATA_SELL_OUT
+    right_key: UPC
+    via: "homologation.product_crosswalk (SKU → UPC)"
+
+  sell_out_to_nielsen:
+    description: "Link retail sell-through to market measurement"
+    left_source: DATA_SELL_OUT
+    left_key: UPC
+    right_source: DATA_NIELSEN
+    right_key: CBU_CODE
+    via: "homologation.product_crosswalk (UPC → SKU → CBU_CODE)"
+
+  sell_in_to_waste:
+    description: "Link shipments to waste data for waste rate calculation"
+    left_source: DATA_SELL_IN
+    left_key: SKU
+    right_source: DATA_WASTE
+    right_key: SKU
+    via: "Direct join — same key"
+
+  sell_in_to_forecast:
+    description: "Link actuals to forecast for accuracy calculation"
+    left_source: DATA_SELL_IN
+    left_key: SKU
+    right_source: DATA_FORECAST
+    right_key: SKU
+    via: "Direct join — same key"

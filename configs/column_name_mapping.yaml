@@ -1,0 +1,820 @@
+# =============================================================================
+# Column Name Mapping — Canonical Name Crosswalk
+# =============================================================================
+#
+# This file establishes ONE canonical name for every logical column concept
+# across the entire platform.  All downstream consumers (semantic_registry.yaml,
+# model_config.yaml, dq_rules_catalog.yaml, dq_thresholds.yaml) MUST reference
+# the canonical name.
+#
+# Decision criteria (applied in order):
+#   1. Use the name from business_glossary_seed.yaml if it exists
+#      (enterprise-approved term).
+#   2. If not in glossary, use the name most prevalent across sources.
+#   3. If prevalence is tied, prefer the name that serves as the natural key
+#      (no resolution table required) over one needing a crosswalk.
+#   4. Prefer UPPERCASE (matches Snowflake default and glossary convention).
+#   5. snake_case aliases in dq_thresholds.yaml will be updated to match.
+#
+# Source inventory used to build this file:
+#   - SEMANTIC_LAYOUTS/ (10 files, ~107 unique columns)
+#   - configs/business_glossary_seed.yaml (31 entries)
+#   - configs/dq_rules_catalog.yaml (~55 column references across 10 datasets)
+#   - configs/dq_thresholds.yaml (per-source required_not_null fields)
+#   - configs/model_config.yaml (feature references)
+#
+# Generated: 2026-06-20
+# =============================================================================
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DIM_DATE — Time / Date columns
+# ─────────────────────────────────────────────────────────────────────────────
+column_mappings:
+
+  - canonical: FECHA
+    dimension: DIM_DATE
+    rationale: >
+      Glossary-defined as 'Transaction Date', used by 8 of 10 semantic layout
+      sources (EDP_NIELSEN, MKT_OFF, MKT_ON, PB_NEILSEN, SELL_IN, SELL_OUT,
+      WASTE, WATER_RETAIL). Clear winner on both enterprise approval and
+      prevalence.
+    aliases:
+      - name: DAY_ID
+        sources: [DATA_SELL_OUT]
+        note: "Integer format YYYYMMDD in dq_rules. Requires CAST to DATE."
+      - name: PER_DATE
+        sources: [DATA_WATER_SCANTRACK_NIELSEN]
+        note: "Monthly Nielsen period date — DATE_TRUNC from period_ending_datetime."
+      - name: CICLO
+        sources: [DATA_DANONE_IBP]
+        note: "Planning cycle — not a strict calendar date. IBP-specific."
+      - name: ship_date
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold layer alias. Will be updated to FECHA."
+      - name: sell_out_week
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold weekly aggregation. Will be updated to FECHA."
+      - name: waste_date
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold layer alias. Will be updated to FECHA."
+      - name: period_month
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Investment monthly period. Will be updated to FECHA."
+      - name: FECHA_INICIO
+        sources: [DATA_PROMO]
+        note: "Promo start date — separate concept, NOT an alias. Keep distinct."
+        is_alias: false
+      - name: FECHA_FIN
+        sources: [DATA_PROMO]
+        note: "Promo end date — separate concept, NOT an alias. Keep distinct."
+        is_alias: false
+
+  - canonical: ANIO
+    dimension: DIM_DATE
+    rationale: >
+      Glossary-defined as 'Year'. Used by DATA_MKT_ON, DATA_MKT_OFF, and DATA_SELL_IN.
+    aliases:
+      - name: YEAR
+        sources: [DATA_CALENDAR]
+        note: "English equivalent in calendar table."
+      - name: YEAR_ID
+        sources: [DATA_NIELSEN]
+        note: "Nielsen-specific year identifier."
+
+  - canonical: MES
+    dimension: DIM_DATE
+    rationale: >
+      Glossary-defined as 'Month'. Used by DATA_WASTE, DATA_SELL_IN.
+    aliases:
+      - name: MONTH
+        sources: [DATA_CALENDAR]
+        note: "English equivalent in calendar table."
+
+  # Calendar-only columns (not in glossary yet — Phase 3a targets)
+  - canonical: DATE_ID
+    dimension: DIM_DATE
+    rationale: "Used only in DATA_CALENDAR. No alias conflicts."
+    aliases: []
+
+  - canonical: WEEK
+    dimension: DIM_DATE
+    rationale: "Used only in DATA_CALENDAR. No alias conflicts."
+    aliases: []
+
+  - canonical: IS_FISCAL
+    dimension: DIM_DATE
+    rationale: "Used only in DATA_CALENDAR. No alias conflicts."
+    aliases: []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DIM_PRODUCT — Product identification
+# ─────────────────────────────────────────────────────────────────────────────
+
+  - canonical: SKU
+    dimension: DIM_PRODUCT
+    rationale: >
+      Both SKU and UPC are glossary-defined, each appearing in exactly
+      4 data sources — prevalence is tied at 4-to-4.
+      SKU is chosen as canonical because it is the internal natural key
+      that requires no resolution table. UPC, INT_ID, and CBU_CODE all
+      require a crosswalk join back to SKU via homologation.product_crosswalk.
+      This makes SKU the convergence point for cross-source product joins.
+    aliases:
+      - name: UPC
+        sources: [DATA_MKT_ON, DATA_MKT_OFF, DATA_SELL_OUT, DATA_PRICE, DATA_PROMO]
+        note: "External barcode — needs crosswalk to SKU."
+      - name: INT_ID
+        sources: [DATA_SELL_IN]
+        note: "Internal product ID — needs crosswalk to SKU."
+      - name: CBU_CODE
+        sources: [DATA_NIELSEN]
+        note: "Consumer Business Unit code — needs crosswalk to SKU."
+      - name: sku_id
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold layer alias. Will be updated to SKU."
+
+  - canonical: DESCRIPCION
+    dimension: DIM_PRODUCT
+    rationale: "Glossary-defined as 'Product Description'. Used across ALL sources."
+    aliases: []
+
+  - canonical: CBU
+    dimension: DIM_PRODUCT
+    rationale: >
+      Used in SELL_IN as a grain column (WATERS vs EDP).
+      Distinct from CBU_CODE (product key). No alias conflicts.
+    aliases: []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DIM_BRAND — Brand / Category / Subcategory
+# ─────────────────────────────────────────────────────────────────────────────
+
+  - canonical: MARCA
+    dimension: DIM_BRAND
+    rationale: >
+      Glossary-defined as 'Brand'. Used by 5 semantic layout sources
+      (MKT_OFF, MKT_ON, SELL_IN, SELL_OUT, WASTE) plus DQ rules on
+      DATA_MKT_ON, DATA_MKT_OFF, DATA_WASTE, DATA_NIELSEN. Clear winner.
+    aliases:
+      - name: ITM_UNIF_BRND
+        sources: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN]
+        note: "Nielsen internal brand code — maps to MARCA at silver layer."
+      - name: ITM_UNIF_BRAND
+        sources: [DATA_PB_SCANTRACK_NIELSEN, DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN]
+        note: "Nielsen variant (BRAND vs BRND)."
+      - name: ITM_UNIF_BRAND_DAN
+        sources: [DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN]
+        note: "Danone-specific brand mapping derived in SQL."
+      - name: ITM_UNIF_BRND_DAN
+        sources: [DATA_WATER_SCANTRACK_NIELSEN]
+        note: "Scantrack variant of Danone brand mapping."
+      - name: brand_id
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold layer alias. Will be updated to MARCA."
+
+  - canonical: CATEGORIA
+    dimension: DIM_BRAND
+    rationale: >
+      Glossary-defined as 'Product Category'. Used by IBP, MKT_OFF, MKT_ON,
+      and DATA_NIELSEN DQ rules.
+    aliases: []
+
+  - canonical: SUBCATEGORIA
+    dimension: DIM_BRAND
+    rationale: >
+      Glossary-defined as 'Product Subcategory'. Used in DATA_MKT_OFF and
+      PB_SCANTRACK (constant = 'SUSTITUTOS DE LECHE').
+    aliases: []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DIM_CUSTOMER — Customer / Chain / Store
+# ─────────────────────────────────────────────────────────────────────────────
+
+  - canonical: CADENA
+    dimension: DIM_CUSTOMER
+    rationale: >
+      Glossary-defined as 'Retail Chain (Spanish)'. Used by 4 semantic layout
+      sources (IBP, MKT_ON, SELL_OUT, WASTE) plus DQ rules on DATA_MKT_ON,
+      DATA_MKT_OFF, DATA_WASTE, DATA_SELL_IN, DATA_PROMO. CHAIN used only by DATA_SELL_OUT
+      and DATA_PRICE (2 sources in DQ rules). CADENA wins on glossary presence
+      plus 4-vs-2 prevalence in layouts.
+    aliases:
+      - name: CHAIN
+        sources: [DATA_SELL_OUT, DATA_PRICE]
+        note: "English equivalent — homologation table exists."
+      - name: customer_id
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold layer alias. Will be updated to CADENA."
+
+  - canonical: CLIENTE
+    dimension: DIM_CUSTOMER
+    rationale: >
+      Used in SELL_IN only. Derived customer name from dictionary lookup.
+      Not in glossary yet — Phase 3a target.
+    aliases: []
+
+  - canonical: CLIENTE_ID
+    dimension: DIM_CUSTOMER
+    rationale: >
+      Used in SELL_IN only. Derived: CONCAT('0068'/'0049', customer_id).
+      Not in glossary yet — Phase 3a target.
+    aliases: []
+
+  - canonical: SUBCHAIN
+    dimension: DIM_CUSTOMER
+    rationale: "Glossary-defined as 'Sub-Chain/Banner'. DATA_SELL_OUT only."
+    aliases: []
+
+  - canonical: FORMAT
+    dimension: DIM_CUSTOMER
+    rationale: >
+      Glossary-defined as 'Store Format'. DATA_SELL_OUT only.
+      Note: distinct from FORMATO (used in IBP/WASTE as product format).
+    aliases:
+      - name: store_id
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold layer alias for store identifier."
+
+  - canonical: FORMATO_CADENA
+    dimension: DIM_CUSTOMER
+    rationale: "Used in SELL_OUT as chain format. Not in glossary yet — Phase 3a target."
+    aliases: []
+
+  - canonical: CANAL
+    dimension: DIM_CUSTOMER
+    rationale: >
+      Glossary-defined as 'Trade Channel'. Used by IBP and WASTE.
+      DQ rules allowed_values: ECOMMERCE, MODERN_TRADE, TRADITIONAL_TRADE,
+      DIGITAL, OOH, TV, RADIO, PRINT, OTHER.
+    aliases:
+      - name: channel_id
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold layer alias. Will be updated to CANAL."
+
+  - canonical: GRAN_CANAL
+    dimension: DIM_CUSTOMER
+    rationale: "Used in IBP only. Grand channel. Not in glossary — Phase 3a target."
+    aliases: []
+
+  - canonical: REGION
+    dimension: DIM_CUSTOMER
+    rationale: "Used in SELL_IN. Not in glossary — Phase 3a target."
+    aliases: []
+
+  - canonical: ID_CEDIS
+    dimension: DIM_CUSTOMER
+    rationale: "Used in SELL_IN. Distribution center code. Not in glossary — Phase 3a target."
+    aliases: []
+
+  - canonical: CEDIS_DSC
+    dimension: DIM_CUSTOMER
+    rationale: "Used in SELL_IN. Distribution center description. Not in glossary — Phase 3a target."
+    aliases: []
+
+  - canonical: CLUSTER
+    dimension: DIM_CUSTOMER
+    rationale: "Used in SELL_IN. Customer cluster. Not in glossary — Phase 3a target."
+    aliases: []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DIM_MARKETING — Campaign / Media
+# ─────────────────────────────────────────────────────────────────────────────
+
+  - canonical: CAMPANA
+    dimension: DIM_MARKETING
+    rationale: "Glossary-defined as 'Campaign Name'. Used by MKT_OFF and MKT_ON."
+    aliases: []
+
+  - canonical: MEDIO
+    dimension: DIM_MARKETING
+    rationale: "Glossary-defined as 'Media Type'. Used by MKT_OFF and MKT_ON."
+    aliases: []
+
+  - canonical: PLATAFORMA
+    dimension: DIM_MARKETING
+    rationale: "Glossary-defined as 'Platform'. DATA_MKT_ON and DATA_MKT_OFF."
+    aliases:
+      - name: SOPORTE_PLATAFORMA
+        sources: [DATA_MKT_OFF, DATA_MKT_ON]
+        note: "Semantic layout uses SOPORTE_PLATAFORMA; glossary uses PLATAFORMA."
+
+  - canonical: OBJETIVO
+    dimension: DIM_MARKETING
+    rationale: "Glossary-defined as 'Funnel Objective'. DATA_MKT_ON / DATA_MKT_OFF (not in current layouts — Phase 3a target)."
+    aliases: []
+
+  - canonical: CLASE
+    dimension: DIM_MARKETING
+    rationale: "Used in MKT_OFF only. Media class. Not in glossary — Phase 3a target."
+    aliases: []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DIM_MARKET — Nielsen market dimensions
+# ─────────────────────────────────────────────────────────────────────────────
+
+  - canonical: MKT_SHORT_DSC
+    dimension: DIM_MARKET
+    rationale: >
+      Used by 4 Nielsen sources (EDP, PB, Water Retail, Water Scantrack).
+      Market short description. Not in glossary — Phase 3a target.
+    aliases: []
+
+  - canonical: MERCADO
+    dimension: DIM_MARKET
+    rationale: "Used in IBP only. Market. Not in glossary — Phase 3a target."
+    aliases: []
+
+  - canonical: SOURCE
+    dimension: DIM_MARKET
+    rationale: "Used in WATER_RETAIL only (constant 'WATERS RIE'/'WATERS RIE_GEN'). Phase 3a target."
+    aliases: []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DIM_PRODUCT_HIERARCHY — Nielsen segmentation columns
+# ─────────────────────────────────────────────────────────────────────────────
+
+  - canonical: ITM_UNIF_SUBSEG_DAN
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: >
+      EDP_NIELSEN derived segmentation (GRIEGO, SALUD ACTIVA, POSTRES, etc.).
+      Source-specific. Not in glossary — Phase 3a target.
+    aliases: []
+
+  - canonical: SEGMENTACION_2025
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: >
+      EDP_NIELSEN derived 2025 segmentation. Source-specific.
+      Not in glossary — Phase 3a target.
+    aliases: []
+
+  - canonical: ITM_SUBSEG_UNIF
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "EDP_NIELSEN raw subsegment from CSTM_310594. Phase 3a target."
+    aliases: []
+
+  - canonical: ITM_UNIF_MANUF
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "EDP_NIELSEN manufacturer code. Phase 3a target."
+    aliases:
+      - name: ITM_UNIF_MANUF_DAN
+        sources: [DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN]
+        note: "Danone-specific manufacturer mapping for Waters."
+
+  - canonical: ITM_SEGMENT_2
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Used by Water Retail and Scantrack. Phase 3a target."
+    aliases: []
+
+  - canonical: ITM_UNIF_SUBBRND
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Used by Water Scantrack. Phase 3a target."
+    aliases:
+      - name: ITM_UNIF_SUBBRND_DAN
+        sources: [DATA_WATER_SCANTRACK_NIELSEN]
+        note: "Danone sub-brand mapping (CLASICA, INFUSIONES, CERO, BALANCE)."
+      - name: ITEM_UNIF_SUBBRND
+        sources: [DATA_PB_SCANTRACK_NIELSEN]
+        note: "PB variant (constant = 'PLANT BASED')."
+
+  - canonical: ITM_UNIF_SUBSEG_DAN_1
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Constant 'TOTAL WATERS'. Used by Water Retail and Scantrack."
+    aliases: []
+
+  - canonical: ITM_UNIF_SUBSEG_DAN_2
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Water Scantrack only. ONE WAY / JUGS segmentation."
+    aliases: []
+
+  - canonical: ITM_UNIF_SUBSEG_DAN_3
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Water Scantrack only. AQUADRINKS / NATURAL PET / JUGS."
+    aliases: []
+
+  - canonical: ITM_UNIF_SUBSEG_DAN_4
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Water Scantrack only. NATURAL CORE / NATURAL KIDS / JUGS / AQUADRINKS CORE / KIDS SABOR."
+    aliases: []
+
+  - canonical: ITM_UNIF_SUBSEG_DAN_5
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Water Scantrack only. Final remap: NATURAL KIDS → KIDS NATURAL."
+    aliases: []
+
+  - canonical: SEGMENTO_LOCAL
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Derived in Water Retail and Scantrack. SABOR / NATURAL."
+    aliases: []
+
+  - canonical: PRESENTACION_LOCAL
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Derived in Water Scantrack (grain). ADULTO / KIDS / GARRAFON."
+    aliases: []
+
+  - canonical: SUBSEGMENTO_LOCAL
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Derived in Water Retail. NATURAL CORE / NATURAL KIDS / JUGS / AQUADRINKS CORE / SABOR KIDS."
+    aliases: []
+
+  - canonical: TIPO
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Derived in Water Scantrack. ALCALINA / PREMIUM / REGULAR."
+    aliases: []
+
+  - canonical: SCENARIO
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Derived in IBP from NOMBRE_ETIQUETA. ACTUAL / IBP_FORECAST / ROLLING_FORECAST / OTHER."
+    aliases: []
+
+  - canonical: ETIQUETA
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "IBP label tag. Phase 3a target."
+    aliases: []
+
+  - canonical: NOMBRE_ETIQUETA
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "IBP label name (source for SCENARIO derivation). Phase 3a target."
+    aliases: []
+
+  - canonical: FORMATO
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: >
+      Used in IBP (product format) and WASTE (waste format).
+      Distinct from FORMAT (store format in DIM_CUSTOMER) and FORMATO_CADENA
+      (chain format in SELL_OUT).
+    aliases: []
+
+  - canonical: FUENTE
+    dimension: DIM_PRODUCT_HIERARCHY
+    rationale: "Used in WASTE only. Source identifier for waste data."
+    aliases: []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# METRICS — Measures / KPIs
+# ─────────────────────────────────────────────────────────────────────────────
+
+  # --- Financial ---
+  - canonical: INVERSION_REAL
+    dimension: null
+    role: metric
+    rationale: "Glossary-defined as 'Actual Marketing Investment'. Used by MKT_OFF and MKT_ON."
+    aliases:
+      - name: total_spend
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold layer alias. Will be updated to INVERSION_REAL."
+
+  - canonical: INVERSION_PRESUPUESTADA
+    dimension: null
+    role: metric
+    rationale: "Glossary-defined as 'Budgeted Marketing Investment'. DATA_MKT_ON / DATA_MKT_OFF (not in current layouts — Phase 3a target)."
+    aliases: []
+
+  - canonical: VALOR
+    dimension: null
+    role: metric
+    rationale: "Used by SELL_IN (revenue) and IBP (value). Context-dependent unit."
+    aliases:
+      - name: MONTO
+        sources: [DATA_SELL_IN]
+        note: "DQ rules reference. May overlap with VALOR in some contexts."
+      - name: net_revenue
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold alias for sell-in revenue."
+
+  - canonical: AMOUNT_SELL_OUT
+    dimension: null
+    role: metric
+    rationale: "SELL_OUT revenue amount. Not in glossary — Phase 3a target."
+    aliases: []
+
+  - canonical: PRECIO
+    dimension: null
+    role: metric
+    rationale: "Glossary-defined as 'Retail Price'. DATA_PRICE only."
+    aliases: []
+
+  - canonical: WASTE_AMOUNT
+    dimension: null
+    role: metric
+    rationale: "Aliased from 'Waste ($)' in source. Not in glossary — Phase 3a target."
+    aliases:
+      - name: UNIDADES_MERMA
+        sources: [business_glossary_seed.yaml, DATA_WASTE]
+        note: "Glossary uses UNIDADES_MERMA (waste units). WASTE_AMOUNT is monetary."
+        is_alias: false  # distinct concept: units vs amount
+
+  # --- Volume ---
+  - canonical: VOLUMEN
+    dimension: null
+    role: metric
+    rationale: >
+      SELL_IN volume. NOT homologated across CBU (WATERS=liters, EDP=KGR/1000).
+      See homologize_volume.py for cross-CBU usage.
+    aliases:
+      - name: units_shipped
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold alias. Will be updated to VOLUMEN."
+
+  - canonical: VOL_SELL_OUT
+    dimension: null
+    role: metric
+    rationale: "Glossary-defined as 'Consumer Sales Volume'. DATA_SELL_OUT only."
+    aliases:
+      - name: units_sold
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold alias. Will be updated to VOL_SELL_OUT."
+      - name: waste_units
+        sources: [dq_thresholds.yaml]
+        layer: silver
+        note: "Silver/Gold alias for waste volume."
+
+  - canonical: PCS_SELL_OUT
+    dimension: null
+    role: metric
+    rationale: "Glossary-defined as 'Consumer Sales in Pieces'. DATA_SELL_OUT only."
+    aliases: []
+
+  - canonical: VOL_INV
+    dimension: null
+    role: metric
+    rationale: "SELL_OUT inventory volume. Not in glossary — Phase 3a target."
+    aliases: []
+
+  - canonical: PCS_INV
+    dimension: null
+    role: metric
+    rationale: "SELL_OUT inventory pieces. Not in glossary — Phase 3a target."
+    aliases: []
+
+  # --- Nielsen metrics ---
+  - canonical: VTAS_VALOR
+    dimension: null
+    role: metric
+    rationale: "Sales value. Used by EDP, PB, Water Retail, Water Scantrack."
+    aliases: []
+
+  - canonical: VTAS_UNDS
+    dimension: null
+    role: metric
+    rationale: "Sales units. Used by EDP, PB, Water Retail, Water Scantrack."
+    aliases: []
+
+  - canonical: VTAS_KGS
+    dimension: null
+    role: metric
+    rationale: "Sales in KGs. EDP_NIELSEN only."
+    aliases: []
+
+  - canonical: VTAS_LITROS
+    dimension: null
+    role: metric
+    rationale: "Sales in liters. Water Retail only."
+    aliases:
+      - name: VTAS_LITRES
+        sources: [DATA_WATER_SCANTRACK_NIELSEN]
+        note: "Spelling variant (LITROS vs LITRES). Same metric."
+
+  - canonical: VTAS_VALOR_CUALQUIER_PROMO
+    dimension: null
+    role: metric
+    rationale: "Sales value any promo. PB and Water Scantrack."
+    aliases: []
+
+  - canonical: VTAS_UNDS_CUALQUIER_PROMO
+    dimension: null
+    role: metric
+    rationale: "Sales units any promo. PB and Water Scantrack."
+    aliases: []
+
+  - canonical: VTAS_LITRES_CUALQUIER_PROMO
+    dimension: null
+    role: metric
+    rationale: "Sales liters any promo. Water Scantrack only."
+    aliases: []
+
+  - canonical: DIST_NUM
+    dimension: null
+    role: metric
+    rationale: "Numeric distribution. EDP, PB, Water Scantrack."
+    aliases:
+      - name: DIST_NUM_TIENDAS_VENDEDORAS
+        sources: [DATA_WATER_RETAIL_NIELSEN]
+        note: "Water Retail variant — numeric dist. selling stores."
+      - name: DIST_NUM_TDP
+        sources: [DATA_PB_SCANTRACK_NIELSEN]
+        note: "PB Scantrack — numeric dist. TDP."
+
+  - canonical: DIST_NUM_CUALQUIER_PROMO
+    dimension: null
+    role: metric
+    rationale: "Numeric dist. any promo. Water Scantrack only."
+    aliases: []
+
+  - canonical: DIST_POND_REACH
+    dimension: null
+    role: metric
+    rationale: "Weighted distribution reach. EDP and Water Retail."
+    aliases: []
+
+  - canonical: DIST_POND
+    dimension: null
+    role: metric
+    rationale: "Weighted distribution. Water Scantrack only."
+    aliases: []
+
+  - canonical: DIST_POND_TDP
+    dimension: null
+    role: metric
+    rationale: "Weighted distribution TDP. Water Scantrack only."
+    aliases:
+      - name: DIST_POND_TDP_REACH
+        sources: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+        note: "EDP variant."
+
+  - canonical: DIST_POND_SIN_VTAS
+    dimension: null
+    role: metric
+    rationale: "Weighted dist. without sales. EDP only."
+    aliases: []
+
+  - canonical: DIST_POND_CUALQUIER_PROMO
+    dimension: null
+    role: metric
+    rationale: "Weighted dist. any promo. Water Scantrack only."
+    aliases: []
+
+  - canonical: PRECIO_UNDS_PROM
+    dimension: null
+    role: metric
+    rationale: "Average unit price. EDP and Water Retail."
+    aliases: []
+
+  - canonical: PRECIO_KGS_PROM
+    dimension: null
+    role: metric
+    rationale: "Average price per KG. EDP only."
+    aliases: []
+
+  - canonical: PRECIO_LITROS_PROM
+    dimension: null
+    role: metric
+    rationale: "Average price per liter. Water Retail only."
+    aliases: []
+
+  - canonical: RATIO_VTAS_VALOR
+    dimension: null
+    role: metric
+    rationale: "Sales value ratio (any promo). EDP only."
+    aliases: []
+
+  - canonical: RATIO_VTAS_UNDS
+    dimension: null
+    role: metric
+    rationale: "Sales units ratio. EDP only."
+    aliases: []
+
+  - canonical: RATIO_VTAS_KGS
+    dimension: null
+    role: metric
+    rationale: "Sales KGs ratio. EDP only."
+    aliases: []
+
+  - canonical: MARKET_SHARE
+    dimension: null
+    role: metric
+    rationale: "Glossary-defined as 'Market Share (%)'. DATA_NIELSEN."
+    aliases: []
+
+  - canonical: IMPRESIONES
+    dimension: null
+    role: metric
+    rationale: "Impressions. MKT_ON only."
+    aliases: []
+
+  - canonical: CLICS
+    dimension: null
+    role: metric
+    rationale: "Clicks. MKT_ON only."
+    aliases: []
+
+  - canonical: IMPACTOS_HT
+    dimension: null
+    role: metric
+    rationale: "Impacts. MKT_OFF only."
+    aliases: []
+
+  - canonical: FORECAST_UNITS
+    dimension: null
+    role: metric
+    rationale: "Glossary-defined as 'Forecasted Units'. DATA_FORECAST."
+    aliases: []
+
+  - canonical: STOCK_UNITS
+    dimension: null
+    role: metric
+    rationale: "Glossary-defined as 'Stock on Hand'. DATA_INVENTORY."
+    aliases: []
+
+  - canonical: DESCUENTO_PCT
+    dimension: null
+    role: metric
+    rationale: "Discount percentage. DATA_PROMO only. Not in glossary — Phase 3a target."
+    aliases: []
+
+  - canonical: VERSION
+    dimension: null
+    role: metric
+    rationale: "Forecast version. DATA_FORECAST only. Not in glossary — Phase 3a target."
+    aliases: []
+
+  - canonical: UNIDADES
+    dimension: null
+    role: metric
+    rationale: "Units (sell-in). Referenced in DQ rules for DATA_SELL_IN. Phase 3a target."
+    aliases: []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Model feature names → semantic column mapping
+# ─────────────────────────────────────────────────────────────────────────────
+# These are NOT canonical column names — they are model-layer feature names
+# that need to be traced back to semantic columns. Documented here for
+# Phase 3b enrichment of model_config.yaml.
+
+model_feature_mappings:
+  demand_forecast:
+    - feature: price
+      semantic_column: PRECIO
+      source: DATA_PRICE
+    - feature: promo
+      semantic_column: DESCUENTO_PCT
+      source: DATA_PROMO
+    - feature: market_share
+      semantic_column: MARKET_SHARE
+      source: DATA_NIELSEN
+
+  investment_efficiency:
+    - feature: hill_transformed_investment
+      semantic_column: INVERSION_REAL
+      source: DATA_MKT_ON, DATA_MKT_OFF
+      note: "After adstock + Hill transform"
+    - feature: promotion_active
+      semantic_column: DESCUENTO_PCT
+      source: DATA_PROMO
+      note: "Binary flag derived from promo data"
+    - feature: price_index_vs_category
+      semantic_column: PRECIO
+      source: DATA_PRICE, DATA_NIELSEN
+    - feature: nielsen_weighted_distribution
+      semantic_column: DIST_POND_REACH
+      source: DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN
+    - feature: is_holiday
+      semantic_column: IS_FISCAL
+      source: DATA_CALENDAR
+      note: "Derived from calendar table"
+    - feature: sell_out_lag_4w
+      semantic_column: VOL_SELL_OUT
+      source: DATA_SELL_OUT
+      note: "4-week lag"
+
+  competitive_risk:
+    - feature: share_loss_rate_13w
+      semantic_column: MARKET_SHARE
+      source: DATA_NIELSEN
+    - feature: price_gap_widening
+      semantic_column: PRECIO
+      source: DATA_PRICE
+    - feature: numeric_distribution_change_13w
+      semantic_column: DIST_NUM
+      source: DATA_NIELSEN
+    - feature: weighted_distribution_change_13w
+      semantic_column: DIST_POND_REACH
+      source: DATA_NIELSEN
+
+  waste_risk:
+    - feature: forecast_accuracy
+      semantic_column: FORECAST_UNITS
+      source: DATA_FORECAST
+    - feature: stock_cover
+      semantic_column: STOCK_UNITS
+      source: DATA_INVENTORY

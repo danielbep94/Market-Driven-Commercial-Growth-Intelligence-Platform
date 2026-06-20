@@ -16,9 +16,9 @@
 #   LOW       → informational (readiness score 0)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# DATA_MKT — Investment / Marketing (VW_MKT_ECOMM)
+# DATA_MKT_OFF — Offline Marketing / Media (PRD_MDP.MDP_STG.FACT_MEDIA_OFF)
 # ─────────────────────────────────────────────────────────────────────────────
-DATA_MKT:
+DATA_MKT_OFF:
   MARCA:
     mandatory: true
     severity: CRITICAL
@@ -26,11 +26,27 @@ DATA_MKT:
   FECHA:
     mandatory: true
     severity: CRITICAL
-    description: "Transaction/campaign date — required for temporal joins"
-  ANIO:
-    mandatory: true
-    severity: HIGH
-    description: "Year partition key — must match YEAR(FECHA)"
+    description: "Campaign date — required for temporal joins"
+  CAMPANA:
+    mandatory: false
+    severity: LOW
+    description: "Campaign name — informational, used for domain profiling"
+  MEDIO:
+    mandatory: false
+    severity: MEDIUM
+    description: "Media type (TV, OOH, Radio, Print, etc.)"
+  SOPORTE_PLATAFORMA:
+    mandatory: false
+    severity: MEDIUM
+    description: "Platform / support — media placement"
+  CATEGORIA:
+    mandatory: false
+    severity: MEDIUM
+    description: "Product category"
+  CLASE:
+    mandatory: false
+    severity: MEDIUM
+    description: "Media class — sub-classification of media type"
   INVERSION_REAL:
     mandatory: false
     severity: MEDIUM
@@ -38,39 +54,70 @@ DATA_MKT:
       min: 0
       max: 500000000
     description: "Actual marketing investment in local currency — must be non-negative"
-  INVERSION_PRESUPUESTADA:
+  IMPACTOS_HT:
+    mandatory: false
+    severity: MEDIUM
+    value_range:
+      min: 0
+      max: 1000000000
+    description: "Media impacts (reach/impressions for offline channels)"
+  # Phase 3a: INVERSION_PRESUPUESTADA not in current layout — verify if available in source table
+  # Phase 3a: ANIO not in current layout output — derivable from FECHA
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_MKT_ON — Online Marketing / eCommerce (PRD_MDP.MDP_DSP.VW_MKT_ECOMM)
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_MKT_ON:
+  MARCA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Brand must always be populated — primary business dimension"
+  FECHA:
+    mandatory: true
+    severity: CRITICAL
+    description: "Campaign date — required for temporal joins"
+  CAMPANA:
+    mandatory: false
+    severity: LOW
+    description: "Campaign name — informational, used for domain profiling"
+  MEDIO:
+    mandatory: false
+    severity: MEDIUM
+    description: "Media type (digital channels)"
+  SOPORTE_PLATAFORMA:
+    mandatory: false
+    severity: MEDIUM
+    description: "Platform / support — digital media placement"
+  CATEGORIA:
+    mandatory: false
+    severity: MEDIUM
+    description: "Product category"
+  CADENA:
+    mandatory: false
+    severity: MEDIUM
+    description: "Retailer chain — expected for eCommerce channel-level breakdowns"
+  INVERSION_REAL:
     mandatory: false
     severity: MEDIUM
     value_range:
       min: 0
       max: 500000000
-    description: "Budgeted investment — must be non-negative"
-  UPC:
-    mandatory: false
-    severity: LOW
-    description: "UPC expected to be ~94% null for eComm brand-level campaigns — document as known"
-  CADENA:
+    description: "Actual marketing investment in local currency — must be non-negative"
+  IMPRESIONES:
     mandatory: false
     severity: MEDIUM
-    description: "Retailer chain — expected for channel-level investment breakdowns"
-  CANAL:
+    value_range:
+      min: 0
+      max: 10000000000
+    description: "Digital impressions — non-negative"
+  CLICS:
     mandatory: false
     severity: MEDIUM
-    allowed_values:
-      - "ECOMMERCE"
-      - "MODERN_TRADE"
-      - "TRADITIONAL_TRADE"
-      - "DIGITAL"
-      - "OOH"
-      - "TV"
-      - "RADIO"
-      - "PRINT"
-      - "OTHER"
-    description: "Marketing channel — must be a recognized business value"
-  CAMPANA:
-    mandatory: false
-    severity: LOW
-    description: "Campaign name — informational, used for domain profiling"
+    value_range:
+      min: 0
+      max: 1000000000
+    description: "Digital clicks — non-negative and must not exceed IMPRESIONES"
+  # Phase 3a: UPC, CANAL not in current layout — verify if available in source table
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_SELL_OUT — Point-of-Sale / Consumer Sales

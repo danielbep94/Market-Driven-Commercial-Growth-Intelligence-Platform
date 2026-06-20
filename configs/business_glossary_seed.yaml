@@ -22,11 +22,11 @@ columns:
     definition: >
       Unique numeric barcode assigned to each consumer-facing product SKU.
       Used as the primary product join key between Sell-Out, Pricing, and Promotions.
-      Expected to be ~94% null in DATA_MKT (brand-level investment campaigns).
+      Expected to be ~94% null in DATA_MKT_ON / DATA_MKT_OFF (brand-level investment campaigns).
     calculation_logic: "Assigned by GS1 / Product Master"
     unit: "Code"
     owner: "Supply Chain / Commercial Operations"
-    datasets: ["DATA_MKT", "DATA_SELL_OUT", "DATA_PRICE", "DATA_PROMO"]
+    datasets: ["DATA_SELL_OUT", "DATA_PRICE", "DATA_PROMO"]
     is_business_key: true
     dimension: DIM_PRODUCT
 
@@ -82,12 +82,12 @@ columns:
     business_name: Brand
     definition: >
       Danone brand name (e.g. OIKOS, ACTIVIA, ACTIMEL, DANUP, DANONE).
-      The most reliable cross-dataset join key — 0% null in DATA_MKT.
+      The most reliable cross-dataset join key — 0% null in DATA_MKT_ON / DATA_MKT_OFF.
       Used as fallback join when UPC is unavailable.
     calculation_logic: "Product hierarchy attribute"
     unit: "Text"
     owner: "Marketing"
-    datasets: ["DATA_MKT", "DATA_WASTE", "DATA_SELL_OUT", "DATA_NIELSEN"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF", "DATA_WASTE", "DATA_SELL_OUT", "DATA_NIELSEN"]
     is_business_key: true
     dimension: DIM_BRAND
 
@@ -99,7 +99,7 @@ columns:
     calculation_logic: "Product hierarchy attribute"
     unit: "Text"
     owner: "Commercial / Marketing"
-    datasets: ["DATA_MKT", "DATA_NIELSEN"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF", "DATA_NIELSEN"]
     is_business_key: false
     dimension: DIM_BRAND
 
@@ -109,7 +109,7 @@ columns:
     calculation_logic: "Product hierarchy attribute"
     unit: "Text"
     owner: "Commercial / Marketing"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT"]  # Phase 3a: SUBCATEGORIA not in MKT_ON/OFF layouts — verify source
     is_business_key: false
     dimension: DIM_BRAND
 
@@ -118,12 +118,12 @@ columns:
     business_name: Retail Chain (Spanish)
     definition: >
       Retailer chain name in Spanish (e.g. WALMART, OXXO, CHEDRAUI).
-      Used in DATA_MKT and DATA_WASTE as the customer dimension key.
+      Used in DATA_MKT_ON and DATA_WASTE as the customer dimension key.
       Must be homologated to CHAIN in DATA_SELL_OUT (may differ in spelling).
     calculation_logic: "Customer master attribute"
     unit: "Text"
     owner: "Commercial / Key Account Management"
-    datasets: ["DATA_MKT", "DATA_WASTE", "DATA_SELL_IN"]
+    datasets: ["DATA_MKT_ON", "DATA_WASTE", "DATA_SELL_IN"]
     is_business_key: true
     dimension: DIM_CUSTOMER
 
@@ -170,7 +170,7 @@ columns:
     calculation_logic: "Customer hierarchy attribute"
     unit: "Text"
     owner: "Commercial"
-    datasets: ["DATA_MKT", "DATA_WASTE"]
+    datasets: ["DATA_WASTE"]
     is_business_key: false
     dimension: DIM_CUSTOMER
 
@@ -179,12 +179,12 @@ columns:
     business_name: Transaction Date
     definition: >
       Full calendar date of the transaction, campaign, or event.
-      Confirmed as auto-detected date column in DATA_MKT.
+      Confirmed as auto-detected date column in DATA_MKT_ON / DATA_MKT_OFF.
       Used for temporal alignment across all datasets.
     calculation_logic: "Source system timestamp truncated to DATE"
     unit: "Date (YYYY-MM-DD)"
     owner: "Data Engineering"
-    datasets: ["DATA_MKT", "DATA_SELL_IN", "DATA_WASTE", "DATA_PRICE"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF", "DATA_SELL_IN", "DATA_WASTE", "DATA_PRICE"]
     is_business_key: true
     dimension: DIM_DATE
 
@@ -206,7 +206,7 @@ columns:
     calculation_logic: "YEAR(FECHA)"
     unit: "Integer (YYYY)"
     owner: "Data Engineering"
-    datasets: ["DATA_MKT", "DATA_SELL_IN"]
+    datasets: ["DATA_SELL_IN"]
     is_business_key: false
     dimension: DIM_DATE
 
@@ -237,7 +237,7 @@ columns:
     calculation_logic: "Source system attribute"
     unit: "Text"
     owner: "Marketing"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF"]
     is_business_key: false
     dimension: DIM_MARKETING
 
@@ -247,7 +247,7 @@ columns:
     calculation_logic: "Source system attribute"
     unit: "Text"
     owner: "Marketing / Media Agency"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF"]
     is_business_key: false
     dimension: DIM_MARKETING
 
@@ -257,7 +257,7 @@ columns:
     calculation_logic: "Source system attribute"
     unit: "Text"
     owner: "Marketing / Media Agency"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF"]
     is_business_key: false
     dimension: DIM_MARKETING
 
@@ -267,7 +267,7 @@ columns:
     calculation_logic: "Assigned at campaign creation"
     unit: "Text"
     owner: "Marketing"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT"]  # Phase 3a: OBJETIVO not in MKT_ON/OFF layouts — verify source
     is_business_key: false
     dimension: DIM_MARKETING
 
@@ -281,7 +281,7 @@ columns:
     calculation_logic: "Actualized spend from finance reconciliation"
     unit: "MXN"
     owner: "Marketing Finance"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF"]
     is_business_key: false
     dimension: null
 
@@ -291,7 +291,7 @@ columns:
     calculation_logic: "Annual budget allocation"
     unit: "MXN"
     owner: "Marketing Finance"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT"]  # Phase 3a: INVERSION_PRESUPUESTADA not in MKT_ON/OFF layouts — verify source
     is_business_key: false
     dimension: null
 

@@ -1,0 +1,103 @@
+# =============================================================================
+# Tech Debt Registry
+# =============================================================================
+# Tracks known technical debt items that need future resolution.
+# Each item has a severity, owner area, and recommended resolution timeline.
+#
+# Created: 2026-06-20
+# =============================================================================
+
+items:
+
+  - id: TD-001
+    title: "Hardcoded Nielsen period mappings in EDP_MARKET.txt and SCANTRACK_WATER.txt"
+    severity: MEDIUM
+    area: SEMANTIC_LAYOUTS
+    deadline: "2026-10-01"
+    description: >
+      Both EDP_MARKET.txt (CTE_PERIOD) and SCANTRACK_WATER.txt (CTE_PERIOD)
+      contain hardcoded date mappings through 2026-12. These will break in
+      January 2027 when new periods arrive that don't match the static mapping.
+    files:
+      - SEMANTIC_LAYOUTS/EDP_NIELSEN/EDP_MARKET.txt
+      - SEMANTIC_LAYOUTS/WATER_NEILSEN/SCANTRACK_WATER.txt
+    root_cause: >
+      Nielsen period-ending dates are mapped to calendar months via a static
+      CTE (VALUES clause) rather than a dynamic lookup table. This was
+      originally done because the period boundaries are irregular (4-weekly)
+      and a simple date conversion would assign periods incorrectly.
+    recommended_fix: >
+      1. Create a reference table in Snowflake:
+         PRD_MDP.MDP_REF.NIELSEN_PERIOD_CALENDAR
+         (PERIOD_ENDING_DATE DATE, MONTH_ID INT, YEAR_ID INT)
+      2. Populate it with Nielsen's published period calendar (available
+         from the Nielsen portal or market intelligence team).
+      3. Replace the CTE_PERIOD VALUES clause with a JOIN to this table.
+      4. Set up a yearly refresh process (add to January planning calendar).
+    impact_if_unresolved: >
+      Data ingestion for EDP and Water Nielsen sources will silently produce
+      NULL or incorrect month assignments for periods after 2026-12.
+      Models depending on FECHA will see data gaps or misalignment.
+    detection: >
+      schema_validator.py --drift-check will NOT catch this (it's data-level,
+      not schema-level). Add a DQ rule to dq_rules_catalog.yaml checking
+      that FECHA IS NOT NULL after the CTE_PERIOD join.
+    added: "2026-06-20"
+    status: OPEN
+
+  - id: TD-002
+    title: "RETAIL_WATER.txt uses non-triple-quoted SQL string"
+    severity: LOW
+    area: SEMANTIC_LAYOUTS
+    deadline: null
+    description: >
+      RETAIL_WATER.txt is the only layout file using a regular double-quoted
+      string (with embedded newlines and Snowflake-style column identifiers
+      like L."period_ending_datetime") instead of a triple-quoted string for
+      the SQL value.
+    files:
+      - SEMANTIC_LAYOUTS/WATER_NEILSEN/RETAIL_WATER.txt
+    root_cause: "Manual file creation with inconsistent quoting style."
+    recommended_fix: >
+      Convert the "sql": "..." to "sql": \"\"\"...\"\"\" format to match the
+      other 9 layout files. build_registry.py handles it via _fix_sql_quoting()
+      but normalizing the source is cleaner.
+    impact_if_unresolved: "None — the parser handles it. Cosmetic inconsistency only."
+    added: "2026-06-20"
+    status: OPEN
+
+  - id: TD-003
+    title: "WASTE/DATA_WASTE.txt and RETAIL_WATER.txt have trailing backtick artifacts"
+    severity: LOW
+    area: SEMANTIC_LAYOUTS
+    deadline: null
+    description: >
+      Both files end with stray backtick characters (`` `` ``) likely left
+      from copy-pasting from a markdown context.
+    files:
+      - SEMANTIC_LAYOUTS/WASTE/DATA_WASTE.txt
+      - SEMANTIC_LAYOUTS/WATER_NEILSEN/RETAIL_WATER.txt
+    recommended_fix: "Remove the trailing backticks manually."
+    impact_if_unresolved: "None — the parser strips them."
+    added: "2026-06-20"
+    status: OPEN
+
+  - id: TD-004
+    title: "dq_thresholds.yaml uses snake_case Silver-layer names"
+    severity: MEDIUM
+    area: configs
+    deadline: "2026-07-15"
+    description: >
+      dq_thresholds.yaml uses Silver/Gold-layer field names (sku_id,
+      store_id, units_sold, ship_date, net_revenue) while all other configs
+      use Bronze-layer/source UPPERCASE names (SKU, CHAIN, VOL_SELL_OUT,
+      FECHA, MONTO). This naming mismatch causes confusion and prevents
+      automated cross-config validation.
+    files:
+      - configs/dq_thresholds.yaml
+    recommended_fix: >
+      Phase 3e will update all field references to canonical UPPERCASE names
+      from column_name_mapping.yaml, with a mapping comment explaining the
+      Silver-layer equivalents.
+    added: "2026-06-20"
+    status: OPEN
