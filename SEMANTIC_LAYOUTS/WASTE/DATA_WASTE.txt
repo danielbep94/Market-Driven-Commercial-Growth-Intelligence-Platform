@@ -1,0 +1,46 @@
+"DATA_WASTE": {
+    "db": "PRD_MDP",
+    "schema": "MDP_STG",
+    "notes": " Validate uniqueness at declared grain.",
+    "sql": """
+        SELECT
+            FECHA,
+            CADENA,
+            MARCA,
+            CANAL,
+            FUENTE,
+            FORMATO,
+            "Waste ($)" AS WASTE_AMOUNT
+        FROM PRD_MDP.MDP_STG.VW_WASTE
+    """,
+    "grain_hint": "Granularidad por FECHA, CADENA, MARCA, CANAL, FUENTE, FORMATO",
+    "business_keys": [
+        "CADENA",
+        "MARCA",
+        "CANAL",
+        "FUENTE",
+        "FORMATO"
+    ],
+    "date_col": "FECHA",
+    "date_format": "yyyy-MM-dd",
+    "date_requires_cast": False,
+    "grain_cols": [
+        "FECHA",
+        "CADENA",
+        "MARCA",
+        "CANAL",
+        "FUENTE",
+        "FORMATO"
+    ],
+    "metric_cols": [
+        "WASTE_AMOUNT"
+    ],
+    "source_tables": [
+        "PRD_MDP.MDP_STG.VW_WASTE"
+    ],
+    "source_coverage": [
+        "WASTE"
+    ],
+    "category_hint": "Waste / Merma"
+}
+``

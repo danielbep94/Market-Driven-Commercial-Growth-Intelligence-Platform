@@ -1,0 +1,53 @@
+"DATA_MKT_ON": {
+    "db": "PRD_MDP",
+    "schema": "MDP_DSP",
+    "sql": """
+        SELECT
+            FECHA,
+            MARCA,
+            CAMPANA,
+            MEDIO,
+            SOPORTE_PLATAFORMA,
+            CATEGORIA,
+            CADENA,
+            IMPRESIONES,
+            CLICS,
+            INVERSION_REAL
+        FROM PRD_MDP.MDP_DSP.VW_MKT_ECOMM
+        WHERE ANIO >= 2024
+    """,
+    "grain_hint": "Granularidad por FECHA, MARCA, CAMPANA, MEDIO, SOPORTE_PLATAFORMA, CATEGORIA, CADENA",
+    "business_keys": [
+        "MARCA",
+        "CADENA",
+        "CAMPANA",
+        "MEDIO",
+        "SOPORTE_PLATAFORMA",
+        "CATEGORIA"
+    ],
+    "date_col": "FECHA",
+    "date_format": "yyyy-MM-dd",
+    "date_requires_cast": False,
+    "grain_cols": [
+        "FECHA",
+        "MARCA",
+        "CAMPANA",
+        "MEDIO",
+        "SOPORTE_PLATAFORMA",
+        "CATEGORIA",
+        "CADENA"
+    ],
+    "metric_cols": [
+        "IMPRESIONES",
+        "CLICS",
+        "INVERSION_REAL"
+    ],
+    "source_tables": [
+        "PRD_MDP.MDP_DSP.VW_MKT_ECOMM"
+    ],
+    "source_coverage": [
+        "MEDIA_ON",
+        "ECOMMERCE"
+    ],
+    "category_hint": "Marketing ON / eCommerce media"
+}

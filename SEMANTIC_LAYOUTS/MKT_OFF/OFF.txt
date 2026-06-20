@@ -1,0 +1,50 @@
+"DATA_MKT_OFF": {
+    "db": "PRD_MDP",
+    "schema": "MDP_STG",
+    "sql": """
+        SELECT
+            FECHA,
+            MARCA,
+            CAMPANA,
+            MEDIO,
+            SOPORTE_PLATAFORMA,
+            CATEGORIA,
+            CLASE,
+            INVERSION_REAL,
+            IMPACTOS_HT
+        FROM PRD_MDP.MDP_STG.FACT_MEDIA_OFF
+        WHERE ANIO >= 2024
+    """,
+    "grain_hint": "Granularidad por FECHA, MARCA, CAMPANA, MEDIO, SOPORTE_PLATAFORMA, CATEGORIA, CLASE",
+    "business_keys": [
+        "MARCA",
+        "CAMPANA",
+        "MEDIO",
+        "SOPORTE_PLATAFORMA",
+        "CATEGORIA",
+        "CLASE"
+    ],
+    "date_col": "FECHA",
+    "date_format": "yyyy-MM-dd",
+    "date_requires_cast": False,
+    "grain_cols": [
+        "FECHA",
+        "MARCA",
+        "CAMPANA",
+        "MEDIO",
+        "SOPORTE_PLATAFORMA",
+        "CATEGORIA",
+        "CLASE"
+    ],
+    "metric_cols": [
+        "INVERSION_REAL",
+        "IMPACTOS_HT"
+    ],
+    "source_tables": [
+        "PRD_MDP.MDP_STG.FACT_MEDIA_OFF"
+    ],
+    "source_coverage": [
+        "MEDIA_OFF"
+    ],
+    "category_hint": "Marketing OFF / media tradicional"
+}

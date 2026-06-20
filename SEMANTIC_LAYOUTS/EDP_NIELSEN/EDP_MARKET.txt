@@ -1,0 +1,506 @@
+"DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN": {
+    "db": "PRD_MEX",
+    "schema": "MEX_DSP_DPH_MKT",
+    "notes": "Integrated EDP semantic layer combining Nielsen Retail + Scantrack logic in a single output. FECHA is monthly. The CTE_PERIOD mapping preserves the business-validated date bridge as provided; review the TO_DATE(B.VALUE, 'YYYY-DD-MM') pattern if month assignment looks inconsistent.",
+    "sql": """
+        WITH CTE_FECHA AS (
+
+            SELECT
+                INDEX,
+                REPLACE(REPLACE(VALUE, CHAR(10), ''), CHAR(13), '') AS VALUE
+            FROM LATERAL SPLIT_TO_TABLE(
+                '2024-01-01,2024-01-01,2024-01-01,2024-01-01,2024-01-02,2024-01-02,2024-01-02,2024-01-02,2024-01-03,2024-01-03,2024-01-03,2024-01-03,2024-01-03,2024-01-04,2024-01-04,2024-01-04,2024-01-04,2024-01-05,2024-01-05,2024-01-05,2024-01-05,2024-01-06,2024-01-06,2024-01-06,2024-01-06,2024-01-06,2024-01-07,2024-01-07,2024-01-07,2024-01-07,2024-01-08,2024-01-08,2024-01-08,2024-01-08,2024-01-09,2024-01-09,2024-01-09,2024-01-09,2024-01-09,2024-01-10,2024-01-10,2024-01-10,2024-01-10,2024-01-11,2024-01-11,2024-01-11,2024-01-11,2024-01-12,2024-01-12,2024-01-12,2024-01-12,2024-01-12,2025-01-01,2025-01-01,2025-01-01,2025-01-01,2025-01-02,2025-01-02,2025-01-02,2025-01-02,2025-01-03,2025-01-03,2025-01-03,2025-01-03,2025-01-03,2025-01-04,2025-01-04,2025-01-04,2025-01-04,2025-01-05,2025-01-05,2025-01-05,2025-01-05,2025-01-06,2025-01-06,2025-01-06,2025-01-06,2025-01-06,2025-01-07,2025-01-07,2025-01-07,2025-01-07,2025-01-08,2025-01-08,2025-01-08,2025-01-08,2025-01-09,2025-01-09,2025-01-09,2025-01-09,2025-01-09,2025-01-10,2025-01-10,2025-01-10,2025-01-10,2025-01-11,2025-01-11,2025-01-11,2025-01-11,2025-01-12,2025-01-12,2025-01-12,2025-01-12,2025-01-12,2026-01-01,2026-01-01,2026-01-01,2026-01-01,2026-01-02,2026-01-02,2026-01-02,2026-01-02,2026-01-03,2026-01-03,2026-01-03,2026-01-03,2026-01-03,2026-01-04,2026-01-04,2026-01-04,2026-01-04,2026-01-05,2026-01-05,2026-01-05,2026-01-05,2026-01-06,2026-01-06,2026-01-06,2026-01-06,2026-01-06,2026-01-07,2026-01-07,2026-01-07,2026-01-07,2026-01-08,2026-01-08,2026-01-08,2026-01-08,2026-01-09,2026-01-09,2026-01-09,2026-01-09,2026-01-09,2026-01-10,2026-01-10,2026-01-10,2026-01-10,2026-01-11,2026-01-11,2026-01-11,2026-01-11,2026-01-12,2026-01-12,2026-01-12,2026-01-12,2026-01-12',
+                ','
+            ) AS tags_array
+
+        ),
+
+        CTE_FECHA_FIN AS (
+
+            SELECT
+                INDEX,
+                REPLACE(REPLACE(VALUE, CHAR(10), ''), CHAR(13), '') AS VALUE
+            FROM LATERAL SPLIT_TO_TABLE(
+                '2024-01-07,2024-01-14,2024-01-21,2024-01-28,2024-02-04,2024-02-11,2024-02-18,2024-02-25,2024-03-03,2024-03-10,2024-03-17,2024-03-24,2024-03-31,2024-04-07,2024-04-14,2024-04-21,2024-04-28,2024-05-05,2024-05-12,2024-05-19,2024-05-26,2024-06-02,2024-06-09,2024-06-16,2024-06-23,2024-06-30,2024-07-07,2024-07-14,2024-07-21,2024-07-28,2024-08-04,2024-08-11,2024-08-18,2024-08-25,2024-09-01,2024-09-08,2024-09-15,2024-09-22,2024-09-29,2024-10-06,2024-10-13,2024-10-20,2024-10-27,2024-11-03,2024-11-10,2024-11-17,2024-11-24,2024-12-01,2024-12-08,2024-12-15,2024-12-22,2024-12-29,2025-01-05,2025-01-12,2025-01-19,2025-01-26,2025-02-02,2025-02-09,2025-02-16,2025-02-23,2025-03-02,2025-03-09,2025-03-16,2025-03-23,2025-03-30,2025-04-06,2025-04-13,2025-04-20,2025-04-27,2025-05-04,2025-05-11,2025-05-18,2025-05-25,2025-06-01,2025-06-08,2025-06-15,2025-06-22,2025-06-29,2025-07-06,2025-07-13,2025-07-20,2025-07-27,2025-08-03,2025-08-10,2025-08-17,2025-08-24,2025-08-31,2025-09-07,2025-09-14,2025-09-21,2025-09-28,2025-10-05,2025-10-12,2025-10-19,2025-10-26,2025-11-02,2025-11-09,2025-11-16,2025-11-23,2025-11-30,2025-12-07,2025-12-14,2025-12-21,2025-12-28,2026-01-04,2026-01-11,2026-01-18,2026-01-25,2026-02-01,2026-02-08,2026-02-15,2026-02-22,2026-03-01,2026-03-08,2026-03-15,2026-03-22,2026-03-29,2026-04-05,2026-04-12,2026-04-19,2026-04-26,2026-05-03,2026-05-10,2026-05-17,2026-05-24,2026-05-31,2026-06-07,2026-06-14,2026-06-21,2026-06-28,2026-07-05,2026-07-12,2026-07-19,2026-07-26,2026-08-02,2026-08-09,2026-08-16,2026-08-23,2026-08-30,2026-09-06,2026-09-13,2026-09-20,2026-09-27,2026-10-04,2026-10-11,2026-10-18,2026-10-25,2026-11-01,2026-11-08,2026-11-15,2026-11-22,2026-11-29,2026-12-06,2026-12-13,2026-12-20,2026-12-27',
+                ','
+            ) AS tags_array
+
+        ),
+
+        CTE_PERIOD AS (
+
+            SELECT
+                TO_DATE(A.VALUE) AS FECHA_FIN,
+                TO_DATE(B.VALUE, 'YYYY-DD-MM') AS FECHA
+            FROM CTE_FECHA_FIN A
+            LEFT JOIN CTE_FECHA B
+                ON A.INDEX = B.INDEX
+
+        ),
+
+        QV AS (
+
+            /*----------------------------- EDP SCANTRACK / RETAIL ----------------------------*/
+            SELECT
+                PR.FECHA AS PER_DATE,
+
+                CASE
+                    WHEN A.INP_56982 = 'CHOBANI'
+                         AND A.CSTM_310594 = 'LIGHT'
+                        THEN 'GRIEGO'
+
+                    WHEN A.INP_56985 IN ('ACTIMEL', 'ACTIVIA')
+                        THEN 'SALUD ACTIVA'
+
+                    WHEN A.INP_56985 = 'DANETTE'
+                         OR A.CSTM_310594 IN ('POSTRES LIGHT', 'POSTRES REGULARES')
+                        THEN 'POSTRES'
+
+                    WHEN (
+                            A.CSTM_310594 = 'GELATINAS REGULARES'
+                         OR A.CSTM_310594 = 'GELATINAS LIGHT'
+                         )
+                         AND A.INP_56985 <> 'DANETTE'
+                         OR A.CSTM_310594 IS NULL
+                        THEN 'GELATINAS'
+
+                    WHEN A.CSTM_310594 = 'SALUD GASTRICA'
+                         OR A.CSTM_310594 = 'SALUD ACTIVA'
+                         OR A.CSTM_310594 = 'OTROS SALUD ACTIVA'
+                         OR A.CSTM_310594 = 'SALUD DIGESTIVA'
+                        THEN 'SALUD ACTIVA'
+
+                    WHEN (
+                            A.CSTM_401828 = 'LIQUIDO/0-275'
+                         OR A.CSTM_401828 = 'LIQUIDO/276-500'
+                         OR A.CSTM_401828 = 'LIQUIDO/501 O MAS'
+                         )
+                         AND A.CSTM_310594 = 'BASE BUSINESS'
+                        THEN 'BASE BUSINESS LIQUIDO'
+
+                    WHEN (
+                            A.CSTM_401828 = 'SOLIDO/0-275'
+                         OR A.CSTM_401828 = 'SOLIDO/276-500'
+                         OR A.CSTM_401828 = 'SOLIDO/501 O MAS'
+                         )
+                         AND A.CSTM_310594 = 'BASE BUSINESS'
+                         AND A.INP_56985 <> 'DAN MIX'
+                        THEN 'BASE BUSINESS SOLIDO'
+
+                    WHEN A.PRDC_LNG_DSC LIKE '%VASO C/TAPA%'
+                         OR A.PRDC_LNG_DSC LIKE '%M&M%'
+                         OR A.PRDC_LNG_DSC LIKE '%DELICIAS%'
+                         OR A.PRDC_LNG_DSC LIKE '%PLACER CRUNCH%'
+                            AND A.INP_56982 IN ('DANONE', 'LALA PRODS. LACTEOS', 'SIGMA ALIM.')
+                        THEN 'TOTAL INDULGENCIA'
+
+                    WHEN A.CSTM_310594 = 'INFANTIL'
+                         AND A.CSTM_401828 LIKE '%SOLIDO%'
+                        THEN 'INFANTIL SOLIDO'
+
+                    WHEN A.CSTM_310594 = 'INFANTIL'
+                         AND A.CSTM_401828 LIKE '%LIQUIDO%'
+                         AND A.CSTM_978840 NOT LIKE '%PROBIOTICOS%'
+                        THEN 'INFANTIL BEBIBLE'
+
+                    WHEN A.PRDC_CD IN (
+                        '7501032300319',
+                        '7506443106376',
+                        '7506443106383',
+                        '7501032300302',
+                        '7506443101968',
+                        '7506443104266',
+                        '7501020556827',
+                        '7501020552799',
+                        '7501020552782',
+                        '7501020561067',
+                        '7501040094491',
+                        '7501040094477',
+                        '7501040094460',
+                        '7501040095450'
+                    )
+                        THEN 'TOTAL INDULGENCIA'
+
+                    WHEN A.CSTM_978840 LIKE '%PROBIOTICOS%'
+                         OR A.CSTM_310594 = 'LACTEOS FERMENTADOS'
+                         OR A.INP_56985 = 'SOFUL'
+                        THEN 'FERMENTADOS'
+
+                    WHEN A.CSTM_310594 IN ('SALUD ACTIVA', 'OTROS SALUD ACTIVA', 'SALUD GASTRICA', 'SALUD DIGESTIVA')
+                         AND A.INP_56985 IN ('DANUP', 'DANONE', 'LALA', 'YOPRO', 'SANTA CLARA')
+                        THEN 'OTROS SALUD ACTIVA'
+
+                    ELSE A.CSTM_310594
+                END AS ITM_UNIF_SUBSEG_DAN,
+
+                CASE
+                    WHEN A.CSTM_310594 IN ('BASE BUSINESS', 'SPECIALTIES')
+                         AND A.CSTM_401828 LIKE '%LIQUIDO%'
+                        THEN 'BASE BUSINESS DRINKABLE'
+
+                    WHEN A.CSTM_310594 = 'LIGHT'
+                         AND A.CSTM_401828 LIKE '%LIQUIDO%'
+                         AND A.INP_56982 NOT IN ('CHOBANI', 'SIGMA ALIM.')
+                        THEN 'BASE BUSINESS DRINKABLE'
+
+                    WHEN A.CSTM_310594 = 'LIGHT'
+                         AND A.CSTM_401828 LIKE '%LIQUIDO%'
+                         AND A.INP_56982 IN ('SIGMA ALIM.')
+                         AND A.INP_57006 = 'NATURAL'
+                        THEN 'BASE BUSINESS DRINKABLE'
+
+                    WHEN A.CSTM_310594 = 'LIGHT'
+                         AND A.CSTM_401828 LIKE '%LIQUIDO%'
+                         AND A.INP_56982 IN ('SIGMA ALIM.')
+                         AND A.INP_57006 = 'TODOS SABORES'
+                         AND A.INP_57051 = '242'
+                        THEN 'BASE BUSINESS DRINKABLE'
+
+                    WHEN A.CSTM_310594 = 'SALUD DIGESTIVA'
+                         AND A.CSTM_401828 LIKE '%LIQUIDO%'
+                         AND A.INP_56985 NOT IN ('SOFUL', 'YOPLAIT', 'ACTIVIA', 'BIO 4BALAN-CE')
+                        THEN 'BASE BUSINESS DRINKABLE'
+
+                    WHEN A.CSTM_310594 = 'OTROS SALUD ACTIVA'
+                         AND A.CSTM_401828 LIKE '%LIQUIDO%'
+                         AND A.INP_56985 NOT IN ('YOPRO')
+                        THEN 'BASE BUSINESS DRINKABLE'
+
+                    WHEN A.CSTM_310594 = 'BASE BUSINESS'
+                         AND A.CSTM_401828 LIKE '%SOLIDO%'
+                         AND A.CSTM_978840 NOT IN ('M&M/TAPA CON CEREAL', 'HERSHEYS/TAPA CON CEREAL', 'OTR. SUBMARCAS/PROBIOTICOS')
+                         AND A.INP_56985 NOT IN ('DAN MIX')
+                        THEN 'BASE BUSINESS SPOONABLES'
+
+                    WHEN A.CSTM_310594 = 'GRIEGO'
+                         AND A.CSTM_401828 LIKE '%SOLIDO%'
+                         AND A.INP_56985 = 'VITALINEA'
+                        THEN 'BASE BUSINESS SPOONABLES'
+
+                    WHEN A.CSTM_310594 = 'OTROS SALUD ACTIVA'
+                         AND A.CSTM_401828 LIKE '%SOLIDO%'
+                         AND A.INP_56985 NOT IN ('YOPRO')
+                        THEN 'BASE BUSINESS SPOONABLES'
+
+                    WHEN A.CSTM_310594 = 'OTROS SALUD DIGESTIVA'
+                         AND A.CSTM_401828 LIKE '%SOLIDO%'
+                         AND A.INP_56985 NOT IN ('SOFUL', 'ACTIVIA', 'BIO 4BALAN-CE')
+                         AND A.CSTM_978840 NOT IN ('PRODIGESTION/FUNCIONAL')
+                        THEN 'BASE BUSINESS SPOONABLES'
+
+                    WHEN A.CSTM_310594 = 'SPECIALTIES'
+                         AND A.CSTM_401828 LIKE '%SOLIDO%'
+                         AND A.CSTM_978840 NOT IN ('DELICIAS/TAPA CON CEREAL', 'PLACER/TAPA CON CEREAL', 'SEMILLAS/TAPA CON CEREAL')
+                        THEN 'BASE BUSINESS SPOONABLES'
+
+                    WHEN A.CSTM_310594 = 'LIGHT'
+                         AND A.CSTM_401828 LIKE '%SOLIDO%'
+                         AND A.INP_56982 NOT IN ('CHOBANI', 'SIGMA ALIM.')
+                        THEN 'BASE BUSINESS SPOONABLES'
+
+                    WHEN A.CSTM_310594 = 'LIGHT'
+                         AND A.CSTM_401828 LIKE '%SOLIDO%'
+                         AND A.INP_56982 IN ('SIGMA ALIM.')
+                         AND A.INP_57006 = 'NATURAL'
+                        THEN 'BASE BUSINESS SPOONABLES'
+
+                    WHEN A.CSTM_310594 = 'LIGHT'
+                         AND A.CSTM_401828 LIKE '%SOLIDO%'
+                         AND A.INP_56982 IN ('SIGMA ALIM.')
+                         AND A.INP_57006 = 'TODOS SABORES'
+                         AND A.INP_57051 IN ('125', '1000')
+                        THEN 'BASE BUSINESS SPOONABLES'
+
+                    WHEN A.INP_56985 IN ('ACTIVIA', 'BIO 4BALAN-CE', 'BENEGASTRO', 'GASTRO PROTECT', 'YOPRO')
+                        THEN 'SALUD ACTIVA'
+
+                    WHEN A.CSTM_310594 = 'LIGHT'
+                         AND A.INP_56982 IN ('SIGMA ALIM.')
+                         AND A.INP_57006 = 'TODOS SABORES'
+                         AND A.INP_57051 IN ('220', '750')
+                        THEN 'SALUD ACTIVA'
+
+                    WHEN A.CSTM_310594 IN ('SALUD DIGESTIVA', 'BASE BUSINESS')
+                         AND A.INP_56982 IN ('SIGMA ALIM.')
+                         AND A.CSTM_978840 IN ('PRODIGESTION/FUNCIONAL', 'OTR. SUBMARCAS/PROBIOTICOS')
+                        THEN 'SALUD ACTIVA'
+
+                    WHEN A.CSTM_310594 IN ('POSTRES REGULARES')
+                        THEN 'POSTRES'
+
+                    WHEN A.CSTM_310594 IN ('GELATINAS LIGHT', 'GELATINAS REGULARES')
+                         AND A.INP_56985 = 'DANETTE'
+                        THEN 'POSTRES'
+
+                    WHEN A.CSTM_310594 IN ('SPECIALTIES')
+                         AND A.CSTM_978840 IN ('DELICIAS/TAPA CON CEREAL', 'PLACER/TAPA CON CEREAL', 'SEMILLAS/TAPA CON CEREAL')
+                        THEN 'INDULGENT YOGHURT'
+
+                    WHEN A.INP_56985 = 'DAN MIX'
+                        THEN 'INDULGENT YOGHURT'
+
+                    WHEN A.CSTM_310594 = 'PLANT BASED YOGHURT'
+                        THEN 'PB YOGHURT'
+
+                    WHEN A.CSTM_310594 = 'INFANTIL'
+                         AND A.CSTM_978840 NOT IN ('PROBIOTICOS/INFANTIL')
+                        THEN 'KIDS'
+
+                    WHEN A.CSTM_310594 IN ('GELATINAS LIGHT', 'GELATINAS REGULARES')
+                        THEN 'GELATINAS'
+
+                    WHEN A.CSTM_310594 = 'LACTEOS FERMENTADOS'
+                        THEN 'FERMENTED DAIRY'
+
+                    WHEN A.CSTM_310594 = 'INFANTIL'
+                         AND A.CSTM_978840 LIKE '%PROBIOTICOS%'
+                        THEN 'FERMENTED DAIRY'
+
+                    WHEN A.INP_56985 = 'SOFUL'
+                        THEN 'FERMENTED DAIRY'
+
+                    WHEN A.CSTM_310594 = 'GRIEGO'
+                         AND A.INP_56985 NOT IN ('VITALINEA')
+                        THEN 'GREEKS'
+
+                    WHEN A.CSTM_310594 = 'LIGHT'
+                         AND A.INP_56982 = 'CHOBANI'
+                        THEN 'GREEKS'
+
+                    WHEN A.CSTM_310594 = 'CONTROLLED LABEL'
+                        THEN 'CONTROLLED LABEL'
+
+                    ELSE 'OTHERS'
+                END AS SEGMENTACION_2025,
+
+                A.CSTM_310594 AS ITM_SUBSEG_UNIF,
+                A.INP_56982   AS ITM_UNIF_MANUF,
+                A.INP_56985   AS ITM_UNIF_BRND,
+
+                D."fact_column"      AS FACT_TAG,
+                D."fact_description" AS FACT_SHORT_DSC,
+
+                CASE
+                    WHEN D."fact_column" = 'U'                             THEN '1'
+                    WHEN D."fact_column" = 'AP_U'                          THEN '2'
+                    WHEN D."fact_column" = 'E'                             THEN '3'
+                    WHEN D."fact_column" = 'AP_E'                          THEN '4'
+                    WHEN D."fact_column" = 'DOL'                           THEN '5'
+                    WHEN D."fact_column" = 'AP_DOL'                        THEN '6'
+                    WHEN D."fact_column" = 'U_ROS'                         THEN '7'
+                    WHEN D."fact_column" = 'E_ROS'                         THEN '8'
+                    WHEN D."fact_column" = 'NUM_DIST'                      THEN '11'
+                    WHEN D."fact_column" = 'AP_NUM_DIST'                   THEN '12'
+                    WHEN D."fact_column" = 'TDP_NUM_DIST'                  THEN '13'
+                    WHEN D."fact_column" = 'DOL_CCV_NON_REACH_CONTEXT'     THEN '16'
+                    WHEN D."fact_column" = 'AP_DOL_SGV_NON_REACH_CONTEXT'  THEN '17'
+                    WHEN D."fact_column" = 'DOL_CCV_TDP_NON_REACH_CONTEXT' THEN '18'
+                    WHEN D."fact_column" = 'AVG_E_PRC'                     THEN '21'
+                    WHEN D."fact_column" = 'AP_E_PRC'                      THEN '22'
+                    WHEN D."fact_column" = 'AVG_U_PRC'                     THEN '23'
+                    WHEN D."fact_column" = 'AP_U_PRC'                      THEN '24'
+                    ELSE '9999'
+                END AS FACT_DISPLAY_ORDER,
+
+                K.MRKT_DSC_SHRT AS MKT_SHORT_DSC,
+                J.FACT_VALUE    AS FACT_VALUE
+
+            FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT AS J
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_MKT_DIM AS K
+                ON J."market_id" = K."market_id"
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PER_DIM AS L
+                ON L."period_id" = J."period_id"
+
+            JOIN CTE_PERIOD PR
+                ON TO_DATE(L."period_ending_datetime") = PR.FECHA_FIN
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_FACT_REF AS D
+                ON J.FACT_COLUMN = D."fact_column"
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM AS A
+                ON J."product_id" = A."product_id"
+
+            WHERE
+                A."hierarchy_level" = 11
+                AND A.CSTM_310594 IS NOT NULL
+                AND YEAR(TO_DATE(L."period_ending_datetime")) >= 2024
+
+            UNION ALL
+
+            /*----------------------------- CONTROLLED LABEL ----------------------------*/
+            SELECT
+                PR.FECHA AS PER_DATE,
+
+                'MARCAS GENERICAS' AS ITM_UNIF_SUBSEG_DAN,
+                'MARCAS GENERICAS' AS SEGMENTACION_2025,
+
+                A.CSTM_310594 AS ITM_SUBSEG_UNIF,
+                A.INP_56982   AS ITM_UNIF_MANUF,
+                A.INP_56985   AS ITM_UNIF_BRND,
+
+                D."fact_column"      AS FACT_TAG,
+                D."fact_description" AS FACT_SHORT_DSC,
+
+                CASE
+                    WHEN D."fact_column" = 'U'                             THEN '1'
+                    WHEN D."fact_column" = 'AP_U'                          THEN '2'
+                    WHEN D."fact_column" = 'E'                             THEN '3'
+                    WHEN D."fact_column" = 'AP_E'                          THEN '4'
+                    WHEN D."fact_column" = 'DOL'                           THEN '5'
+                    WHEN D."fact_column" = 'AP_DOL'                        THEN '6'
+                    WHEN D."fact_column" = 'U_ROS'                         THEN '7'
+                    WHEN D."fact_column" = 'E_ROS'                         THEN '8'
+                    WHEN D."fact_column" = 'NUM_DIST'                      THEN '11'
+                    WHEN D."fact_column" = 'AP_NUM_DIST'                   THEN '12'
+                    WHEN D."fact_column" = 'TDP_NUM_DIST'                  THEN '13'
+                    WHEN D."fact_column" = 'DOL_CCV_NON_REACH_CONTEXT'     THEN '16'
+                    WHEN D."fact_column" = 'AP_DOL_SGV_NON_REACH_CONTEXT'  THEN '17'
+                    WHEN D."fact_column" = 'DOL_CCV_TDP_NON_REACH_CONTEXT' THEN '18'
+                    WHEN D."fact_column" = 'AVG_E_PRC'                     THEN '21'
+                    WHEN D."fact_column" = 'AP_E_PRC'                      THEN '22'
+                    WHEN D."fact_column" = 'AVG_U_PRC'                     THEN '23'
+                    WHEN D."fact_column" = 'AP_U_PRC'                      THEN '24'
+                    ELSE '9999'
+                END AS FACT_DISPLAY_ORDER,
+
+                K.MRKT_DSC_SHRT AS MKT_SHORT_DSC,
+                J.FACT_VALUE    AS FACT_VALUE
+
+            FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT AS J
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_MKT_DIM AS K
+                ON J."market_id" = K."market_id"
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PER_DIM AS L
+                ON L."period_id" = J."period_id"
+
+            JOIN CTE_PERIOD PR
+                ON TO_DATE(L."period_ending_datetime") = PR.FECHA_FIN
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_FACT_REF AS D
+                ON J.FACT_COLUMN = D."fact_column"
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM AS A
+                ON J."product_id" = A."product_id"
+
+            WHERE
+                A.CSTM_310594 = 'CONTROLLED LABEL'
+                AND A."hierarchy_level" = 2
+                AND YEAR(TO_DATE(L."period_ending_datetime")) >= 2024
+
+        )
+
+        SELECT
+            DATE_TRUNC('MONTH', PER_DATE) AS FECHA,
+
+            ITM_UNIF_SUBSEG_DAN,
+            SEGMENTACION_2025,
+            ITM_SUBSEG_UNIF,
+            ITM_UNIF_MANUF,
+            ITM_UNIF_BRND,
+            MKT_SHORT_DSC,
+
+            SUM(CASE WHEN FACT_TAG = 'DOL' OR FACT_SHORT_DSC = 'Vtas Valor'
+                     THEN FACT_VALUE ELSE 0 END) AS VTAS_VALOR,
+
+            SUM(CASE WHEN FACT_TAG = 'AVG_U_PRC' OR FACT_SHORT_DSC = 'Precio Unds Prom.'
+                     THEN FACT_VALUE ELSE 0 END) AS PRECIO_UNDS_PROM,
+
+            SUM(CASE WHEN FACT_TAG = 'AP_DOL' OR FACT_SHORT_DSC = 'Ratio de Vtas Valor'
+                     THEN FACT_VALUE ELSE 0 END) AS RATIO_VTAS_VALOR,
+
+            SUM(CASE WHEN FACT_TAG = 'AP_U' OR FACT_SHORT_DSC = 'Ratio de Vtas Unds'
+                     THEN FACT_VALUE ELSE 0 END) AS RATIO_VTAS_UNDS,
+
+            SUM(CASE WHEN FACT_TAG = 'U' OR FACT_SHORT_DSC = 'Vtas Unds'
+                     THEN FACT_VALUE ELSE 0 END) AS VTAS_UNDS,
+
+            SUM(CASE WHEN FACT_TAG = 'AVG_E_PRC' OR FACT_SHORT_DSC = 'Precio (KGS) Prom.'
+                     THEN FACT_VALUE ELSE 0 END) AS PRECIO_KGS_PROM,
+
+            SUM(CASE WHEN FACT_TAG = 'E' OR FACT_SHORT_DSC = 'Vtas (KGS)'
+                     THEN FACT_VALUE ELSE 0 END) AS VTAS_KGS,
+
+            SUM(CASE WHEN FACT_TAG = 'AP_E' OR FACT_SHORT_DSC = 'Ratio de Vtas (KGS)'
+                     THEN FACT_VALUE ELSE 0 END) AS RATIO_VTAS_KGS,
+
+            MAX(CASE WHEN FACT_TAG = 'DOL_CCV_REACH_CONTEXT'
+                          OR FACT_SHORT_DSC = 'Dist. Pond. Reach'
+                     THEN FACT_VALUE ELSE 0 END) AS DIST_POND_REACH,
+
+            MAX(CASE WHEN FACT_TAG = 'NUM_DIST'
+                          OR FACT_SHORT_DSC = 'Dist. Num.'
+                     THEN FACT_VALUE ELSE 0 END) AS DIST_NUM,
+
+            MAX(CASE WHEN FACT_TAG = 'DOL_CCV_NON_REACH_CONTEXT'
+                          OR FACT_SHORT_DSC = 'Dist. Pond. Sin Vtas'
+                     THEN FACT_VALUE ELSE 0 END) AS DIST_POND_SIN_VTAS,
+
+            MAX(CASE WHEN FACT_TAG = 'DOL_CCV_TDP_NON_REACH_CONTEXT'
+                          OR FACT_TAG = 'TDP_NUM_DIST'
+                          OR FACT_SHORT_DSC = 'Dist. Pond. TDP Reach'
+                     THEN FACT_VALUE ELSE 0 END) AS DIST_POND_TDP_REACH
+
+        FROM QV
+
+        GROUP BY
+            DATE_TRUNC('MONTH', PER_DATE),
+            ITM_UNIF_SUBSEG_DAN,
+            SEGMENTACION_2025,
+            ITM_SUBSEG_UNIF,
+            ITM_UNIF_MANUF,
+            ITM_UNIF_BRND,
+            MKT_SHORT_DSC
+    """,
+    "grain_hint": "Granularidad mensual por FECHA, ITM_UNIF_SUBSEG_DAN, SEGMENTACION_2025, ITM_SUBSEG_UNIF, ITM_UNIF_MANUF, ITM_UNIF_BRND, MKT_SHORT_DSC",
+    "business_keys": [
+        "ITM_UNIF_SUBSEG_DAN",
+        "SEGMENTACION_2025",
+        "ITM_SUBSEG_UNIF",
+        "ITM_UNIF_MANUF",
+        "ITM_UNIF_BRND",
+        "MKT_SHORT_DSC"
+    ],
+    "date_col": "FECHA",
+    "date_format": "yyyy-MM-dd",
+    "date_requires_cast": False,
+    "grain_cols": [
+        "FECHA",
+        "ITM_UNIF_SUBSEG_DAN",
+        "SEGMENTACION_2025",
+        "ITM_SUBSEG_UNIF",
+        "ITM_UNIF_MANUF",
+        "ITM_UNIF_BRND",
+        "MKT_SHORT_DSC"
+    ],
+    "metric_cols": [
+        "VTAS_VALOR",
+        "PRECIO_UNDS_PROM",
+        "RATIO_VTAS_VALOR",
+        "RATIO_VTAS_UNDS",
+        "VTAS_UNDS",
+        "PRECIO_KGS_PROM",
+        "VTAS_KGS",
+        "RATIO_VTAS_KGS",
+        "DIST_POND_REACH",
+        "DIST_NUM",
+        "DIST_POND_SIN_VTAS",
+        "DIST_POND_TDP_REACH"
+    ],
+    "source_tables": [
+        "PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT",
+        "PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_MKT_DIM",
+        "PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PER_DIM",
+        "PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_FACT_REF",
+        "PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM"
+    ],
+    "source_coverage": [
+        "NIELSEN_RETAIL",
+        "NIELSEN_SCANTRACK"
+    ],
+    "nielsen_study_type": "Retail + Scantrack",
+    "category_hint": "EDP / Yogurt / Gelatinas / fuente integrada tipo MarketTrack"
+}
+``

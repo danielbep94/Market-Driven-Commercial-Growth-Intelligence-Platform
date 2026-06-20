@@ -1,0 +1,68 @@
+"DATA_DANONE_IBP": {
+    "db": "PRD_MDP",
+    "schema": "MDP_DSP",
+    "notes": "Curated IBP semantic layer. SCENARIO is derived from NOMBRE_ETIQUETA. FCST_TYPE is intentionally excluded from semantic logic because it is a legacy/inconsistent field. CICLO represents planning context, not a strict calendar date.",
+    "sql": """
+        SELECT
+            t.CICLO,
+            t.CATEGORIA,
+            t.FORMATO,
+            t.ETIQUETA,
+            t.NOMBRE_ETIQUETA,
+            t.MERCADO,
+            t.CADENA,
+            t.CANAL,
+            t.GRAN_CANAL,
+            t.VALOR,
+
+            CASE 
+                WHEN t.NOMBRE_ETIQUETA = 'REAL' THEN 'ACTUAL'
+                WHEN t.NOMBRE_ETIQUETA = 'IBP' THEN 'IBP_FORECAST'
+                WHEN t.NOMBRE_ETIQUETA LIKE 'M%' THEN 'ROLLING_FORECAST'
+                ELSE 'OTHER'
+            END AS SCENARIO
+
+        FROM PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP t
+    """,
+    "grain_hint": "Granularidad por CICLO, CATEGORIA, FORMATO, ETIQUETA, NOMBRE_ETIQUETA, MERCADO, CADENA, CANAL, GRAN_CANAL",
+    "business_keys": [
+        "CICLO",
+        "CATEGORIA",
+        "FORMATO",
+        "NOMBRE_ETIQUETA",
+        "MERCADO",
+        "CADENA",
+        "CANAL",
+        "GRAN_CANAL",
+        "SCENARIO"
+    ],
+    "date_col": "CICLO",
+    "date_format": "planning_cycle",
+    "date_requires_cast": False,
+    "grain_cols": [
+        "CICLO",
+        "CATEGORIA",
+        "FORMATO",
+        "ETIQUETA",
+        "NOMBRE_ETIQUETA",
+        "MERCADO",
+        "CADENA",
+        "CANAL",
+        "GRAN_CANAL"
+    ],
+    "metric_cols": [
+        "VALOR"
+    ],
+    "derived_cols": [
+        "SCENARIO"
+    ],
+    "source_tables": [
+        "PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP"
+    ],
+    "source_coverage": [
+        "ACTUAL",
+        "IBP_FORECAST",
+        "ROLLING_FORECAST"
+    ],
+    "category_hint": "IBP / Danone planning semantic layer"
+}

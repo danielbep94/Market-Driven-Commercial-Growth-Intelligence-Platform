@@ -1,0 +1,88 @@
+{
+    "SELL_OUT": {
+        "db": "PRD_MDP",
+        "schema": "MDP_DSP",
+        "sql": """
+        WITH fact_filtered AS (
+            SELECT
+                PER_ID,
+                STORE,
+                UPC,
+                VOL_SELL_OUT,
+                PCS_SELL_OUT,
+                AMOUNT_SELL_OUT,
+                VOL_INV,
+                PCS_INV,
+                CBU_ID
+            FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
+            WHERE PER_ID >= 20250101
+        ),
+        base AS (
+            SELECT
+                per."DAY"  AS FECHA,
+                st.CHAIN   AS CADENA,
+                st.FORMAT  AS FORMATO_CADENA,
+                prod.BRAND AS MARCA,
+                f.VOL_SELL_OUT,
+                f.PCS_SELL_OUT,
+                f.AMOUNT_SELL_OUT,
+                f.VOL_INV,
+                f.PCS_INV
+            FROM fact_filtered f
+            INNER JOIN PRD_MDP.MDP_DWH.V_D_PERIOD per
+                ON f.PER_ID = per.PER_ID
+            INNER JOIN PRD_MDP.MDP_DSP.VW_D_STORE_RM st
+                ON f.STORE = st.INT_ID
+               AND f.CBU_ID = st.CBU_ID
+            INNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
+                ON TO_VARCHAR(f.UPC) = TO_VARCHAR(prod.INT_ID)
+               AND f.CBU_ID = prod.CBU_ID
+        )
+        SELECT
+            FECHA,
+            CADENA,
+            FORMATO_CADENA,
+            MARCA,
+            SUM(VOL_SELL_OUT)    AS VOL_SELL_OUT,
+            SUM(PCS_SELL_OUT)    AS PCS_SELL_OUT,
+            SUM(AMOUNT_SELL_OUT) AS AMOUNT_SELL_OUT,
+            SUM(VOL_INV)         AS VOL_INV,
+            SUM(PCS_INV)         AS PCS_INV
+        FROM base
+        GROUP BY
+            FECHA,
+            CADENA,
+            FORMATO_CADENA,
+            MARCA
+        """,
+        "grain_hint": "Granularidad por FECHA, CADENA, FORMATO_CADENA, MARCA",
+        "business_keys": [
+            "MARCA",
+            "CADENA",
+            "FORMATO_CADENA"
+        ],
+        "date_col": "FECHA",
+        "date_format": "yyyy-MM-dd",
+        "date_requires_cast": False,
+        "grain_cols": [
+            "FECHA",
+            "CADENA",
+            "FORMATO_CADENA",
+            "MARCA"
+        ],
+        "metric_cols": [
+            "VOL_SELL_OUT",
+            "PCS_SELL_OUT",
+            "AMOUNT_SELL_OUT",
+            "VOL_INV",
+            "PCS_INV"
+        ],
+        "source_tables": [
+            "PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT",
+            "PRD_MDP.MDP_DWH.V_D_PERIOD",
+            "PRD_MDP.MDP_DSP.VW_D_STORE_RM",
+            "PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM"
+        ],
+        "category_hint": "Sell Out Danone homologado a cadena / formato / marca"
+    }
+}
