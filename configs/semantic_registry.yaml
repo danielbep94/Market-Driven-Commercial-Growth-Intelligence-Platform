@@ -5,8 +5,8 @@
 
 _meta:
   generated_by: scripts/build_registry.py
-  generated_at: '2026-06-20T06:16:38Z'
-  input_hash: sha256:fcd263070889de6f8aa17ccb05ecc0a30bacae8503e4f7f6018960f15221614f
+  generated_at: '2026-06-21T04:37:35Z'
+  input_hash: sha256:ad57dee8e9ec2a103ae5fa1c1c24ba9e13cd13fc0c64e1b3ef5553504d3bb9a6
   input_file_hashes:
     SEMANTIC_LAYOUTS/EDP_NIELSEN/EDP_MARKET.txt: sha256:014681f9b0cf9be128b0e826b1689a3734cdcad11d8d251e9bb4f8a7427d5980
     SEMANTIC_LAYOUTS/IBP/IBP_DANONE.txt: sha256:b74228f19d2c549dab30780ba10c07286baa089d24f215393d68a0cefe92f0a4
@@ -18,6 +18,7 @@ _meta:
     SEMANTIC_LAYOUTS/WASTE/DATA_WASTE.txt: sha256:5a8c5de0d3e4d22b57a468ab623a40e6cf01401df8b3650b03c2b8809c824310
     SEMANTIC_LAYOUTS/WATER_NEILSEN/RETAIL_WATER.txt: sha256:54aab34298d790f99dd8bbed859e750c16f78e6db283fb79c47ff1f733297b43
     SEMANTIC_LAYOUTS/WATER_NEILSEN/SCANTRACK_WATER.txt: sha256:2048aa9c92cf3427e9d70b3718e81df749877fe200f1e02d7292c18ee70c3527
+    configs/column_types_snapshot.yaml: sha256:281186092321053b983fb7b8ea4b49627ce9c176f512420d18d78e9072bc4454
     configs/column_name_mapping.yaml: sha256:2f528d9b40f92957bc4a6a8e17f739feae5f8b9c4338f78c0e401b5e26ef7b13
   column_types_snapshot: configs/column_types_snapshot.yaml
   canonical_names: configs/column_name_mapping.yaml
@@ -33,85 +34,85 @@ sources:
     sql_ref: SEMANTIC_LAYOUTS/EDP_NIELSEN/EDP_MARKET.txt
     date_column:
       name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       format: yyyy-MM-dd
       requires_cast: false
     grain_columns:
     - name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       role: grain
       glossary_ref: FECHA
     - name: ITM_UNIF_SUBSEG_DAN
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: SEGMENTACION_2025
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_SUBSEG_UNIF
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_MANUF
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_BRND
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: MKT_SHORT_DSC
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     metric_columns:
     - name: VTAS_VALOR
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: PRECIO_UNDS_PROM
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: RATIO_VTAS_VALOR
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: RATIO_VTAS_UNDS
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: PRECIO_KGS_PROM
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_KGS
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: RATIO_VTAS_KGS
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: DIST_POND_REACH
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: DIST_NUM
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: DIST_POND_SIN_VTAS
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: DIST_POND_TDP_REACH
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     business_keys:
@@ -142,49 +143,49 @@ sources:
     sql_ref: SEMANTIC_LAYOUTS/IBP/IBP_DANONE.txt
     date_column:
       name: CICLO
-      type: PENDING_SNAPSHOT
+      type: TEXT(50)
       format: planning_cycle
       requires_cast: false
     grain_columns:
     - name: CICLO
-      type: PENDING_SNAPSHOT
+      type: TEXT(50)
       role: grain
       glossary_ref: null
     - name: CATEGORIA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: CATEGORIA
     - name: FORMATO
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: null
     - name: ETIQUETA
-      type: PENDING_SNAPSHOT
+      type: TEXT(50)
       role: grain
       glossary_ref: null
     - name: NOMBRE_ETIQUETA
-      type: PENDING_SNAPSHOT
+      type: TEXT(50)
       role: grain
       glossary_ref: null
     - name: MERCADO
-      type: PENDING_SNAPSHOT
+      type: TEXT(50)
       role: grain
       glossary_ref: null
     - name: CADENA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: CADENA
     - name: CANAL
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: CANAL
     - name: GRAN_CANAL
-      type: PENDING_SNAPSHOT
+      type: TEXT(50)
       role: grain
       glossary_ref: null
     metric_columns:
     - name: VALOR
-      type: PENDING_SNAPSHOT
+      type: NUMBER(18,6)
       role: metric
       glossary_ref: null
     business_keys:
@@ -213,45 +214,45 @@ sources:
     sql_ref: SEMANTIC_LAYOUTS/MKT_OFF/OFF.txt
     date_column:
       name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       format: yyyy-MM-dd
       requires_cast: false
     grain_columns:
     - name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       role: grain
       glossary_ref: FECHA
     - name: MARCA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
     - name: CAMPANA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: CAMPANA
     - name: MEDIO
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: MEDIO
     - name: SOPORTE_PLATAFORMA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: null
     - name: CATEGORIA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: CATEGORIA
     - name: CLASE
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: null
     metric_columns:
     - name: INVERSION_REAL
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: INVERSION_REAL
     - name: IMPACTOS_HT
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     business_keys:
@@ -275,49 +276,49 @@ sources:
     sql_ref: SEMANTIC_LAYOUTS/MKT_ON/ON.txt
     date_column:
       name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       format: yyyy-MM-dd
       requires_cast: false
     grain_columns:
     - name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       role: grain
       glossary_ref: FECHA
     - name: MARCA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
     - name: CAMPANA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: CAMPANA
     - name: MEDIO
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: MEDIO
     - name: SOPORTE_PLATAFORMA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: null
     - name: CATEGORIA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: CATEGORIA
     - name: CADENA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: CADENA
     metric_columns:
     - name: IMPRESIONES
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: CLICS
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: INVERSION_REAL
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: INVERSION_REAL
     business_keys:
@@ -342,53 +343,53 @@ sources:
     sql_ref: SEMANTIC_LAYOUTS/PB_NEILSEN/PB_SCANTRACK.txt
     date_column:
       name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       format: yyyy-MM-dd
       requires_cast: false
     grain_columns:
     - name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       role: grain
       glossary_ref: FECHA
     - name: ITM_UNIF_BRAND
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: MKT_SHORT_DSC
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: SUBCATEGORIA
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: SUBCATEGORIA
     - name: ITEM_UNIF_SUBBRND
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     metric_columns:
     - name: DIST_NUM_TDP
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_VALOR_CUALQUIER_PROMO
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS_CUALQUIER_PROMO
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_VALOR
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: DIST_NUM
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     business_keys:
@@ -414,57 +415,57 @@ sources:
     sql_ref: SEMANTIC_LAYOUTS/SELL_IN/SELL_IN_DICT.txt
     date_column:
       name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       format: yyyy-MM-dd
       requires_cast: false
     grain_columns:
     - name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       role: grain
       glossary_ref: FECHA
     - name: CLIENTE
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: CLIENTE_ID
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: MARCA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
     - name: REGION
-      type: PENDING_SNAPSHOT
+      type: TEXT(12)
       role: grain
       glossary_ref: null
     - name: ID_CEDIS
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: CEDIS_DSC
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: CLUSTER
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: null
     - name: CBU
-      type: PENDING_SNAPSHOT
+      type: TEXT(6)
       role: grain
       glossary_ref: null
     - name: MES
-      type: PENDING_SNAPSHOT
+      type: NUMBER(38,0)
       role: grain
       glossary_ref: MES
     metric_columns:
     - name: VOLUMEN
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VALOR
-      type: PENDING_SNAPSHOT
+      type: NUMBER(18,6)
       role: metric
       glossary_ref: null
     business_keys:
@@ -494,45 +495,45 @@ sources:
     sql_ref: SEMANTIC_LAYOUTS/SELL_OUT/SELL_OUT_DICT.txt
     date_column:
       name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       format: yyyy-MM-dd
       requires_cast: false
     grain_columns:
     - name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       role: grain
       glossary_ref: FECHA
     - name: CADENA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: CADENA
     - name: FORMATO_CADENA
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: MARCA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
     metric_columns:
     - name: VOL_SELL_OUT
-      type: PENDING_SNAPSHOT
+      type: NUMBER(18,6)
       role: metric
       glossary_ref: VOL_SELL_OUT
     - name: PCS_SELL_OUT
-      type: PENDING_SNAPSHOT
+      type: NUMBER(18,6)
       role: metric
       glossary_ref: PCS_SELL_OUT
     - name: AMOUNT_SELL_OUT
-      type: PENDING_SNAPSHOT
+      type: NUMBER(18,6)
       role: metric
       glossary_ref: null
     - name: VOL_INV
-      type: PENDING_SNAPSHOT
+      type: NUMBER(18,6)
       role: metric
       glossary_ref: null
     - name: PCS_INV
-      type: PENDING_SNAPSHOT
+      type: NUMBER(18,6)
       role: metric
       glossary_ref: null
     business_keys:
@@ -555,37 +556,37 @@ sources:
     sql_ref: SEMANTIC_LAYOUTS/WASTE/DATA_WASTE.txt
     date_column:
       name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       format: yyyy-MM-dd
       requires_cast: false
     grain_columns:
     - name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       role: grain
       glossary_ref: FECHA
     - name: CADENA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: CADENA
     - name: MARCA
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
     - name: CANAL
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: CANAL
     - name: FUENTE
-      type: PENDING_SNAPSHOT
+      type: TEXT(10)
       role: grain
       glossary_ref: null
     - name: FORMATO
-      type: PENDING_SNAPSHOT
+      type: TEXT(16777216)
       role: grain
       glossary_ref: null
     metric_columns:
     - name: WASTE_AMOUNT
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     business_keys:
@@ -609,73 +610,73 @@ sources:
     sql_ref: SEMANTIC_LAYOUTS/WATER_NEILSEN/RETAIL_WATER.txt
     date_column:
       name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       format: yyyy-MM-dd
       requires_cast: false
     grain_columns:
     - name: FECHA
-      type: PENDING_SNAPSHOT
+      type: DATE
       role: grain
       glossary_ref: FECHA
     - name: SOURCE
-      type: PENDING_SNAPSHOT
+      type: TEXT(50)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_BRAND
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_SEGMENT_2
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: MKT_SHORT_DSC
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: SEGMENTO_LOCAL
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_MANUF_DAN
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_BRAND_DAN
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: SUBSEGMENTO_LOCAL
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     metric_columns:
     - name: VTAS_VALOR
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: DIST_NUM_TIENDAS_VENDEDORAS
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: DIST_POND_REACH
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: PRECIO_LITROS_PROM
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_LITROS
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: PRECIO_UNDS_PROM
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     business_keys:
@@ -707,117 +708,117 @@ sources:
     sql_ref: SEMANTIC_LAYOUTS/WATER_NEILSEN/SCANTRACK_WATER.txt
     date_column:
       name: PER_DATE
-      type: PENDING_SNAPSHOT
+      type: DATE
       format: yyyy-MM-dd
       requires_cast: false
     grain_columns:
     - name: PER_DATE
-      type: PENDING_SNAPSHOT
+      type: DATE
       role: grain
       glossary_ref: null
     - name: ITM_SEGMENT_2
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_BRAND
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBBRND
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: MKT_SHORT_DSC
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBSEG_DAN_1
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: SEGMENTO_LOCAL
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: PRESENTACION_LOCAL
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_MANUF_DAN
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_BRND_DAN
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBBRND_DAN
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: TIPO
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBSEG_DAN_2
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBSEG_DAN_3
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBSEG_DAN_4
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBSEG_DAN_5
-      type: PENDING_SNAPSHOT
+      type: TEXT
       role: grain
       glossary_ref: null
     metric_columns:
     - name: DIST_POND
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_VALOR_CUALQUIER_PROMO
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_LITRES_CUALQUIER_PROMO
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: DIST_NUM
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS_CUALQUIER_PROMO
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_LITRES
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: DIST_POND_TDP
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: DIST_NUM_CUALQUIER_PROMO
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: DIST_POND_CUALQUIER_PROMO
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     - name: VTAS_VALOR
-      type: PENDING_SNAPSHOT
+      type: FLOAT
       role: metric
       glossary_ref: null
     business_keys:

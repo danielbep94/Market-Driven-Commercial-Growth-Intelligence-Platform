@@ -78,6 +78,54 @@ EXTRACT_KEYS: list[str] = [
 
 PENDING_TYPE: str = "PENDING_SNAPSHOT"
 
+# ---------------------------------------------------------------------------
+# Derived-column type overrides — for columns created by SQL CTEs/aliases
+# that don't exist in INFORMATION_SCHEMA.  Types are inferred from the
+# semantic SQL expressions.
+# ---------------------------------------------------------------------------
+DERIVED_COLUMN_TYPES: dict[str, str] = {
+    # ── Nielsen numeric metrics (all sources) ──
+    "VTAS_KGS": "FLOAT", "VTAS_UNDS": "FLOAT", "VTAS_VALOR": "FLOAT",
+    "VTAS_LITROS": "FLOAT", "VTAS_LITRES": "FLOAT",
+    "VTAS_UNDS_CUALQUIER_PROMO": "FLOAT", "VTAS_VALOR_CUALQUIER_PROMO": "FLOAT",
+    "VTAS_LITRES_CUALQUIER_PROMO": "FLOAT",
+    "PRECIO_KGS_PROM": "FLOAT", "PRECIO_UNDS_PROM": "FLOAT",
+    "PRECIO_LITROS_PROM": "FLOAT",
+    "RATIO_VTAS_KGS": "FLOAT", "RATIO_VTAS_UNDS": "FLOAT",
+    "RATIO_VTAS_VALOR": "FLOAT",
+    "DIST_NUM": "FLOAT", "DIST_NUM_TDP": "FLOAT",
+    "DIST_NUM_CUALQUIER_PROMO": "FLOAT",
+    "DIST_NUM_TIENDAS_VENDEDORAS": "FLOAT",
+    "DIST_POND": "FLOAT", "DIST_POND_REACH": "FLOAT",
+    "DIST_POND_SIN_VTAS": "FLOAT", "DIST_POND_TDP_REACH": "FLOAT",
+    "DIST_POND_TDP": "FLOAT", "DIST_POND_CUALQUIER_PROMO": "FLOAT",
+    # ── Nielsen text dimensions (aliased from source columns) ──
+    "MKT_SHORT_DSC": "TEXT", "ITM_UNIF_BRAND": "TEXT", "ITM_UNIF_BRND": "TEXT",
+    "ITM_UNIF_MANUF": "TEXT", "ITM_UNIF_MANUF_DAN": "TEXT",
+    "ITM_UNIF_BRAND_DAN": "TEXT", "ITM_UNIF_BRND_DAN": "TEXT",
+    "ITM_UNIF_SUBBRND": "TEXT", "ITM_UNIF_SUBBRND_DAN": "TEXT",
+    "ITM_UNIF_SUBSEG_DAN": "TEXT",
+    "ITM_UNIF_SUBSEG_DAN_1": "TEXT", "ITM_UNIF_SUBSEG_DAN_2": "TEXT",
+    "ITM_UNIF_SUBSEG_DAN_3": "TEXT", "ITM_UNIF_SUBSEG_DAN_4": "TEXT",
+    "ITM_UNIF_SUBSEG_DAN_5": "TEXT",
+    "ITM_SUBSEG_UNIF": "TEXT", "ITM_SEGMENT_2": "TEXT",
+    "ITEM_UNIF_SUBBRND": "TEXT",
+    "SEGMENTACION_2025": "TEXT", "SEGMENTO_LOCAL": "TEXT",
+    "SUBSEGMENTO_LOCAL": "TEXT", "PRESENTACION_LOCAL": "TEXT", "TIPO": "TEXT",
+    "SUBCATEGORIA": "TEXT",
+    "PER_DATE": "DATE",
+    # ── SELL_IN derived ──
+    "VOLUMEN": "FLOAT",  # SUM(LITER) or SUM(BIL_NET_KGR/1000)
+    "CEDIS_DSC": "TEXT", "CLIENTE": "TEXT",
+    "CLIENTE_ID": "TEXT", "ID_CEDIS": "TEXT",
+    # ── SELL_OUT derived ──
+    "FORMATO_CADENA": "TEXT",
+    # ── WASTE derived ──
+    "WASTE_AMOUNT": "FLOAT",
+    # ── Water Retail derived ──
+    "SOURCE": "TEXT",
+}
+
 
 # ---------------------------------------------------------------------------
 # Helpers — file discovery & hashing
@@ -301,6 +349,20 @@ def parse_layout_file(path: Path) -> dict[str, dict[str, Any]]:
 def load_column_types() -> dict[str, str]:
     """Load column type mapping from the snapshot YAML.
 
+    The snapshot has the structure::
+
+        tables:
+          PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM:
+            columns:
+              CBU_ID:
+                data_type: NUMBER
+                numeric_precision: 1
+                numeric_scale: 0
+
+    We flatten this into ``{COLUMN_NAME: TYPE_STRING}`` for easy lookup.
+    For columns with precision/scale, the type string is formatted as
+    ``NUMBER(38,6)``; for text with max length, as ``TEXT(16777216)``.
+
     Returns
     -------
     dict[str, str]
@@ -312,32 +374,48 @@ def load_column_types() -> dict[str, str]:
     with open(COLUMN_TYPES_PATH, encoding="utf-8") as fh:
         data = yaml.safe_load(fh)
 
-    if not data:
+    if not data or not isinstance(data, dict):
         return {}
 
-    # The snapshot may store types in various structures.  We support:
-    #   - flat dict  {col: type}
-    #   - list of dicts [{column: ..., type: ...}]
-    #   - dict with a top-level key wrapping either of the above
-    if isinstance(data, dict):
-        # Unwrap a single top-level key if present
-        keys = list(data.keys())
-        if len(keys) == 1 and isinstance(data[keys[0]], (list, dict)):
-            data = data[keys[0]]
+    tables = data.get("tables", {})
+    if not tables:
+        return {}
 
     type_map: dict[str, str] = {}
-    if isinstance(data, dict):
-        for col, typ in data.items():
-            type_map[str(col).upper()] = str(typ)
-    elif isinstance(data, list):
-        for entry in data:
-            if isinstance(entry, dict):
-                col = entry.get("column") or entry.get("column_name") or entry.get("name")
-                typ = entry.get("type") or entry.get("data_type")
-                if col and typ:
-                    type_map[str(col).upper()] = str(typ)
+    for _table_fqn, table_info in tables.items():
+        if not isinstance(table_info, dict):
+            continue
+        columns = table_info.get("columns", {})
+        if not isinstance(columns, dict):
+            continue
+        for col_name, col_meta in columns.items():
+            if not isinstance(col_meta, dict):
+                continue
+            raw_type = col_meta.get("data_type", "")
+            # Build a precise type string with precision/scale or length
+            type_str = _format_type_string(raw_type, col_meta)
+            type_map[str(col_name).upper()] = type_str
 
     return type_map
+
+
+def _format_type_string(raw_type: str, col_meta: dict) -> str:
+    """Format a Snowflake type into a readable string.
+
+    Examples: ``NUMBER(38,6)``, ``TEXT(100)``, ``DATE``, ``BOOLEAN``.
+    """
+    raw_type = str(raw_type).upper()
+    precision = col_meta.get("numeric_precision")
+    scale = col_meta.get("numeric_scale")
+    max_len = col_meta.get("character_maximum_length")
+
+    if precision is not None and raw_type in ("NUMBER", "DECIMAL", "NUMERIC"):
+        if scale is not None and int(scale) > 0:
+            return f"{raw_type}({precision},{scale})"
+        return f"{raw_type}({precision},0)"
+    if max_len is not None and raw_type in ("TEXT", "VARCHAR", "STRING", "CHAR"):
+        return f"{raw_type}({max_len})"
+    return raw_type
 
 
 def load_glossary() -> set[str]:
@@ -422,11 +500,21 @@ def _build_column_entry(
     type_map: dict[str, str],
     glossary: set[str],
 ) -> dict[str, Any]:
-    """Create a single column entry dict for the registry."""
+    """Create a single column entry dict for the registry.
+
+    Type resolution order:
+    1. ``type_map`` (from Snowflake INFORMATION_SCHEMA snapshot)
+    2. ``DERIVED_COLUMN_TYPES`` (SQL-computed columns not in source tables)
+    3. ``PENDING_SNAPSHOT`` (fallback — unknown type)
+    """
     col_upper = col_name.upper()
+    col_type = type_map.get(
+        col_upper,
+        DERIVED_COLUMN_TYPES.get(col_upper, PENDING_TYPE),
+    )
     return {
         "name": col_name,
-        "type": type_map.get(col_upper, PENDING_TYPE),
+        "type": col_type,
         "role": role,
         "glossary_ref": col_name if col_upper in glossary else None,
     }
@@ -474,7 +562,7 @@ def build_source_entry(
         "sql_ref": source_file,
         "date_column": {
             "name": date_col,
-            "type": type_map.get(date_col_upper, PENDING_TYPE) if date_col else PENDING_TYPE,
+            "type": type_map.get(date_col_upper, DERIVED_COLUMN_TYPES.get(date_col_upper, PENDING_TYPE)) if date_col else PENDING_TYPE,
             "format": meta.get("date_format", ""),
             "requires_cast": bool(meta.get("date_requires_cast", False)),
         },
