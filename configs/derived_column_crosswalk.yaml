@@ -1,0 +1,571 @@
+# =============================================================================
+# Derived Column Crosswalk — SQL Alias → Source Column Traceability
+# =============================================================================
+# Maps each SQL-computed/aliased column in the semantic layouts back to its
+# source table and column in Snowflake. This enables:
+#   1. Precise type resolution (from INFORMATION_SCHEMA, not inference)
+#   2. Impact analysis when source columns change
+#   3. Full data lineage traceability
+#
+# type_source: how the output type is determined
+#   - "direct_alias"  → same type as source column (SELECT src AS alias)
+#   - "cast"          → explicit cast (TO_DATE, TRY_TO_NUMBER, etc.)
+#   - "aggregation"   → SUM/AVG/COUNT of source column
+#   - "case_expr"     → CASE WHEN logic (output type = TEXT unless numeric)
+#   - "constant"      → hardcoded literal value
+#
+# Created: 2026-06-21
+# =============================================================================
+
+derived_columns:
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DATA_WATER_RETAIL_NIELSEN — 16 derived columns
+  # Source tables: VW_IND_AGUA_BNF_RT_NLSN_* (PRD_MEX.MEX_DSP_DPH_MKT)
+  # ═══════════════════════════════════════════════════════════════════════════
+  - output_column: FECHA
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_PER_DIM
+    source_column: period_ending_datetime
+    source_type: TIMESTAMP_NTZ
+    output_type: DATE
+    type_source: cast
+    transformation: "TO_DATE(L.\"period_ending_datetime\")"
+    layouts: [DATA_WATER_RETAIL_NIELSEN]
+
+  - output_column: SOURCE
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: constant
+    transformation: "'WATERS RIE' (literal)"
+    layouts: [DATA_WATER_RETAIL_NIELSEN]
+
+  - output_column: ITM_UNIF_MANUF
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM
+    source_column: CSTM_321331
+    source_type: TEXT(250)
+    output_type: TEXT(250)
+    type_source: direct_alias
+    transformation: "A.\"CSTM_321331\" AS ITM_UNIF_MANUF"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_UNIF_BRAND
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM
+    source_column: CSTM_310589
+    source_type: TEXT(250)
+    output_type: TEXT(250)
+    type_source: direct_alias
+    transformation: "A.\"CSTM_310589\" AS ITM_UNIF_BRAND"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN, DATA_PB_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_UNIF_SUBBRND
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM
+    source_column: CSTM_972397
+    source_type: TEXT(250)
+    output_type: TEXT(250)
+    type_source: direct_alias
+    transformation: "A.\"CSTM_972397\" AS ITM_UNIF_SUBBRND"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_SEGMENT_2
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM
+    source_column: CSTM_421268
+    source_type: TEXT(250)
+    output_type: TEXT(250)
+    type_source: direct_alias
+    transformation: "A.\"CSTM_421268\" AS ITM_SEGMENT_2"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: MKT_SHORT_DSC
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_MKT_DIM
+    source_column: MRKT_DSC_SHRT
+    source_type: TEXT(250)
+    output_type: TEXT(250)
+    type_source: direct_alias
+    transformation: "K.\"MRKT_DSC_SHRT\" AS MKT_SHORT_DSC"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN, DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN, DATA_PB_SCANTRACK_NIELSEN]
+
+  - output_column: SEGMENTO_LOCAL
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN ITM_SEGMENT_2 IN (...) THEN 'SABOR' WHEN ... THEN 'NATURAL' ELSE ITM_SEGMENT_2 END"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: SUBSEGMENTO_LOCAL
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN SEGMENTO_LOCAL = 'NATURAL' AND PRESENTACION_LOCAL = 'ADULTO' THEN 'NATURAL CORE' ..."
+    layouts: [DATA_WATER_RETAIL_NIELSEN]
+
+  - output_column: PRESENTACION_LOCAL
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN ITM_UNIF_SUBBRND IN (...) THEN 'ADULTO' ..."
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_UNIF_MANUF_DAN
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN ITM_UNIF_MANUF IN (...) THEN 'COCA-COLA' ... ELSE ITM_UNIF_MANUF END"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_UNIF_BRAND_DAN
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN ... ELSE ITM_UNIF_BRAND END"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_UNIF_BRND_DAN
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "Alias variant of ITM_UNIF_BRAND_DAN in Scantrack"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  # ── Retail Water pivoted metrics (all from FACT_VALUE via SUM+CASE) ──
+  - output_column: VTAS_VALOR
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas Valor' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN, DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN, DATA_PB_SCANTRACK_NIELSEN]
+
+  - output_column: VTAS_UNDS
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas Unds' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_WATER_SCANTRACK_NIELSEN, DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN, DATA_PB_SCANTRACK_NIELSEN]
+
+  - output_column: VTAS_LITROS
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas (LITRES)' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_RETAIL_NIELSEN]
+
+  - output_column: VTAS_LITRES
+    source_table: VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas (LITRES)' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: VTAS_KGS
+    source_table: VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas (KGS)' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: DIST_NUM
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Num.' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN, DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN, DATA_PB_SCANTRACK_NIELSEN]
+
+  - output_column: DIST_NUM_TDP
+    source_table: VW_SUST_LECHE_ST_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Num. TDP' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_PB_SCANTRACK_NIELSEN]
+
+  - output_column: DIST_NUM_TIENDAS_VENDEDORAS
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Num. Tiendas Vendedoras (C)' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_RETAIL_NIELSEN]
+
+  - output_column: DIST_NUM_CUALQUIER_PROMO
+    source_table: VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Num. Cualquier Promo' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: DIST_POND
+    source_table: VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Pond.' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: DIST_POND_REACH
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Pond. Reach' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: DIST_POND_SIN_VTAS
+    source_table: VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Pond. Sin Vtas' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: DIST_POND_TDP_REACH
+    source_table: VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Pond. TDP Reach' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: DIST_POND_TDP
+    source_table: VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Pond. TDP' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: DIST_POND_CUALQUIER_PROMO
+    source_table: VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Pond. Cualquier Promo' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: PRECIO_KGS_PROM
+    source_table: VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Precio (KGS) Prom.' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: PRECIO_UNDS_PROM
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Precio Unds Prom.' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_RETAIL_NIELSEN, DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: PRECIO_LITROS_PROM
+    source_table: VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Precio (LITRES) Prom.' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_RETAIL_NIELSEN]
+
+  - output_column: RATIO_VTAS_KGS
+    source_table: VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Ratio Vtas (KGS)' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: RATIO_VTAS_UNDS
+    source_table: VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Ratio Vtas Unds' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: RATIO_VTAS_VALOR
+    source_table: VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Ratio Vtas Valor' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: VTAS_UNDS_CUALQUIER_PROMO
+    source_table: VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas Unds Cualquier Promo' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN, DATA_PB_SCANTRACK_NIELSEN]
+
+  - output_column: VTAS_VALOR_CUALQUIER_PROMO
+    source_table: VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas Valor Cualquier Promo' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN, DATA_PB_SCANTRACK_NIELSEN]
+
+  - output_column: VTAS_LITRES_CUALQUIER_PROMO
+    source_table: VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT
+    source_column: FACT_VALUE
+    source_type: NUMBER(38,9)
+    output_type: NUMBER(38,9)
+    type_source: aggregation
+    transformation: "SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas (LITRES) Cualquier Promo' THEN FACT_VALUE ELSE 0 END)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN — additional derived columns
+  # Source tables: VW_IR_YOG_GEL_MT_NLSN_* (PRD_MEX.MEX_DSP_DPH_MKT)
+  # ═══════════════════════════════════════════════════════════════════════════
+  - output_column: ITM_UNIF_BRND
+    source_table: VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
+    source_column: INP_56985
+    source_type: TEXT(250)
+    output_type: TEXT(250)
+    type_source: direct_alias
+    transformation: "A.\"INP_56985\" AS ITM_UNIF_BRND"
+    layouts: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_UNIF_SUBSEG_DAN
+    source_table: VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
+    source_column: INP_57006
+    source_type: TEXT(250)
+    output_type: TEXT(250)
+    type_source: direct_alias
+    transformation: "A.\"INP_57006\" AS ITM_UNIF_SUBSEG_DAN"
+    layouts: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_SUBSEG_UNIF
+    source_table: VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
+    source_column: INP_57063
+    source_type: TEXT(250)
+    output_type: TEXT(250)
+    type_source: direct_alias
+    transformation: "A.\"INP_57063\" AS ITM_SUBSEG_UNIF"
+    layouts: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  - output_column: SEGMENTACION_2025
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN ITM_UNIF_SUBSEG_DAN IN (...) THEN 'CORE' ..."
+    layouts: [DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DATA_WATER_SCANTRACK_NIELSEN — additional derived columns
+  # Source tables: VW_IND_AGUA_BNF_ST_NLSN_* (PRD_MEX.MEX_DSP_DPH_MKT)
+  # ═══════════════════════════════════════════════════════════════════════════
+  - output_column: ITM_UNIF_SUBBRND_DAN
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN ... ELSE ITM_UNIF_SUBBRND END"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_UNIF_SUBSEG_DAN_1
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: constant
+    transformation: "'TOTAL WATERS' (literal)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN, DATA_WATER_RETAIL_NIELSEN]
+
+  - output_column: ITM_UNIF_SUBSEG_DAN_2
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN ... END (sub-segment classification)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_UNIF_SUBSEG_DAN_3
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN ... END (sub-segment level 3)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_UNIF_SUBSEG_DAN_4
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN ... END (sub-segment level 4)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: ITM_UNIF_SUBSEG_DAN_5
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN ... END (sub-segment level 5)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: TIPO
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: case_expr
+    transformation: "CASE WHEN ... END (type classification)"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  - output_column: PER_DATE
+    source_table: VW_IND_AGUA_BNF_ST_NLSN_PER_DIM
+    source_column: period_ending_datetime
+    source_type: TIMESTAMP_NTZ
+    output_type: DATE
+    type_source: cast
+    transformation: "TO_DATE(L.\"period_ending_datetime\")"
+    layouts: [DATA_WATER_SCANTRACK_NIELSEN]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DATA_PB_SCANTRACK_NIELSEN — additional derived columns
+  # Source tables: VW_SUST_LECHE_ST_NLSN_* (PRD_MEX.MEX_DSP_DPH_MKT)
+  # ═══════════════════════════════════════════════════════════════════════════
+  - output_column: ITEM_UNIF_SUBBRND
+    source_table: VW_SUST_LECHE_ST_NLSN_PROD_DIM
+    source_column: INP_56991
+    source_type: TEXT(250)
+    output_type: TEXT(250)
+    type_source: direct_alias
+    transformation: "A.\"INP_56991\" AS ITEM_UNIF_SUBBRND"
+    layouts: [DATA_PB_SCANTRACK_NIELSEN]
+
+  - output_column: SUBCATEGORIA
+    source_table: null
+    source_column: null
+    source_type: null
+    output_type: TEXT
+    type_source: constant
+    transformation: "'SUSTITUTOS DE LECHE' (literal)"
+    layouts: [DATA_PB_SCANTRACK_NIELSEN]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SELL_IN — derived columns
+  # Source tables: VW_FACT_RNV, V_D_CLIENT, V_D_ITEM (PRD_MEX.MEX_DSP_OTC)
+  # ═══════════════════════════════════════════════════════════════════════════
+  - output_column: VOLUMEN
+    source_table: VW_FACT_RNV
+    source_column: LITER / BIL_NET_KGR
+    source_type: NUMBER(31,15) / NUMBER(18,6)
+    output_type: NUMBER(31,15)
+    type_source: aggregation
+    transformation: "SUM(LITER) for WATERS, SUM(BIL_NET_KGR/1000) for EDP"
+    layouts: [SELL_IN]
+
+  - output_column: CEDIS_DSC
+    source_table: V_D_CLIENT
+    source_column: CUS_SAL_PLT_DSC
+    source_type: TEXT(250)
+    output_type: TEXT(250)
+    type_source: direct_alias
+    transformation: "c.CUS_SAL_PLT_DSC AS CEDIS_DSC"
+    layouts: [SELL_IN]
+
+  - output_column: ID_CEDIS
+    source_table: V_D_CLIENT
+    source_column: CUS_SAL_PLT_COD
+    source_type: TEXT(200)
+    output_type: TEXT(200)
+    type_source: direct_alias
+    transformation: "c.CUS_SAL_PLT_COD AS ID_CEDIS"
+    layouts: [SELL_IN]
+
+  - output_column: CLIENTE
+    source_table: V_D_CLIENT
+    source_column: CUS_NAM_DSC
+    source_type: TEXT(200)
+    output_type: TEXT(200)
+    type_source: direct_alias
+    transformation: "c.CUS_NAM_DSC AS CLIENTE"
+    layouts: [SELL_IN]
+
+  - output_column: CLIENTE_ID
+    source_table: VW_FACT_RNV
+    source_column: SHP_CUS_IDT
+    source_type: TEXT(30)
+    output_type: TEXT(30)
+    type_source: direct_alias
+    transformation: "f.SHP_CUS_IDT AS CLIENTE_ID"
+    layouts: [SELL_IN]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SELL_OUT — derived columns
+  # Source table: VW_FACT_SELL_OUT (PRD_MDP.MDP_DSP)
+  # ═══════════════════════════════════════════════════════════════════════════
+  - output_column: FORMATO_CADENA
+    source_table: VW_D_STORE_RM
+    source_column: FORMAT
+    source_type: TEXT(46)
+    output_type: TEXT(46)
+    type_source: direct_alias
+    transformation: "s.FORMAT AS FORMATO_CADENA"
+    layouts: [SELL_OUT]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DATA_WASTE — derived columns
+  # Source table: VW_WASTE (PRD_MDP.MDP_STG)
+  # ═══════════════════════════════════════════════════════════════════════════
+  - output_column: WASTE_AMOUNT
+    source_table: VW_WASTE
+    source_column: "Waste ($)"
+    source_type: FLOAT
+    output_type: FLOAT
+    type_source: direct_alias
+    transformation: "\"Waste ($)\" AS WASTE_AMOUNT"
+    layouts: [DATA_WASTE]

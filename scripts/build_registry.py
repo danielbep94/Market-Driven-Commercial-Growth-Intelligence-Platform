@@ -80,50 +80,73 @@ PENDING_TYPE: str = "PENDING_SNAPSHOT"
 
 # ---------------------------------------------------------------------------
 # Derived-column type overrides — for columns created by SQL CTEs/aliases
-# that don't exist in INFORMATION_SCHEMA.  Types are inferred from the
-# semantic SQL expressions.
+# that don't exist in INFORMATION_SCHEMA.  Types are traced from the actual
+# source columns via configs/derived_column_crosswalk.yaml.
+#
+# Lineage: configs/derived_column_crosswalk.yaml documents the full
+#          source_table → source_column → transformation → output_type chain.
 # ---------------------------------------------------------------------------
 DERIVED_COLUMN_TYPES: dict[str, str] = {
-    # ── Nielsen numeric metrics (all sources) ──
-    "VTAS_KGS": "FLOAT", "VTAS_UNDS": "FLOAT", "VTAS_VALOR": "FLOAT",
-    "VTAS_LITROS": "FLOAT", "VTAS_LITRES": "FLOAT",
-    "VTAS_UNDS_CUALQUIER_PROMO": "FLOAT", "VTAS_VALOR_CUALQUIER_PROMO": "FLOAT",
-    "VTAS_LITRES_CUALQUIER_PROMO": "FLOAT",
-    "PRECIO_KGS_PROM": "FLOAT", "PRECIO_UNDS_PROM": "FLOAT",
-    "PRECIO_LITROS_PROM": "FLOAT",
-    "RATIO_VTAS_KGS": "FLOAT", "RATIO_VTAS_UNDS": "FLOAT",
-    "RATIO_VTAS_VALOR": "FLOAT",
-    "DIST_NUM": "FLOAT", "DIST_NUM_TDP": "FLOAT",
-    "DIST_NUM_CUALQUIER_PROMO": "FLOAT",
-    "DIST_NUM_TIENDAS_VENDEDORAS": "FLOAT",
-    "DIST_POND": "FLOAT", "DIST_POND_REACH": "FLOAT",
-    "DIST_POND_SIN_VTAS": "FLOAT", "DIST_POND_TDP_REACH": "FLOAT",
-    "DIST_POND_TDP": "FLOAT", "DIST_POND_CUALQUIER_PROMO": "FLOAT",
-    # ── Nielsen text dimensions (aliased from source columns) ──
-    "MKT_SHORT_DSC": "TEXT", "ITM_UNIF_BRAND": "TEXT", "ITM_UNIF_BRND": "TEXT",
-    "ITM_UNIF_MANUF": "TEXT", "ITM_UNIF_MANUF_DAN": "TEXT",
-    "ITM_UNIF_BRAND_DAN": "TEXT", "ITM_UNIF_BRND_DAN": "TEXT",
-    "ITM_UNIF_SUBBRND": "TEXT", "ITM_UNIF_SUBBRND_DAN": "TEXT",
-    "ITM_UNIF_SUBSEG_DAN": "TEXT",
-    "ITM_UNIF_SUBSEG_DAN_1": "TEXT", "ITM_UNIF_SUBSEG_DAN_2": "TEXT",
-    "ITM_UNIF_SUBSEG_DAN_3": "TEXT", "ITM_UNIF_SUBSEG_DAN_4": "TEXT",
-    "ITM_UNIF_SUBSEG_DAN_5": "TEXT",
-    "ITM_SUBSEG_UNIF": "TEXT", "ITM_SEGMENT_2": "TEXT",
-    "ITEM_UNIF_SUBBRND": "TEXT",
-    "SEGMENTACION_2025": "TEXT", "SEGMENTO_LOCAL": "TEXT",
-    "SUBSEGMENTO_LOCAL": "TEXT", "PRESENTACION_LOCAL": "TEXT", "TIPO": "TEXT",
-    "SUBCATEGORIA": "TEXT",
-    "PER_DATE": "DATE",
-    # ── SELL_IN derived ──
-    "VOLUMEN": "FLOAT",  # SUM(LITER) or SUM(BIL_NET_KGR/1000)
-    "CEDIS_DSC": "TEXT", "CLIENTE": "TEXT",
-    "CLIENTE_ID": "TEXT", "ID_CEDIS": "TEXT",
-    # ── SELL_OUT derived ──
-    "FORMATO_CADENA": "TEXT",
-    # ── WASTE derived ──
-    "WASTE_AMOUNT": "FLOAT",
-    # ── Water Retail derived ──
-    "SOURCE": "TEXT",
+    # ── Nielsen pivoted metrics ──────────────────────────────────────────────
+    # All come from SUM(CASE WHEN ... THEN FACT_VALUE), where FACT_VALUE is
+    # NUMBER(38,9) in all *_AGG_DATA_PVT tables.
+    "VTAS_KGS": "NUMBER(38,9)", "VTAS_UNDS": "NUMBER(38,9)",
+    "VTAS_VALOR": "NUMBER(38,9)", "VTAS_LITROS": "NUMBER(38,9)",
+    "VTAS_LITRES": "NUMBER(38,9)",
+    "VTAS_UNDS_CUALQUIER_PROMO": "NUMBER(38,9)",
+    "VTAS_VALOR_CUALQUIER_PROMO": "NUMBER(38,9)",
+    "VTAS_LITRES_CUALQUIER_PROMO": "NUMBER(38,9)",
+    "PRECIO_KGS_PROM": "NUMBER(38,9)", "PRECIO_UNDS_PROM": "NUMBER(38,9)",
+    "PRECIO_LITROS_PROM": "NUMBER(38,9)",
+    "RATIO_VTAS_KGS": "NUMBER(38,9)", "RATIO_VTAS_UNDS": "NUMBER(38,9)",
+    "RATIO_VTAS_VALOR": "NUMBER(38,9)",
+    "DIST_NUM": "NUMBER(38,9)", "DIST_NUM_TDP": "NUMBER(38,9)",
+    "DIST_NUM_CUALQUIER_PROMO": "NUMBER(38,9)",
+    "DIST_NUM_TIENDAS_VENDEDORAS": "NUMBER(38,9)",
+    "DIST_POND": "NUMBER(38,9)", "DIST_POND_REACH": "NUMBER(38,9)",
+    "DIST_POND_SIN_VTAS": "NUMBER(38,9)",
+    "DIST_POND_TDP_REACH": "NUMBER(38,9)",
+    "DIST_POND_TDP": "NUMBER(38,9)",
+    "DIST_POND_CUALQUIER_PROMO": "NUMBER(38,9)",
+    # ── Nielsen dimension aliases ────────────────────────────────────────────
+    # From PROD_DIM CSTM_*/INP_* columns → all TEXT(250)
+    "MKT_SHORT_DSC": "TEXT(250)",   # ← MRKT_DSC_SHRT in MKT_DIM
+    "ITM_UNIF_BRAND": "TEXT(250)",  # ← CSTM_310589 in PROD_DIM
+    "ITM_UNIF_BRND": "TEXT(250)",   # ← INP_56985 in EDP PROD_DIM
+    "ITM_UNIF_MANUF": "TEXT(250)",  # ← CSTM_321331 / INP_56982
+    "ITM_UNIF_MANUF_DAN": "TEXT(250)",  # CASE expr over CSTM_321331
+    "ITM_UNIF_BRAND_DAN": "TEXT(250)",  # CASE expr over CSTM_310589
+    "ITM_UNIF_BRND_DAN": "TEXT(250)",   # CASE expr over CSTM_310589
+    "ITM_UNIF_SUBBRND": "TEXT(250)",    # ← CSTM_972397
+    "ITM_UNIF_SUBBRND_DAN": "TEXT(250)",  # CASE expr over CSTM_972397
+    "ITM_UNIF_SUBSEG_DAN": "TEXT(250)",   # ← INP_57006
+    "ITM_UNIF_SUBSEG_DAN_1": "TEXT(250)",  # constant 'TOTAL WATERS'
+    "ITM_UNIF_SUBSEG_DAN_2": "TEXT(250)",  # CASE over CSTM_421268
+    "ITM_UNIF_SUBSEG_DAN_3": "TEXT(250)",  # CASE over CSTM_421268+940056
+    "ITM_UNIF_SUBSEG_DAN_4": "TEXT(250)",  # CASE over CTE columns
+    "ITM_UNIF_SUBSEG_DAN_5": "TEXT(250)",  # CASE over CTE columns
+    "ITM_SUBSEG_UNIF": "TEXT(250)",   # ← INP_57063 / CSTM_310594
+    "ITM_SEGMENT_2": "TEXT(250)",     # ← CSTM_421268
+    "ITEM_UNIF_SUBBRND": "TEXT(250)", # ← INP_56991
+    "SEGMENTACION_2025": "TEXT(250)",  # CASE expr multi-column
+    "SEGMENTO_LOCAL": "TEXT(250)",     # CASE over CSTM_421268
+    "SUBSEGMENTO_LOCAL": "TEXT(250)",  # CASE over CTE columns
+    "PRESENTACION_LOCAL": "TEXT(250)", # CASE over multiple CTE columns
+    "TIPO": "TEXT(250)",              # CASE over CSTM_421268
+    "SUBCATEGORIA": "TEXT(250)",      # constant 'SUSTITUTOS DE LECHE'
+    "PER_DATE": "DATE",               # TO_DATE(period_ending_datetime)
+    # ── SELL_IN derived ──────────────────────────────────────────────────────
+    "VOLUMEN": "NUMBER(31,15)",   # SUM(LITER) where LITER is NUMBER(31,15)
+    "CEDIS_DSC": "TEXT(250)",     # ← CUS_SAL_PLT_DSC
+    "CLIENTE": "TEXT(200)",       # ← CUS_NAM_DSC
+    "CLIENTE_ID": "TEXT(30)",     # CONCAT over SHP_CUS_IDT / NEW_CUS_IDT
+    "ID_CEDIS": "TEXT(200)",      # ← CUS_SAL_PLT_COD
+    # ── SELL_OUT derived ─────────────────────────────────────────────────────
+    "FORMATO_CADENA": "TEXT(46)",  # ← FORMAT in VW_D_STORE_RM
+    # ── WASTE derived ────────────────────────────────────────────────────────
+    "WASTE_AMOUNT": "FLOAT",      # ← "Waste ($)" in VW_WASTE
+    # ── Other ────────────────────────────────────────────────────────────────
+    "SOURCE": "TEXT(250)",        # constant literal in SQL
 }
 
 

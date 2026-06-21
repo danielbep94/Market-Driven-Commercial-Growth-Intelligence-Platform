@@ -5,7 +5,7 @@
 
 _meta:
   generated_by: scripts/build_registry.py
-  generated_at: '2026-06-21T04:37:35Z'
+  generated_at: '2026-06-21T04:46:56Z'
   input_hash: sha256:ad57dee8e9ec2a103ae5fa1c1c24ba9e13cd13fc0c64e1b3ef5553504d3bb9a6
   input_file_hashes:
     SEMANTIC_LAYOUTS/EDP_NIELSEN/EDP_MARKET.txt: sha256:014681f9b0cf9be128b0e826b1689a3734cdcad11d8d251e9bb4f8a7427d5980
@@ -43,76 +43,76 @@ sources:
       role: grain
       glossary_ref: FECHA
     - name: ITM_UNIF_SUBSEG_DAN
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: SEGMENTACION_2025
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_SUBSEG_UNIF
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_MANUF
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_BRND
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: MKT_SHORT_DSC
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     metric_columns:
     - name: VTAS_VALOR
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: PRECIO_UNDS_PROM
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: RATIO_VTAS_VALOR
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: RATIO_VTAS_UNDS
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: PRECIO_KGS_PROM
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_KGS
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: RATIO_VTAS_KGS
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: DIST_POND_REACH
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: DIST_NUM
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: DIST_POND_SIN_VTAS
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: DIST_POND_TDP_REACH
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     business_keys:
@@ -352,44 +352,44 @@ sources:
       role: grain
       glossary_ref: FECHA
     - name: ITM_UNIF_BRAND
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: MKT_SHORT_DSC
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: SUBCATEGORIA
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: SUBCATEGORIA
     - name: ITEM_UNIF_SUBBRND
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     metric_columns:
     - name: DIST_NUM_TDP
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_VALOR_CUALQUIER_PROMO
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS_CUALQUIER_PROMO
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_VALOR
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: DIST_NUM
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     business_keys:
@@ -424,11 +424,11 @@ sources:
       role: grain
       glossary_ref: FECHA
     - name: CLIENTE
-      type: TEXT
+      type: TEXT(200)
       role: grain
       glossary_ref: null
     - name: CLIENTE_ID
-      type: TEXT
+      type: TEXT(30)
       role: grain
       glossary_ref: null
     - name: MARCA
@@ -440,11 +440,11 @@ sources:
       role: grain
       glossary_ref: null
     - name: ID_CEDIS
-      type: TEXT
+      type: TEXT(200)
       role: grain
       glossary_ref: null
     - name: CEDIS_DSC
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: CLUSTER
@@ -461,7 +461,7 @@ sources:
       glossary_ref: MES
     metric_columns:
     - name: VOLUMEN
-      type: FLOAT
+      type: NUMBER(31,15)
       role: metric
       glossary_ref: null
     - name: VALOR
@@ -508,7 +508,7 @@ sources:
       role: grain
       glossary_ref: CADENA
     - name: FORMATO_CADENA
-      type: TEXT
+      type: TEXT(46)
       role: grain
       glossary_ref: null
     - name: MARCA
@@ -623,60 +623,60 @@ sources:
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_BRAND
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_SEGMENT_2
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: MKT_SHORT_DSC
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: SEGMENTO_LOCAL
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_MANUF_DAN
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_BRAND_DAN
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: SUBSEGMENTO_LOCAL
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     metric_columns:
     - name: VTAS_VALOR
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: DIST_NUM_TIENDAS_VENDEDORAS
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: DIST_POND_REACH
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: PRECIO_LITROS_PROM
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_LITROS
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: PRECIO_UNDS_PROM
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     business_keys:
@@ -717,108 +717,108 @@ sources:
       role: grain
       glossary_ref: null
     - name: ITM_SEGMENT_2
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_BRAND
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBBRND
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: MKT_SHORT_DSC
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBSEG_DAN_1
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: SEGMENTO_LOCAL
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: PRESENTACION_LOCAL
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_MANUF_DAN
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_BRND_DAN
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBBRND_DAN
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: TIPO
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBSEG_DAN_2
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBSEG_DAN_3
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBSEG_DAN_4
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     - name: ITM_UNIF_SUBSEG_DAN_5
-      type: TEXT
+      type: TEXT(250)
       role: grain
       glossary_ref: null
     metric_columns:
     - name: DIST_POND
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_VALOR_CUALQUIER_PROMO
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_LITRES_CUALQUIER_PROMO
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: DIST_NUM
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS_CUALQUIER_PROMO
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_LITRES
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_UNDS
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: DIST_POND_TDP
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: DIST_NUM_CUALQUIER_PROMO
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: DIST_POND_CUALQUIER_PROMO
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     - name: VTAS_VALOR
-      type: FLOAT
+      type: NUMBER(38,9)
       role: metric
       glossary_ref: null
     business_keys:
