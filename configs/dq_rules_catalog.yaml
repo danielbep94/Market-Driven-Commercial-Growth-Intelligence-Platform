@@ -22,34 +22,43 @@ DATA_MKT_OFF:
   MARCA:
     mandatory: true
     severity: CRITICAL
+    column_type: TEXT(16777216)
     description: "Brand must always be populated — primary business dimension"
   FECHA:
     mandatory: true
     severity: CRITICAL
+    column_type: DATE
     description: "Campaign date — required for temporal joins"
   CAMPANA:
     mandatory: false
     severity: LOW
+    column_type: TEXT(16777216)
     description: "Campaign name — informational, used for domain profiling"
   MEDIO:
     mandatory: false
     severity: MEDIUM
+    column_type: TEXT(16777216)
     description: "Media type (TV, OOH, Radio, Print, etc.)"
   SOPORTE_PLATAFORMA:
     mandatory: false
     severity: MEDIUM
+    column_type: TEXT(16777216)
+    canonical_name: PLATAFORMA
     description: "Platform / support — media placement"
   CATEGORIA:
     mandatory: false
     severity: MEDIUM
+    column_type: TEXT(16777216)
     description: "Product category"
   CLASE:
     mandatory: false
     severity: MEDIUM
+    column_type: TEXT(16777216)
     description: "Media class — sub-classification of media type"
   INVERSION_REAL:
     mandatory: false
     severity: MEDIUM
+    column_type: FLOAT
     value_range:
       min: 0
       max: 500000000
@@ -57,6 +66,7 @@ DATA_MKT_OFF:
   IMPACTOS_HT:
     mandatory: false
     severity: MEDIUM
+    column_type: FLOAT
     value_range:
       min: 0
       max: 1000000000
@@ -71,34 +81,43 @@ DATA_MKT_ON:
   MARCA:
     mandatory: true
     severity: CRITICAL
+    column_type: TEXT(16777216)
     description: "Brand must always be populated — primary business dimension"
   FECHA:
     mandatory: true
     severity: CRITICAL
+    column_type: DATE
     description: "Campaign date — required for temporal joins"
   CAMPANA:
     mandatory: false
     severity: LOW
+    column_type: TEXT(16777216)
     description: "Campaign name — informational, used for domain profiling"
   MEDIO:
     mandatory: false
     severity: MEDIUM
+    column_type: TEXT(16777216)
     description: "Media type (digital channels)"
   SOPORTE_PLATAFORMA:
     mandatory: false
     severity: MEDIUM
+    column_type: TEXT(16777216)
+    canonical_name: PLATAFORMA
     description: "Platform / support — digital media placement"
   CATEGORIA:
     mandatory: false
     severity: MEDIUM
+    column_type: TEXT(16777216)
     description: "Product category"
   CADENA:
     mandatory: false
     severity: MEDIUM
+    column_type: TEXT(16777216)
     description: "Retailer chain — expected for eCommerce channel-level breakdowns"
   INVERSION_REAL:
     mandatory: false
     severity: MEDIUM
+    column_type: FLOAT
     value_range:
       min: 0
       max: 500000000
@@ -106,6 +125,7 @@ DATA_MKT_ON:
   IMPRESIONES:
     mandatory: false
     severity: MEDIUM
+    column_type: FLOAT
     value_range:
       min: 0
       max: 10000000000
@@ -113,6 +133,7 @@ DATA_MKT_ON:
   CLICS:
     mandatory: false
     severity: MEDIUM
+    column_type: FLOAT
     value_range:
       min: 0
       max: 1000000000
@@ -126,18 +147,25 @@ DATA_SELL_OUT:
   UPC:
     mandatory: true
     severity: CRITICAL
+    column_type: NUMBER(25,0)
+    canonical_name: SKU
     description: "Product UPC — primary join key to product dimension"
   CHAIN:
     mandatory: true
     severity: CRITICAL
+    column_type: TEXT(42)
+    canonical_name: CADENA
     description: "Retailer chain — required for customer dimension join"
   DAY_ID:
     mandatory: true
     severity: CRITICAL
+    column_type: NUMBER(38,0)
+    canonical_name: FECHA
     description: "Transaction day surrogate key — required for time dimension join"
   VOL_SELL_OUT:
     mandatory: false
     severity: HIGH
+    column_type: NUMBER(18,6)
     value_range:
       min: 0
       max: 50000000
@@ -145,6 +173,7 @@ DATA_SELL_OUT:
   PCS_SELL_OUT:
     mandatory: false
     severity: HIGH
+    column_type: NUMBER(18,6)
     value_range:
       min: 0
       max: 50000000
@@ -152,10 +181,12 @@ DATA_SELL_OUT:
   SUBCHAIN:
     mandatory: false
     severity: MEDIUM
+    column_type: TEXT(42)
     description: "Sub-chain / banner — used for granular retail analytics"
   FORMAT:
     mandatory: false
     severity: MEDIUM
+    column_type: TEXT(46)
     allowed_values:
       - "HYPERMARKET"
       - "SUPERMARKET"
@@ -173,22 +204,28 @@ DATA_SELL_IN:
   SKU:
     mandatory: true
     severity: CRITICAL
+    column_type: TEXT(26)
     description: "SKU — primary product join key for sell-in"
   INT_ID:
     mandatory: false
     severity: HIGH
+    column_type: TEXT(38)
+    canonical_name: SKU
     description: "Internal Danone product ID — join to product master"
   CADENA:
     mandatory: true
     severity: CRITICAL
+    column_type: TEXT(16777216)
     description: "Customer/chain for sell-in transaction"
   FECHA:
     mandatory: true
     severity: CRITICAL
+    column_type: DATE
     description: "Shipment date — required for temporal alignment"
   UNIDADES:
     mandatory: false
     severity: HIGH
+    column_type: NUMBER(31,15)
     value_range:
       min: 0
       max: 10000000
@@ -196,6 +233,8 @@ DATA_SELL_IN:
   MONTO:
     mandatory: false
     severity: HIGH
+    column_type: NUMBER(18,6)
+    canonical_name: VALOR
     value_range:
       min: -1000000
       max: 100000000
@@ -208,22 +247,27 @@ DATA_WASTE:
   SKU:
     mandatory: true
     severity: CRITICAL
+    column_type: TEXT(16777216)
     description: "SKU identifier — required for product-level waste analytics"
   CADENA:
     mandatory: true
     severity: CRITICAL
+    column_type: TEXT(16777216)
     description: "Customer chain — required for waste by retailer analytics"
   MARCA:
     mandatory: true
     severity: HIGH
+    column_type: TEXT(16777216)
     description: "Brand — join key to brand dimension"
   FECHA:
     mandatory: true
     severity: CRITICAL
+    column_type: DATE
     description: "Waste date — required for temporal alignment"
   UNIDADES_MERMA:
     mandatory: false
     severity: HIGH
+    column_type: FLOAT
     value_range:
       min: 0
       max: 1000000
@@ -236,18 +280,22 @@ DATA_FORECAST:
   SKU:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     description: "SKU — must match sell-in SKU universe"
   CADENA:
     mandatory: false
     severity: HIGH
+    column_type: pending_discovery
     description: "Customer chain forecast target"
   FECHA:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     description: "Forecast period date — required"
   FORECAST_UNITS:
     mandatory: true
     severity: HIGH
+    column_type: pending_discovery
     value_range:
       min: 0
       max: 50000000
@@ -255,6 +303,7 @@ DATA_FORECAST:
   VERSION:
     mandatory: false
     severity: MEDIUM
+    column_type: pending_discovery
     description: "Forecast version identifier — used to select official version"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -264,22 +313,29 @@ DATA_NIELSEN:
   CBU_CODE:
     mandatory: false
     severity: HIGH
+    column_type: pending_discovery
+    canonical_name: SKU
     description: "Nielsen product code — must be homologated to internal SKU/UPC"
   MARCA:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     description: "Brand — primary dimension for market share analysis"
   CATEGORIA:
     mandatory: true
     severity: HIGH
+    column_type: pending_discovery
     description: "Category — required for competitive benchmarking"
   YEAR_ID:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
+    canonical_name: ANIO
     description: "Nielsen year period — required for temporal join"
   MARKET_SHARE:
     mandatory: false
     severity: HIGH
+    column_type: pending_discovery
     value_range:
       min: 0
       max: 100
@@ -292,18 +348,24 @@ DATA_PRICE:
   UPC:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
+    canonical_name: SKU
     description: "UPC — product join key for pricing"
   CHAIN:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
+    canonical_name: CADENA
     description: "Retailer chain — price varies by customer"
   FECHA:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     description: "Effective price date"
   PRECIO:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     value_range:
       min: 0.01
       max: 100000
@@ -316,22 +378,28 @@ DATA_PROMO:
   UPC:
     mandatory: false
     severity: HIGH
+    column_type: pending_discovery
+    canonical_name: SKU
     description: "Product UPC for promotion — may be at brand level"
   CADENA:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     description: "Retailer chain — promotions are customer-specific"
   FECHA_INICIO:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     description: "Promotion start date"
   FECHA_FIN:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     description: "Promotion end date — must be >= FECHA_INICIO"
   DESCUENTO_PCT:
     mandatory: false
     severity: HIGH
+    column_type: pending_discovery
     value_range:
       min: 0
       max: 100
@@ -344,14 +412,17 @@ DATA_INVENTORY:
   SKU:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     description: "SKU — product join key for inventory"
   FECHA:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     description: "Inventory snapshot date"
   STOCK_UNITS:
     mandatory: false
     severity: HIGH
+    column_type: pending_discovery
     value_range:
       min: 0
       max: 100000000
@@ -364,21 +435,28 @@ DATA_CALENDAR:
   DATE_ID:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     unique: true
     description: "Primary key of calendar — must be unique and never null"
   YEAR:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
+    canonical_name: ANIO
     description: "Calendar year"
   MONTH:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
+    canonical_name: MES
     description: "Calendar month (1-12)"
   WEEK:
     mandatory: false
     severity: HIGH
+    column_type: pending_discovery
     description: "ISO week number"
   IS_FISCAL:
     mandatory: false
     severity: LOW
+    column_type: pending_discovery
     description: "Flag for fiscal vs calendar period alignment"

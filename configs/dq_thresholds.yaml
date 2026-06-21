@@ -26,26 +26,26 @@ sell_out_coverage_medium_threshold: 0.85  # Below this → confidence_level = ME
 
 # --- Per-source thresholds ---
 sell_in:
-  required_not_null: ["sku_id", "customer_id", "ship_date", "units_shipped"]
+  required_not_null: ["SKU", "CADENA", "FECHA", "VOLUMEN"]
   value_range:
-    units_shipped: {min: 0, max: 10000000}
-    net_revenue: {min: -1000000, max: 100000000}
+    VOLUMEN: {min: 0, max: 10000000}
+    VALOR: {min: -1000000, max: 100000000}
 
 sell_out:
-  required_not_null: ["sku_id", "store_id", "sell_out_week", "units_sold"]
+  required_not_null: ["SKU", "FORMAT", "FECHA", "VOL_SELL_OUT"]  # FORMAT mapped from store_id per column_name_mapping.yaml — verify if INT_ID or STORE is more appropriate
   value_range:
-    units_sold: {min: 0, max: 5000000}
+    VOL_SELL_OUT: {min: 0, max: 5000000}
 
 waste:
-  required_not_null: ["sku_id", "customer_id", "waste_date", "waste_units"]
+  required_not_null: ["SKU", "CADENA", "FECHA", "VOL_SELL_OUT"]  # waste_units mapped to VOL_SELL_OUT per column_name_mapping.yaml — consider UNIDADES_MERMA if waste-specific metric is needed
   value_range:
-    waste_units: {min: 0, max: 1000000}
+    VOL_SELL_OUT: {min: 0, max: 1000000}
   # Anomaly: waste_units > sell_in_units in same period → flag is_anomaly = TRUE, do not drop
 
 investment:
-  required_not_null: ["brand_id", "channel_id", "period_month", "total_spend"]
+  required_not_null: ["MARCA", "CANAL", "FECHA", "INVERSION_REAL"]
   value_range:
-    total_spend: {min: 0, max: 500000000}
+    INVERSION_REAL: {min: 0, max: 500000000}
 
 # --- Waste risk thresholds ---
 waste_risk:
