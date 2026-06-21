@@ -23,30 +23,55 @@ import json
 from collections import OrderedDict
 from datetime import datetime, timezone
 
-# ─── Snowflake connection (from pipeline_config.yaml) ─────────────────────────
-KEYVAULT_SCOPE = "DAN-AM-P-KVT800-R-MDP-DB"
-SNOWFLAKE_ACCOUNT = "danonenam.east-us-2.azure"
-SNOWFLAKE_HOST = "danonenam.east-us-2.azure.snowflakecomputing.com"
-WAREHOUSE = "PRD_MDP_ANL_WH"
-ROLE = "PRD_MDP"
+# ═══════════════════════════════════════════════════════════════════════════════
+# Snowflake Connection Profiles — PER DATABASE
+# ═══════════════════════════════════════════════════════════════════════════════
+# Different databases require different credentials/warehouses/roles.
+# Each profile maps a database name → its connection parameters.
+#
+# ⚠️  Move credentials to Databricks secrets for production use:
+#     dbutils.secrets.get(scope="<scope>", key="<key>")
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# Retrieve credentials from Databricks secret scope (Azure Key Vault)
-sf_user = dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-user")
-sf_password = dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-password")
+SF_URL = "danonenam.east-us-2.azure.snowflakecomputing.com"
 
-# Snowflake JDBC options for Spark
-sf_options = {
-    "sfURL": SNOWFLAKE_HOST,
-    "sfAccount": SNOWFLAKE_ACCOUNT,
-    "sfUser": sf_user,
-    "sfPassword": sf_password,
-    "sfWarehouse": WAREHOUSE,
-    "sfRole": ROLE,
+# ─── Profile: PRD_MEX ─────────────────────────────────────────────────────────
+PRD_MEX_PROFILE = {
+    "sfURL":       SF_URL,
+    "sfUser":      "PRD_OSM_DPH_READER",
+    "sfPassword":  "73.bBZmne7Aq",
+    "sfWarehouse": "PRD_MEX_ANL_WH",
+    "sfRole":      "PRD_MEX_READER",
 }
 
-print(f"Snowflake host : {SNOWFLAKE_HOST}")
-print(f"Warehouse      : {WAREHOUSE}")
-print(f"Role           : {ROLE}")
+# ─── Profile: PRD_MDP ─────────────────────────────────────────────────────────
+# Uses Key Vault credentials via Databricks secret scope
+KEYVAULT_SCOPE = "DAN-AM-P-KVT800-R-MDP-DB"
+PRD_MDP_PROFILE = {
+    "sfURL":       SF_URL,
+    "sfUser":      dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-user"),
+    "sfPassword":  dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-password"),
+    "sfWarehouse": "PRD_MDP_ANL_WH",
+    "sfRole":      "PRD_MDP",
+}
+
+# ─── Profile Router ───────────────────────────────────────────────────────────
+# Maps each database to the correct connection profile
+CONNECTION_PROFILES = {
+    "PRD_MEX": PRD_MEX_PROFILE,
+    "PRD_MDP": PRD_MDP_PROFILE,
+}
+
+def get_sf_options(database: str) -> dict:
+    """Return the Snowflake connection options for a given database."""
+    if database not in CONNECTION_PROFILES:
+        raise ValueError(f"No connection profile for database '{database}'. "
+                         f"Available: {list(CONNECTION_PROFILES.keys())}")
+    return CONNECTION_PROFILES[database]
+
+# Verify profiles loaded
+for db, profile in CONNECTION_PROFILES.items():
+    print(f"  {db}: warehouse={profile['sfWarehouse']}, role={profile['sfRole']}, user={profile['sfUser']}")
 
 # COMMAND ----------
 
@@ -160,11 +185,15 @@ for database, schema, db_schema, table_names, sql in queries:
     print(f"Querying {db_schema} ({len(table_names)} tables)...")
     print(f"{'='*60}")
 
+    # Get the correct connection profile for this database
+    opts = get_sf_options(database)
+    print(f"  Using profile: user={opts['sfUser']}, warehouse={opts['sfWarehouse']}, role={opts['sfRole']}")
+
     # Use Spark Snowflake connector to execute the query
     df = (
         spark.read
         .format("net.snowflake.spark.snowflake")
-        .options(**{**sf_options, "sfDatabase": database, "sfSchema": "INFORMATION_SCHEMA"})
+        .options(**{**opts, "sfDatabase": database, "sfSchema": "INFORMATION_SCHEMA"})
         .option("query", sql)
         .load()
     )
@@ -222,9 +251,11 @@ snapshot = {
     "_meta": {
         "snapshot_timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "content_hash": content_hash,
-        "snowflake_host": SNOWFLAKE_HOST,
-        "warehouse": WAREHOUSE,
-        "role": ROLE,
+        "snowflake_host": SF_URL,
+        "connection_profiles": {
+            db: {"warehouse": p["sfWarehouse"], "role": p["sfRole"], "user": p["sfUser"]}
+            for db, p in CONNECTION_PROFILES.items()
+        },
         "extracted_via": "databricks_notebook",
         "notebook_path": dbutils.notebook.entry_point.getDbutils().notebook().getContext().notebookPath().get(),
     },
