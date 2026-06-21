@@ -358,3 +358,7 @@ summary_df = spark.createDataFrame(
     ["Table", "Column_Count", "Type_Distribution"]
 )
 display(summary_df)
+
+# COMMAND ----------
+
+
