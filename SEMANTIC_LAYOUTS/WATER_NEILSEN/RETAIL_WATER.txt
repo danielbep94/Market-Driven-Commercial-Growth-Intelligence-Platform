@@ -150,6 +150,31 @@
             SEGMENTO_LOCAL,
             ITM_UNIF_MANUF_DAN,
             ITM_UNIF_BRAND_DAN,
+
+            -- C.6: MARCA_STD — canonical brand for cross-source joins
+            -- Derived from ITM_UNIF_BRAND_DAN (the layout's canonical output), confirmed V9B_DAN (166 brands)
+            CASE
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('BONAFONT', 'BONAFONT NATURAL',
+                                                          'WATER BONAFONT')                THEN 'BONAFONT'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('BONAFONT KIDS')                 THEN 'BONAFONT KIDS'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('BONAFONT AGUA FRESCAS',
+                                                          'AGUAS FRESCAS')                 THEN 'AGUAS FRESCAS'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('LEVITE', 'BONAFONT_LEVITE',
+                                                          'BONAFONT LEVITE')               THEN 'LEVITE'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('JUIZZY',
+                                                          'JUIZZY + AGUAS FRESCAS')        THEN 'JUIZZY'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('VITALOE')                       THEN 'VITALOE'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('ALOEYA')                        THEN 'ALOEYA'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('LALA', 'LALA PRODS. LACTEOS')  THEN 'LALA'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('COCA-COLA', 'COCACOLA')         THEN 'COCA-COLA'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('PEPSI', 'PEPSICOLA')            THEN 'PEPSI'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('PEÑAFIEL')                     THEN 'PEÑAFIEL'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('OTHER BRANDS')                  THEN 'OTHER BRANDS'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('MARCAS GENERICAS')              THEN 'MARCAS GENERICAS'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND_DAN)) IN ('SANTA MARIA (NESTLE)')          THEN 'SANTA MARIA (NESTLE)'
+                ELSE TRIM(UPPER(ITM_UNIF_BRAND_DAN))
+            END AS MARCA_STD,
+
             SUBSEGMENTO_LOCAL,
             SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas Valor'                        THEN FACT_VALUE ELSE 0 END) AS VTAS_VALOR,
             SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Num. Tiendas Vendedoras (C)' THEN FACT_VALUE ELSE 0 END) AS DIST_NUM_TIENDAS_VENDEDORAS,
@@ -169,8 +194,9 @@
             SEGMENTO_LOCAL,
             ITM_UNIF_MANUF_DAN,
             ITM_UNIF_BRAND_DAN,
+            MARCA_STD,
             SUBSEGMENTO_LOCAL",
-    "grain_hint": "Granularidad por FECHA, SOURCE, ITM_UNIF_BRAND, ITM_SEGMENT_2, MKT_SHORT_DSC, ITM_UNIF_SUBSEG_DAN_1, SEGMENTO_LOCAL, ITM_UNIF_MANUF_DAN, ITM_UNIF_BRAND_DAN, SUBSEGMENTO_LOCAL",
+    "grain_hint": "Granularidad por FECHA, SOURCE, ITM_UNIF_BRAND, ITM_SEGMENT_2, MKT_SHORT_DSC, ITM_UNIF_SUBSEG_DAN_1, SEGMENTO_LOCAL, ITM_UNIF_MANUF_DAN, ITM_UNIF_BRAND_DAN, MARCA_STD, SUBSEGMENTO_LOCAL",
     "business_keys": [
         "SOURCE",
         "ITM_UNIF_BRAND",
@@ -179,6 +205,7 @@
         "SEGMENTO_LOCAL",
         "ITM_UNIF_MANUF_DAN",
         "ITM_UNIF_BRAND_DAN",
+        "MARCA_STD",
         "SUBSEGMENTO_LOCAL"
     ],
     "date_col": "FECHA",
@@ -193,6 +220,7 @@
         "SEGMENTO_LOCAL",
         "ITM_UNIF_MANUF_DAN",
         "ITM_UNIF_BRAND_DAN",
+        "MARCA_STD",
         "SUBSEGMENTO_LOCAL"
     ],
     "metric_cols": [

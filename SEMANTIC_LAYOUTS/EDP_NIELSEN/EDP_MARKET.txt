@@ -400,6 +400,32 @@
             ITM_SUBSEG_UNIF,
             ITM_UNIF_MANUF,
             ITM_UNIF_BRND,
+
+            -- C.6: MARCA_STD — canonical brand for cross-source joins
+            -- Derived from ITM_UNIF_BRND (= INP_56985), confirmed V9A (219 brands)
+            CASE
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('ACTIVIA')                                  THEN 'ACTIVIA'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('BENEGASTRO', 'BENEG')                      THEN 'BENEGASTRO'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('DANETTE')                                  THEN 'DANETTE'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('DANMIX', 'DAN MIX', 'DANMMIX')            THEN 'DANMIX'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('DANONE', 'DANONE YOGHURT', 'DANONE CREME',
+                                                     'DANONE FREE', 'DANONE GRIEGO', 'DANONE FS',
+                                                     'DAIRY', 'DAIRY DANONE MEXICO', 'DANAO')   THEN 'DANONE'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('DANONINO', 'DANONINOLIQUIDO')              THEN 'DANONINO'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('DANUP', 'DAN UP')                         THEN 'DANUP'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('DANY', 'DANY DANETTE')                    THEN 'DANY'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('HERSHEYS', 'HERSHEY''S', 'DANONE HERSHEYS') THEN 'HERSHEYS'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('LICUAMIX')                                THEN 'LICUAMIX'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('OIKOS', 'OIKOS UHT')                      THEN 'OIKOS'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('SILK', 'SILK ORIG 946ML', 'SILKCHOCO190ML') THEN 'SILK'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('SO DELICIOUS')                            THEN 'SO DELICIOUS'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('VITALINEA')                               THEN 'VITALINEA'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('YOPRO', 'YO PRO')                         THEN 'YOPRO'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('OCEAN SPRAY', 'OCEAN')                    THEN 'OCEAN SPRAY'
+                WHEN TRIM(UPPER(ITM_UNIF_BRND)) IN ('LALA', 'GPO INDUSTRIAL LALA')             THEN 'LALA'
+                ELSE TRIM(UPPER(ITM_UNIF_BRND))
+            END AS MARCA_STD,
+
             MKT_SHORT_DSC,
 
             SUM(CASE WHEN FACT_TAG = 'DOL' OR FACT_SHORT_DSC = 'Vtas Valor'
@@ -452,15 +478,17 @@
             ITM_SUBSEG_UNIF,
             ITM_UNIF_MANUF,
             ITM_UNIF_BRND,
+            MARCA_STD,
             MKT_SHORT_DSC
     """,
-    "grain_hint": "Granularidad mensual por FECHA, ITM_UNIF_SUBSEG_DAN, SEGMENTACION_2025, ITM_SUBSEG_UNIF, ITM_UNIF_MANUF, ITM_UNIF_BRND, MKT_SHORT_DSC",
+    "grain_hint": "Granularidad mensual por FECHA, ITM_UNIF_SUBSEG_DAN, SEGMENTACION_2025, ITM_SUBSEG_UNIF, ITM_UNIF_MANUF, ITM_UNIF_BRND, MARCA_STD, MKT_SHORT_DSC",
     "business_keys": [
         "ITM_UNIF_SUBSEG_DAN",
         "SEGMENTACION_2025",
         "ITM_SUBSEG_UNIF",
         "ITM_UNIF_MANUF",
         "ITM_UNIF_BRND",
+        "MARCA_STD",
         "MKT_SHORT_DSC"
     ],
     "date_col": "FECHA",
@@ -473,6 +501,7 @@
         "ITM_SUBSEG_UNIF",
         "ITM_UNIF_MANUF",
         "ITM_UNIF_BRND",
+        "MARCA_STD",
         "MKT_SHORT_DSC"
     ],
     "metric_cols": [

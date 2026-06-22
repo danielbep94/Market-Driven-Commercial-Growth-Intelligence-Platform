@@ -5,19 +5,19 @@
 
 _meta:
   generated_by: scripts/build_registry.py
-  generated_at: '2026-06-22T20:31:27Z'
-  input_hash: sha256:ef03f7a12209b9ce8f4f9c4602ed0d8450add37d75406277d0e609bc6380850b
+  generated_at: '2026-06-22T22:51:15Z'
+  input_hash: sha256:89373d295be2545838bfb54025b61f429e72b24f8aaef8533ab1a8d1a568f83b
   input_file_hashes:
-    SEMANTIC_LAYOUTS/EDP_NIELSEN/EDP_MARKET.txt: sha256:014681f9b0cf9be128b0e826b1689a3734cdcad11d8d251e9bb4f8a7427d5980
+    SEMANTIC_LAYOUTS/EDP_NIELSEN/EDP_MARKET.txt: sha256:457742474588a178b4cef8a297444d67ea2ce33b10e451f808d33e8090505fba
     SEMANTIC_LAYOUTS/IBP/IBP_DANONE.txt: sha256:7c79e159cf16d47e6a0c4130f9b18173a3e82724c2bb2670d89bd17957d36d54
     SEMANTIC_LAYOUTS/MKT_OFF/OFF.txt: sha256:a40db19b2271d4316b3eb99a3081d47c01663ba1203b966161ff879ae23b99f1
     SEMANTIC_LAYOUTS/MKT_ON/ON.txt: sha256:4b19b66f031019d5b7dd3a39dc9b52aa442809adee33b87c7cec71f4f38c5fc1
-    SEMANTIC_LAYOUTS/PB_NEILSEN/PB_SCANTRACK.txt: sha256:738b412347bad1fae6963f85095f5c0cf5b0dc8fa602184e320934ce742e9e77
+    SEMANTIC_LAYOUTS/PB_NEILSEN/PB_SCANTRACK.txt: sha256:5066c32398b8cc29bd0160774a2ff5e90864fca1dcb2a1ec09a5b03ccaeac1ac
     SEMANTIC_LAYOUTS/SELL_IN/SELL_IN_DICT.txt: sha256:22c773bd2e7125db1be8ab4a404f2d8556abb1eca7b70b0003842250e0f81ff2
     SEMANTIC_LAYOUTS/SELL_OUT/SELL_OUT_DICT.txt: sha256:1e897ac4ea406c4ff16474341e641d861d3181c1d9877c265908fc7fcc6f07e4
     SEMANTIC_LAYOUTS/WASTE/DATA_WASTE.txt: sha256:d53c806456b877fd9fdd4f71bb0b2dab11c4fb1f54b344cbbe82c88f5133a40d
-    SEMANTIC_LAYOUTS/WATER_NEILSEN/RETAIL_WATER.txt: sha256:54aab34298d790f99dd8bbed859e750c16f78e6db283fb79c47ff1f733297b43
-    SEMANTIC_LAYOUTS/WATER_NEILSEN/SCANTRACK_WATER.txt: sha256:2048aa9c92cf3427e9d70b3718e81df749877fe200f1e02d7292c18ee70c3527
+    SEMANTIC_LAYOUTS/WATER_NEILSEN/RETAIL_WATER.txt: sha256:b44aa764b70f3f44da6c9cf341d8f287f2d15a35a28480e7f4fc7c085061d9fd
+    SEMANTIC_LAYOUTS/WATER_NEILSEN/SCANTRACK_WATER.txt: sha256:ed579b8eefa3ca6d18a4a947a820e939186e2b0d6aeac627a364abdd8f24f50a
     configs/column_types_snapshot.yaml: sha256:281186092321053b983fb7b8ea4b49627ce9c176f512420d18d78e9072bc4454
     configs/column_name_mapping.yaml: sha256:71aceedeaa21050df6cc03c5363221def4120179f2254713a1aeaa4817737003
   column_types_snapshot: configs/column_types_snapshot.yaml
@@ -62,6 +62,10 @@ sources:
       type: TEXT(250)
       role: grain
       glossary_ref: ITM_UNIF_BRND
+    - name: MARCA_STD
+      type: PENDING_SNAPSHOT
+      role: grain
+      glossary_ref: MARCA_STD
     - name: MKT_SHORT_DSC
       type: TEXT(250)
       role: grain
@@ -121,6 +125,7 @@ sources:
     - ITM_SUBSEG_UNIF
     - ITM_UNIF_MANUF
     - ITM_UNIF_BRND
+    - MARCA_STD
     - MKT_SHORT_DSC
     source_tables:
     - PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT
@@ -132,7 +137,7 @@ sources:
     - NIELSEN_RETAIL
     - NIELSEN_SCANTRACK
     grain_hint: Granularidad mensual por FECHA, ITM_UNIF_SUBSEG_DAN, SEGMENTACION_2025, ITM_SUBSEG_UNIF, ITM_UNIF_MANUF, ITM_UNIF_BRND,
-      MKT_SHORT_DSC
+      MARCA_STD, MKT_SHORT_DSC
   DATA_DANONE_IBP:
     key: DATA_DANONE_IBP
     db: PRD_MDP
@@ -383,6 +388,10 @@ sources:
       type: TEXT(250)
       role: grain
       glossary_ref: ITM_UNIF_BRAND
+    - name: MARCA_STD
+      type: PENDING_SNAPSHOT
+      role: grain
+      glossary_ref: MARCA_STD
     - name: MKT_SHORT_DSC
       type: TEXT(250)
       role: grain
@@ -422,6 +431,7 @@ sources:
       glossary_ref: DIST_NUM
     business_keys:
     - ITM_UNIF_BRAND
+    - MARCA_STD
     - MKT_SHORT_DSC
     - SUBCATEGORIA
     - ITEM_UNIF_SUBBRND
@@ -433,7 +443,7 @@ sources:
     - PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_FACT_REF
     source_coverage:
     - NIELSEN_SCANTRACK
-    grain_hint: Granularidad mensual por FECHA, ITM_UNIF_BRAND, MKT_SHORT_DSC, SUBCATEGORIA, ITEM_UNIF_SUBBRND
+    grain_hint: Granularidad mensual por FECHA, ITM_UNIF_BRAND, MARCA_STD, MKT_SHORT_DSC, SUBCATEGORIA, ITEM_UNIF_SUBBRND
   SELL_IN:
     key: SELL_IN
     db: PRD_MEX
@@ -721,6 +731,10 @@ sources:
       type: TEXT(250)
       role: grain
       glossary_ref: ITM_UNIF_BRAND_DAN
+    - name: MARCA_STD
+      type: PENDING_SNAPSHOT
+      role: grain
+      glossary_ref: MARCA_STD
     - name: SUBSEGMENTO_LOCAL
       type: TEXT(250)
       role: grain
@@ -762,6 +776,7 @@ sources:
     - SEGMENTO_LOCAL
     - ITM_UNIF_MANUF_DAN
     - ITM_UNIF_BRAND_DAN
+    - MARCA_STD
     - SUBSEGMENTO_LOCAL
     source_tables:
     - PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT
@@ -772,7 +787,7 @@ sources:
     source_coverage:
     - NIELSEN_RETAIL
     grain_hint: Granularidad por FECHA, SOURCE, ITM_UNIF_BRAND, ITM_SEGMENT_2, MKT_SHORT_DSC, ITM_UNIF_SUBSEG_DAN_1, SEGMENTO_LOCAL,
-      ITM_UNIF_MANUF_DAN, ITM_UNIF_BRAND_DAN, SUBSEGMENTO_LOCAL
+      ITM_UNIF_MANUF_DAN, ITM_UNIF_BRAND_DAN, MARCA_STD, SUBSEGMENTO_LOCAL
   DATA_WATER_SCANTRACK_NIELSEN:
     key: DATA_WATER_SCANTRACK_NIELSEN
     db: PRD_MEX
@@ -827,6 +842,10 @@ sources:
       type: TEXT(250)
       role: grain
       glossary_ref: ITM_UNIF_BRND_DAN
+    - name: MARCA_STD
+      type: PENDING_SNAPSHOT
+      role: grain
+      glossary_ref: MARCA_STD
     - name: ITM_UNIF_SUBBRND_DAN
       type: TEXT(250)
       role: grain
@@ -906,6 +925,7 @@ sources:
     - PRESENTACION_LOCAL
     - ITM_UNIF_MANUF_DAN
     - ITM_UNIF_BRND_DAN
+    - MARCA_STD
     - ITM_UNIF_SUBBRND_DAN
     - TIPO
     - ITM_UNIF_SUBSEG_DAN_2
@@ -921,5 +941,5 @@ sources:
     source_coverage:
     - NIELSEN_SCANTRACK
     grain_hint: Granularidad mensual por PER_DATE, ITM_SEGMENT_2, ITM_UNIF_BRAND, ITM_UNIF_SUBBRND, MKT_SHORT_DSC, ITM_UNIF_SUBSEG_DAN_1,
-      SEGMENTO_LOCAL, PRESENTACION_LOCAL, ITM_UNIF_MANUF_DAN, ITM_UNIF_BRND_DAN, ITM_UNIF_SUBBRND_DAN, TIPO, ITM_UNIF_SUBSEG_DAN_2,
+      SEGMENTO_LOCAL, PRESENTACION_LOCAL, ITM_UNIF_MANUF_DAN, ITM_UNIF_BRND_DAN, MARCA_STD, ITM_UNIF_SUBBRND_DAN, TIPO, ITM_UNIF_SUBSEG_DAN_2,
       ITM_UNIF_SUBSEG_DAN_3, ITM_UNIF_SUBSEG_DAN_4, ITM_UNIF_SUBSEG_DAN_5

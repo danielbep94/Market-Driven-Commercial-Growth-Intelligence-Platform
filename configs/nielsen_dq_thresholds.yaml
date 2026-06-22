@@ -1,0 +1,120 @@
+# Nielsen DQ Thresholds — configs/nielsen_dq_thresholds.yaml
+# ─────────────────────────────────────────────────────────────────────────────
+# PURPOSE : Data Quality acceptance thresholds for all 4 Nielsen sources.
+#           These values are derived from V9 (brand counts), V10/V11 (join
+#           rates), and historical knowledge of each study's coverage.
+# CREATED : Phase C.7 — 2026-06-22
+# VALIDATED: V9 brand extraction confirmed from validation_results_phase_c.txt
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# THRESHOLD RATIONALE:
+#   min_brands  : floor set at 50% of V9 confirmed brand count (conservative)
+#   min_rows    : floor at 1,000 to detect total-load failures
+#   max_null_pct: Nielsen brand columns must not be null (raw data is always tagged)
+#   max_null_marca_std: MARCA_STD is derived from brand — null means CASE WHEN gap
+#   min_vtas_valor: must be > 0 to confirm fact data loaded (not empty period)
+#
+# ALLOWED NULLS (by design):
+#   EDP  : no nulls on ITM_UNIF_BRND (INP_56985 is always tagged)
+#   Water: CSTM_310589 can be null for CONTROLLED LABEL rows → allowed
+#   PB   : ITM_UNIF_BRAND nulls not expected (controlled label uses literal string)
+
+version: "1.0"
+generated_from: "Phase C.7 — Nielsen DQ thresholds"
+
+# ══════════════════════════════════════════════════════════════════
+# EDP Nielsen (Retail + Scantrack integrated)
+# V9A: 219 distinct brands confirmed
+# ══════════════════════════════════════════════════════════════════
+EDP_MARKET:
+  source_key: "DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"
+  brand_col: "ITM_UNIF_BRND"       # = INP_56985
+  marca_std_col: "MARCA_STD"
+  date_col: "FECHA"
+  thresholds:
+    min_brands: 100                 # floor: 219 confirmed, 100 = ~46%
+    min_distinct_months: 6          # expect at least 6 months of 2024+
+    max_null_brand_pct: 0.0         # INP_56985 always tagged → 0% null expected
+    max_null_marca_std_pct: 0.0     # CASE WHEN covers all 219 brands → 0% null
+    min_rows: 1000                  # EDP is a large dataset
+    min_vtas_valor: 1.0             # sanity: total value must be > 0
+  danone_brands_expected:
+    - ACTIVIA
+    - BENEGASTRO
+    - DANETTE
+    - DANONE
+    - DANONINO
+    - DANMIX
+    - DANUP
+    - DANY
+    - OIKOS
+    - SILK
+    - VITALINEA
+    - YOPRO
+
+# ══════════════════════════════════════════════════════════════════
+# Water Retail Nielsen (Retail)
+# V9B: 160 raw brands / V9B_DAN: 166 derived brands confirmed
+# ══════════════════════════════════════════════════════════════════
+WATER_RETAIL_NIELSEN:
+  source_key: "DATA_WATER_RETAIL_NIELSEN"
+  brand_col: "ITM_UNIF_BRAND_DAN"  # derived CASE WHEN from CSTM_310589
+  marca_std_col: "MARCA_STD"
+  date_col: "FECHA"
+  thresholds:
+    min_brands: 80                  # floor: 166 derived, 80 = ~48%
+    min_distinct_months: 6
+    max_null_brand_pct: 5.0         # CONTROLLED LABEL rows may have null raw brand
+    max_null_marca_std_pct: 2.0     # allow small ELSE pass-through rate
+    min_rows: 500
+    min_vtas_valor: 1.0
+  danone_brands_expected:
+    - BONAFONT
+    - BONAFONT KIDS
+    - AGUAS FRESCAS
+    - LEVITE
+    - JUIZZY
+
+# ══════════════════════════════════════════════════════════════════
+# Water Scantrack Nielsen
+# V9C: 140 distinct brands confirmed
+# ══════════════════════════════════════════════════════════════════
+WATER_SCANTRACK_NIELSEN:
+  source_key: "DATA_WATER_SCANTRACK_NIELSEN"
+  brand_col: "ITM_UNIF_BRND_DAN"   # derived CASE WHEN from CSTM_310589
+  marca_std_col: "MARCA_STD"
+  date_col: "PER_DATE"
+  thresholds:
+    min_brands: 70                  # floor: 140 confirmed, 70 = 50%
+    min_distinct_months: 6
+    max_null_brand_pct: 5.0         # CONTROLLED LABEL rows may have null raw brand
+    max_null_marca_std_pct: 2.0
+    min_rows: 500
+    min_vtas_valor: 1.0
+  danone_brands_expected:
+    - BONAFONT
+    - BONAFONT KIDS
+    - AGUAS FRESCAS
+    - LEVITE
+    - JUIZZY
+
+# ══════════════════════════════════════════════════════════════════
+# PB Scantrack Nielsen (Plant Based / Sustitutos de Leche)
+# V9D: 77 distinct brands confirmed
+# ══════════════════════════════════════════════════════════════════
+PB_SCANTRACK_NIELSEN:
+  source_key: "DATA_PB_SCANTRACK_NIELSEN"
+  brand_col: "ITM_UNIF_BRAND"      # = INP_56985
+  marca_std_col: "MARCA_STD"
+  date_col: "FECHA"
+  thresholds:
+    min_brands: 40                  # floor: 77 confirmed, 40 = ~52%
+    min_distinct_months: 6
+    max_null_brand_pct: 0.0         # INP_56985 always tagged, CONTROLLED LABEL uses literal
+    max_null_marca_std_pct: 1.0     # allow ~1% pass-through (competitor long-tail)
+    min_rows: 200
+    min_vtas_valor: 1.0
+  danone_brands_expected:
+    - SILK
+    - SO DELICIOUS
+    - YOPRO

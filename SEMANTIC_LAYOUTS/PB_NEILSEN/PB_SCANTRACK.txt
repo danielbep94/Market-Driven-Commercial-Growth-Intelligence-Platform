@@ -65,6 +65,19 @@
         SELECT
             FECHA,
             ITM_UNIF_BRAND,
+
+            -- C.6: MARCA_STD — canonical brand for cross-source joins
+            -- Derived from ITM_UNIF_BRAND (= INP_56985), confirmed V9D (77 brands)
+            CASE
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND)) IN ('SILK', 'SILK ORIG 946ML', 'SILKCHOCO190ML') THEN 'SILK'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND)) IN ('SO DELICIOUS')                              THEN 'SO DELICIOUS'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND)) IN ('YOPRO', 'YO PRO')                           THEN 'YOPRO'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND)) IN ('CONTROLLED LABEL')                           THEN 'MARCAS GENERICAS'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND)) IN ('PL', 'SIN MARCA')                           THEN 'MARCAS GENERICAS'
+                WHEN TRIM(UPPER(ITM_UNIF_BRAND)) IN ('LALA VITA')                                 THEN 'LALA'
+                ELSE TRIM(UPPER(ITM_UNIF_BRAND))
+            END AS MARCA_STD,
+
             MKT_SHORT_DSC,
             SUBCATEGORIA,
             ITEM_UNIF_SUBBRND,
@@ -78,13 +91,15 @@
         GROUP BY
             FECHA,
             ITM_UNIF_BRAND,
+            MARCA_STD,
             MKT_SHORT_DSC,
             SUBCATEGORIA,
             ITEM_UNIF_SUBBRND
     """,
-    "grain_hint": "Granularidad mensual por FECHA, ITM_UNIF_BRAND, MKT_SHORT_DSC, SUBCATEGORIA, ITEM_UNIF_SUBBRND",
+    "grain_hint": "Granularidad mensual por FECHA, ITM_UNIF_BRAND, MARCA_STD, MKT_SHORT_DSC, SUBCATEGORIA, ITEM_UNIF_SUBBRND",
     "business_keys": [
         "ITM_UNIF_BRAND",
+        "MARCA_STD",
         "MKT_SHORT_DSC",
         "SUBCATEGORIA",
         "ITEM_UNIF_SUBBRND"
@@ -95,6 +110,7 @@
     "grain_cols": [
         "FECHA",
         "ITM_UNIF_BRAND",
+        "MARCA_STD",
         "MKT_SHORT_DSC",
         "SUBCATEGORIA",
         "ITEM_UNIF_SUBBRND"
