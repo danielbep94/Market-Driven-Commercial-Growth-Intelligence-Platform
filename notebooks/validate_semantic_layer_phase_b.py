@@ -56,6 +56,14 @@ for db, profile in CONNECTION_PROFILES.items():
 # COMMAND ----------
 
 import datetime
+import os
+import io
+import sys
+
+# ── Log file path — inside the repo so it can be committed ───────────────
+# Works on Databricks Repos: the notebook's CWD is the repo root
+REPO_ROOT = os.path.dirname(os.path.abspath(__file__)) if "__file__" in dir() else "/Workspace/Repos"
+LOG_PATH  = os.path.join(os.path.dirname(REPO_ROOT) if REPO_ROOT.endswith("notebooks") else REPO_ROOT, "notebooks", "validation_results.txt")
 
 LOG_LINES = []
 
@@ -65,6 +73,19 @@ def log(msg):
     line = f"[{ts}] {msg}"
     print(line)
     LOG_LINES.append(line)
+
+def log_df(df, label, n=200):
+    """Capture a Spark DataFrame's .show() output into the log."""
+    log(f"  {label}:")
+    # Capture show() output by redirecting stdout
+    old_stdout = sys.stdout
+    sys.stdout = buffer = io.StringIO()
+    df.show(n, truncate=False)
+    sys.stdout = old_stdout
+    table_str = buffer.getvalue()
+    print(table_str)           # still print to notebook cell
+    for line in table_str.rstrip().split("\n"):
+        LOG_LINES.append(line) # also capture into log
 
 def run_sf_query(database, query, label="query"):
     """Run a Snowflake query via Spark using the profile for the given database."""
@@ -81,14 +102,24 @@ def run_sf_query(database, query, label="query"):
     return df
 
 def save_log():
-    """Write accumulated log to file."""
-    path = "/tmp/semantic_validation_log.txt"
-    with open(path, "w") as f:
-        f.write("\n".join(LOG_LINES))
-    log(f"Log saved to {path}")
+    """Write accumulated log to a file inside the repo so it can be committed."""
+    # Try repo-relative path first, fall back to /tmp
+    try:
+        path = LOG_PATH
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as f:
+            f.write("\n".join(LOG_LINES))
+        log(f"Log saved to {path}")
+    except Exception as e:
+        # Fallback: save next to the notebook or in /tmp
+        fallback = "/tmp/validation_results.txt"
+        with open(fallback, "w") as f:
+            f.write("\n".join(LOG_LINES))
+        log(f"Could not write to {path} ({e}), saved to {fallback}")
 
 log("=" * 70)
 log("SEMANTIC LAYER VALIDATION — Phase B")
+log(f"Log will be saved to: {LOG_PATH}")
 log("=" * 70)
 
 # COMMAND ----------
@@ -219,11 +250,8 @@ log("V1: SELL_OUT totals comparison")
 df_old = run_sf_query("PRD_MDP", v1a_sql, "V1A — SELL_OUT OLD (GROUP BY)")
 df_new = run_sf_query("PRD_MDP", v1b_sql, "V1B — SELL_OUT NEW (no GROUP BY)")
 
-log("  OLD totals:")
-df_old.show(truncate=False)
-
-log("  NEW totals:")
-df_new.show(truncate=False)
+log_df(df_old, "OLD totals")
+log_df(df_new, "NEW totals")
 
 # COMMAND ----------
 
@@ -273,7 +301,7 @@ ORDER BY
 """
 log("V2: SELL_IN brand rollup + SKU null check")
 df_si = run_sf_query("PRD_MEX", v2_sql, "V2 — SELL_IN brand rollup (WATERS)")
-df_si.show(50, truncate=False)
+log_df(df_si, "SELL_IN brand rollup", n=50)
 
 # COMMAND ----------
 
@@ -298,7 +326,7 @@ FROM PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP
 
 log("V3: IBP null rates for FECHA and MARCA")
 df_ibp = run_sf_query("PRD_MDP", v3_sql, "V3 — IBP null rates")
-df_ibp.show(truncate=False)
+log_df(df_ibp, "IBP null rates")
 
 # COMMAND ----------
 
@@ -324,7 +352,7 @@ FROM PRD_MDP.MDP_STG.VW_WASTE
 
 log("V4: WASTE SKU + WASTE_KG check")
 df_waste = run_sf_query("PRD_MDP", v4_sql, "V4 — WASTE SKU + KG")
-df_waste.show(truncate=False)
+log_df(df_waste, "WASTE stats")
 
 # COMMAND ----------
 
@@ -373,11 +401,11 @@ WHERE ANIO >= 2024
 
 log("V5: Investment shared columns — MKT_ON")
 df_on = run_sf_query("PRD_MDP", v5a_sql, "V5A — MKT_ON columns")
-df_on.show(truncate=False)
+log_df(df_on, "MKT_ON columns")
 
 log("V5: Investment shared columns — MKT_OFF")
 df_off = run_sf_query("PRD_MDP", v5b_sql, "V5B — MKT_OFF columns")
-df_off.show(truncate=False)
+log_df(df_off, "MKT_OFF columns")
 
 # COMMAND ----------
 
@@ -406,7 +434,7 @@ LIMIT 1
 
 log("V6: SELL_OUT column types")
 df_types = run_sf_query("PRD_MDP", v6_sql, "V6 — SELL_OUT types")
-df_types.show(truncate=False)
+log_df(df_types, "SELL_OUT column types")
 
 # COMMAND ----------
 
@@ -473,27 +501,27 @@ log("V7: Cross-source MARCA comparison")
 
 log("V7A — SELL_OUT brands (PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM.BRAND)")
 df_m_so = run_sf_query("PRD_MDP", v7a_sql, "V7A — SELL_OUT MARCA")
-df_m_so.show(200, truncate=False)
+log_df(df_m_so, "SELL_OUT MARCA")
 
 log("V7B — SELL_IN brands (PRD_MEX.MEX_DSP_OTC.V_D_ITEM.LV2_UMB_BRD_DSC)")
 df_m_si = run_sf_query("PRD_MEX", v7b_sql, "V7B — SELL_IN MARCA")
-df_m_si.show(200, truncate=False)
+log_df(df_m_si, "SELL_IN MARCA")
 
 log("V7C — MKT_ON brands (PRD_MDP.MDP_DSP.VW_MKT_ECOMM.MARCA)")
 df_m_on = run_sf_query("PRD_MDP", v7c_sql, "V7C — MKT_ON MARCA")
-df_m_on.show(200, truncate=False)
+log_df(df_m_on, "MKT_ON MARCA")
 
 log("V7D — MKT_OFF brands (PRD_MDP.MDP_STG.FACT_MEDIA_OFF.MARCA)")
 df_m_off = run_sf_query("PRD_MDP", v7d_sql, "V7D — MKT_OFF MARCA")
-df_m_off.show(200, truncate=False)
+log_df(df_m_off, "MKT_OFF MARCA")
 
 log("V7E — WASTE brands (PRD_MDP.MDP_STG.VW_WASTE.MARCA)")
 df_m_wa = run_sf_query("PRD_MDP", v7e_sql, "V7E — WASTE MARCA")
-df_m_wa.show(200, truncate=False)
+log_df(df_m_wa, "WASTE MARCA")
 
 log("V7F — IBP brands (PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP.MARCA)")
 df_m_ibp = run_sf_query("PRD_MDP", v7f_sql, "V7F — IBP MARCA")
-df_m_ibp.show(200, truncate=False)
+log_df(df_m_ibp, "IBP MARCA")
 
 # COMMAND ----------
 
@@ -533,7 +561,7 @@ ORDER BY 1
 
 log("V8: SELL_OUT row count impact at new grain")
 df_impact = run_sf_query("PRD_MDP", v8_sql, "V8 — SELL_OUT row count + cardinality")
-df_impact.show(50, truncate=False)
+log_df(df_impact, "SELL_OUT row count + cardinality", n=50)
 
 # COMMAND ----------
 
