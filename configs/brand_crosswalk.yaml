@@ -1,8 +1,8 @@
 # Brand Crosswalk — configs/brand_crosswalk.yaml
 # ─────────────────────────────────────────────────────────────────────────────
-# PURPOSE  : Canonical brand name mapping across all 6 data sources
+# PURPOSE  : Canonical brand name mapping across all 10 data sources
 # RULE     : Both MARCA (raw) and MARCA_STD (canonical) are kept in all layouts
-# DECISIONS (locked):
+# DECISIONS (locked — Phase B/C):
 #   - Sub-brands stay separate (BONAFONT KIDS ≠ BONAFONT)
 #   - Competitors in MKT_OFF keep their own canonical name
 #   - SELL_IN merchandise → _MERCHANDISE
@@ -12,12 +12,18 @@
 #   - INVERSION_REAL null for non-Danone MKT_OFF rows is allowed (confirmed)
 #   - CAMPANA null for non-Danone MKT_OFF rows is allowed (confirmed)
 # ─────────────────────────────────────────────────────────────────────────────
+# C.5 UPDATE — 2026-06-22
+#   V9  confirmed brand lists from all 4 Nielsen sources
+#   V10 confirmed SELL_IN gaps (mixed-case variants, DAIRY DANONE MEXICO, etc.)
+#   V11 confirmed 19 MATCHED + 12 expected NO_IBP_MATCH brands
+# ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 # FORMAT: each entry = canonical_name → list of raw variants (any source)
 #         Matching is TRIM + UPPER before comparison in SQL.
 # ─────────────────────────────────────────────────────────────────────────────
 
-version: "1.0"
-generated_from: "Phase C — MARCA standardization"
+version: "2.0"
+generated_from: "Phase C.5 — confirmed from V9/V10/V11 Databricks validation"
 
 # ══════════════════════════════════════════════════════════════════
 # SECTION A — Danone Brands (confirmed canonical names)
@@ -42,7 +48,9 @@ danone_brands:
     sources: [SELL_OUT, SELL_IN, MKT_ON, WASTE, IBP]
 
   BONAFONT:
-    variants: ["BONAFONT", "BONAFONT_NATURAL", "AZUL BONAFONT", "BONAFONT NATURAL"]
+    variants: ["BONAFONT", "BONAFONT_NATURAL", "AZUL BONAFONT", "BONAFONT NATURAL",
+               "Bonafont", "WATER BONAFONT", "BONAFONT 11 LTS", "Bft 11 Lts",
+               "Bft 20 Lts", "Salmon Bonafont"]
     sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, IBP]
     note: "Excludes sub-brands which stay separate"
 
@@ -51,12 +59,12 @@ danone_brands:
     sources: [SELL_IN]
 
   BONAFONT KIDS:
-    variants: ["BONAFONT KIDS", "BONAFONT_KIDS", "BONAFONT KIDS NATURAL"]
-    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF]
+    variants: ["BONAFONT KIDS", "BONAFONT_KIDS", "BONAFONT KIDS NATURAL", "Kids", "KIDS"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, IBP]
 
   BONAFONT MINERAL:
-    variants: ["BONAFONT MINERAL", "MINERALIZADA"]
-    sources: [SELL_OUT]
+    variants: ["BONAFONT MINERAL", "MINERALIZADA", "Mineralizada"]
+    sources: [SELL_OUT, SELL_IN]
 
   BONAFONT SER:
     variants: ["BONAFONT SER", "SER PURA"]
@@ -64,8 +72,9 @@ danone_brands:
 
   BONAFONT TE:
     variants: ["TE BONAFONT", "TÉ BONAFONT", "BONAFONT TE", "BONAFONT_TE",
-               "BONAFONT TÉ", "TÉ BONAFONT"]
+               "BONAFONT TÉ", "TÉ BONAFONT", "BONAFONT TÉ"]
     sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, IBP]
+    note: "IBP uses BONAFONT TÉ (with accent) — confirmed V10B"
 
   DANETTE:
     variants: ["DANETTE"]
@@ -81,7 +90,8 @@ danone_brands:
 
   DANONE:
     variants: ["DANONE", "DANONE YOGHURT", "DANONE CREME", "DANONE FREE",
-               "DANONE GRIEGO", "DANONE FS", "DAIRY"]
+               "DANONE GRIEGO", "DANONE FS", "DAIRY", "Danone",
+               "DAIRY DANONE MEXICO", "Dairy Danone France", "DANAO"]
     sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP]
     note: "DANONE HERSHEYS maps separately to HERSHEYS canonical"
 
@@ -102,24 +112,27 @@ danone_brands:
     sources: [SELL_OUT, SELL_IN, WASTE, IBP]
 
   EVIAN:
-    variants: ["EVIAN"]
+    variants: ["EVIAN", "FERRARELLE"]
     sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, IBP]
+    note: "FERRARELLE is a Danone water brand distributed through EVIAN channel in MEX"
 
   HERSHEYS:
     variants: ["HERSHEYS", "HERSHEY'S", "DANONE HERSHEYS"]
     sources: [SELL_OUT, SELL_IN, WASTE, IBP]
 
   INFINIT:
-    variants: ["INFINIT WATER", "INFINIT", "INFINITY", "WATER INFINIT"]
+    variants: ["INFINIT WATER", "INFINIT", "INFINITY", "WATER INFINIT", "INFINIT WATER"]
     sources: [SELL_OUT, MKT_ON, IBP]
 
   JUIZZY:
-    variants: ["JUIZZY"]
-    sources: [SELL_OUT, SELL_IN, IBP]
+    variants: ["JUIZZY", "Juizzy", "JUIZZY + AGUAS FRESCAS", "FRUIX"]
+    sources: [SELL_OUT, SELL_IN, IBP, WATER_RETAIL_NIELSEN, WATER_SCANTRACK_NIELSEN]
+    note: "FRUIX confirmed as JUIZZY sub-brand in SELL_IN (V10A). Juizzy+AGUAS FRESCAS is a Nielsen sub-brand combo."
 
   LEVITE:
-    variants: ["LEVITE", "BONAFONT_LEVITE", "BONAFONT LEVITE"]
-    sources: [SELL_OUT, MKT_ON, MKT_OFF, IBP]
+    variants: ["LEVITE", "BONAFONT_LEVITE", "BONAFONT LEVITE", "Levite",
+               "LEVITE CLASICA", "LEVITE INFUSIONES", "LEVITE CERO", "LEVITE BALANCE"]
+    sources: [SELL_OUT, MKT_ON, MKT_OFF, IBP, SELL_IN, WATER_RETAIL_NIELSEN, WATER_SCANTRACK_NIELSEN]
 
   LICUAMIX:
     variants: ["LICUAMIX"]
@@ -134,16 +147,18 @@ danone_brands:
     sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP]
 
   PUREZA AGA:
-    variants: ["PUREZA AGA", "AGA", "AGA 20 LTS", "AQUAPURA", "AGUA NATURAL"]
+    variants: ["PUREZA AGA", "AGA", "AGA 20 LTS", "AQUAPURA", "AGUA NATURAL",
+               "Aga", "Aga 20 Lts", "Agua Natural", "Ultrapura", "ULTRAPURA",
+               "Botella Aga", "AGA PUREZA"]
     sources: [SELL_OUT, SELL_IN]
 
   SILK:
-    variants: ["SILK", "SILK ORIG 946ML", "SILKCHOCO190ML"]
-    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP]
+    variants: ["SILK", "SILK ORIG 946ML", "SILKCHOCO190ML", "Silk"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP, PB_SCANTRACK_NIELSEN]
 
   SO DELICIOUS:
     variants: ["SO DELICIOUS"]
-    sources: [SELL_OUT, SELL_IN, WASTE]
+    sources: [SELL_OUT, SELL_IN, WASTE, PB_SCANTRACK_NIELSEN]
 
   STOK:
     variants: ["STOK COLD BREW", "STOK"]
@@ -155,7 +170,7 @@ danone_brands:
 
   YOPRO:
     variants: ["YOPRO", "YO PRO"]
-    sources: [SELL_OUT, SELL_IN, MKT_ON, WASTE]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, WASTE, EDP_NIELSEN, PB_SCANTRACK_NIELSEN]
 
 # ══════════════════════════════════════════════════════════════════
 # SECTION B — Non-Danone / Competitor Brands (MKT_OFF, Nielsen)
@@ -251,6 +266,39 @@ special_mappings:
       - "Especiero"
       - "Pouch"
       - "Bowls"
+      # V10 confirmed additional merchandise items
+      - "CODISTRIBUCION"
+      - "OTHERS"
+      - "PRIVADA"
+      - "PROMO"
+      - "Promo"
+      - "Productos Descontinuados"
+      - "KINDER"
+      - "Disney"
+      - "Star Wars"
+      - "Ice Age"
+      - "Kung Fu Panda"
+      - "COLORS & FLAVOURS"
+      - "MILK POWDERS"
+      - "FLEXIBLES"
+      - "PLASTIC BOTTLE"
+      - "NATURAL"
+      - "Bases"
+      - "Carrera"
+      - "Mundial"
+      - "Reto"
+      - "Sport"
+      - "Nano"
+      - "Infantil"
+      - "25 Años"
+      - "2Pack Blanco"
+      - "2Pack Negro"
+      - "KUYEN KAAT"
+      - "SABOR FRESA"
+      - "SABOR HORCHATA"
+      - "SABOR JAMAICA"
+      - "SABOR LIMON"
+      - "SABOR NARANJA"
     sources: [SELL_IN]
 
   # WASTE anomaly brand values
@@ -278,22 +326,72 @@ special_mappings:
     sources: [MKT_ON, MKT_OFF]
 
 # ══════════════════════════════════════════════════════════════════
-# SECTION D — Nielsen PENDING (blocked until V9 results confirmed)
+# SECTION D — Nielsen Brands (CONFIRMED from V9 — 2026-06-22)
 # ══════════════════════════════════════════════════════════════════
+# V9 results: EDP=219 brands, Water Retail=160/166, Scantrack=140, PB=77
+# Nielsen layouts use:
+#   EDP           : INP_56985 AS ITM_UNIF_BRND (confirmed column)
+#   Water Retail  : CSTM_310589 AS ITM_UNIF_BRAND → derived to ITM_UNIF_BRAND_DAN
+#   Water Scantrack: CSTM_310589 AS ITM_UNIF_BRAND
+#   PB Scantrack  : INP_56985 AS ITM_UNIF_BRAND
+
 nielsen_brands:
-  status: "BLOCKED — awaiting V9 distinct brand query results from Databricks"
-  note: >
-    Nielsen layouts use ITM_UNIF_BRND (EDP) and ITM_UNIF_BRAND (Water, PB).
-    Column type/values must be confirmed via extract_column_types before adding to crosswalk.
-  known_from_layout_sql:
-    - "BONAFONT (appears in Water Retail CASE WHEN)"
-    - "BONAFONT KIDS (appears in Water Retail CASE WHEN)"
-    - "BONAFONT AGUA FRESCAS (appears in Water Retail CASE WHEN)"
-    - "LEVITE (appears in Water Retail CASE WHEN)"
-    - "JUIZZY (appears in Water Retail CASE WHEN)"
-    - "CIEL (appears in Water Retail CASE WHEN)"
-    - "E-PURITA (appears in Water Retail CASE WHEN)"
-    - "PUREZA VITAL (appears in Water Retail CASE WHEN)"
-    - "COCA-COLA (manufacturer-derived)"
-    - "PEPSI (manufacturer-derived)"
-    - "LALA (manufacturer-derived)"
+  status: "CONFIRMED — V9 validated 2026-06-22"
+
+  # Danone brands confirmed across EDP + Water + PB Nielsen
+  danone_brands_in_nielsen:
+    - ACTIVIA         # EDP
+    - BENEGASTRO      # EDP
+    - DANETTE         # EDP
+    - DANONE          # EDP
+    - DANONINO        # EDP
+    - DAN MIX         # EDP → DANMIX
+    - DAN UP          # EDP → DANUP
+    - DANY            # EDP
+    - LICUAMIX        # EDP
+    - OIKOS           # EDP
+    - SILK            # EDP + PB
+    - SO DELICIOUS    # EDP + PB
+    - VITALINEA       # EDP
+    - YOPRO           # EDP + PB
+    # Waters
+    - BONAFONT        # Water Retail + Scantrack
+    - BONAFONT KIDS   # Water Retail (derived)
+    - BONAFONT AGUA FRESCAS  # Water Retail (derived) → AGUAS FRESCAS
+    - LEVITE          # Water Retail (derived — from LEVITE CLASICA/INFUSIONES/CERO/BALANCE)
+    - JUIZZY          # Water Retail (derived)
+    - AGUAS FRESCAS   # Water Retail raw
+
+  # Non-Danone brands confirmed in Nielsen (each keeps own canonical)
+  competitor_brands_in_nielsen:
+    edp_competitors:
+      - LALA
+      - YOPLAIT
+      - ALPURA
+      - YAKULT
+      - CHOBANI
+    water_competitors:
+      - CIEL           # Coca-Cola
+      - COCA-COLA      # derived from manufacturer
+      - PEPSI          # derived from manufacturer (GRUPO GEPP/PEPSICO)
+      - PEÑAFIEL       # derived from GRUPO PENAFIEL
+      - LALA           # derived from LALA PRODS. LACTEOS
+      - SANTA MARIA (NESTLE)
+      - E-PURITA       # kids water
+      - PUREZA VITAL   # kids water
+      - OTHER BRANDS
+      - MARCAS GENERICAS
+    pb_competitors:
+      - ADES
+      - ALPURA
+      - BLUE DIAMOND
+      - CALIFIA FARMS
+      - CHOBANI
+      - ELMHURST
+      - LALA VITA
+      - NATURES HEART
+      - NOTMILK
+      - OATLY
+      - PACIFIC
+      - RIPPLE
+      # 60+ additional brands: each keeps own name, no normalization needed

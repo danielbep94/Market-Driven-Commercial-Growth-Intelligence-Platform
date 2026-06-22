@@ -5,7 +5,7 @@
 
 _meta:
   generated_by: scripts/build_registry.py
-  generated_at: '2026-06-22T16:15:17Z'
+  generated_at: '2026-06-22T20:31:27Z'
   input_hash: sha256:ef03f7a12209b9ce8f4f9c4602ed0d8450add37d75406277d0e609bc6380850b
   input_file_hashes:
     SEMANTIC_LAYOUTS/EDP_NIELSEN/EDP_MARKET.txt: sha256:014681f9b0cf9be128b0e826b1689a3734cdcad11d8d251e9bb4f8a7427d5980
