@@ -615,7 +615,8 @@ log_df(df_impact, "SELL_OUT row count + cardinality", n=50)
 
 # COMMAND ----------
 
-# V9A: EDP Nielsen — ITM_UNIF_BRND
+# V9A: EDP Nielsen — INP_56985 (column confirmed as ITM_UNIF_BRND in layout)
+# Source: VW_IR_YOG_GEL_MT_NLSN_PROD_DIM (confirmed working)
 v9a_sql = """
 SELECT DISTINCT TRIM(ITM_UNIF_BRND) AS MARCA, 'EDP_MARKET' AS SOURCE
 FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
@@ -623,59 +624,124 @@ WHERE ITM_UNIF_BRND IS NOT NULL AND TRIM(ITM_UNIF_BRND) <> ''
 ORDER BY MARCA
 """
 
-# V9B: Water Retail — ITM_UNIF_BRAND (from CSTM_310589)
+# V9B: Water Retail — both raw brand (CSTM_310589) AND derived ITM_UNIF_BRAND_DAN
+# Corrected table: VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM (was wrongly named VW_D_MKT_WATER_RETAIL_PROD_DIM)
 v9b_sql = """
-SELECT DISTINCT TRIM(A."CSTM_310589") AS MARCA, 'WATER_RETAIL' AS SOURCE
-FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_WATER_RETAIL_PROD_DIM A
+SELECT
+    TRIM(A."CSTM_310589") AS ITM_UNIF_BRAND_RAW,
+    'WATER_RETAIL'        AS SOURCE,
+    COUNT(DISTINCT A."product_id") AS PRODUCT_COUNT
+FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM A
 WHERE A."CSTM_310589" IS NOT NULL AND TRIM(A."CSTM_310589") <> ''
-ORDER BY MARCA
+GROUP BY 1, 2
+ORDER BY ITM_UNIF_BRAND_RAW
 """
 
-# V9C: Water Scantrack — ITM_UNIF_BRAND (from CSTM_310589)
+# V9B_DAN: Water Retail — derived ITM_UNIF_BRAND_DAN from the aggregated output view
+# This is the canonical column used in the layout output
+v9b_dan_sql = """
+SELECT DISTINCT
+    ITM_UNIF_BRAND_DAN AS MARCA_DAN,
+    ITM_UNIF_BRAND     AS MARCA_RAW,
+    'WATER_RETAIL'     AS SOURCE
+FROM (
+    WITH RAW_RETAIL AS (
+        SELECT
+            A."CSTM_321331" AS ITM_UNIF_MANUF,
+            A."CSTM_310589" AS ITM_UNIF_BRAND,
+            A."CSTM_972397" AS ITM_UNIF_SUBBRND,
+            'WATERS RIE'    AS SOURCE
+        FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT AS J
+        JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM AS A
+            ON J."product_id" = A."product_id"
+        WHERE A."hierarchy_level" = 9
+        LIMIT 500000
+    )
+    SELECT
+        ITM_UNIF_BRAND,
+        CASE
+            WHEN ITM_UNIF_MANUF = 'FIJI'                    THEN 'FIJI'
+            WHEN ITM_UNIF_BRAND = 'OTHERS MARCA'             THEN 'OTHER BRANDS'
+            WHEN ITM_UNIF_BRAND = 'STA. MARIA -NESTLE'       THEN 'SANTA MARIA (NESTLE)'
+            WHEN ITM_UNIF_SUBBRND IN ('LEVITE CLASICA', 'LEVITE INFUSIONES', 'LEVITE CERO', 'LEVITE BALANCE') THEN 'LEVITE'
+            WHEN ITM_UNIF_BRAND = 'BONAFONT' AND ITM_UNIF_SUBBRND = 'KIDS'          THEN 'BONAFONT KIDS'
+            WHEN ITM_UNIF_BRAND = 'BONAFONT' AND ITM_UNIF_SUBBRND = 'AGUAS FRESCAS' THEN 'BONAFONT AGUA FRESCAS'
+            WHEN ITM_UNIF_MANUF IN ('IND. REFRESQUERA PENINSULAR', 'COCA-COLA COMPANY') THEN 'COCA-COLA'
+            WHEN ITM_UNIF_MANUF IN ('GRUPO GEPP', 'PEPSICO') THEN 'PEPSI'
+            WHEN ITM_UNIF_MANUF = 'LALA PRODS. LACTEOS'     THEN 'LALA'
+            WHEN SOURCE = 'WATERS RIE_GEN'                   THEN 'MARCAS GENERICAS'
+            ELSE ITM_UNIF_BRAND
+        END AS ITM_UNIF_BRAND_DAN
+    FROM RAW_RETAIL
+)
+ORDER BY MARCA_DAN
+"""
+
+# V9C: Water Scantrack — corrected table: VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM
+# (was wrongly named VW_D_MKT_WATER_SCANTRACK_PROD_DIM)
 v9c_sql = """
-SELECT DISTINCT TRIM(A."CSTM_310589") AS MARCA, 'WATER_SCANTRACK' AS SOURCE
-FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_WATER_SCANTRACK_PROD_DIM A
+SELECT
+    TRIM(A."CSTM_310589") AS ITM_UNIF_BRAND_RAW,
+    'WATER_SCANTRACK'     AS SOURCE,
+    COUNT(DISTINCT A."product_id") AS PRODUCT_COUNT
+FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM A
 WHERE A."CSTM_310589" IS NOT NULL AND TRIM(A."CSTM_310589") <> ''
-ORDER BY MARCA
+GROUP BY 1, 2
+ORDER BY ITM_UNIF_BRAND_RAW
 """
 
-# V9D: PB Scantrack — ITM_UNIF_BRAND (INP_56985)
+# V9D: PB Scantrack — corrected table: VW_SUST_LECHE_ST_NLSN_PROD_DIM
+# (was wrongly named VW_D_MKT_PB_SCANTRACK_PROD_DIM)
+# Brand column confirmed as INP_56985 in the layout SQL
 v9d_sql = """
-SELECT DISTINCT TRIM(B.INP_56985) AS MARCA, 'PB_SCANTRACK' AS SOURCE
-FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_PB_SCANTRACK_PROD_DIM B
+SELECT
+    TRIM(B.INP_56985) AS MARCA,
+    'PB_SCANTRACK'    AS SOURCE,
+    COUNT(DISTINCT B."product_id") AS PRODUCT_COUNT
+FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_PROD_DIM B
 WHERE B.INP_56985 IS NOT NULL AND TRIM(B.INP_56985) <> ''
+GROUP BY 1, 2
 ORDER BY MARCA
 """
 
 log("=" * 70)
 log("V9: Nielsen distinct brand values (unblocks C.5)")
 log("=" * 70)
-log("NOTE: If any of these fail with 'object does not exist', the table name")
-log("  needs to be confirmed via extract_column_types. Report the error.")
+log("CORRECTED TABLE NAMES:")
+log("  Water Retail  → VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM")
+log("  Water Scantrk → VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM")
+log("  PB Scantrack  → VW_SUST_LECHE_ST_NLSN_PROD_DIM")
 
 try:
-    log("V9A — EDP Nielsen brands (ITM_UNIF_BRND)")
+    log("V9A — EDP Nielsen brands (ITM_UNIF_BRND from VW_IR_YOG_GEL_MT_NLSN_PROD_DIM)")
     df_n_edp = run_sf_query("PRD_MEX", v9a_sql, "V9A — EDP MARCA")
     log_df(df_n_edp, "EDP Nielsen brands", n=300)
 except Exception as e:
     log(f"  ❌ V9A FAILED: {e}")
 
 try:
-    log("V9B — Water Retail brands (ITM_UNIF_BRAND / CSTM_310589)")
-    df_n_wr = run_sf_query("PRD_MEX", v9b_sql, "V9B — Water Retail MARCA")
-    log_df(df_n_wr, "Water Retail brands", n=300)
+    log("V9B — Water Retail raw brands (CSTM_310589 from VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM)")
+    df_n_wr = run_sf_query("PRD_MEX", v9b_sql, "V9B — Water Retail MARCA raw")
+    log_df(df_n_wr, "Water Retail raw brands", n=300)
 except Exception as e:
     log(f"  ❌ V9B FAILED: {e}")
 
 try:
-    log("V9C — Water Scantrack brands (ITM_UNIF_BRAND / CSTM_310589)")
+    log("V9B_DAN — Water Retail derived brands (ITM_UNIF_BRAND_DAN — canonical output column)")
+    df_n_wr_dan = run_sf_query("PRD_MEX", v9b_dan_sql, "V9B_DAN — Water Retail MARCA_DAN")
+    log_df(df_n_wr_dan, "Water Retail ITM_UNIF_BRAND_DAN", n=300)
+except Exception as e:
+    log(f"  ❌ V9B_DAN FAILED: {e}")
+
+try:
+    log("V9C — Water Scantrack raw brands (CSTM_310589 from VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM)")
     df_n_ws = run_sf_query("PRD_MEX", v9c_sql, "V9C — Water Scantrack MARCA")
     log_df(df_n_ws, "Water Scantrack brands", n=300)
 except Exception as e:
     log(f"  ❌ V9C FAILED: {e}")
 
 try:
-    log("V9D — PB Scantrack brands (ITM_UNIF_BRAND / INP_56985)")
+    log("V9D — PB Scantrack brands (INP_56985 from VW_SUST_LECHE_ST_NLSN_PROD_DIM)")
     df_n_pb = run_sf_query("PRD_MEX", v9d_sql, "V9D — PB Scantrack MARCA")
     log_df(df_n_pb, "PB Scantrack brands", n=300)
 except Exception as e:
