@@ -60,11 +60,6 @@ import os
 import io
 import sys
 
-# ── Log file path — inside the repo so it can be committed ───────────────
-# Works on Databricks Repos: the notebook's CWD is the repo root
-REPO_ROOT = os.path.dirname(os.path.abspath(__file__)) if "__file__" in dir() else "/Workspace/Repos"
-LOG_PATH  = os.path.join(os.path.dirname(REPO_ROOT) if REPO_ROOT.endswith("notebooks") else REPO_ROOT, "notebooks", "validation_results.txt")
-
 LOG_LINES = []
 
 def log(msg):
@@ -74,52 +69,101 @@ def log(msg):
     print(line)
     LOG_LINES.append(line)
 
+def get_log_path():
+    """
+    Resolve a writable log path in Databricks notebooks / repos.
+    Priority:
+      1) current working directory
+      2) ./notebooks under cwd (if exists)
+      3) /tmp
+    """
+    try:
+        cwd = os.getcwd()
+    except Exception:
+        cwd = None
+
+    candidates = []
+
+    if cwd:
+        # Save in current directory
+        candidates.append(os.path.join(cwd, "validation_results.txt"))
+
+        # If a notebooks subfolder exists, use it
+        nb_dir = os.path.join(cwd, "notebooks")
+        if os.path.isdir(nb_dir):
+            candidates.append(os.path.join(nb_dir, "validation_results.txt"))
+
+        # If cwd itself is notebooks, save there directly
+        if os.path.basename(cwd).lower() == "notebooks":
+            candidates.insert(0, os.path.join(cwd, "validation_results.txt"))
+
+    # Final fallback
+    candidates.append("/tmp/validation_results.txt")
+
+    return candidates
+
 def log_df(df, label, n=200):
     """Capture a Spark DataFrame's .show() output into the log."""
     log(f"  {label}:")
-    # Capture show() output by redirecting stdout
     old_stdout = sys.stdout
-    sys.stdout = buffer = io.StringIO()
-    df.show(n, truncate=False)
-    sys.stdout = old_stdout
+    buffer = io.StringIO()
+    try:
+        sys.stdout = buffer
+        df.show(n, truncate=False)
+    finally:
+        sys.stdout = old_stdout
+
     table_str = buffer.getvalue()
-    print(table_str)           # still print to notebook cell
+    print(table_str)
+
     for line in table_str.rstrip().split("\n"):
-        LOG_LINES.append(line) # also capture into log
+        LOG_LINES.append(line)
 
 def run_sf_query(database, query, label="query"):
     """Run a Snowflake query via Spark using the profile for the given database."""
     opts = get_sf_options(database)
     log(f"Running: {label}  [db={database}]")
-    df = (spark.read
-          .format("net.snowflake.spark.snowflake")
-          .options(**opts)
-          .option("sfDatabase", database)
-          .option("query", query)
-          .load())
+    df = (
+        spark.read
+        .format("net.snowflake.spark.snowflake")
+        .options(**opts)
+        .option("sfDatabase", database)
+        .option("query", query)
+        .load()
+    )
     row_count = df.count()
     log(f"  → {row_count} rows returned")
     return df
 
 def save_log():
-    """Write accumulated log to a file inside the repo so it can be committed."""
-    # Try repo-relative path first, fall back to /tmp
-    try:
-        path = LOG_PATH
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w") as f:
-            f.write("\n".join(LOG_LINES))
-        log(f"Log saved to {path}")
-    except Exception as e:
-        # Fallback: save next to the notebook or in /tmp
-        fallback = "/tmp/validation_results.txt"
-        with open(fallback, "w") as f:
-            f.write("\n".join(LOG_LINES))
-        log(f"Could not write to {path} ({e}), saved to {fallback}")
+    """Write accumulated log to the first writable path."""
+    last_error = None
 
+    for path in get_log_path():
+        try:
+            parent = os.path.dirname(path)
+            if parent:
+                os.makedirs(parent, exist_ok=True)
+
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("\n".join(LOG_LINES))
+
+            log(f"Log saved to {path}")
+            return path
+
+        except Exception as e:
+            last_error = e
+            continue
+
+    # If all candidates fail
+    log(f"Could not save log to any candidate path. Last error: {last_error}")
+    return None
+
+# Header
+CANDIDATE_PATHS = get_log_path()
 log("=" * 70)
 log("SEMANTIC LAYER VALIDATION — Phase B")
-log(f"Log will be saved to: {LOG_PATH}")
+log(f"Candidate log paths: {CANDIDATE_PATHS}")
 log("=" * 70)
 
 # COMMAND ----------
@@ -573,13 +617,19 @@ log_df(df_impact, "SELL_OUT row count + cardinality", n=50)
 log("=" * 70)
 log("VALIDATION COMPLETE")
 log("=" * 70)
-save_log()
 
-# Print summary
+saved_path = save_log()
+
 print("\n" + "=" * 70)
 print("FULL LOG:")
 print("=" * 70)
 print("\n".join(LOG_LINES))
+
+if saved_path:
+    print(f"\nLog file saved at: {saved_path}")
+else:
+    print("\nLog file could not be saved.")
+
 
 # COMMAND ----------
 
