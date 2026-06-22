@@ -927,21 +927,33 @@ log("=" * 70)
 log("PHASE C VALIDATION COMPLETE")
 log("=" * 70)
 
-# Save to a Phase C specific file
+# Save Phase C log — derive path from get_log_path() (avoids undefined LOG_PATH)
 import os
-try:
-    log_dir = os.path.dirname(LOG_PATH)
-    phase_c_path = os.path.join(log_dir, "validation_results_phase_c.txt")
-    os.makedirs(log_dir, exist_ok=True)
-    with open(phase_c_path, "w") as f:
-        f.write("\n".join(LOG_LINES))
-    log(f"Phase C log saved to: {phase_c_path}")
-    print(f"✓ Log saved to: {phase_c_path}")
-except Exception as e:
+
+phase_c_path = None
+
+# Try to find the notebooks directory from the candidate paths
+for candidate in get_log_path():
+    candidate_dir = os.path.dirname(candidate)
+    try_path = os.path.join(candidate_dir, "validation_results_phase_c.txt")
+    try:
+        os.makedirs(candidate_dir, exist_ok=True)
+        with open(try_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(LOG_LINES))
+        phase_c_path = try_path
+        log(f"Phase C log saved to: {phase_c_path}")
+        print(f"✓ Phase C log saved to: {phase_c_path}")
+        break
+    except Exception as e:
+        log(f"  Could not write to {try_path}: {e}")
+        continue
+
+if phase_c_path is None:
     fallback = "/tmp/validation_results_phase_c.txt"
-    with open(fallback, "w") as f:
+    with open(fallback, "w", encoding="utf-8") as f:
         f.write("\n".join(LOG_LINES))
-    print(f"Saved to fallback: {fallback}")
+    print(f"⚠️  Saved to fallback (not in repo): {fallback}")
+    print("   → Copy this file to notebooks/validation_results_phase_c.txt and commit.")
 
 print("\n" + "=" * 70)
 print("PHASE C VALIDATION COMPLETE")
@@ -949,5 +961,7 @@ print("=" * 70)
 print("\n".join(LOG_LINES[-50:]))  # print last 50 lines as summary
 
 # COMMAND ----------
+
+
 
 
