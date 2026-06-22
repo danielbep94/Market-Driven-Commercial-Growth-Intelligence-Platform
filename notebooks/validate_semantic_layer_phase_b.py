@@ -615,31 +615,31 @@ log_df(df_impact, "SELL_OUT row count + cardinality", n=50)
 
 # COMMAND ----------
 
-# V9A: EDP Nielsen — ITM_UNIF_BRND
+# V9A: EDP Nielsen — ITM_UNIF_BRND (from INP_56985)
 v9a_sql = """
-SELECT DISTINCT TRIM(ITM_UNIF_BRND) AS MARCA, 'EDP_MARKET' AS SOURCE
+SELECT DISTINCT TRIM(INP_56985) AS MARCA, 'EDP_MARKET' AS SOURCE
 FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
-WHERE ITM_UNIF_BRND IS NOT NULL AND TRIM(ITM_UNIF_BRND) <> ''
+WHERE INP_56985 IS NOT NULL AND TRIM(INP_56985) <> ''
 ORDER BY MARCA
 """
 
-# V9B: Water Retail — ITM_UNIF_BRAND (from CSTM_310589)
+# V9B: Water Retail — ITM_UNIF_BRAND (from ITM_UNIF_BRND_DAN)
 v9b_sql = """
-SELECT DISTINCT TRIM(A."CSTM_310589") AS MARCA, 'WATER_RETAIL' AS SOURCE
+SELECT DISTINCT TRIM(A.ITM_UNIF_BRND_DAN) AS MARCA, 'WATER_RETAIL' AS SOURCE
 FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_WATER_RETAIL_PROD_DIM A
-WHERE A."CSTM_310589" IS NOT NULL AND TRIM(A."CSTM_310589") <> ''
+WHERE A.ITM_UNIF_BRND_DAN IS NOT NULL AND TRIM(A.ITM_UNIF_BRND_DAN) <> ''
 ORDER BY MARCA
 """
 
-# V9C: Water Scantrack — ITM_UNIF_BRAND (from CSTM_310589)
+# V9C: Water Scantrack — ITM_UNIF_BRAND (from ITM_UNIF_BRND_DAN)
 v9c_sql = """
-SELECT DISTINCT TRIM(A."CSTM_310589") AS MARCA, 'WATER_SCANTRACK' AS SOURCE
+SELECT DISTINCT TRIM(A.ITM_UNIF_BRND_DAN) AS MARCA, 'WATER_SCANTRACK' AS SOURCE
 FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_WATER_SCANTRACK_PROD_DIM A
-WHERE A."CSTM_310589" IS NOT NULL AND TRIM(A."CSTM_310589") <> ''
+WHERE A.ITM_UNIF_BRND_DAN IS NOT NULL AND TRIM(A.ITM_UNIF_BRND_DAN) <> ''
 ORDER BY MARCA
 """
 
-# V9D: PB Scantrack — ITM_UNIF_BRAND (INP_56985)
+# V9D: PB Scantrack — ITM_UNIF_BRAND (from INP_56985)
 v9d_sql = """
 SELECT DISTINCT TRIM(B.INP_56985) AS MARCA, 'PB_SCANTRACK' AS SOURCE
 FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_PB_SCANTRACK_PROD_DIM B
@@ -654,28 +654,28 @@ log("NOTE: If any of these fail with 'object does not exist', the table name")
 log("  needs to be confirmed via extract_column_types. Report the error.")
 
 try:
-    log("V9A — EDP Nielsen brands (ITM_UNIF_BRND)")
+    log("V9A — EDP Nielsen brands (INP_56985)")
     df_n_edp = run_sf_query("PRD_MEX", v9a_sql, "V9A — EDP MARCA")
     log_df(df_n_edp, "EDP Nielsen brands", n=300)
 except Exception as e:
     log(f"  ❌ V9A FAILED: {e}")
 
 try:
-    log("V9B — Water Retail brands (ITM_UNIF_BRAND / CSTM_310589)")
+    log("V9B — Water Retail brands (ITM_UNIF_BRND_DAN)")
     df_n_wr = run_sf_query("PRD_MEX", v9b_sql, "V9B — Water Retail MARCA")
     log_df(df_n_wr, "Water Retail brands", n=300)
 except Exception as e:
     log(f"  ❌ V9B FAILED: {e}")
 
 try:
-    log("V9C — Water Scantrack brands (ITM_UNIF_BRAND / CSTM_310589)")
+    log("V9C — Water Scantrack brands (ITM_UNIF_BRND_DAN)")
     df_n_ws = run_sf_query("PRD_MEX", v9c_sql, "V9C — Water Scantrack MARCA")
     log_df(df_n_ws, "Water Scantrack brands", n=300)
 except Exception as e:
     log(f"  ❌ V9C FAILED: {e}")
 
 try:
-    log("V9D — PB Scantrack brands (ITM_UNIF_BRAND / INP_56985)")
+    log("V9D — PB Scantrack brands (INP_56985)")
     df_n_pb = run_sf_query("PRD_MEX", v9d_sql, "V9D — PB Scantrack MARCA")
     log_df(df_n_pb, "PB Scantrack brands", n=300)
 except Exception as e:
@@ -885,5 +885,3 @@ print("\n" + "=" * 70)
 print("PHASE C VALIDATION COMPLETE")
 print("=" * 70)
 print("\n".join(LOG_LINES[-50:]))  # print last 50 lines as summary
-
-# COMMAND ----------
