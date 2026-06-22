@@ -12,25 +12,46 @@
 
 # COMMAND ----------
 
-# ── PRD_MDP Connection (SELL_OUT, WASTE, IBP, MKT_ON, MKT_OFF) ──────────
+# ── Snowflake Connection Profiles ────────────────────────────────────────
 
-sf_opts_mdp = {
-    "sfURL":       "danonenam.east-us-2.azure.snowflakecomputing.com",
-    "sfDatabase":  "PRD_MDP",
-    "sfWarehouse": "PRD_MDP_ANL_WH",  # adjust if different
-}
+SF_URL = "danonenam.east-us-2.azure.snowflakecomputing.com"
 
-# ── PRD_MEX Connection (SELL_IN, Nielsen) ────────────────────────────────
-
-sf_opts_mex = {
-    "sfURL":       "danonenam.east-us-2.azure.snowflakecomputing.com",
+# ─── Profile: PRD_MEX ─────────────────────────────────────────────────────────
+PRD_MEX_PROFILE = {
+    "sfURL":       SF_URL,
     "sfUser":      "PRD_OSM_DPH_READER",
     "sfPassword":  "73.bBZmne7Aq",
-    "sfDatabase":  "PRD_MEX",
-    "sfSchema":    "MEX_DSP_DPH_MKT",
     "sfWarehouse": "PRD_MEX_ANL_WH",
     "sfRole":      "PRD_MEX_READER",
 }
+
+# ─── Profile: PRD_MDP ─────────────────────────────────────────────────────────
+# Uses Key Vault credentials via Databricks secret scope
+KEYVAULT_SCOPE = "DAN-AM-P-KVT800-R-MDP-DB"
+PRD_MDP_PROFILE = {
+    "sfURL":       SF_URL,
+    "sfUser":      dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-user"),
+    "sfPassword":  dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-password"),
+    "sfWarehouse": "PRD_MDP_ANL_WH",
+    "sfRole":      "PRD_MDP",
+}
+
+# ─── Profile Router ───────────────────────────────────────────────────────────
+CONNECTION_PROFILES = {
+    "PRD_MEX": PRD_MEX_PROFILE,
+    "PRD_MDP": PRD_MDP_PROFILE,
+}
+
+def get_sf_options(database: str) -> dict:
+    """Return the Snowflake connection options for a given database."""
+    if database not in CONNECTION_PROFILES:
+        raise ValueError(f"No connection profile for database '{database}'. "
+                         f"Available: {list(CONNECTION_PROFILES.keys())}")
+    return CONNECTION_PROFILES[database]
+
+# Verify profiles loaded
+for db, profile in CONNECTION_PROFILES.items():
+    print(f"  {db}: warehouse={profile['sfWarehouse']}, role={profile['sfRole']}, user={profile['sfUser']}")
 
 # COMMAND ----------
 
@@ -45,15 +66,18 @@ def log(msg):
     print(line)
     LOG_LINES.append(line)
 
-def run_sf_query(opts, query, label="query"):
-    """Run a Snowflake query via Spark and return a Spark DataFrame."""
-    log(f"Running: {label}")
+def run_sf_query(database, query, label="query"):
+    """Run a Snowflake query via Spark using the profile for the given database."""
+    opts = get_sf_options(database)
+    log(f"Running: {label}  [db={database}]")
     df = (spark.read
           .format("net.snowflake.spark.snowflake")
           .options(**opts)
+          .option("sfDatabase", database)
           .option("query", query)
           .load())
-    log(f"  → {df.count()} rows returned")
+    row_count = df.count()
+    log(f"  → {row_count} rows returned")
     return df
 
 def save_log():
@@ -133,8 +157,8 @@ FROM base GROUP BY 1 ORDER BY 1
 """
 
 log("V1: SELL_OUT totals comparison")
-df_old = run_sf_query(sf_opts_mdp, v1a_sql, "V1A — SELL_OUT OLD (GROUP BY)")
-df_new = run_sf_query(sf_opts_mdp, v1b_sql, "V1B — SELL_OUT NEW (no GROUP BY)")
+df_old = run_sf_query("PRD_MDP", v1a_sql, "V1A — SELL_OUT OLD (GROUP BY)")
+df_new = run_sf_query("PRD_MDP", v1b_sql, "V1B — SELL_OUT NEW (no GROUP BY)")
 
 log("  OLD totals:")
 df_old.show(truncate=False)
@@ -185,7 +209,7 @@ ORDER BY CBU, MARCA, MES
 """
 
 log("V2: SELL_IN brand rollup + SKU null check")
-df_si = run_sf_query(sf_opts_mex, v2_sql, "V2 — SELL_IN brand rollup (WATERS)")
+df_si = run_sf_query("PRD_MEX", v2_sql, "V2 — SELL_IN brand rollup (WATERS)")
 df_si.show(50, truncate=False)
 
 # COMMAND ----------
@@ -210,7 +234,7 @@ FROM PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP
 """
 
 log("V3: IBP null rates for FECHA and MARCA")
-df_ibp = run_sf_query(sf_opts_mdp, v3_sql, "V3 — IBP null rates")
+df_ibp = run_sf_query("PRD_MDP", v3_sql, "V3 — IBP null rates")
 df_ibp.show(truncate=False)
 
 # COMMAND ----------
@@ -236,7 +260,7 @@ FROM PRD_MDP.MDP_STG.VW_WASTE
 """
 
 log("V4: WASTE SKU + WASTE_KG check")
-df_waste = run_sf_query(sf_opts_mdp, v4_sql, "V4 — WASTE SKU + KG")
+df_waste = run_sf_query("PRD_MDP", v4_sql, "V4 — WASTE SKU + KG")
 df_waste.show(truncate=False)
 
 # COMMAND ----------
@@ -285,11 +309,11 @@ WHERE ANIO >= 2024
 """
 
 log("V5: Investment shared columns — MKT_ON")
-df_on = run_sf_query(sf_opts_mdp, v5a_sql, "V5A — MKT_ON columns")
+df_on = run_sf_query("PRD_MDP", v5a_sql, "V5A — MKT_ON columns")
 df_on.show(truncate=False)
 
 log("V5: Investment shared columns — MKT_OFF")
-df_off = run_sf_query(sf_opts_mdp, v5b_sql, "V5B — MKT_OFF columns")
+df_off = run_sf_query("PRD_MDP", v5b_sql, "V5B — MKT_OFF columns")
 df_off.show(truncate=False)
 
 # COMMAND ----------
@@ -314,7 +338,7 @@ LIMIT 1
 """
 
 log("V6: SELL_OUT column types")
-df_types = run_sf_query(sf_opts_mdp, v6_sql, "V6 — SELL_OUT types")
+df_types = run_sf_query("PRD_MDP", v6_sql, "V6 — SELL_OUT types")
 df_types.show(truncate=False)
 
 # COMMAND ----------
@@ -345,27 +369,27 @@ SELECT DISTINCT MARCA FROM PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP WHERE MARCA IS NOT
 
 log("V7: Cross-source MARCA comparison")
 log("V7A — SELL_OUT brands (PRD_MDP.VW_D_PRODUCT_RM.BRAND)")
-df_m_so = run_sf_query(sf_opts_mdp, v7a_sql, "V7A — SELL_OUT MARCA")
+df_m_so = run_sf_query("PRD_MDP", v7a_sql, "V7A — SELL_OUT MARCA")
 df_m_so.show(200, truncate=False)
 
 log("V7B — SELL_IN brands (PRD_MEX.V_D_ITEM.LV2_UMB_BRD_DSC)")
-df_m_si = run_sf_query(sf_opts_mex, v7b_sql, "V7B — SELL_IN MARCA")
+df_m_si = run_sf_query("PRD_MEX", v7b_sql, "V7B — SELL_IN MARCA")
 df_m_si.show(200, truncate=False)
 
 log("V7C — MKT_ON brands (VW_MKT_ECOMM.MARCA)")
-df_m_on = run_sf_query(sf_opts_mdp, v7c_sql, "V7C — MKT_ON MARCA")
+df_m_on = run_sf_query("PRD_MDP", v7c_sql, "V7C — MKT_ON MARCA")
 df_m_on.show(200, truncate=False)
 
 log("V7D — MKT_OFF brands (FACT_MEDIA_OFF.MARCA)")
-df_m_off = run_sf_query(sf_opts_mdp, v7d_sql, "V7D — MKT_OFF MARCA")
+df_m_off = run_sf_query("PRD_MDP", v7d_sql, "V7D — MKT_OFF MARCA")
 df_m_off.show(200, truncate=False)
 
 log("V7E — WASTE brands (VW_WASTE.MARCA)")
-df_m_wa = run_sf_query(sf_opts_mdp, v7e_sql, "V7E — WASTE MARCA")
+df_m_wa = run_sf_query("PRD_MDP", v7e_sql, "V7E — WASTE MARCA")
 df_m_wa.show(200, truncate=False)
 
 log("V7F — IBP brands (VW_FACT_DANONE_IBP.MARCA)")
-df_m_ibp = run_sf_query(sf_opts_mdp, v7f_sql, "V7F — IBP MARCA")
+df_m_ibp = run_sf_query("PRD_MDP", v7f_sql, "V7F — IBP MARCA")
 df_m_ibp.show(200, truncate=False)
 
 # COMMAND ----------
@@ -405,7 +429,7 @@ ORDER BY 1
 """
 
 log("V8: SELL_OUT row count impact at new grain")
-df_impact = run_sf_query(sf_opts_mdp, v8_sql, "V8 — SELL_OUT row count + cardinality")
+df_impact = run_sf_query("PRD_MDP", v8_sql, "V8 — SELL_OUT row count + cardinality")
 df_impact.show(50, truncate=False)
 
 # COMMAND ----------
