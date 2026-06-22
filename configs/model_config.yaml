@@ -92,21 +92,27 @@ investment_efficiency:
       note: "After adstock + Hill transform"
     promotion_active:
       semantic_ref: DESCUENTO_PCT
-      column_type: UNKNOWN          # DATA_PROMO not in current semantic_registry sources
+      column_type: UNKNOWN
       source_key: DATA_PROMO
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_PROMO does not have a confirmed semantic layout or Snowflake source mapping."
       note: "Binary flag derived from promo data"
     price_index_vs_category:
       semantic_ref: PRECIO
-      column_type: UNKNOWN          # DATA_PRICE not in current semantic_registry sources
+      column_type: UNKNOWN
       source_key: DATA_PRICE, DATA_NIELSEN
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_PRICE does not have a confirmed semantic layout or Snowflake source mapping."
     nielsen_weighted_distribution:
       semantic_ref: DIST_POND_REACH
       column_type: NUMBER(38,9)
       source_key: DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN
     is_holiday:
       semantic_ref: IS_FISCAL
-      column_type: UNKNOWN          # DATA_CALENDAR not in current semantic_registry sources
+      column_type: UNKNOWN
       source_key: DATA_CALENDAR
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_CALENDAR does not have a confirmed semantic layout or Snowflake source mapping."
       note: "Derived from calendar table"
     sell_out_lag_4w:
       semantic_ref: VOL_SELL_OUT
@@ -153,12 +159,16 @@ competitive_risk:
   score_semantic_metadata:
     share_loss_rate_13w:
       semantic_ref: MARKET_SHARE
-      column_type: UNKNOWN          # DATA_NIELSEN not in current semantic_registry sources
+      column_type: UNKNOWN
       source_key: DATA_NIELSEN
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_NIELSEN does not have a confirmed semantic layout or Snowflake source mapping."
     price_gap_widening:
       semantic_ref: PRECIO
-      column_type: UNKNOWN          # DATA_PRICE not in current semantic_registry sources
+      column_type: UNKNOWN
       source_key: DATA_PRICE
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_PRICE does not have a confirmed semantic layout or Snowflake source mapping."
     numeric_distribution_change_13w:
       semantic_ref: DIST_NUM
       column_type: NUMBER(38,9)
@@ -169,8 +179,10 @@ competitive_risk:
       source_key: DATA_NIELSEN
     share_yoy_change_pp:
       semantic_ref: MARKET_SHARE
-      column_type: UNKNOWN          # DATA_NIELSEN not in current semantic_registry sources
+      column_type: UNKNOWN
       source_key: DATA_NIELSEN
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_NIELSEN does not have a confirmed semantic layout or Snowflake source mapping."
 
   # Alert thresholds
   alert_threshold_score: 70

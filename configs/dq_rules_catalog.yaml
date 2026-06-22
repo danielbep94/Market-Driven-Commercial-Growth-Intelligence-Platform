@@ -275,27 +275,41 @@ DATA_WASTE:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_FORECAST — Demand Forecast
+# STATUS: deprecated_replaced_by_IBP
+# Business confirmed IBP is the forecast/planning source (Q7).
+# These rules expect columns (SKU, FORECAST_UNITS, VERSION) that do not exist
+# in the IBP semantic layout. Rules are blocked pending column remap.
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_FORECAST:
+  _status: deprecated_replaced_by_IBP
+  _replacement_source: DATA_DANONE_IBP
+  _reason: "Business confirmed IBP is the forecast/planning source. Keep source name as IBP."
+  _blocked_reason: "Expected columns (SKU, FORECAST_UNITS, VERSION) do not match IBP layout columns (CICLO, CATEGORIA, FORMATO, IBP_AMOUNT, etc.)."
   SKU:
     mandatory: true
     severity: CRITICAL
     column_type: pending_discovery
+    status: blocked_pending_remap
     description: "SKU — must match sell-in SKU universe"
   CADENA:
     mandatory: false
     severity: HIGH
     column_type: pending_discovery
+    status: blocked_pending_remap
     description: "Customer chain forecast target"
   FECHA:
     mandatory: true
     severity: CRITICAL
     column_type: pending_discovery
+    status: blocked_pending_remap
+    note: "FECHA now exists in IBP layout — this rule could be remapped"
     description: "Forecast period date — required"
   FORECAST_UNITS:
     mandatory: true
     severity: HIGH
     column_type: pending_discovery
+    status: blocked_pending_remap
+    note: "IBP has IBP_AMOUNT (monetary), not FORECAST_UNITS. Cannot remap without business confirmation."
     value_range:
       min: 0
       max: 50000000
@@ -304,6 +318,7 @@ DATA_FORECAST:
     mandatory: false
     severity: MEDIUM
     column_type: pending_discovery
+    status: blocked_pending_remap
     description: "Forecast version identifier — used to select official version"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -407,22 +422,37 @@ DATA_PROMO:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_INVENTORY — Inventory / Stock
+# STATUS: deprecated_replaced_by_SELL_OUT
+# Business confirmed inventory comes from sell-out data (Q8).
+# Inventory metrics are VOL_INV and PCS_INV in the SELL_OUT semantic layout.
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_INVENTORY:
+  _status: deprecated_replaced_by_SELL_OUT
+  _replacement_source: SELL_OUT
+  _replacement_columns:
+    STOCK_UNITS: PCS_INV
+    STOCK_VOLUME: VOL_INV
+  _reason: "Business confirmed inventory comes from sell-out data."
   SKU:
     mandatory: true
     severity: CRITICAL
     column_type: pending_discovery
+    status: remapped_to_SELL_OUT
+    note: "Now available as UPC in SELL_OUT layout (Q9 grain change)."
     description: "SKU — product join key for inventory"
   FECHA:
     mandatory: true
     severity: CRITICAL
     column_type: pending_discovery
+    status: remapped_to_SELL_OUT
+    note: "FECHA exists in SELL_OUT layout."
     description: "Inventory snapshot date"
   STOCK_UNITS:
     mandatory: false
     severity: HIGH
     column_type: pending_discovery
+    status: remapped_to_SELL_OUT
+    note: "Maps to PCS_INV in SELL_OUT layout."
     value_range:
       min: 0
       max: 100000000

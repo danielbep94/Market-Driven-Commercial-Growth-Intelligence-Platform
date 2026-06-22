@@ -948,10 +948,20 @@ columns:
 
   - column_name: VALOR
     business_name: Planning Value (IBP)
-    definition: "The numeric value associated with the IBP record. Interpretation depends on CONCEPTO and ETIQUETA (can be volume, value, or units)."
-    calculation_logic: "Direct from VW_FACT_DANONE_IBP.VALOR — type NUMBER(18,6)"
-    unit: "Varies (Units/MXN/KG)"
+    definition: "The numeric value associated with the IBP record. Business confirmed this represents monetary amount (Q1). Aliased as IBP_AMOUNT in semantic layout."
+    calculation_logic: "Direct from VW_FACT_DANONE_IBP.VALOR — type NUMBER(18,6). Aliased as IBP_AMOUNT."
+    unit: "MXN"
     owner: "S&OP / Demand Planning"
+    datasets: ["DATA_DANONE_IBP"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: IBP_AMOUNT
+    business_name: IBP Forecast/Planning Amount
+    definition: "Monetary forecast/planning value from IBP system. Aliased from VW_FACT_DANONE_IBP.VALOR. Business confirmed this represents monetary amount, not volume or units (Q1)."
+    calculation_logic: "t.VALOR AS IBP_AMOUNT — source type NUMBER(18,6)"
+    unit: "MXN"
+    owner: "Demand Planning / Finance"
     datasets: ["DATA_DANONE_IBP"]
     is_business_key: false
     dimension: null
@@ -1074,6 +1084,15 @@ columns:
     is_business_key: false
     dimension: DIM_CUSTOMER
 
+  - column_name: STORE_ID
+    business_name: Store Identifier
+    definition: "Unique numeric store identifier from VW_FACT_SELL_OUT.STORE. Join key to VW_D_STORE_RM.INT_ID. Added per Q9 grain change to support store-level analysis."
+    calculation_logic: "f.STORE AS STORE_ID — source type NUMBER(38,0)"
+    unit: "ID"
+    owner: "Commercial Operations / Trade Marketing"
+    datasets: ["SELL_OUT"]
+    is_business_key: true
+    dimension: DIM_CUSTOMER
   - column_name: AMOUNT_SELL_OUT
     business_name: Sell-Out Sales Amount
     definition: "Total monetary sell-out value at POS level. SUM(AMOUNT_SELL_OUT) from VW_FACT_SELL_OUT."
@@ -1110,6 +1129,16 @@ columns:
     definition: "Monetary value of wasted product. Aliased from VW_WASTE.\"Waste ($)\" (quoted Snowflake column)."
     calculation_logic: "\"Waste ($)\" AS WASTE_AMOUNT — source type FLOAT"
     unit: "MXN"
+    owner: "Supply Chain / Sustainability"
+    datasets: ["DATA_WASTE"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: WASTE_KG
+    business_name: Waste Volume (KG)
+    definition: "Weight of wasted product in kilograms. Aliased from VW_WASTE.\"Waste (KG)\" (quoted Snowflake column)."
+    calculation_logic: "\"Waste (KG)\" AS WASTE_KG — source type FLOAT"
+    unit: "KG"
     owner: "Supply Chain / Sustainability"
     datasets: ["DATA_WASTE"]
     is_business_key: false

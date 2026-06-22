@@ -240,11 +240,11 @@ column_mappings:
     rationale: >
       Glossary-defined as 'Store Format'. DATA_SELL_OUT only.
       Note: distinct from FORMATO (used in IBP/WASTE as product format).
-    aliases:
-      - name: store_id
-        sources: [dq_thresholds.yaml]
-        layer: silver
-        note: "Silver/Gold layer alias for store identifier."
+    aliases: []
+    # BACKLOG: store_id was incorrectly listed here as an alias.
+    # store_id is a numeric identifier (VW_FACT_SELL_OUT.STORE = NUMBER(38,0)),
+    # not a format label (VW_D_STORE_RM.FORMAT = TEXT(46)).
+    # TODO: Create canonical STORE_ID entry if store-level grain is approved (Q9).
 
   - canonical: FORMATO_CADENA
     dimension: DIM_CUSTOMER
@@ -543,10 +543,10 @@ column_mappings:
         sources: [dq_thresholds.yaml]
         layer: silver
         note: "Silver/Gold alias. Will be updated to VOL_SELL_OUT."
-      - name: waste_units
-        sources: [dq_thresholds.yaml]
-        layer: silver
-        note: "Silver/Gold alias for waste volume."
+    # BACKLOG: waste_units was incorrectly listed here as an alias.
+    # waste_units refers to waste volume (Waste (KG) from VW_WASTE),
+    # NOT sell-out volume (VOL_SELL_OUT from VW_FACT_SELL_OUT).
+    # TODO: Create canonical WASTE_KG entry after DATA_WASTE layout is updated.
 
   - canonical: PCS_SELL_OUT
     dimension: null

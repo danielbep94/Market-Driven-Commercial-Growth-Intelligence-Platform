@@ -26,24 +26,40 @@ sell_out_coverage_medium_threshold: 0.85  # Below this → confidence_level = ME
 
 # --- Per-source thresholds ---
 sell_in:
-  required_not_null: ["SKU", "CADENA", "FECHA", "VOLUMEN"]
+  # Updated per Q10: SKU-level grain approved. MAT_IDT exposed as SKU.
+  # CADENA→CLIENTE_ID: SELL_IN uses customer identity, not retail chain.
+  required_not_null: ["FECHA", "CLIENTE_ID", "MARCA", "SKU", "VOLUMEN"]
   value_range:
     VOLUMEN: {min: 0, max: 10000000}
     VALOR: {min: -1000000, max: 100000000}
 
 sell_out:
-  required_not_null: ["SKU", "FORMAT", "FECHA", "VOL_SELL_OUT"]  # FORMAT mapped from store_id per column_name_mapping.yaml — verify if INT_ID or STORE is more appropriate
-  value_range:
-    VOL_SELL_OUT: {min: 0, max: 5000000}
-
-waste:
-  required_not_null: ["SKU", "CADENA", "FECHA", "VOL_SELL_OUT"]  # waste_units mapped to VOL_SELL_OUT per column_name_mapping.yaml — consider UNIDADES_MERMA if waste-specific metric is needed
+  # Updated per Q9: store/UPC-level grain approved.
+  # STORE_ID, UPC, SUBCHAIN added; GROUP BY removed (fact-level rows).
+  required_not_null: ["FECHA", "STORE_ID", "UPC", "CADENA", "FORMATO_CADENA", "MARCA", "VOL_SELL_OUT"]
   value_range:
     VOL_SELL_OUT: {min: 0, max: 1000000}
-  # Anomaly: waste_units > sell_in_units in same period → flag is_anomaly = TRUE, do not drop
+    PCS_SELL_OUT: {min: 0, max: 1000000}
+    AMOUNT_SELL_OUT: {min: 0, max: 100000000}
+    VOL_INV: {min: 0, max: 1000000}
+    PCS_INV: {min: 0, max: 1000000}
+
+waste:
+  # Aligned to actual DATA_WASTE layout output: FECHA, SKU, CADENA, MARCA, CANAL, FUENTE, FORMATO, WASTE_AMOUNT, WASTE_KG
+  # VOL_SELL_OUT removed — it is a sell-out metric, NOT a waste metric
+  # SKU now in layout (pass-through, no grain change) but not in required_not_null pending grain decision
+  # WASTE_KG added — confirmed available as "Waste (KG)": FLOAT in VW_WASTE
+  required_not_null: ["CADENA", "MARCA", "FECHA", "WASTE_AMOUNT", "WASTE_KG"]
+  value_range:
+    WASTE_AMOUNT: {min: 0, max: 100000000}
+    WASTE_KG: {min: 0, max: 10000000}
+  # Anomaly: waste_amount > sell_in_valor in same period → flag is_anomaly = TRUE, do not drop
 
 investment:
-  required_not_null: ["MARCA", "CANAL", "FECHA", "INVERSION_REAL"]
+  # Updated per Q3: confirmed business hierarchy is MEDIO → SOPORTE_PLATAFORMA → MARCA → CAMPANA → FECHA
+  # CANAL does not exist in either MKT source. All 6 columns confirmed shared between MKT_ON and MKT_OFF.
+  # CADENA only in MKT_ON, CLASE only in MKT_OFF — not in shared threshold.
+  required_not_null: ["MEDIO", "SOPORTE_PLATAFORMA", "MARCA", "CAMPANA", "FECHA", "INVERSION_REAL"]
   value_range:
     INVERSION_REAL: {min: 0, max: 500000000}
 

@@ -2,7 +2,7 @@
     "SELL_IN": {
         "db": "PRD_MEX",
         "schema": "MEX_DSP_OTC",
-        "notes": "IMPORTANT: VOLUMEN is not physically homologated across CBU: - WATERS uses liters - EDP uses BIL_NET_KGR / 1000",
+        "notes": "IMPORTANT: VOLUMEN is not physically homologated across CBU: - WATERS uses liters - EDP uses BIL_NET_KGR / 1000. SKU added as MAT_IDT (material identifier from VW_FACT_RNV). This is the product join key used in the source SQL.",
         "sql": """
         WITH CTE_DICCIONARIO AS (
             SELECT
@@ -53,6 +53,7 @@
                     )
                 ) AS CLIENTE_ID,
                 PRO.LV2_UMB_BRD_DSC       AS MARCA,
+                FAC.MAT_IDT               AS SKU,
                 CLI.CUS_SAL_RGN_DSC_EXT   AS REGION,
                 CLI.CUS_SAL_PLT_COD       AS ID_CEDIS,
                 CLI.CUS_SAL_PLT_DSC       AS CEDIS_DSC,
@@ -91,6 +92,7 @@
                 IFNULL(DC1.NEW_CUS_IDT, CASE WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT ELSE CLI.CUS_IDT END),
                 CONCAT('0068', IFNULL(DC1.NEW_CUS_IDT, CASE WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT ELSE CLI.CUS_IDT END)),
                 PRO.LV2_UMB_BRD_DSC,
+                FAC.MAT_IDT,
                 CLI.CUS_SAL_RGN_DSC_EXT,
                 CLI.CUS_SAL_PLT_COD,
                 CLI.CUS_SAL_PLT_DSC,
@@ -123,6 +125,7 @@
                     )
                 ) AS CLIENTE_ID,
                 PRO.LV2_UMB_BRD_DSC         AS MARCA,
+                FAC.MAT_IDT                 AS SKU,
                 CLI.CUS_SAL_RGN_DSC_EXT     AS REGION,
                 CLI.CUS_SAL_PLT_COD         AS ID_CEDIS,
                 CLI.CUS_SAL_PLT_DSC         AS CEDIS_DSC,
@@ -158,6 +161,7 @@
                 IFNULL(DC1.NEW_CUS_IDT, CASE WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT ELSE CLI.CUS_IDT END),
                 CONCAT('0049', IFNULL(DC1.NEW_CUS_IDT, CASE WHEN IFNULL(DC.OLD_CUS_IDT, '-99') NOT IN ('-99') THEN DC.NEW_CUS_IDT ELSE CLI.CUS_IDT END)),
                 PRO.LV2_UMB_BRD_DSC,
+                FAC.MAT_IDT,
                 CLI.CUS_SAL_RGN_DSC_EXT,
                 CLI.CUS_SAL_PLT_COD,
                 CLI.CUS_SAL_PLT_DSC,
@@ -170,10 +174,11 @@
         FROM CTE_CONSOLIDADO
         WHERE FECHA >= '2025-01-01'
         """,
-        "grain_hint": "Granularidad mensual por FECHA, CLIENTE, CLIENTE_ID, MARCA, REGION, ID_CEDIS, CEDIS_DSC, CLUSTER, CBU, MES",
+        "grain_hint": "Granularidad mensual por FECHA, CLIENTE, CLIENTE_ID, MARCA, SKU, REGION, ID_CEDIS, CEDIS_DSC, CLUSTER, CBU, MES",
         "business_keys": [
             "CLIENTE_ID",
             "MARCA",
+            "SKU",
             "REGION",
             "ID_CEDIS",
             "CEDIS_DSC",
@@ -188,6 +193,7 @@
             "CLIENTE",
             "CLIENTE_ID",
             "MARCA",
+            "SKU",
             "REGION",
             "ID_CEDIS",
             "CEDIS_DSC",
@@ -210,6 +216,6 @@
             "WATERS",
             "EDP"
         ],
-        "category_hint": "Sell In Danone detallado por cliente / cluster / cedis / marca"
+        "category_hint": "Sell In Danone detallado por cliente / cluster / cedis / marca / SKU-level"
     }
 }

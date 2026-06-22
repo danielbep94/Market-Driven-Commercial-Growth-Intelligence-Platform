@@ -5,21 +5,21 @@
 
 _meta:
   generated_by: scripts/build_registry.py
-  generated_at: '2026-06-21T04:53:43Z'
-  input_hash: sha256:ad57dee8e9ec2a103ae5fa1c1c24ba9e13cd13fc0c64e1b3ef5553504d3bb9a6
+  generated_at: '2026-06-22T02:26:26Z'
+  input_hash: sha256:f2528608bfe533df5efb2b3aec4bc58b5707150698af95e125ae854c24a8d4fb
   input_file_hashes:
     SEMANTIC_LAYOUTS/EDP_NIELSEN/EDP_MARKET.txt: sha256:014681f9b0cf9be128b0e826b1689a3734cdcad11d8d251e9bb4f8a7427d5980
-    SEMANTIC_LAYOUTS/IBP/IBP_DANONE.txt: sha256:b74228f19d2c549dab30780ba10c07286baa089d24f215393d68a0cefe92f0a4
+    SEMANTIC_LAYOUTS/IBP/IBP_DANONE.txt: sha256:e47594b892b318a77a5b961c3bc6f1a84d1fda43b64677a3f30df755b85c57ac
     SEMANTIC_LAYOUTS/MKT_OFF/OFF.txt: sha256:2b3d9a4f93506f6157eb3a788300f1dcb5cd32bd4c53efc38acb960db5a51e2c
     SEMANTIC_LAYOUTS/MKT_ON/ON.txt: sha256:cb65b05ee1f4b824f2406c11df47f7ef28df4f128928d2dbf7630d4aec152353
     SEMANTIC_LAYOUTS/PB_NEILSEN/PB_SCANTRACK.txt: sha256:738b412347bad1fae6963f85095f5c0cf5b0dc8fa602184e320934ce742e9e77
-    SEMANTIC_LAYOUTS/SELL_IN/SELL_IN_DICT.txt: sha256:8610201d13d0a041633f1c01fb0a24365cf87049a487f972bcb21e8e3b995904
-    SEMANTIC_LAYOUTS/SELL_OUT/SELL_OUT_DICT.txt: sha256:7c6e2e0fc944cdddd950f9a9355773605002f3dc14b81014aa6c3615e519661d
-    SEMANTIC_LAYOUTS/WASTE/DATA_WASTE.txt: sha256:5a8c5de0d3e4d22b57a468ab623a40e6cf01401df8b3650b03c2b8809c824310
+    SEMANTIC_LAYOUTS/SELL_IN/SELL_IN_DICT.txt: sha256:0d2eab7f9e6bdb12fe862fd500ee22572d8088ba8245bec0ee4dc03325ec04dc
+    SEMANTIC_LAYOUTS/SELL_OUT/SELL_OUT_DICT.txt: sha256:3e50cc7296924e2484ce5385436854df18737b864f0dcdd63381316c61c0bfd4
+    SEMANTIC_LAYOUTS/WASTE/DATA_WASTE.txt: sha256:a9dddfd4be6af0e559f7ea997c967e0a4b858bdd20527246995844f5e7d063b2
     SEMANTIC_LAYOUTS/WATER_NEILSEN/RETAIL_WATER.txt: sha256:54aab34298d790f99dd8bbed859e750c16f78e6db283fb79c47ff1f733297b43
     SEMANTIC_LAYOUTS/WATER_NEILSEN/SCANTRACK_WATER.txt: sha256:2048aa9c92cf3427e9d70b3718e81df749877fe200f1e02d7292c18ee70c3527
     configs/column_types_snapshot.yaml: sha256:281186092321053b983fb7b8ea4b49627ce9c176f512420d18d78e9072bc4454
-    configs/column_name_mapping.yaml: sha256:2f528d9b40f92957bc4a6a8e17f739feae5f8b9c4338f78c0e401b5e26ef7b13
+    configs/column_name_mapping.yaml: sha256:71aceedeaa21050df6cc03c5363221def4120179f2254713a1aeaa4817737003
   column_types_snapshot: configs/column_types_snapshot.yaml
   canonical_names: configs/column_name_mapping.yaml
 sources:
@@ -138,19 +138,29 @@ sources:
     db: PRD_MDP
     schema: MDP_DSP
     category: IBP / Danone planning semantic layer
-    notes: Curated IBP semantic layer. SCENARIO is derived from NOMBRE_ETIQUETA. FCST_TYPE is intentionally excluded from
-      semantic logic because it is a legacy/inconsistent field. CICLO represents planning context, not a strict calendar date.
+    notes: Curated IBP semantic layer. FECHA added for cross-source joins. MARCA added for brand analysis. VALOR aliased as
+      IBP_AMOUNT (confirmed as monetary amount). SCENARIO is derived from NOMBRE_ETIQUETA. FCST_TYPE is intentionally excluded
+      from semantic logic because it is a legacy/inconsistent field. CICLO represents planning context, not a strict calendar
+      date.
     sql_ref: SEMANTIC_LAYOUTS/IBP/IBP_DANONE.txt
     date_column:
-      name: CICLO
-      type: TEXT(50)
-      format: planning_cycle
+      name: FECHA
+      type: DATE
+      format: yyyy-MM-dd
       requires_cast: false
     grain_columns:
+    - name: FECHA
+      type: DATE
+      role: grain
+      glossary_ref: FECHA
     - name: CICLO
       type: TEXT(50)
       role: grain
       glossary_ref: CICLO
+    - name: MARCA
+      type: TEXT(16777216)
+      role: grain
+      glossary_ref: MARCA
     - name: CATEGORIA
       type: TEXT(16777216)
       role: grain
@@ -184,12 +194,14 @@ sources:
       role: grain
       glossary_ref: GRAN_CANAL
     metric_columns:
-    - name: VALOR
-      type: NUMBER(18,6)
+    - name: IBP_AMOUNT
+      type: PENDING_SNAPSHOT
       role: metric
-      glossary_ref: VALOR
+      glossary_ref: IBP_AMOUNT
     business_keys:
+    - FECHA
     - CICLO
+    - MARCA
     - CATEGORIA
     - FORMATO
     - NOMBRE_ETIQUETA
@@ -204,7 +216,8 @@ sources:
     - ACTUAL
     - IBP_FORECAST
     - ROLLING_FORECAST
-    grain_hint: Granularidad por CICLO, CATEGORIA, FORMATO, ETIQUETA, NOMBRE_ETIQUETA, MERCADO, CADENA, CANAL, GRAN_CANAL
+    grain_hint: Granularidad por FECHA, CICLO, MARCA, CATEGORIA, FORMATO, ETIQUETA, NOMBRE_ETIQUETA, MERCADO, CADENA, CANAL,
+      GRAN_CANAL
   DATA_MKT_OFF:
     key: DATA_MKT_OFF
     db: PRD_MDP
@@ -410,8 +423,9 @@ sources:
     key: SELL_IN
     db: PRD_MEX
     schema: MEX_DSP_OTC
-    category: Sell In Danone detallado por cliente / cluster / cedis / marca
-    notes: 'IMPORTANT: VOLUMEN is not physically homologated across CBU: - WATERS uses liters - EDP uses BIL_NET_KGR / 1000'
+    category: Sell In Danone detallado por cliente / cluster / cedis / marca / SKU-level
+    notes: 'IMPORTANT: VOLUMEN is not physically homologated across CBU: - WATERS uses liters - EDP uses BIL_NET_KGR / 1000.
+      SKU added as MAT_IDT (material identifier from VW_FACT_RNV). This is the product join key used in the source SQL.'
     sql_ref: SEMANTIC_LAYOUTS/SELL_IN/SELL_IN_DICT.txt
     date_column:
       name: FECHA
@@ -435,6 +449,10 @@ sources:
       type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
+    - name: SKU
+      type: TEXT(16777216)
+      role: grain
+      glossary_ref: SKU
     - name: REGION
       type: TEXT(12)
       role: grain
@@ -471,6 +489,7 @@ sources:
     business_keys:
     - CLIENTE_ID
     - MARCA
+    - SKU
     - REGION
     - ID_CEDIS
     - CEDIS_DSC
@@ -485,13 +504,14 @@ sources:
     source_coverage:
     - WATERS
     - EDP
-    grain_hint: Granularidad mensual por FECHA, CLIENTE, CLIENTE_ID, MARCA, REGION, ID_CEDIS, CEDIS_DSC, CLUSTER, CBU, MES
+    grain_hint: Granularidad mensual por FECHA, CLIENTE, CLIENTE_ID, MARCA, SKU, REGION, ID_CEDIS, CEDIS_DSC, CLUSTER, CBU,
+      MES
   SELL_OUT:
     key: SELL_OUT
     db: PRD_MDP
     schema: MDP_DSP
-    category: Sell Out Danone homologado a cadena / formato / marca
-    notes: ''
+    category: Sell Out Danone por tienda / UPC / cadena / formato / marca
+    notes: Grano a nivel tienda/UPC (sin agregación). Cada fila es un registro del fact table con sus dimensiones resueltas.
     sql_ref: SEMANTIC_LAYOUTS/SELL_OUT/SELL_OUT_DICT.txt
     date_column:
       name: FECHA
@@ -503,6 +523,14 @@ sources:
       type: DATE
       role: grain
       glossary_ref: FECHA
+    - name: STORE_ID
+      type: PENDING_SNAPSHOT
+      role: grain
+      glossary_ref: STORE_ID
+    - name: UPC
+      type: TEXT(16777216)
+      role: grain
+      glossary_ref: UPC
     - name: CADENA
       type: TEXT(16777216)
       role: grain
@@ -511,6 +539,10 @@ sources:
       type: TEXT(46)
       role: grain
       glossary_ref: FORMATO_CADENA
+    - name: SUBCHAIN
+      type: TEXT(42)
+      role: grain
+      glossary_ref: SUBCHAIN
     - name: MARCA
       type: TEXT(16777216)
       role: grain
@@ -537,22 +569,26 @@ sources:
       role: metric
       glossary_ref: PCS_INV
     business_keys:
+    - STORE_ID
+    - UPC
     - MARCA
     - CADENA
     - FORMATO_CADENA
+    - SUBCHAIN
     source_tables:
     - PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
     - PRD_MDP.MDP_DWH.V_D_PERIOD
     - PRD_MDP.MDP_DSP.VW_D_STORE_RM
     - PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM
     source_coverage: []
-    grain_hint: Granularidad por FECHA, CADENA, FORMATO_CADENA, MARCA
+    grain_hint: Granularidad por FECHA, STORE_ID, UPC, CADENA, FORMATO_CADENA, SUBCHAIN, MARCA
   DATA_WASTE:
     key: DATA_WASTE
     db: PRD_MDP
     schema: MDP_STG
     category: Waste / Merma
-    notes: ' Validate uniqueness at declared grain.'
+    notes: 'Validate uniqueness at declared grain. SKU added — pass-through SELECT, no grain change. WASTE_KG added from confirmed
+      Snowflake column ''Waste (KG)'': FLOAT.'
     sql_ref: SEMANTIC_LAYOUTS/WASTE/DATA_WASTE.txt
     date_column:
       name: FECHA
@@ -564,6 +600,10 @@ sources:
       type: DATE
       role: grain
       glossary_ref: FECHA
+    - name: SKU
+      type: TEXT(16777216)
+      role: grain
+      glossary_ref: SKU
     - name: CADENA
       type: TEXT(16777216)
       role: grain
@@ -589,7 +629,12 @@ sources:
       type: FLOAT
       role: metric
       glossary_ref: WASTE_AMOUNT
+    - name: WASTE_KG
+      type: PENDING_SNAPSHOT
+      role: metric
+      glossary_ref: WASTE_KG
     business_keys:
+    - SKU
     - CADENA
     - MARCA
     - CANAL
@@ -599,7 +644,7 @@ sources:
     - PRD_MDP.MDP_STG.VW_WASTE
     source_coverage:
     - WASTE
-    grain_hint: Granularidad por FECHA, CADENA, MARCA, CANAL, FUENTE, FORMATO
+    grain_hint: Granularidad por FECHA, SKU, CADENA, MARCA, CANAL, FUENTE, FORMATO
   DATA_WATER_RETAIL_NIELSEN:
     key: DATA_WATER_RETAIL_NIELSEN
     db: PRD_MEX

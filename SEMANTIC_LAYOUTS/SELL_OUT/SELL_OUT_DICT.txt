@@ -23,6 +23,9 @@
                 st.CHAIN   AS CADENA,
                 st.FORMAT  AS FORMATO_CADENA,
                 prod.BRAND AS MARCA,
+                f.STORE        AS STORE_ID,
+                TO_VARCHAR(f.UPC) AS UPC,
+                st.SUBCHAIN    AS SUBCHAIN,
                 f.VOL_SELL_OUT,
                 f.PCS_SELL_OUT,
                 f.AMOUNT_SELL_OUT,
@@ -43,31 +46,35 @@
             CADENA,
             FORMATO_CADENA,
             MARCA,
-            SUM(VOL_SELL_OUT)    AS VOL_SELL_OUT,
-            SUM(PCS_SELL_OUT)    AS PCS_SELL_OUT,
-            SUM(AMOUNT_SELL_OUT) AS AMOUNT_SELL_OUT,
-            SUM(VOL_INV)         AS VOL_INV,
-            SUM(PCS_INV)         AS PCS_INV
+            STORE_ID,
+            UPC,
+            SUBCHAIN,
+            VOL_SELL_OUT,
+            PCS_SELL_OUT,
+            AMOUNT_SELL_OUT,
+            VOL_INV,
+            PCS_INV
         FROM base
-        GROUP BY
-            FECHA,
-            CADENA,
-            FORMATO_CADENA,
-            MARCA
         """,
-        "grain_hint": "Granularidad por FECHA, CADENA, FORMATO_CADENA, MARCA",
+        "grain_hint": "Granularidad por FECHA, STORE_ID, UPC, CADENA, FORMATO_CADENA, SUBCHAIN, MARCA",
         "business_keys": [
+            "STORE_ID",
+            "UPC",
             "MARCA",
             "CADENA",
-            "FORMATO_CADENA"
+            "FORMATO_CADENA",
+            "SUBCHAIN"
         ],
         "date_col": "FECHA",
         "date_format": "yyyy-MM-dd",
         "date_requires_cast": False,
         "grain_cols": [
             "FECHA",
+            "STORE_ID",
+            "UPC",
             "CADENA",
             "FORMATO_CADENA",
+            "SUBCHAIN",
             "MARCA"
         ],
         "metric_cols": [
@@ -83,6 +90,7 @@
             "PRD_MDP.MDP_DSP.VW_D_STORE_RM",
             "PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM"
         ],
-        "category_hint": "Sell Out Danone homologado a cadena / formato / marca"
+        "category_hint": "Sell Out Danone por tienda / UPC / cadena / formato / marca",
+        "notes": "Grano a nivel tienda/UPC (sin agregación). Cada fila es un registro del fact table con sus dimensiones resueltas."
     }
 }

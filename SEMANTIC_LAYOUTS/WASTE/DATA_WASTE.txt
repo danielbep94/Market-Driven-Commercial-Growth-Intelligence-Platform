@@ -1,20 +1,23 @@
 "DATA_WASTE": {
     "db": "PRD_MDP",
     "schema": "MDP_STG",
-    "notes": " Validate uniqueness at declared grain.",
+    "notes": "Validate uniqueness at declared grain. SKU added — pass-through SELECT, no grain change. WASTE_KG added from confirmed Snowflake column 'Waste (KG)': FLOAT.",
     "sql": """
         SELECT
             FECHA,
+            SKU,
             CADENA,
             MARCA,
             CANAL,
             FUENTE,
             FORMATO,
-            "Waste ($)" AS WASTE_AMOUNT
+            "Waste ($)" AS WASTE_AMOUNT,
+            "Waste (KG)" AS WASTE_KG
         FROM PRD_MDP.MDP_STG.VW_WASTE
     """,
-    "grain_hint": "Granularidad por FECHA, CADENA, MARCA, CANAL, FUENTE, FORMATO",
+    "grain_hint": "Granularidad por FECHA, SKU, CADENA, MARCA, CANAL, FUENTE, FORMATO",
     "business_keys": [
+        "SKU",
         "CADENA",
         "MARCA",
         "CANAL",
@@ -26,6 +29,7 @@
     "date_requires_cast": False,
     "grain_cols": [
         "FECHA",
+        "SKU",
         "CADENA",
         "MARCA",
         "CANAL",
@@ -33,7 +37,8 @@
         "FORMATO"
     ],
     "metric_cols": [
-        "WASTE_AMOUNT"
+        "WASTE_AMOUNT",
+        "WASTE_KG"
     ],
     "source_tables": [
         "PRD_MDP.MDP_STG.VW_WASTE"
