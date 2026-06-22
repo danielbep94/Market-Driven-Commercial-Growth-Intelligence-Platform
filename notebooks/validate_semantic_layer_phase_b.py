@@ -610,27 +610,280 @@ log_df(df_impact, "SELL_OUT row count + cardinality", n=50)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Save Log
+# MAGIC ## V9 — Nielsen: Distinct Brand Values (C.4 — BLOCKED dependency)
+# MAGIC Run this to unblock C.5: adding Nielsen brands to the crosswalk.
+
+# COMMAND ----------
+
+# V9A: EDP Nielsen — ITM_UNIF_BRND
+v9a_sql = """
+SELECT DISTINCT TRIM(ITM_UNIF_BRND) AS MARCA, 'EDP_MARKET' AS SOURCE
+FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
+WHERE ITM_UNIF_BRND IS NOT NULL AND TRIM(ITM_UNIF_BRND) <> ''
+ORDER BY MARCA
+"""
+
+# V9B: Water Retail — ITM_UNIF_BRAND (from CSTM_310589)
+v9b_sql = """
+SELECT DISTINCT TRIM(A."CSTM_310589") AS MARCA, 'WATER_RETAIL' AS SOURCE
+FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_WATER_RETAIL_PROD_DIM A
+WHERE A."CSTM_310589" IS NOT NULL AND TRIM(A."CSTM_310589") <> ''
+ORDER BY MARCA
+"""
+
+# V9C: Water Scantrack — ITM_UNIF_BRAND (from CSTM_310589)
+v9c_sql = """
+SELECT DISTINCT TRIM(A."CSTM_310589") AS MARCA, 'WATER_SCANTRACK' AS SOURCE
+FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_WATER_SCANTRACK_PROD_DIM A
+WHERE A."CSTM_310589" IS NOT NULL AND TRIM(A."CSTM_310589") <> ''
+ORDER BY MARCA
+"""
+
+# V9D: PB Scantrack — ITM_UNIF_BRAND (INP_56985)
+v9d_sql = """
+SELECT DISTINCT TRIM(B.INP_56985) AS MARCA, 'PB_SCANTRACK' AS SOURCE
+FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_PB_SCANTRACK_PROD_DIM B
+WHERE B.INP_56985 IS NOT NULL AND TRIM(B.INP_56985) <> ''
+ORDER BY MARCA
+"""
+
+log("=" * 70)
+log("V9: Nielsen distinct brand values (unblocks C.5)")
+log("=" * 70)
+log("NOTE: If any of these fail with 'object does not exist', the table name")
+log("  needs to be confirmed via extract_column_types. Report the error.")
+
+try:
+    log("V9A — EDP Nielsen brands (ITM_UNIF_BRND)")
+    df_n_edp = run_sf_query("PRD_MEX", v9a_sql, "V9A — EDP MARCA")
+    log_df(df_n_edp, "EDP Nielsen brands", n=300)
+except Exception as e:
+    log(f"  ❌ V9A FAILED: {e}")
+
+try:
+    log("V9B — Water Retail brands (ITM_UNIF_BRAND / CSTM_310589)")
+    df_n_wr = run_sf_query("PRD_MEX", v9b_sql, "V9B — Water Retail MARCA")
+    log_df(df_n_wr, "Water Retail brands", n=300)
+except Exception as e:
+    log(f"  ❌ V9B FAILED: {e}")
+
+try:
+    log("V9C — Water Scantrack brands (ITM_UNIF_BRAND / CSTM_310589)")
+    df_n_ws = run_sf_query("PRD_MEX", v9c_sql, "V9C — Water Scantrack MARCA")
+    log_df(df_n_ws, "Water Scantrack brands", n=300)
+except Exception as e:
+    log(f"  ❌ V9C FAILED: {e}")
+
+try:
+    log("V9D — PB Scantrack brands (ITM_UNIF_BRAND / INP_56985)")
+    df_n_pb = run_sf_query("PRD_MEX", v9d_sql, "V9D — PB Scantrack MARCA")
+    log_df(df_n_pb, "PB Scantrack brands", n=300)
+except Exception as e:
+    log(f"  ❌ V9D FAILED: {e}")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## V10 — MARCA_STD Spot Check (verify crosswalk mapping)
+
+# COMMAND ----------
+
+v10a_sql = """
+SELECT
+    MARCA,
+    CASE
+        WHEN TRIM(UPPER(MARCA)) IN ('ACTIVIA') THEN 'ACTIVIA'
+        WHEN TRIM(UPPER(MARCA)) IN ('AGUAS FRESCAS', 'BFT AGUAS FRESCAS', 'BONAFONT_AGUASFRESCAS', 'BONAFONT AGUA FRESCAS') THEN 'AGUAS FRESCAS'
+        WHEN TRIM(UPPER(MARCA)) IN ('BENEGASTRO', 'BENEG') THEN 'BENEGASTRO'
+        WHEN TRIM(UPPER(MARCA)) IN ('BONAFONT', 'BONAFONT_NATURAL', 'AZUL BONAFONT') THEN 'BONAFONT'
+        WHEN TRIM(UPPER(MARCA)) IN ('BONAFONT KIDS', 'BONAFONT_KIDS', 'BONAFONT KIDS NATURAL') THEN 'BONAFONT KIDS'
+        WHEN TRIM(UPPER(MARCA)) IN ('TE BONAFONT', 'TÉ BONAFONT', 'BONAFONT TE', 'BONAFONT_TE', 'BONAFONT TÉ') THEN 'BONAFONT TE'
+        WHEN TRIM(UPPER(MARCA)) IN ('DANMIX', 'DAN MIX', 'DANMMIX') THEN 'DANMIX'
+        WHEN TRIM(UPPER(MARCA)) IN ('DANONE', 'DANONE YOGHURT', 'DANONE CREME', 'DANONE FREE', 'DANONE GRIEGO', 'DANONE FS', 'DAIRY') THEN 'DANONE'
+        WHEN TRIM(UPPER(MARCA)) IN ('DANONINO', 'DANONINOLIQUIDO') THEN 'DANONINO'
+        WHEN TRIM(UPPER(MARCA)) IN ('DANUP', 'DAN UP', 'DAN''UP') THEN 'DANUP'
+        WHEN TRIM(UPPER(MARCA)) IN ('DANY', 'DANY DANETTE') THEN 'DANY'
+        WHEN TRIM(UPPER(MARCA)) IN ('HERSHEYS', 'HERSHEY''S', 'DANONE HERSHEYS') THEN 'HERSHEYS'
+        WHEN TRIM(UPPER(MARCA)) IN ('LEVITE', 'BONAFONT_LEVITE', 'BONAFONT LEVITE') THEN 'LEVITE'
+        WHEN TRIM(UPPER(MARCA)) IN ('OCEAN SPRAY', 'OCEAN') THEN 'OCEAN SPRAY'
+        WHEN TRIM(UPPER(MARCA)) IN ('OIKOS', 'OIKOS UHT') THEN 'OIKOS'
+        WHEN TRIM(UPPER(MARCA)) IN ('SILK', 'SILK ORIG 946ML', 'SILKCHOCO190ML') THEN 'SILK'
+        WHEN TRIM(UPPER(MARCA)) IN ('STOK COLD BREW', 'STOK') THEN 'STOK'
+        WHEN TRIM(UPPER(MARCA)) IN ('YOPRO', 'YO PRO') THEN 'YOPRO'
+        WHEN TRIM(UPPER(MARCA)) IN ('COCA COLA', 'COCA-COLA', 'COCACOLA', 'THE COCA COLA EXPORT', 'COCA COLA FEMSA') THEN 'COCA COLA'
+        WHEN TRIM(UPPER(MARCA)) IN ('PEPSI', 'PEPSI COLA MEXICANA', 'PEPSICOLA MEXICANA') THEN 'PEPSI'
+        WHEN TRIM(UPPER(MARCA)) IN ('LALA', 'GPO INDUSTRIAL LALA', 'LALA_BIO4', 'LALA_CREMA', 'LALA_GRIEGO', 'LALA_LECHE', 'LALA_YOGURT') THEN 'LALA'
+        WHEN TRIM(UPPER(MARCA)) IN ('LONCHERA', 'PALAS', 'TABLAS', 'TAZAS', 'VASOS', 'TOALLAS', 'TUPPER', 'UTENSILIOS', 'CERAMICA', 'VAJILLA') THEN '_MERCHANDISE'
+        WHEN TRIM(UPPER(MARCA)) IN ('0', 'MULTI', 'DAIRY') THEN '_UNKNOWN'
+        WHEN TRIM(UPPER(MARCA)) IN ('MULTIBRAND', 'MULTIBRAND DAIRY', 'MULTIBRAND DANONE', 'MULTIMARCA', 'DNP') THEN '_MULTIBRAND'
+        ELSE TRIM(UPPER(MARCA))
+    END AS MARCA_STD,
+    COUNT(*) AS ROW_COUNT
+FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM
+WHERE LV2_UMB_BRD_DSC IS NOT NULL
+GROUP BY MARCA, MARCA_STD
+ORDER BY MARCA_STD, MARCA
+"""
+
+v10b_sql = """
+SELECT
+    t.MARCA,
+    CASE
+        WHEN TRIM(UPPER(t.MARCA)) IN ('ACTIVIA') THEN 'ACTIVIA'
+        WHEN TRIM(UPPER(t.MARCA)) IN ('BENEGASTRO', 'BENEG') THEN 'BENEGASTRO'
+        WHEN TRIM(UPPER(t.MARCA)) IN ('BONAFONT', 'BONAFONT_NATURAL', 'AZUL BONAFONT') THEN 'BONAFONT'
+        WHEN TRIM(UPPER(t.MARCA)) IN ('TE BONAFONT', 'TÉ BONAFONT', 'BONAFONT TE', 'BONAFONT_TE') THEN 'BONAFONT TE'
+        WHEN TRIM(UPPER(t.MARCA)) IN ('DANMIX', 'DAN MIX') THEN 'DANMIX'
+        WHEN TRIM(UPPER(t.MARCA)) IN ('DANONE', 'DANONE FREE', 'DANONE GRIEGO') THEN 'DANONE'
+        WHEN TRIM(UPPER(t.MARCA)) IN ('DANUP', 'DAN UP') THEN 'DANUP'
+        WHEN TRIM(UPPER(t.MARCA)) IN ('HERSHEYS', 'HERSHEY''S') THEN 'HERSHEYS'
+        WHEN TRIM(UPPER(t.MARCA)) IN ('LEVITE', 'BONAFONT_LEVITE') THEN 'LEVITE'
+        WHEN TRIM(UPPER(t.MARCA)) IN ('MULTIBRAND', 'MULTIBRAND DAIRY', 'MULTIBRAND DANONE', 'MULTIMARCA', 'DNP') THEN '_MULTIBRAND'
+        ELSE TRIM(UPPER(t.MARCA))
+    END AS MARCA_STD,
+    COUNT(*) AS ROW_COUNT
+FROM PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP t
+WHERE t.MARCA IS NOT NULL
+GROUP BY t.MARCA, MARCA_STD
+ORDER BY MARCA_STD, t.MARCA
+"""
+
+log("V10: MARCA_STD spot check")
+log("V10A — SELL_IN (LV2_UMB_BRD_DSC → MARCA_STD)")
+df_v10a = run_sf_query("PRD_MEX", v10a_sql, "V10A — SELL_IN MARCA_STD spot check")
+log_df(df_v10a, "SELL_IN MARCA_STD mapping", n=200)
+
+log("V10B — IBP (MARCA → MARCA_STD)")
+df_v10b = run_sf_query("PRD_MDP", v10b_sql, "V10B — IBP MARCA_STD spot check")
+log_df(df_v10b, "IBP MARCA_STD mapping", n=100)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## V11 — Cross-Source Join Test (SELL_OUT × IBP on MARCA_STD + FECHA)
+
+# COMMAND ----------
+
+v11_sql = """
+WITH sell_out_std AS (
+    SELECT
+        DATE_TRUNC('MONTH', per."DAY") AS FECHA,
+        CASE
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('ACTIVIA') THEN 'ACTIVIA'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('BONAFONT', 'BONAFONT_NATURAL', 'AZUL BONAFONT') THEN 'BONAFONT'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('TE BONAFONT', 'TÉ BONAFONT', 'BONAFONT TE', 'BONAFONT_TE') THEN 'BONAFONT TE'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('DANMIX', 'DAN MIX', 'DANMMIX') THEN 'DANMIX'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('DANONE', 'DANONE YOGHURT', 'DANONE CREME', 'DANONE FREE', 'DANONE GRIEGO', 'DANONE FS') THEN 'DANONE'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('DANONINO', 'DANONINOLIQUIDO') THEN 'DANONINO'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('DANUP', 'DAN UP', 'DAN''UP') THEN 'DANUP'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('DANY', 'DANY DANETTE') THEN 'DANY'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('EVIAN') THEN 'EVIAN'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('HERSHEYS', 'HERSHEY''S', 'DANONE HERSHEYS') THEN 'HERSHEYS'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('LEVITE', 'BONAFONT_LEVITE', 'BONAFONT LEVITE') THEN 'LEVITE'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('OIKOS', 'OIKOS UHT') THEN 'OIKOS'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('SILK', 'SILK ORIG 946ML', 'SILKCHOCO190ML') THEN 'SILK'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('VITALINEA') THEN 'VITALINEA'
+            WHEN TRIM(UPPER(prod.BRAND)) IN ('YOPRO', 'YO PRO') THEN 'YOPRO'
+            ELSE TRIM(UPPER(prod.BRAND))
+        END AS MARCA_STD,
+        SUM(f.VOL_SELL_OUT)    AS SO_VOL,
+        SUM(f.AMOUNT_SELL_OUT) AS SO_AMT
+    FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT f
+    INNER JOIN PRD_MDP.MDP_DWH.V_D_PERIOD per ON f.PER_ID = per.PER_ID
+    INNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
+        ON f.UPC = prod.INT_ID AND f.CBU_ID = prod.CBU_ID
+    WHERE f.PER_ID >= 20250101
+    GROUP BY 1, 2
+),
+ibp_std AS (
+    SELECT
+        DATE_TRUNC('MONTH', t.FECHA) AS FECHA,
+        CASE
+            WHEN TRIM(UPPER(t.MARCA)) IN ('ACTIVIA') THEN 'ACTIVIA'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('BONAFONT') THEN 'BONAFONT'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('BONAFONT TÉ') THEN 'BONAFONT TE'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('DAN MIX') THEN 'DANMIX'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('DANONE', 'DANONE FREE', 'DANONE GRIEGO') THEN 'DANONE'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('DANONINO') THEN 'DANONINO'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('DAN UP') THEN 'DANUP'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('DANY') THEN 'DANY'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('EVIAN') THEN 'EVIAN'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('HERSHEY''S') THEN 'HERSHEYS'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('LEVITE') THEN 'LEVITE'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('OIKOS') THEN 'OIKOS'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('SILK') THEN 'SILK'
+            WHEN TRIM(UPPER(t.MARCA)) IN ('VITALINEA') THEN 'VITALINEA'
+            ELSE TRIM(UPPER(t.MARCA))
+        END AS MARCA_STD,
+        SUM(t.VALOR) AS IBP_AMT
+    FROM PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP t
+    WHERE t.NOMBRE_ETIQUETA = 'REAL'
+      AND t.FECHA >= '2025-01-01'
+    GROUP BY 1, 2
+)
+SELECT
+    s.FECHA,
+    s.MARCA_STD,
+    ROUND(s.SO_VOL, 2)   AS SO_VOL,
+    ROUND(s.SO_AMT, 2)   AS SO_AMT,
+    ROUND(i.IBP_AMT, 2)  AS IBP_AMT,
+    CASE WHEN i.MARCA_STD IS NULL THEN 'NO_IBP_MATCH' ELSE 'MATCHED' END AS JOIN_STATUS
+FROM sell_out_std s
+LEFT JOIN ibp_std i ON s.FECHA = i.FECHA AND s.MARCA_STD = i.MARCA_STD
+WHERE s.MARCA_STD NOT IN ('_MERCHANDISE', '_UNKNOWN', '_MULTIBRAND', 'INACTIVO', 'NA', 'OTROS')
+ORDER BY s.FECHA, s.MARCA_STD
+"""
+
+log("V11: Cross-source join test — SELL_OUT × IBP on MARCA_STD + FECHA")
+df_v11 = run_sf_query("PRD_MDP", v11_sql, "V11 — cross-source MARCA_STD join")
+log_df(df_v11, "SELL_OUT × IBP join result", n=200)
+
+# Summary of join status
+v11_summary_sql = """
+SELECT
+    JOIN_STATUS,
+    COUNT(DISTINCT MARCA_STD) AS DISTINCT_BRANDS,
+    COUNT(*) AS PERIOD_BRAND_ROWS
+FROM (
+""" + v11_sql.replace("ORDER BY s.FECHA, s.MARCA_STD", "") + """
+)
+GROUP BY JOIN_STATUS
+"""
+# Simpler inline summary
+log("V11 — join status summary (run after V11 main if needed):")
+log("  → Count rows where JOIN_STATUS = 'NO_IBP_MATCH' — those are SELL_OUT brands missing from IBP.")
+log("  → Count rows where JOIN_STATUS = 'MATCHED' — those are joinable cross-source.")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Save Phase C Log
 
 # COMMAND ----------
 
 log("=" * 70)
-log("VALIDATION COMPLETE")
+log("PHASE C VALIDATION COMPLETE")
 log("=" * 70)
 
-saved_path = save_log()
+# Save to a Phase C specific file
+import os
+try:
+    log_dir = os.path.dirname(LOG_PATH)
+    phase_c_path = os.path.join(log_dir, "validation_results_phase_c.txt")
+    os.makedirs(log_dir, exist_ok=True)
+    with open(phase_c_path, "w") as f:
+        f.write("\n".join(LOG_LINES))
+    log(f"Phase C log saved to: {phase_c_path}")
+    print(f"✓ Log saved to: {phase_c_path}")
+except Exception as e:
+    fallback = "/tmp/validation_results_phase_c.txt"
+    with open(fallback, "w") as f:
+        f.write("\n".join(LOG_LINES))
+    print(f"Saved to fallback: {fallback}")
 
 print("\n" + "=" * 70)
-print("FULL LOG:")
+print("PHASE C VALIDATION COMPLETE")
 print("=" * 70)
-print("\n".join(LOG_LINES))
-
-if saved_path:
-    print(f"\nLog file saved at: {saved_path}")
-else:
-    print("\nLog file could not be saved.")
-
+print("\n".join(LOG_LINES[-50:]))  # print last 50 lines as summary
 
 # COMMAND ----------
-
-

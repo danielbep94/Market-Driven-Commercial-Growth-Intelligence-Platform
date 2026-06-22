@@ -45,21 +45,29 @@ sell_out:
     PCS_INV: {min: 0, max: 1000000}
 
 waste:
-  # Aligned to actual DATA_WASTE layout output: FECHA, SKU, CADENA, MARCA, CANAL, FUENTE, FORMATO, WASTE_AMOUNT, WASTE_KG
-  # VOL_SELL_OUT removed — it is a sell-out metric, NOT a waste metric
-  # SKU now in layout (pass-through, no grain change) but not in required_not_null pending grain decision
-  # WASTE_KG added — confirmed available as "Waste (KG)": FLOAT in VW_WASTE
-  required_not_null: ["CADENA", "MARCA", "FECHA", "WASTE_AMOUNT", "WASTE_KG"]
+  # WASTE_AMOUNT and WASTE_KG are COALESCE'd to 0 in layout SQL — no nulls in output.
+  # Negative values are valid (waste adjustments/credits, confirmed by business).
+  # SKU has 0% nulls (validated V4).
+  required_not_null: ["CADENA", "MARCA", "FECHA", "SKU", "WASTE_AMOUNT", "WASTE_KG"]
   value_range:
-    WASTE_AMOUNT: {min: 0, max: 100000000}
-    WASTE_KG: {min: 0, max: 10000000}
+    WASTE_AMOUNT: {min: -100000000, max: 100000000}  # negatives allowed (adjustments)
+    WASTE_KG: {min: -1000000, max: 10000000}          # negatives allowed (adjustments)
   # Anomaly: waste_amount > sell_in_valor in same period → flag is_anomaly = TRUE, do not drop
 
-investment:
-  # Updated per Q3: confirmed business hierarchy is MEDIO → SOPORTE_PLATAFORMA → MARCA → CAMPANA → FECHA
-  # CANAL does not exist in either MKT source. All 6 columns confirmed shared between MKT_ON and MKT_OFF.
-  # CADENA only in MKT_ON, CLASE only in MKT_OFF — not in shared threshold.
-  required_not_null: ["MEDIO", "SOPORTE_PLATAFORMA", "MARCA", "CAMPANA", "FECHA", "INVERSION_REAL"]
+# Investment thresholds split by source (V5 validation showed different null profiles)
+investment_mkt_on:
+  # MKT_ON (VW_MKT_ECOMM): 46K rows. SOPORTE_PLATAFORMA 22.9% null — not required.
+  # CAMPANA 0.1% null — acceptable. INVERSION_REAL 3.2% null — keep required.
+  required_not_null: ["MEDIO", "MARCA", "FECHA", "INVERSION_REAL"]
+  value_range:
+    INVERSION_REAL: {min: 0, max: 500000000}
+
+investment_mkt_off:
+  # MKT_OFF (FACT_MEDIA_OFF): 522K rows. Includes competitor brands.
+  # CAMPANA 75.9% null — NOT required (many non-campaign line items).
+  # INVERSION_REAL 42% null — NOT required (competitor rows may lack amounts).
+  # CAMPANA nulls allowed for non-Danone brands.
+  required_not_null: ["MEDIO", "MARCA", "FECHA"]
   value_range:
     INVERSION_REAL: {min: 0, max: 500000000}
 

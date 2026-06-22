@@ -1204,3 +1204,25 @@ columns:
     datasets: ["DATA_MKT_ON"]
     is_business_key: false
     dimension: null
+
+  # ── Phase C — MARCA Standardization ───────────────────────────────────────
+  - column_name: MARCA_STD
+    business_name: Brand (Standardized)
+    definition: >
+      Canonical brand name derived from MARCA via a CASE WHEN crosswalk.
+      Resolves all source-specific naming variants (e.g., DANUP / DAN UP / DAN'UP → DANUP;
+      TE BONAFONT / TÉ BONAFONT / BONAFONT TE → BONAFONT TE).
+      Keeps both MARCA (raw) and MARCA_STD (canonical) in all layouts so raw traceability
+      is preserved. Special values: _MERCHANDISE (SELL_IN non-product SKUs),
+      _UNKNOWN (WASTE anomaly rows), _MULTIBRAND (multi-brand campaign rows).
+      Nielsen layouts are EXCLUDED until V9 brand values are confirmed.
+    calculation_logic: >
+      CASE WHEN TRIM(UPPER(MARCA)) IN (...variants...) THEN 'CANONICAL_NAME'
+      ELSE TRIM(UPPER(MARCA)) END
+      Generated from configs/brand_crosswalk.yaml via scripts/generate_marca_std.py.
+    unit: "Categorical"
+    owner: "Commercial Intelligence / Data Engineering"
+    datasets: ["DATA_SELL_OUT", "DATA_SELL_IN", "DATA_DANONE_IBP",
+               "DATA_MKT_ON", "DATA_MKT_OFF", "DATA_WASTE"]
+    is_business_key: true
+    dimension: "Brand"

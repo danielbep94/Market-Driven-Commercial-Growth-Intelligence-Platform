@@ -1,0 +1,299 @@
+# Brand Crosswalk — configs/brand_crosswalk.yaml
+# ─────────────────────────────────────────────────────────────────────────────
+# PURPOSE  : Canonical brand name mapping across all 6 data sources
+# RULE     : Both MARCA (raw) and MARCA_STD (canonical) are kept in all layouts
+# DECISIONS (locked):
+#   - Sub-brands stay separate (BONAFONT KIDS ≠ BONAFONT)
+#   - Competitors in MKT_OFF keep their own canonical name
+#   - SELL_IN merchandise → _MERCHANDISE
+#   - WASTE anomaly brands (0, DAIRY, MULTI, etc.) → _UNKNOWN
+#   - Canonical for Hersheys  : HERSHEYS
+#   - Canonical for Bonafont Té: BONAFONT TE
+#   - INVERSION_REAL null for non-Danone MKT_OFF rows is allowed (confirmed)
+#   - CAMPANA null for non-Danone MKT_OFF rows is allowed (confirmed)
+# ─────────────────────────────────────────────────────────────────────────────
+# FORMAT: each entry = canonical_name → list of raw variants (any source)
+#         Matching is TRIM + UPPER before comparison in SQL.
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "1.0"
+generated_from: "Phase C — MARCA standardization"
+
+# ══════════════════════════════════════════════════════════════════
+# SECTION A — Danone Brands (confirmed canonical names)
+# ══════════════════════════════════════════════════════════════════
+danone_brands:
+
+  ACTIVIA:
+    variants: ["ACTIVIA"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP]
+
+  AGUAS FRESCAS:
+    variants: ["AGUAS FRESCAS", "BFT AGUAS FRESCAS", "BONAFONT_AGUASFRESCAS",
+               "BONAFONT AGUA FRESCAS", "BFT AGUAS FRESCAS"]
+    sources: [SELL_OUT, MKT_ON, MKT_OFF, IBP]
+
+  BADOIT:
+    variants: ["BADOIT"]
+    sources: [SELL_OUT, SELL_IN]
+
+  BENEGASTRO:
+    variants: ["BENEGASTRO", "BENEG"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, WASTE, IBP]
+
+  BONAFONT:
+    variants: ["BONAFONT", "BONAFONT_NATURAL", "AZUL BONAFONT", "BONAFONT NATURAL"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, IBP]
+    note: "Excludes sub-brands which stay separate"
+
+  BONAFONT JUGO:
+    variants: ["BONAFONT JUGO"]
+    sources: [SELL_IN]
+
+  BONAFONT KIDS:
+    variants: ["BONAFONT KIDS", "BONAFONT_KIDS", "BONAFONT KIDS NATURAL"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF]
+
+  BONAFONT MINERAL:
+    variants: ["BONAFONT MINERAL", "MINERALIZADA"]
+    sources: [SELL_OUT]
+
+  BONAFONT SER:
+    variants: ["BONAFONT SER", "SER PURA"]
+    sources: [SELL_OUT, SELL_IN]
+
+  BONAFONT TE:
+    variants: ["TE BONAFONT", "TÉ BONAFONT", "BONAFONT TE", "BONAFONT_TE",
+               "BONAFONT TÉ", "TÉ BONAFONT"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, IBP]
+
+  DANETTE:
+    variants: ["DANETTE"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP]
+
+  DANISSIMO:
+    variants: ["DANISSIMO"]
+    sources: [WASTE]
+
+  DANMIX:
+    variants: ["DANMIX", "DAN MIX", "DANMMIX"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, WASTE, IBP]
+
+  DANONE:
+    variants: ["DANONE", "DANONE YOGHURT", "DANONE CREME", "DANONE FREE",
+               "DANONE GRIEGO", "DANONE FS", "DAIRY"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP]
+    note: "DANONE HERSHEYS maps separately to HERSHEYS canonical"
+
+  DANONINO:
+    variants: ["DANONINO", "DANONINOLIQUIDO"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP]
+
+  DANUP:
+    variants: ["DANUP", "DAN UP", "DAN'UP", "DAN'UP"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP]
+
+  DANY:
+    variants: ["DANY", "DANY DANETTE"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP]
+
+  DELIGHT:
+    variants: ["DELIGHT"]
+    sources: [SELL_OUT, SELL_IN, WASTE, IBP]
+
+  EVIAN:
+    variants: ["EVIAN"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, IBP]
+
+  HERSHEYS:
+    variants: ["HERSHEYS", "HERSHEY'S", "DANONE HERSHEYS"]
+    sources: [SELL_OUT, SELL_IN, WASTE, IBP]
+
+  INFINIT:
+    variants: ["INFINIT WATER", "INFINIT", "INFINITY", "WATER INFINIT"]
+    sources: [SELL_OUT, MKT_ON, IBP]
+
+  JUIZZY:
+    variants: ["JUIZZY"]
+    sources: [SELL_OUT, SELL_IN, IBP]
+
+  LEVITE:
+    variants: ["LEVITE", "BONAFONT_LEVITE", "BONAFONT LEVITE"]
+    sources: [SELL_OUT, MKT_ON, MKT_OFF, IBP]
+
+  LICUAMIX:
+    variants: ["LICUAMIX"]
+    sources: [SELL_OUT, SELL_IN]
+
+  OCEAN SPRAY:
+    variants: ["OCEAN SPRAY", "OCEAN"]
+    sources: [SELL_OUT, SELL_IN, WASTE, IBP]
+
+  OIKOS:
+    variants: ["OIKOS", "OIKOS UHT"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP]
+
+  PUREZA AGA:
+    variants: ["PUREZA AGA", "AGA", "AGA 20 LTS", "AQUAPURA", "AGUA NATURAL"]
+    sources: [SELL_OUT, SELL_IN]
+
+  SILK:
+    variants: ["SILK", "SILK ORIG 946ML", "SILKCHOCO190ML"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, MKT_OFF, WASTE, IBP]
+
+  SO DELICIOUS:
+    variants: ["SO DELICIOUS"]
+    sources: [SELL_OUT, SELL_IN, WASTE]
+
+  STOK:
+    variants: ["STOK COLD BREW", "STOK"]
+    sources: [SELL_OUT, IBP]
+
+  VITALINEA:
+    variants: ["VITALINEA"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, WASTE, IBP]
+
+  YOPRO:
+    variants: ["YOPRO", "YO PRO"]
+    sources: [SELL_OUT, SELL_IN, MKT_ON, WASTE]
+
+# ══════════════════════════════════════════════════════════════════
+# SECTION B — Non-Danone / Competitor Brands (MKT_OFF, Nielsen)
+# Each competitor keeps its own canonical name
+# ══════════════════════════════════════════════════════════════════
+competitor_brands:
+
+  COCA COLA:
+    variants: ["COCA COLA", "COCA-COLA", "COCACOLA", "THE COCA COLA EXPORT",
+               "COCA COLA FEMSA"]
+    sources: [MKT_OFF]
+
+  PEPSI:
+    variants: ["PEPSI", "PEPSI COLA MEXICANA", "PEPSICOLA MEXICANA"]
+    sources: [MKT_OFF]
+
+  LALA:
+    variants: ["LALA", "GPO INDUSTRIAL LALA", "LALA_BIO4", "LALA_CHIQUITIN",
+               "LALA_CREMA", "LALA_GRIEGO", "LALA_LECHE", "LALA_LECHE_100",
+               "LALA_MAESTROS", "LALA_NATURALES", "LALA_PLENIA", "LALA_PROBIOC",
+               "LALA_QUESOS", "LALA_YOGURT", "LALA_YOGURT_100", "LALA_YOMI"]
+    sources: [MKT_OFF]
+
+  ALPURA:
+    variants: ["ALPURA", "ALPURA_GRIEGO", "ALPURA_LECHES", "ALPURA_TOYS",
+               "ALPURA_YOGURT", "ALPURA_YOGURT_COLAGENO", "ALPURA_YOGURT_DESLACTOSADO"]
+    sources: [MKT_OFF]
+
+  YOPLAIT:
+    variants: ["YOPLAIT", "YOPLAIT_DOBLECERO", "YOPLAIT_GRIEGO", "YOPLAIT_GRIE_GO",
+               "YOPLAIT_KIDS", "YOPLAIT_SKYR"]
+    sources: [MKT_OFF]
+
+  JUMEX:
+    variants: ["JUMEX", "JUMEXITO", "JUMEX_AMI", "JUMEX_BIDA", "JUMEX_CERO",
+               "JUMEX_FRESCO", "JUMEX_FRESH", "JUMEX_FRUTZZO", "JUMEX_HYDROLIT",
+               "JUMEX_MIA", "JUMEX_SPORT", "JUMEX_UNICO", "JUMEX_XODA", "JUMEX_XOT",
+               "JUGOS DEL VALLE"]
+    sources: [MKT_OFF]
+
+  SANTA CLARA:
+    variants: ["SANTA CLARA", "SANTA_CLARA", "SOC COOP TRAB PASCUA"]
+    sources: [MKT_OFF]
+
+  CIEL:
+    variants: ["CIEL", "CIEL_EXPRIM", "CIEL_MINERAL"]
+    sources: [SELL_IN, MKT_OFF]
+
+  PENAFIEL:
+    variants: ["PENAFIEL", "PEÑAFIEL"]
+    sources: [MKT_OFF]
+
+  SEVEN UP:
+    variants: ["SEVEN UP", "SEVENUP", "SEVEN UP CHI"]
+    sources: [MKT_OFF]
+
+  # Remaining single-variant competitors kept as-is:
+  # FANTA, SPRITE, SQUIRT, MUNDET, JARRITOS, SANGRIA, BARRILITOS,
+  # YAKULT, SANTA MARIA, TERRAFERTIL, etc.
+
+# ══════════════════════════════════════════════════════════════════
+# SECTION C — Special Mappings
+# ══════════════════════════════════════════════════════════════════
+special_mappings:
+
+  # SELL_IN merchandise/packaging (non-product SKUs)
+  _MERCHANDISE:
+    variants:
+      - "Lonchera"
+      - "Palas"
+      - "Tablas"
+      - "Tazas"
+      - "Vasos"
+      - "Toallas"
+      - "Tupper"
+      - "Utensilios"
+      - "Ceramica"
+      - "Vajilla"
+      - "Lapicera"
+      - "cosmetiquera"
+      - "playera mundial"
+      - "portavasos"
+      - "libro navideño"
+      - "Refractarios"
+      - "Botanero"
+      - "Dispensers"
+      - "Bebedero"
+      - "Bomba"
+      - "Jarra"
+      - "Termo"
+      - "Alcancia"
+      - "Metalico"
+      - "Especiero"
+      - "Pouch"
+      - "Bowls"
+    sources: [SELL_IN]
+
+  # WASTE anomaly brand values
+  _UNKNOWN:
+    variants:
+      - "0"
+      - "MULTI"
+      - "DAIRY"
+    sources: [WASTE]
+
+  # Multi-brand / institutional campaigns (MKT_ON)
+  _MULTIBRAND:
+    variants:
+      - "MULTIBRAND"
+      - "MULTIBRAND DAIRY"
+      - "MULTIBRAND DANONE"
+      - "MULTIBRAND INDULGENCE"
+      - "MULTIBRAND INNOS"
+      - "MULTIBRAND KIDS"
+      - "MULTIBRAND WATERS"
+      - "MULTIMARCA"
+      - "INSTITUTO DANONE"
+      - "DNP"
+      - "DANONE FS"
+    sources: [MKT_ON, MKT_OFF]
+
+# ══════════════════════════════════════════════════════════════════
+# SECTION D — Nielsen PENDING (blocked until V9 results confirmed)
+# ══════════════════════════════════════════════════════════════════
+nielsen_brands:
+  status: "BLOCKED — awaiting V9 distinct brand query results from Databricks"
+  note: >
+    Nielsen layouts use ITM_UNIF_BRND (EDP) and ITM_UNIF_BRAND (Water, PB).
+    Column type/values must be confirmed via extract_column_types before adding to crosswalk.
+  known_from_layout_sql:
+    - "BONAFONT (appears in Water Retail CASE WHEN)"
+    - "BONAFONT KIDS (appears in Water Retail CASE WHEN)"
+    - "BONAFONT AGUA FRESCAS (appears in Water Retail CASE WHEN)"
+    - "LEVITE (appears in Water Retail CASE WHEN)"
+    - "JUIZZY (appears in Water Retail CASE WHEN)"
+    - "CIEL (appears in Water Retail CASE WHEN)"
+    - "E-PURITA (appears in Water Retail CASE WHEN)"
+    - "PUREZA VITAL (appears in Water Retail CASE WHEN)"
+    - "COCA-COLA (manufacturer-derived)"
+    - "PEPSI (manufacturer-derived)"
+    - "LALA (manufacturer-derived)"

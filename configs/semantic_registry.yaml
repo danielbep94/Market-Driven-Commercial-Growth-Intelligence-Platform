@@ -5,17 +5,17 @@
 
 _meta:
   generated_by: scripts/build_registry.py
-  generated_at: '2026-06-22T02:26:26Z'
-  input_hash: sha256:f2528608bfe533df5efb2b3aec4bc58b5707150698af95e125ae854c24a8d4fb
+  generated_at: '2026-06-22T16:15:17Z'
+  input_hash: sha256:ef03f7a12209b9ce8f4f9c4602ed0d8450add37d75406277d0e609bc6380850b
   input_file_hashes:
     SEMANTIC_LAYOUTS/EDP_NIELSEN/EDP_MARKET.txt: sha256:014681f9b0cf9be128b0e826b1689a3734cdcad11d8d251e9bb4f8a7427d5980
-    SEMANTIC_LAYOUTS/IBP/IBP_DANONE.txt: sha256:e47594b892b318a77a5b961c3bc6f1a84d1fda43b64677a3f30df755b85c57ac
-    SEMANTIC_LAYOUTS/MKT_OFF/OFF.txt: sha256:2b3d9a4f93506f6157eb3a788300f1dcb5cd32bd4c53efc38acb960db5a51e2c
-    SEMANTIC_LAYOUTS/MKT_ON/ON.txt: sha256:cb65b05ee1f4b824f2406c11df47f7ef28df4f128928d2dbf7630d4aec152353
+    SEMANTIC_LAYOUTS/IBP/IBP_DANONE.txt: sha256:7c79e159cf16d47e6a0c4130f9b18173a3e82724c2bb2670d89bd17957d36d54
+    SEMANTIC_LAYOUTS/MKT_OFF/OFF.txt: sha256:a40db19b2271d4316b3eb99a3081d47c01663ba1203b966161ff879ae23b99f1
+    SEMANTIC_LAYOUTS/MKT_ON/ON.txt: sha256:4b19b66f031019d5b7dd3a39dc9b52aa442809adee33b87c7cec71f4f38c5fc1
     SEMANTIC_LAYOUTS/PB_NEILSEN/PB_SCANTRACK.txt: sha256:738b412347bad1fae6963f85095f5c0cf5b0dc8fa602184e320934ce742e9e77
-    SEMANTIC_LAYOUTS/SELL_IN/SELL_IN_DICT.txt: sha256:0d2eab7f9e6bdb12fe862fd500ee22572d8088ba8245bec0ee4dc03325ec04dc
-    SEMANTIC_LAYOUTS/SELL_OUT/SELL_OUT_DICT.txt: sha256:3e50cc7296924e2484ce5385436854df18737b864f0dcdd63381316c61c0bfd4
-    SEMANTIC_LAYOUTS/WASTE/DATA_WASTE.txt: sha256:a9dddfd4be6af0e559f7ea997c967e0a4b858bdd20527246995844f5e7d063b2
+    SEMANTIC_LAYOUTS/SELL_IN/SELL_IN_DICT.txt: sha256:22c773bd2e7125db1be8ab4a404f2d8556abb1eca7b70b0003842250e0f81ff2
+    SEMANTIC_LAYOUTS/SELL_OUT/SELL_OUT_DICT.txt: sha256:1e897ac4ea406c4ff16474341e641d861d3181c1d9877c265908fc7fcc6f07e4
+    SEMANTIC_LAYOUTS/WASTE/DATA_WASTE.txt: sha256:d53c806456b877fd9fdd4f71bb0b2dab11c4fb1f54b344cbbe82c88f5133a40d
     SEMANTIC_LAYOUTS/WATER_NEILSEN/RETAIL_WATER.txt: sha256:54aab34298d790f99dd8bbed859e750c16f78e6db283fb79c47ff1f733297b43
     SEMANTIC_LAYOUTS/WATER_NEILSEN/SCANTRACK_WATER.txt: sha256:2048aa9c92cf3427e9d70b3718e81df749877fe200f1e02d7292c18ee70c3527
     configs/column_types_snapshot.yaml: sha256:281186092321053b983fb7b8ea4b49627ce9c176f512420d18d78e9072bc4454
@@ -161,6 +161,10 @@ sources:
       type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
+    - name: MARCA_STD
+      type: PENDING_SNAPSHOT
+      role: grain
+      glossary_ref: MARCA_STD
     - name: CATEGORIA
       type: TEXT(16777216)
       role: grain
@@ -202,6 +206,7 @@ sources:
     - FECHA
     - CICLO
     - MARCA
+    - MARCA_STD
     - CATEGORIA
     - FORMATO
     - NOMBRE_ETIQUETA
@@ -239,6 +244,10 @@ sources:
       type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
+    - name: MARCA_STD
+      type: PENDING_SNAPSHOT
+      role: grain
+      glossary_ref: MARCA_STD
     - name: CAMPANA
       type: TEXT(16777216)
       role: grain
@@ -270,6 +279,7 @@ sources:
       glossary_ref: IMPACTOS_HT
     business_keys:
     - MARCA
+    - MARCA_STD
     - CAMPANA
     - MEDIO
     - SOPORTE_PLATAFORMA
@@ -301,6 +311,10 @@ sources:
       type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
+    - name: MARCA_STD
+      type: PENDING_SNAPSHOT
+      role: grain
+      glossary_ref: MARCA_STD
     - name: CAMPANA
       type: TEXT(16777216)
       role: grain
@@ -336,6 +350,7 @@ sources:
       glossary_ref: INVERSION_REAL
     business_keys:
     - MARCA
+    - MARCA_STD
     - CADENA
     - CAMPANA
     - MEDIO
@@ -449,6 +464,10 @@ sources:
       type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
+    - name: MARCA_STD
+      type: PENDING_SNAPSHOT
+      role: grain
+      glossary_ref: MARCA_STD
     - name: SKU
       type: TEXT(16777216)
       role: grain
@@ -489,6 +508,7 @@ sources:
     business_keys:
     - CLIENTE_ID
     - MARCA
+    - MARCA_STD
     - SKU
     - REGION
     - ID_CEDIS
@@ -547,6 +567,10 @@ sources:
       type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
+    - name: MARCA_STD
+      type: PENDING_SNAPSHOT
+      role: grain
+      glossary_ref: MARCA_STD
     metric_columns:
     - name: VOL_SELL_OUT
       type: NUMBER(18,6)
@@ -572,6 +596,7 @@ sources:
     - STORE_ID
     - UPC
     - MARCA
+    - MARCA_STD
     - CADENA
     - FORMATO_CADENA
     - SUBCHAIN
@@ -581,14 +606,14 @@ sources:
     - PRD_MDP.MDP_DSP.VW_D_STORE_RM
     - PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM
     source_coverage: []
-    grain_hint: Granularidad por FECHA, STORE_ID, UPC, CADENA, FORMATO_CADENA, SUBCHAIN, MARCA
+    grain_hint: Granularidad por FECHA, STORE_ID, UPC, CADENA, FORMATO_CADENA, SUBCHAIN, MARCA, MARCA_STD
   DATA_WASTE:
     key: DATA_WASTE
     db: PRD_MDP
     schema: MDP_STG
     category: Waste / Merma
-    notes: 'Validate uniqueness at declared grain. SKU added — pass-through SELECT, no grain change. WASTE_KG added from confirmed
-      Snowflake column ''Waste (KG)'': FLOAT.'
+    notes: Validate uniqueness at declared grain. SKU added — pass-through SELECT, no grain change. WASTE_KG and WASTE_AMOUNT
+      use COALESCE to zero-fill NULLs (19.7% nulls in source). Negative values are valid (waste adjustments/credits).
     sql_ref: SEMANTIC_LAYOUTS/WASTE/DATA_WASTE.txt
     date_column:
       name: FECHA
@@ -612,6 +637,10 @@ sources:
       type: TEXT(16777216)
       role: grain
       glossary_ref: MARCA
+    - name: MARCA_STD
+      type: PENDING_SNAPSHOT
+      role: grain
+      glossary_ref: MARCA_STD
     - name: CANAL
       type: TEXT(16777216)
       role: grain
@@ -637,6 +666,7 @@ sources:
     - SKU
     - CADENA
     - MARCA
+    - MARCA_STD
     - CANAL
     - FUENTE
     - FORMATO
