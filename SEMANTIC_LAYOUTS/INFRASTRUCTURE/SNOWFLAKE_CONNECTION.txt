@@ -4,11 +4,34 @@ Market Growth Intelligence Platform — Danone Mexico
 ================================================================================
 File    : SEMANTIC_LAYOUTS/INFRASTRUCTURE/SNOWFLAKE_CONNECTION.txt
 Purpose : Canonical reference for all Snowflake database connections used by
-          this project. Treat this file as the single source of truth for
-          connection parameters, role names, and Key Vault mappings.
-Updated : 2026-06-23
-Validated by : V12A–V12E (see notebooks/validation_results_nielsen_v12.txt)
+          this project. Single source of truth for connection parameters,
+          role names, warehouse names, and credential resolution logic.
+Updated : 2026-06-23 (Phase C closed — credentials validated ✅)
+Validated by : validate_credentials.py (Cells 1–6 all PASS, 2026-06-23)
+               V12A–V12E (see notebooks/validation_results_nielsen_v12.txt)
 ================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+CREDENTIAL RESOLUTION — ALL NOTEBOOKS
+────────────────────────────────────────────────────────────────────────────────
+Credentials are resolved in this priority order (all notebooks + config module):
+
+  Priority 1: configs/snowflake_creds.py          ← LOCAL ONLY, GITIGNORED
+              Never committed or pushed to GitHub.
+              Copy from configs/snowflake_creds.example.py and fill values.
+
+  Priority 2: Databricks Key Vault (dbutils.secrets.get)
+              PRD_MEX scope: DAN-AM-P-KVT800-R-MEX-DB  [not yet provisioned]
+              PRD_MDP scope: DAN-AM-P-KVT800-R-MDP-DB  [provisioned ✅]
+
+  Priority 3: Environment variables
+              SF_MEX_USER / SF_MEX_PASSWORD   (local dev / CI)
+              SF_MDP_USER / SF_MDP_PASSWORD   (local dev / CI)
+
+The canonical implementation is in configs/snowflake_connection_profiles.py.
+All notebooks must call get_sf_options("PRD_MEX") or get_sf_options("PRD_MDP")
+rather than defining credentials inline.
 
 
 ────────────────────────────────────────────────────────────────────────────────
@@ -26,18 +49,20 @@ DATABASE: PRD_MEX
 Purpose     : Primary production database for Mexico commercial data.
               Contains all Nielsen, MKT, Waste, Water, Sell-In, Sell-Out,
               and EDP semantic layer views.
+Status      : ✅ Validated — live query confirmed (CURRENT_USER, CURRENT_ROLE)
+              Credential source: configs/snowflake_creds.py (local file, gitignored)
 
   sfURL       : danonenam.east-us-2.azure.snowflakecomputing.com
-  sfUser      : [from Key Vault] scope=DAN-AM-P-KVT800-R-MEX-DB key=snowflake-mex-user
-  sfPassword  : [from Key Vault] scope=DAN-AM-P-KVT800-R-MEX-DB key=snowflake-mex-password
+  sfUser      : PRD_OSM_DPH_READER  [stored in configs/snowflake_creds.py, NOT in git]
+  sfPassword  : [stored in configs/snowflake_creds.py, NOT in git]
   sfWarehouse : PRD_MEX_ANL_WH
   sfRole      : PRD_MEX_READER
 
-  ⚠️  CREDENTIAL SAFETY NOTE:
-      Raw credentials were present in early commits (phase1_assessment notebooks,
-      Phase B validation notebook). These have been replaced with Key Vault lookups
-      as of commit f61434c+. If the PRD_MEX_READER account must be rotated,
-      request DBA to update KV scope DAN-AM-P-KVT800-R-MEX-DB.
+  ⚠️  CREDENTIAL SAFETY NOTE (TD-006):
+      The password appeared in early git commits (before Phase C closure).
+      Repo is private. DBA should rotate PRD_OSM_DPH_READER password and
+      update configs/snowflake_creds.py on each Databricks workspace.
+      KV scope DAN-AM-P-KVT800-R-MEX-DB should be provisioned when possible.
       Historical git commits containing the old credential should be considered
       expired and the password rotated by the DBA team.
 
