@@ -220,8 +220,7 @@ def get_log_path():
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC ## Header
+## Header
 
 log("=" * 70)
 log("V13 — Phase D Stage 1: Cross-Source Join Validation")
@@ -975,5 +974,5 @@ for path in get_log_path():
         print(f"  Could not write to {path}: {e}")
 
 if not written:
-    print("WARNING: Could not write log to any path.")
-    print(log_text[:1000])
+    print("WARNING: Could not write log to any candidate path.")
+    print(log_text[:500])
