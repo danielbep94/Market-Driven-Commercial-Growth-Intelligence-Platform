@@ -4,11 +4,13 @@
 # MAGIC Run each cell top to bottom. All cells must print ✅ before you proceed.
 
 # COMMAND ----------
+
 # ─── CELL 1: Verify the creds file is found and loaded ───────────────────────
 import os, importlib.util
 
-_p = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                    "..", "configs", "snowflake_creds.py"))
+# Use os.getcwd() instead of __file__ for Jupyter/Databricks notebook environments
+_current_dir = os.getcwd()
+_p = os.path.normpath(os.path.join(_current_dir, "..", "configs", "snowflake_creds.py"))
 
 print(f"Looking for creds file at: {_p}")
 
@@ -26,6 +28,7 @@ _spec.loader.exec_module(_m)
 print("✅ CELL 1 PASS — configs/snowflake_creds.py found and loaded")
 
 # COMMAND ----------
+
 # ─── CELL 2: Verify required variables are present and non-empty ──────────────
 required = {
     "SF_MEX_USER":     getattr(_m, "SF_MEX_USER",     None),
@@ -51,6 +54,7 @@ if errors:
 print("\n✅ CELL 2 PASS — all PRD_MEX variables present and filled in")
 
 # COMMAND ----------
+
 # ─── CELL 3: Verify the connection profile module loads correctly ─────────────
 # This confirms snowflake_connection_profiles.py picks up the local creds file
 
@@ -59,7 +63,10 @@ print("\n✅ CELL 2 PASS — all PRD_MEX variables present and filled in")
 print("\n✅ CELL 3 PASS — snowflake_connection_profiles.py loaded via %%run")
 
 # COMMAND ----------
+
 # ─── CELL 4: Confirm get_sf_options() returns PRD_MEX with local values ───────
+
+# Use the global function loaded via the %run magic command in Cell 3
 mex_opts = get_sf_options("PRD_MEX")
 
 assert mex_opts["sfRole"]      == "PRD_MEX_READER", f"Wrong role: {mex_opts['sfRole']}"
@@ -75,6 +82,7 @@ print(f"  sfRole      : {mex_opts['sfRole']}")
 print("\n✅ CELL 4 PASS — get_sf_options('PRD_MEX') resolves correctly from local file")
 
 # COMMAND ----------
+
 # ─── CELL 5: Live Snowflake connection test (PRD_MEX) ────────────────────────
 # Runs a lightweight query to confirm the credentials actually connect
 
@@ -104,6 +112,7 @@ except Exception as e:
     raise
 
 # COMMAND ----------
+
 # ─── CELL 6: Live Snowflake connection test (PRD_MDP via Key Vault) ───────────
 # PRD_MDP still uses Key Vault — confirm it also works
 
@@ -128,6 +137,7 @@ except Exception as e:
     print("  PRD_MEX (Cell 5) is what matters for Phase C/D work.")
 
 # COMMAND ----------
+
 # ─── CELL 7: Summary ─────────────────────────────────────────────────────────
 print("=" * 60)
 print("CREDENTIAL VALIDATION SUMMARY")
@@ -141,3 +151,7 @@ print("  Cell 6 — PRD_MDP live query        ✅ or ⚠️ (KV dependency)")
 print("=" * 60)
 print("configs/snowflake_creds.py is GITIGNORED — will never be pushed to GitHub")
 print("Credential load order: local file → Key Vault → env var")
+
+# COMMAND ----------
+
+
