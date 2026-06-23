@@ -317,17 +317,58 @@ DANONE_IN_CLAUSE = f"({_danone_sql_list})"
 # COMMAND ----------
 
 log("=" * 70)
-log("PRE-CHECK — PRD_MPD.MDP_STG schema access")
+log("PRE-CHECK — PRD_MDP connection health + MDP_STG schema access")
 log("=" * 70)
+log("Note: Spark connector requires SELECT queries — SHOW TABLES is not supported.")
+log("")
 
-schema_check_sql = "SHOW TABLES IN SCHEMA PRD_MDP.MDP_STG"
+# Step 1: Confirm the Spark-Snowflake connection is live and role/warehouse are correct
+conn_health_sql = """
+SELECT
+    CURRENT_DATABASE()  AS CURRENT_DB,
+    CURRENT_SCHEMA()    AS CURRENT_SCHEMA,
+    CURRENT_ROLE()      AS CURRENT_ROLE,
+    CURRENT_WAREHOUSE() AS CURRENT_WH
+"""
 try:
-    df_schema, _ = run_sf_query("PRD_MDP", schema_check_sql, "Schema access: SHOW TABLES IN PRD_MDP.MDP_STG")
-    log("  ✅ PRD_MPD.MDP_STG schema is accessible under PRD_MDP role")
+    df_conn, _ = run_sf_query("PRD_MDP", conn_health_sql, "PRE-CHECK: PRD_MDP connection health")
+    row_conn   = df_conn.collect()[0]
+    log(f"  Connected  → DB={row_conn['CURRENT_DB']}  ROLE={row_conn['CURRENT_ROLE']}  WH={row_conn['CURRENT_WH']}")
+    if str(row_conn["CURRENT_ROLE"]) != "PRD_MDP":
+        blocker(
+            f"Active role is '{row_conn['CURRENT_ROLE']}' — expected 'PRD_MDP'. "
+            f"Set sfRole='PRD_MDP' in snowflake_creds.py or Key Vault."
+        )
+    else:
+        log("  ✅ PRD_MDP role confirmed")
+except Exception as e:
+    blocker(f"PRD_MDP Snowflake connection failed: {e}")
+
+# Step 2: Confirm MDP_STG schema is visible to this role via INFORMATION_SCHEMA
+# (a future CREATE TABLE will fail if schema doesn't exist or role lacks privilege)
+schema_check_sql = """
+SELECT
+    TABLE_SCHEMA,
+    COUNT(*) AS TABLE_COUNT
+FROM PRD_MDP.INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'MDP_STG'
+GROUP BY TABLE_SCHEMA
+"""
+try:
+    df_schema, _ = run_sf_query("PRD_MDP", schema_check_sql, "PRE-CHECK: MDP_STG schema in INFORMATION_SCHEMA")
+    rows = df_schema.collect()
+    if rows:
+        log(f"  ✅ MDP_STG schema accessible — {rows[0]['TABLE_COUNT']} table(s) visible")
+    else:
+        # Schema exists but is empty — still acceptable for first run
+        log("  ⚠️  MDP_STG schema returned 0 rows from INFORMATION_SCHEMA — "
+            "schema may be empty (first run) or role may lack USAGE grant.")
+        warn("PRE-CHECK: MDP_STG schema not visible in INFORMATION_SCHEMA. "
+             "Confirm role PRD_MDP has USAGE on schema PRD_MDP.MDP_STG.")
 except Exception as e:
     blocker(
-        f"PRD_MPD.MDP_STG schema not accessible: {e}. "
-        f"DBA must grant CREATE TABLE + INSERT on PRD_MPD.MDP_STG to role PRD_MDP."
+        f"MDP_STG schema check failed: {e}. "
+        f"DBA must grant USAGE + CREATE TABLE + INSERT on PRD_MDP.MDP_STG to role PRD_MDP."
     )
 
 abort_if_blockers()
