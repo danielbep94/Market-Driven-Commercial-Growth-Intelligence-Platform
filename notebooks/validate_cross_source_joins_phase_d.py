@@ -250,9 +250,51 @@ log("")
 
 # COMMAND ----------
 
-import yaml, pathlib
+import yaml
 
-_crosswalk_path = pathlib.Path(__file__).resolve().parent.parent / "configs" / "brand_crosswalk.yaml"
+def _find_config_file(filename):
+    """
+    Locate a file inside configs/ without relying on __file__.
+    Probes the same candidate roots used by _find_creds_file():
+      1. __file__-relative (local / pytest)
+      2. CWD/configs/<filename>
+      3. CWD/../configs/<filename>  (when CWD is notebooks/)
+      4. git rev-parse --show-toplevel / configs/<filename>
+    """
+    candidates = []
+    try:
+        candidates.append(
+            os.path.normpath(
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "configs", filename)
+            )
+        )
+    except Exception:
+        pass
+    try:
+        cwd = os.getcwd()
+        candidates.append(os.path.join(cwd, "configs", filename))
+        candidates.append(os.path.normpath(os.path.join(cwd, "..", "configs", filename)))
+        if os.path.basename(cwd).lower() == "notebooks":
+            candidates.append(os.path.join(os.path.dirname(cwd), "configs", filename))
+    except Exception:
+        pass
+    try:
+        import subprocess
+        repo_root = subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], stderr=subprocess.DEVNULL
+        ).decode().strip()
+        candidates.append(os.path.join(repo_root, "configs", filename))
+    except Exception:
+        pass
+    for p in candidates:
+        if os.path.exists(p):
+            return p
+    raise FileNotFoundError(
+        f"Cannot find configs/{filename}. Tried:\n" + "\n".join(f"  {c}" for c in candidates)
+    )
+
+_crosswalk_path = _find_config_file("brand_crosswalk.yaml")
+log(f"  brand_crosswalk.yaml resolved → {_crosswalk_path}")
 with open(_crosswalk_path, "r", encoding="utf-8") as _f:
     _crosswalk = yaml.safe_load(_f)
 
