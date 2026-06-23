@@ -31,8 +31,7 @@ PRD_MDP_PROFILE = {
     "sfUser":      dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-user"),
     "sfPassword":  dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-password"),
     "sfWarehouse": "PRD_MDP_ANL_WH",
-    # Role fetched from Key Vault — NOT hardcoded (PRD_MDP_READER does not exist)
-    "sfRole": "PRD_MEX_READER",
+    "sfRole": "PRD_MDP",
 }
 
 LOG_LINES = []
@@ -474,33 +473,36 @@ except Exception as e:
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC log("=" * 70)
-# MAGIC log("V12 — Nielsen MARCA_STD VALIDATION COMPLETE")
-# MAGIC log("=" * 70)
-# MAGIC
-# MAGIC saved_path = None
-# MAGIC for candidate in get_log_candidates():
-# MAGIC     try:
-# MAGIC         os.makedirs(os.path.dirname(candidate), exist_ok=True)
-# MAGIC         with open(candidate, "w", encoding="utf-8") as f:
-# MAGIC             f.write("\n".join(LOG_LINES))
-# MAGIC         saved_path = candidate
-# MAGIC         log(f"✓ V12 log saved to: {saved_path}")
-# MAGIC         print(f"✓ V12 log saved to: {saved_path}")
-# MAGIC         break
-# MAGIC     except Exception as e:
-# MAGIC         log(f"  Could not write to {candidate}: {e}")
-# MAGIC         continue
-# MAGIC
-# MAGIC if saved_path is None:
-# MAGIC     fallback = "/tmp/validation_results_nielsen_v12.txt"
-# MAGIC     with open(fallback, "w", encoding="utf-8") as f:
-# MAGIC         f.write("\n".join(LOG_LINES))
-# MAGIC     print(f"⚠️  Saved to fallback: {fallback}")
-# MAGIC     print("   → Copy to notebooks/validation_results_nielsen_v12.txt and commit.")
-# MAGIC
-# MAGIC print("\n" + "=" * 70)
-# MAGIC print("V12 COMPLETE — Last 30 lines:")
-# MAGIC print("=" * 70)
-# MAGIC print("\n".join(LOG_LINES[-30:]))
+log("=" * 70)
+log("V12 — Nielsen MARCA_STD VALIDATION COMPLETE")
+log("=" * 70)
+
+saved_path = None
+for candidate in get_log_candidates():
+    try:
+        os.makedirs(os.path.dirname(candidate), exist_ok=True)
+        with open(candidate, "w", encoding="utf-8") as f:
+            f.write("\n".join(LOG_LINES))
+        saved_path = candidate
+        log(f"✓ V12 log saved to: {saved_path}")
+        print(f"✓ V12 log saved to: {saved_path}")
+        break
+    except Exception as e:
+        log(f"  Could not write to {candidate}: {e}")
+        continue
+
+if saved_path is None:
+    fallback = "/tmp/validation_results_nielsen_v12.txt"
+    with open(fallback, "w", encoding="utf-8") as f:
+        f.write("\n".join(LOG_LINES))
+    print(f"⚠️  Saved to fallback: {fallback}")
+    print("   → Copy to notebooks/validation_results_nielsen_v12.txt and commit.")
+
+print("\n" + "=" * 70)
+print("V12 COMPLETE — Last 30 lines:")
+print("=" * 70)
+print("\n".join(LOG_LINES[-30:]))
+
+# COMMAND ----------
+
+

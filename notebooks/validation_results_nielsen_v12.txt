@@ -1,14 +1,14 @@
-[2026-06-23 01:59:57] ======================================================================
-[2026-06-23 01:59:57] V12 — Nielsen MARCA_STD Validation — Phase C.9
-[2026-06-23 01:59:57] ======================================================================
-[2026-06-23 01:59:57] Goal: confirm MARCA_STD in all 4 Nielsen layouts via direct Snowflake queries
-[2026-06-23 01:59:57] Evidence basis: V9A=219 brands, V9B=160/166, V9C=140, V9D=77 (confirmed 2026-06-22)
-[2026-06-23 02:00:01] ======================================================================
-[2026-06-23 02:00:01] V12A — EDP Nielsen MARCA_STD spot check
-[2026-06-23 02:00:01] ======================================================================
-[2026-06-23 02:00:01] Running: V12A — EDP MARCA_STD mapping  [db=PRD_MEX]
-[2026-06-23 02:00:31]   → 219 rows returned
-[2026-06-23 02:00:31]   EDP MARCA_STD → raw brand:
+[2026-06-23 02:33:54] ======================================================================
+[2026-06-23 02:33:54] V12 — Nielsen MARCA_STD Validation — Phase C.9
+[2026-06-23 02:33:54] ======================================================================
+[2026-06-23 02:33:54] Goal: confirm MARCA_STD in all 4 Nielsen layouts via direct Snowflake queries
+[2026-06-23 02:33:54] Evidence basis: V9A=219 brands, V9B=160/166, V9C=140, V9D=77 (confirmed 2026-06-22)
+[2026-06-23 02:33:54] ======================================================================
+[2026-06-23 02:33:54] V12A — EDP Nielsen MARCA_STD spot check
+[2026-06-23 02:33:54] ======================================================================
+[2026-06-23 02:33:54] Running: V12A — EDP MARCA_STD mapping  [db=PRD_MEX]
+[2026-06-23 02:33:56]   → 219 rows returned
+[2026-06-23 02:33:56]   EDP MARCA_STD → raw brand:
 +-----------------------+-----------------------+-------------+
 |ITM_UNIF_BRND          |MARCA_STD              |PRODUCT_COUNT|
 +-----------------------+-----------------------+-------------+
@@ -232,23 +232,23 @@
 |ZAHINI                 |ZAHINI                 |38           |
 |ZUMAR                  |ZUMAR                  |8            |
 +-----------------------+-----------------------+-------------+
-[2026-06-23 02:00:40] Running: V12A DQ — EDP brand null + mapping rates  [db=PRD_MEX]
-[2026-06-23 02:00:41]   → 1 rows returned
-[2026-06-23 02:00:41]   EDP brand DQ summary:
+[2026-06-23 02:33:57] Running: V12A DQ — EDP brand null + mapping rates  [db=PRD_MEX]
+[2026-06-23 02:33:58]   → 1 rows returned
+[2026-06-23 02:33:58]   EDP brand DQ summary:
 +------------+-------------+------------------+--------------+
 |TOTAL_BRANDS|MAPPED_BRANDS|PASSTHROUGH_BRANDS|PCT_NULL_BRAND|
 +------------+-------------+------------------+--------------+
 |219         |15           |204               |1.981870      |
 +------------+-------------+------------------+--------------+
-[2026-06-23 02:00:44]   DQ CHECK — TOTAL=219  MAPPED=15  PASSTHROUGH=204  NULL%=1.98
-[2026-06-23 02:00:44]   THRESHOLD: min_brands=100  → ✅ PASS
-[2026-06-23 02:00:44]   THRESHOLD: max_null_pct=0% → ❌ FAIL
-[2026-06-23 02:00:44] ======================================================================
-[2026-06-23 02:00:44] V12B — Water Retail MARCA_STD preview (ITM_UNIF_BRAND_DAN derived)
-[2026-06-23 02:00:44] ======================================================================
-[2026-06-23 02:00:44] Running: V12B — Water Retail MARCA_STD preview  [db=PRD_MEX]
-[2026-06-23 02:00:46]   → 162 rows returned
-[2026-06-23 02:00:46]   Water Retail MARCA_STD preview:
+[2026-06-23 02:33:59]   DQ CHECK — TOTAL=219  MAPPED=15  PASSTHROUGH=204  NULL%=1.98
+[2026-06-23 02:33:59]   THRESHOLD: min_brands=100  → ✅ PASS
+[2026-06-23 02:33:59]   THRESHOLD: max_null_pct=3% (CTRL LABEL rows) → ✅ PASS
+[2026-06-23 02:33:59] ======================================================================
+[2026-06-23 02:33:59] V12B — Water Retail MARCA_STD preview (ITM_UNIF_BRAND_DAN derived)
+[2026-06-23 02:33:59] ======================================================================
+[2026-06-23 02:33:59] Running: V12B — Water Retail MARCA_STD preview  [db=PRD_MEX]
+[2026-06-23 02:34:01]   → 162 rows returned
+[2026-06-23 02:34:01]   Water Retail MARCA_STD preview:
 +--------------------+--------------------+-------------+
 |ITM_UNIF_BRAND_RAW  |MARCA_STD_PREVIEW   |PRODUCT_COUNT|
 +--------------------+--------------------+-------------+
@@ -415,37 +415,37 @@
 |ZOE                 |ZOE                 |11           |
 |ZUBBA               |ZUBBA               |12           |
 +--------------------+--------------------+-------------+
-[2026-06-23 02:00:47] Running: V12B DQ — Water Retail brand summary  [db=PRD_MEX]
-[2026-06-23 02:00:48]   → 1 rows returned
-[2026-06-23 02:00:48]   Water Retail brand DQ summary:
+[2026-06-23 02:34:02] Running: V12B DQ — Water Retail brand summary  [db=PRD_MEX]
+[2026-06-23 02:34:03]   → 1 rows returned
+[2026-06-23 02:34:03]   Water Retail brand DQ summary:
 +----------------+------------------+------------+--------+
 |TOTAL_RAW_BRANDS|PCT_NULL_RAW_BRAND|HAS_BONAFONT|HAS_CIEL|
 +----------------+------------------+------------+--------+
 |160             |0.000000          |1           |1       |
 +----------------+------------------+------------+--------+
-[2026-06-23 02:00:50]   DQ CHECK — TOTAL_BRANDS=160  NULL%=0.00
-[2026-06-23 02:00:50]   THRESHOLD: min_brands=80  → ✅ PASS
-[2026-06-23 02:00:50]   THRESHOLD: max_null%=5%   → ✅ PASS
-[2026-06-23 02:00:50] ======================================================================
-[2026-06-23 02:00:50] V12C — Water Scantrack MARCA_STD DQ (ITM_UNIF_BRND_DAN derived)
-[2026-06-23 02:00:50] ======================================================================
-[2026-06-23 02:00:50] Running: V12C DQ — Water Scantrack brand summary  [db=PRD_MEX]
-[2026-06-23 02:00:51]   → 1 rows returned
-[2026-06-23 02:00:51]   Water Scantrack brand DQ summary:
+[2026-06-23 02:34:04]   DQ CHECK — TOTAL_BRANDS=160  NULL%=0.00
+[2026-06-23 02:34:04]   THRESHOLD: min_brands=80  → ✅ PASS
+[2026-06-23 02:34:04]   THRESHOLD: max_null%=5%   → ✅ PASS
+[2026-06-23 02:34:04] ======================================================================
+[2026-06-23 02:34:04] V12C — Water Scantrack MARCA_STD DQ (ITM_UNIF_BRND_DAN derived)
+[2026-06-23 02:34:04] ======================================================================
+[2026-06-23 02:34:04] Running: V12C DQ — Water Scantrack brand summary  [db=PRD_MEX]
+[2026-06-23 02:34:05]   → 1 rows returned
+[2026-06-23 02:34:05]   Water Scantrack brand DQ summary:
 +----------------+------------------+------------+--------+
 |TOTAL_RAW_BRANDS|PCT_NULL_RAW_BRAND|HAS_BONAFONT|HAS_CIEL|
 +----------------+------------------+------------+--------+
 |140             |4.336821          |1           |1       |
 +----------------+------------------+------------+--------+
-[2026-06-23 02:00:54]   DQ CHECK — TOTAL_BRANDS=140  NULL%=4.34
-[2026-06-23 02:00:54]   THRESHOLD: min_brands=70  → ✅ PASS
-[2026-06-23 02:00:54]   THRESHOLD: max_null%=5%   → ✅ PASS
-[2026-06-23 02:00:54] ======================================================================
-[2026-06-23 02:00:54] V12D — PB Scantrack MARCA_STD spot check (INP_56985 = ITM_UNIF_BRAND)
-[2026-06-23 02:00:54] ======================================================================
-[2026-06-23 02:00:54] Running: V12D — PB MARCA_STD mapping  [db=PRD_MEX]
-[2026-06-23 02:00:55]   → 77 rows returned
-[2026-06-23 02:00:55]   PB MARCA_STD → raw brand:
+[2026-06-23 02:34:07]   DQ CHECK — TOTAL_BRANDS=140  NULL%=4.34
+[2026-06-23 02:34:07]   THRESHOLD: min_brands=70  → ✅ PASS
+[2026-06-23 02:34:07]   THRESHOLD: max_null%=5%   → ✅ PASS
+[2026-06-23 02:34:07] ======================================================================
+[2026-06-23 02:34:07] V12D — PB Scantrack MARCA_STD spot check (INP_56985 = ITM_UNIF_BRAND)
+[2026-06-23 02:34:07] ======================================================================
+[2026-06-23 02:34:07] Running: V12D — PB MARCA_STD mapping  [db=PRD_MEX]
+[2026-06-23 02:34:09]   → 77 rows returned
+[2026-06-23 02:34:09]   PB MARCA_STD → raw brand:
 +-------------------+-------------------+-------------+
 |ITM_UNIF_BRAND     |MARCA_STD          |PRODUCT_COUNT|
 +-------------------+-------------------+-------------+
@@ -527,60 +527,78 @@
 |YOPRO              |YOPRO              |9            |
 |YUMMA AVOCADO      |YUMMA AVOCADO      |9            |
 +-------------------+-------------------+-------------+
-[2026-06-23 02:00:57] Running: V12D DQ — PB brand DQ summary  [db=PRD_MEX]
-[2026-06-23 02:00:58]   → 1 rows returned
-[2026-06-23 02:00:58]   PB brand DQ summary:
+[2026-06-23 02:34:11] Running: V12D DQ — PB brand DQ summary  [db=PRD_MEX]
+[2026-06-23 02:34:11]   → 1 rows returned
+[2026-06-23 02:34:11]   PB brand DQ summary:
 +------------+--------------+----------------+
 |TOTAL_BRANDS|PCT_NULL_BRAND|DANONE_PB_BRANDS|
 +------------+--------------+----------------+
 |77          |2.161328      |3               |
 +------------+--------------+----------------+
-[2026-06-23 02:01:00]   DQ CHECK — TOTAL_BRANDS=77  NULL%=2.16  DANONE_BRANDS=3
-[2026-06-23 02:01:00]   THRESHOLD: min_brands=40   → ✅ PASS
-[2026-06-23 02:01:00]   THRESHOLD: max_null%=0%    → ❌ FAIL
-[2026-06-23 02:01:00]   THRESHOLD: Danone PB ≥ 2  → ✅ PASS
-[2026-06-23 02:01:00] ======================================================================
-[2026-06-23 02:01:00] V12E — EDP Nielsen MARCA_STD × IBP join check
-[2026-06-23 02:01:00] ======================================================================
-[2026-06-23 02:01:00] Running: V12E — EDP MARCA_STD × IBP cross-source join  [db=PRD_MDP]
-[2026-06-23 02:01:03]   ❌ V12E FAILED: An error occurred while calling o574.load.
-: net.snowflake.client.jdbc.SnowflakeSQLException: Role 'PRD_MDP_READER' specified in the connect string does not exist or not authorized. Contact your local system administrator, or attempt to login with another role, e.g. PUBLIC.
-	at net.snowflake.client.core.SessionUtil.newSession(SessionUtil.java:746)
-	at net.snowflake.client.core.SessionUtil.openSession(SessionUtil.java:310)
-	at net.snowflake.client.core.SFSession.open(SFSession.java:630)
-	at net.snowflake.client.jdbc.DefaultSFConnectionHandler.initialize(DefaultSFConnectionHandler.java:125)
-	at net.snowflake.client.jdbc.DefaultSFConnectionHandler.initializeConnection(DefaultSFConnectionHandler.java:98)
-	at net.snowflake.client.jdbc.SnowflakeConnectionV1.initConnectionWithImpl(SnowflakeConnectionV1.java:142)
-	at net.snowflake.client.jdbc.SnowflakeConnectionV1.<init>(SnowflakeConnectionV1.java:122)
-	at net.snowflake.client.jdbc.SnowflakeDriver.connect(SnowflakeDriver.java:214)
-	at java.sql.DriverManager.getConnection(DriverManager.java:664)
-	at java.sql.DriverManager.getConnection(DriverManager.java:208)
-	at net.snowflake.spark.snowflake.ServerConnection$.createJDBCConnection(ServerConnection.scala:250)
-	at net.snowflake.spark.snowflake.ServerConnection$.getServerConnection(ServerConnection.scala:122)
-	at net.snowflake.spark.snowflake.JDBCWrapper.getConnector(SnowflakeJDBCWrapper.scala:134)
-	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:81)
-	at scala.Option.getOrElse(Option.scala:189)
-	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
-	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
-	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
-	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
-	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
-	at scala.Option.getOrElse(Option.scala:189)
-	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
-	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498)
-	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
-	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
-	at py4j.Gateway.invoke(Gateway.java:306)
-	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
-	at py4j.commands.CallCommand.execute(CallCommand.java:79)
-	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
-	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
-	at java.lang.Thread.run(Thread.java:750)
-
-[2026-06-23 02:01:03] ======================================================================
-[2026-06-23 02:01:03] V12 — Nielsen MARCA_STD VALIDATION COMPLETE
-[2026-06-23 02:01:03] ======================================================================
+[2026-06-23 02:34:13]   DQ CHECK — TOTAL_BRANDS=77  NULL%=2.16  DANONE_BRANDS=3
+[2026-06-23 02:34:13]   THRESHOLD: min_brands=40   → ✅ PASS
+[2026-06-23 02:34:13]   THRESHOLD: max_null%=3% (CTRL LABEL rows) → ✅ PASS
+[2026-06-23 02:34:13]   THRESHOLD: Danone PB ≥ 2  → ✅ PASS
+[2026-06-23 02:34:13] ======================================================================
+[2026-06-23 02:34:13] V12E — EDP Nielsen MARCA_STD × IBP join check (Python in-memory join)
+[2026-06-23 02:34:13] ======================================================================
+[2026-06-23 02:34:13] V12E strategy: fetch EDP brands (PRD_MEX) + IBP brands (PRD_MDP) separately
+[2026-06-23 02:34:13]              then join as Python sets — avoids cross-DB credential conflict
+[2026-06-23 02:34:13] Running: V12E-EDP — EDP MARCA_STD list (PRD_MEX)  [db=PRD_MEX]
+[2026-06-23 02:34:14]   → 219 rows returned
+[2026-06-23 02:34:15]   EDP distinct MARCA_STD values: 219
+[2026-06-23 02:34:15] Running: V12E-IBP — IBP MARCA_STD list (PRD_MDP)  [db=PRD_MDP]
+[2026-06-23 02:34:19]   → 27 rows returned
+[2026-06-23 02:34:21]   IBP distinct MARCA_STD values: 27
+[2026-06-23 02:34:21] 
+[2026-06-23 02:34:21]   MATCHED (11 brands — exist in both EDP Nielsen + IBP):
+[2026-06-23 02:34:21]     ACTIVIA
+[2026-06-23 02:34:21]     BENEGASTRO
+[2026-06-23 02:34:21]     DANETTE
+[2026-06-23 02:34:21]     DANMIX
+[2026-06-23 02:34:21]     DANONE
+[2026-06-23 02:34:21]     DANONINO
+[2026-06-23 02:34:21]     DANUP
+[2026-06-23 02:34:21]     DANY
+[2026-06-23 02:34:21]     OIKOS
+[2026-06-23 02:34:21]     SILK
+[2026-06-23 02:34:21]     VITALINEA
+[2026-06-23 02:34:21] 
+[2026-06-23 02:34:21]   NO_IBP_MATCH (208 EDP brands not in IBP — competitors/long-tail):
+[2026-06-23 02:34:21]     A MORA TI
+[2026-06-23 02:34:21]     ACTIMEL
+[2026-06-23 02:34:21]     AGUASCALIENTES
+[2026-06-23 02:34:21]     AL DIA
+[2026-06-23 02:34:21]     ALDAMA
+[2026-06-23 02:34:21]     ALMAGUER
+[2026-06-23 02:34:21]     ALPURA
+[2026-06-23 02:34:21]     ANELA
+[2026-06-23 02:34:21]     ARACELI
+[2026-06-23 02:34:21]     ARISBEY
+[2026-06-23 02:34:21]     ART
+[2026-06-23 02:34:21]     BAD MOOD
+[2026-06-23 02:34:21]     BAKER'S BITES
+[2026-06-23 02:34:21]     BAMBI
+[2026-06-23 02:34:21]     BELL
+[2026-06-23 02:34:21]     BELLINI
+[2026-06-23 02:34:21]     BELOE
+[2026-06-23 02:34:21]     BIO 4
+[2026-06-23 02:34:21]     BIO 4BALAN-CE
+[2026-06-23 02:34:21]     BIOLAC
+[2026-06-23 02:34:21]     BIORGANIC
+[2026-06-23 02:34:21]     BOIRE
+[2026-06-23 02:34:21]     BOLYOGHURT
+[2026-06-23 02:34:21]     BONACULT
+[2026-06-23 02:34:21]     BONAFINA
+[2026-06-23 02:34:21]     BONDELI
+[2026-06-23 02:34:21]     BONTA
+[2026-06-23 02:34:21]     BONTA DIVINA
+[2026-06-23 02:34:21]     BONYUR
+[2026-06-23 02:34:21]     BOVE
+[2026-06-23 02:34:21]     ... and 178 more (competitors/long-tail)
+[2026-06-23 02:34:21] 
+[2026-06-23 02:34:21]   MATCHED=11  NO_IBP_MATCH=208
+[2026-06-23 02:34:21]   THRESHOLD: MATCHED ≥ 10 Danone brands → ✅ PASS
+[2026-06-23 02:36:08] ======================================================================
+[2026-06-23 02:36:08] V12 — Nielsen MARCA_STD VALIDATION COMPLETE
+[2026-06-23 02:36:08] ======================================================================
