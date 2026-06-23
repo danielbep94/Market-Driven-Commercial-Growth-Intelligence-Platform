@@ -976,3 +976,7 @@ for path in get_log_path():
 if not written:
     print("WARNING: Could not write log to any candidate path.")
     print(log_text[:500])
+
+# COMMAND ----------
+
+

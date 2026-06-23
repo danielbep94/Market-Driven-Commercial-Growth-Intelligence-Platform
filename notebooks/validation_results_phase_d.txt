@@ -1,0 +1,185 @@
+[2026-06-23 16:05:01] ======================================================================
+[2026-06-23 16:05:01] V13 — Phase D Stage 1: Cross-Source Join Validation
+[2026-06-23 16:05:01] ======================================================================
+[2026-06-23 16:05:01] Run ID        : 6144421e-2d88-4370-8ae3-aa87429a2e32
+[2026-06-23 16:05:01] Run timestamp : 2026-06-23 16:05:01
+[2026-06-23 16:05:01] Mart target   : PRD_MDP.MDP_STG.MART_MARKET_GROWTH_INTELLIGENCE_MONTHLY
+[2026-06-23 16:05:01] Grain         : MARCA_STD + MONTH (brand-month)
+[2026-06-23 16:05:01] Pattern       : one SELECT per source → Python set operations (no cross-source SQL joins)
+[2026-06-23 16:05:01] 
+[2026-06-23 16:05:02]   brand_crosswalk.yaml → /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/configs/brand_crosswalk.yaml
+[2026-06-23 16:05:02]   Danone brands loaded: 32
+[2026-06-23 16:05:02]   → ['ACTIVIA', 'AGUAS FRESCAS', 'BADOIT', 'BENEGASTRO', 'BONAFONT', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANETTE', 'DANISSIMO', 'DANMIX', 'DANONE', 'DANONINO', 'DANUP', 'DANY', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'OCEAN SPRAY', 'OIKOS', 'PUREZA AGA', 'SILK', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
+[2026-06-23 16:05:02] 
+[2026-06-23 16:05:02] ======================================================================
+[2026-06-23 16:05:02] PRE-CHECK A — PRD_MDP connection health
+[2026-06-23 16:05:02] ======================================================================
+[2026-06-23 16:05:02]   Running: PRE-CHECK: PRD_MDP connection  [db=PRD_MDP]
+[2026-06-23 16:05:08]   → 1 rows returned
+[2026-06-23 16:05:08]   DB=PRD_MDP  ROLE=PRD_MDP  WH=PRD_MDP_ANL_WH
+[2026-06-23 16:05:08]   ✅ PRD_MDP role confirmed
+[2026-06-23 16:05:09] ======================================================================
+[2026-06-23 16:05:09] PRE-CHECK B — MDP_STG schema visibility via INFORMATION_SCHEMA
+[2026-06-23 16:05:09] ======================================================================
+[2026-06-23 16:05:09]   Running: PRE-CHECK: MDP_STG in INFORMATION_SCHEMA  [db=PRD_MDP]
+[2026-06-23 16:05:12]   → 1 rows returned
+[2026-06-23 16:05:15]   ✅ MDP_STG schema visible — 991 table(s) found
+[2026-06-23 16:05:15] ======================================================================
+[2026-06-23 16:05:15] V13-PRE — SELL_OUT MARCA_STD zero-tolerance NULL check
+[2026-06-23 16:05:15] Rule: NULL rate must be exactly 0%. Any NULL = hard BLOCKER.
+[2026-06-23 16:05:15] ======================================================================
+[2026-06-23 16:05:15]   Running: V13-PRE: SELL_OUT MARCA_STD null check  [db=PRD_MDP]
+[2026-06-23 16:06:12]   → 1 rows returned
+[2026-06-23 16:06:12]   SELL_OUT summary:
++----------+--------------+--------+---------------+---------------+----------+----------+
+|TOTAL_ROWS|NULL_MARCA_STD|NULL_PCT|DISTINCT_BRANDS|DISTINCT_MONTHS|MIN_MONTH |MAX_MONTH |
++----------+--------------+--------+---------------+---------------+----------+----------+
+|881796195 |0             |0.000000|35             |42             |2023-01-01|2026-06-01|
++----------+--------------+--------+---------------+---------------+----------+----------+
+[2026-06-23 16:08:57]   TOTAL_ROWS=881,796,195  NULL_MARCA_STD=0  NULL_PCT=0.0000%
+[2026-06-23 16:08:57]   DISTINCT_BRANDS=35  DISTINCT_MONTHS=42
+[2026-06-23 16:08:57]   MIN_MONTH=2023-01-01  MAX_MONTH=2026-06-01
+[2026-06-23 16:08:57]   ✅ V13-PRE PASS — SELL_OUT MARCA_STD: 0 NULLs
+[2026-06-23 16:08:57]   ✅ DATE_TRUNC OK
+[2026-06-23 16:08:57] ======================================================================
+[2026-06-23 16:08:57] SHARED — SELL_OUT distinct MARCA_STD
+[2026-06-23 16:08:57] ======================================================================
+[2026-06-23 16:08:57]   Running: SHARED: SELL_OUT distinct MARCA_STD  [db=PRD_MDP]
+[2026-06-23 16:09:23]   → 35 rows returned
+[2026-06-23 16:09:49]   SELL_OUT total distinct brands: 35
+[2026-06-23 16:09:49]   SELL_OUT Danone brands:         30
+[2026-06-23 16:09:49]   → ['ACTIVIA', 'AGUAS FRESCAS', 'BADOIT', 'BENEGASTRO', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANETTE', 'DANMIX', 'DANONE', 'DANONINO', 'DANUP', 'DANY', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'OCEAN SPRAY', 'OIKOS', 'PUREZA AGA', 'SILK', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
+[2026-06-23 16:09:50] ======================================================================
+[2026-06-23 16:09:50] V13A — SELL_OUT × MKT_ON  |  threshold: WARN if < 70%
+[2026-06-23 16:09:50] ======================================================================
+[2026-06-23 16:09:50]   Running: V13A: MKT_ON distinct MARCA_STD  [db=PRD_MDP]
+[2026-06-23 16:09:52]   → 22 rows returned
+[2026-06-23 16:09:54]   MKT_ON brands: 22  |  SO Danone: 30  |  Matched: 20  |  Match%: 66.7%
+[2026-06-23 16:09:54]   Unmatched: ['BADOIT', 'BONAFONT MINERAL', 'BONAFONT SER', 'DELIGHT', 'HERSHEYS', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK']
+[2026-06-23 16:09:54] [WARNING] V13A: 66.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BONAFONT MINERAL', 'BONAFONT SER', 'DELIGHT', 'HERSHEYS', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK']
+[2026-06-23 16:09:54] ======================================================================
+[2026-06-23 16:09:54] V13B — SELL_OUT × MKT_OFF (Danone only)  |  threshold: WARN if < 70%
+[2026-06-23 16:09:54] ======================================================================
+[2026-06-23 16:09:54]   Running: V13B: MKT_OFF distinct MARCA_STD (Danone filter)  [db=PRD_MDP]
+[2026-06-23 16:09:56]   → 50 rows returned
+[2026-06-23 16:09:58]   MKT_OFF Danone brands: 14  |  SO Danone: 30  |  Matched: 14  |  Match%: 46.7%
+[2026-06-23 16:09:58]   Unmatched (expected for brands with no OFF spend): ['BADOIT', 'BENEGASTRO', 'BONAFONT MINERAL', 'BONAFONT SER', 'DANMIX', 'DELIGHT', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
+[2026-06-23 16:09:58] [WARNING] V13B: 46.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BENEGASTRO', 'BONAFONT MINERAL', 'BONAFONT SER', 'DANMIX', 'DELIGHT', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
+[2026-06-23 16:09:58] ======================================================================
+[2026-06-23 16:09:58] V13C — SELL_OUT × WASTE  |  threshold: WARN if < 80%
+[2026-06-23 16:09:58] ======================================================================
+[2026-06-23 16:09:58]   Running: V13C: WASTE distinct MARCA_STD  [db=PRD_MDP]
+[2026-06-23 16:10:02]   → 17 rows returned
+[2026-06-23 16:10:04]   WASTE brands: 17  |  SO brands: 35  |  Matched: 16  |  Match%: 45.7%
+[2026-06-23 16:10:04]   SO brands not in WASTE: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'EVIAN', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'MEMBERS MARK', 'OTROS', 'PUREZA AGA', 'STOK']
+[2026-06-23 16:10:04] [WARNING] V13C: 45.7% match (< 80%). Brands with no waste record: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'EVIAN', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'MEMBERS MARK', 'OTROS', 'PUREZA AGA', 'STOK']
+[2026-06-23 16:10:04] ======================================================================
+[2026-06-23 16:10:04] V13D — SELL_IN × IBP  |  threshold: WARN if < 80%
+[2026-06-23 16:10:04] Note: cross-DB — separate queries, Python set join (ISSUE-003)
+[2026-06-23 16:10:04] ======================================================================
+[2026-06-23 16:10:04]   Running: V13D: SELL_IN distinct MARCA_STD  [db=PRD_MEX]
+[2026-06-23 16:11:10]   → 50 rows returned
+[2026-06-23 16:11:10]   Running: V13D: IBP distinct MARCA_STD  [db=PRD_MDP]
+[2026-06-23 16:11:17]   → 21 rows returned
+[2026-06-23 16:12:20]   SELL_IN brands: 50  |  IBP brands: 21  |  Matched: 18  |  Match%: 36.0%
+[2026-06-23 16:12:20]   SELL_IN brands not in IBP: ['25 AÑOS', 'AGA', 'AGA 20 LTS', 'AGUA NATURAL', 'BADOIT', 'BASES', 'BFT 11 LTS', 'BFT 20 LTS', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BOTELLA AGA', 'BUTTER', 'CAFE', 'CARRERA', 'CIEL', "DAN'UP", 'DESTILADA', 'DISNEY', 'FRIJOLES', 'GRANEL', 'INFINIT', 'JUIZZY', 'LIBRO NAVIDEÑO', 'MUNDIAL', 'PRODUCTOS DESCONTINUADOS', 'PUREZA AGA', 'SABOR HORCHATA', 'SALMON BONAFONT', 'SO DELICIOUS', 'ULTRAPURA', 'VOLVIC', 'YOPRO']
+[2026-06-23 16:12:20] [WARNING] V13D: 36.0% match (< 80%). Unmatched: ['25 AÑOS', 'AGA', 'AGA 20 LTS', 'AGUA NATURAL', 'BADOIT', 'BASES', 'BFT 11 LTS', 'BFT 20 LTS', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BOTELLA AGA', 'BUTTER', 'CAFE', 'CARRERA', 'CIEL', "DAN'UP", 'DESTILADA', 'DISNEY', 'FRIJOLES', 'GRANEL', 'INFINIT', 'JUIZZY', 'LIBRO NAVIDEÑO', 'MUNDIAL', 'PRODUCTOS DESCONTINUADOS', 'PUREZA AGA', 'SABOR HORCHATA', 'SALMON BONAFONT', 'SO DELICIOUS', 'ULTRAPURA', 'VOLVIC', 'YOPRO']
+[2026-06-23 16:12:20] ======================================================================
+[2026-06-23 16:12:20] V13E — SELL_OUT × EDP Nielsen  |  threshold: WARN if < 60%
+[2026-06-23 16:12:20] ======================================================================
+[2026-06-23 16:12:20]   Running: V13E: EDP Nielsen distinct MARCA_STD  [db=PRD_MEX]
+[2026-06-23 16:12:21]   → 219 rows returned
+[2026-06-23 16:12:21]   Running: V13E: Nielsen max period  [db=PRD_MEX]
+[2026-06-23 16:12:23] [BLOCKER] V13E query failed: An error occurred while calling o770.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 1 at position 65
+invalid identifier 'PER_DATE_BEG'
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.GeneratedMethodAccessor600.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-23 16:13:52] 
+[2026-06-23 16:13:52] ======================================================================
+[2026-06-23 16:13:52] V13 VALIDATION SUMMARY
+[2026-06-23 16:13:52] ======================================================================
+[2026-06-23 16:13:52] Run ID    : 6144421e-2d88-4370-8ae3-aa87429a2e32
+[2026-06-23 16:13:52] Completed : 2026-06-23 16:13:52
+[2026-06-23 16:13:52] 
+[2026-06-23 16:13:52] Hard Blockers : 1
+[2026-06-23 16:13:52]   [BLOCKER] V13E query failed: An error occurred while calling o770.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 1 at position 65
+invalid identifier 'PER_DATE_BEG'
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.GeneratedMethodAccessor600.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-23 16:13:52] 
+[2026-06-23 16:13:52] Warnings      : 4
+[2026-06-23 16:13:52]   [WARNING] V13A: 66.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BONAFONT MINERAL', 'BONAFONT SER', 'DELIGHT', 'HERSHEYS', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK']
+[2026-06-23 16:13:52]   [WARNING] V13B: 46.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BENEGASTRO', 'BONAFONT MINERAL', 'BONAFONT SER', 'DANMIX', 'DELIGHT', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
+[2026-06-23 16:13:52]   [WARNING] V13C: 45.7% match (< 80%). Brands with no waste record: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'EVIAN', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'MEMBERS MARK', 'OTROS', 'PUREZA AGA', 'STOK']
+[2026-06-23 16:13:52]   [WARNING] V13D: 36.0% match (< 80%). Unmatched: ['25 AÑOS', 'AGA', 'AGA 20 LTS', 'AGUA NATURAL', 'BADOIT', 'BASES', 'BFT 11 LTS', 'BFT 20 LTS', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BOTELLA AGA', 'BUTTER', 'CAFE', 'CARRERA', 'CIEL', "DAN'UP", 'DESTILADA', 'DISNEY', 'FRIJOLES', 'GRANEL', 'INFINIT', 'JUIZZY', 'LIBRO NAVIDEÑO', 'MUNDIAL', 'PRODUCTOS DESCONTINUADOS', 'PUREZA AGA', 'SABOR HORCHATA', 'SALMON BONAFONT', 'SO DELICIOUS', 'ULTRAPURA', 'VOLVIC', 'YOPRO']
+[2026-06-23 16:13:52] 
+[2026-06-23 16:13:52] ❌ STAGE 1 FAILED — Fix all blockers before Stage 2.
+[2026-06-23 16:13:52] ======================================================================
