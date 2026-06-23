@@ -55,12 +55,22 @@ print("\n✅ CELL 2 PASS — all PRD_MEX variables present and filled in")
 
 # COMMAND ----------
 
-# ─── CELL 3: Verify the connection profile module loads correctly ─────────────
-# This confirms snowflake_connection_profiles.py picks up the local creds file
+# Load configs/snowflake_connection_profiles.py via importlib
+# (avoids %run scope issues in .py notebook format)
+_profile_path = os.path.normpath(os.path.join(_current_dir, "..", "configs", "snowflake_connection_profiles.py"))
 
-%run ../configs/snowflake_connection_profiles
+if not os.path.exists(_profile_path):
+    raise FileNotFoundError(f"❌ CELL 3 FAIL — not found: {_profile_path}")
 
-print("\n✅ CELL 3 PASS — snowflake_connection_profiles.py loaded via %%run")
+_pspec = importlib.util.spec_from_file_location("snowflake_connection_profiles", _profile_path)
+_pmod  = importlib.util.module_from_spec(_pspec)
+_pspec.loader.exec_module(_pmod)
+
+# Inject get_sf_options into this notebook's scope
+get_sf_options = _pmod.get_sf_options
+
+print(f"\n✅ CELL 3 PASS — snowflake_connection_profiles.py loaded via importlib")
+print(f"  get_sf_options available: {callable(get_sf_options)}")
 
 # COMMAND ----------
 
