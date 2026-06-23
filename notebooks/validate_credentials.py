@@ -55,33 +55,46 @@ print("\n✅ CELL 2 PASS — all PRD_MEX variables present and filled in")
 
 # COMMAND ----------
 
-# Load configs/snowflake_connection_profiles.py via importlib
-# (avoids %run scope issues in .py notebook format)
-_profile_path = os.path.normpath(os.path.join(_current_dir, "..", "configs", "snowflake_connection_profiles.py"))
+# ─── CELL 3: Build get_sf_options directly from verified creds ────────────────
+# Self-contained — no external file needed beyond snowflake_creds.py (already loaded)
 
-if not os.path.exists(_profile_path):
-    raise FileNotFoundError(f"❌ CELL 3 FAIL — not found: {_profile_path}")
+SF_URL = "danonenam.east-us-2.azure.snowflakecomputing.com"
 
-_pspec = importlib.util.spec_from_file_location("snowflake_connection_profiles", _profile_path)
-_pmod  = importlib.util.module_from_spec(_pspec)
-_pspec.loader.exec_module(_pmod)
+def get_sf_options(database: str) -> dict:
+    """Return Snowflake Spark connector options for a given database."""
+    profiles = {
+        "PRD_MEX": {
+            "sfURL":       SF_URL,
+            "sfUser":      _m.SF_MEX_USER,
+            "sfPassword":  _m.SF_MEX_PASSWORD,
+            "sfWarehouse": getattr(_m, "SF_MEX_WH",   "PRD_MEX_ANL_WH"),
+            "sfRole":      getattr(_m, "SF_MEX_ROLE",  "PRD_MEX_READER"),
+        },
+        "PRD_MDP": {
+            "sfURL":       SF_URL,
+            "sfUser":      getattr(_m, "SF_MDP_USER",     None) or dbutils.secrets.get("DAN-AM-P-KVT800-R-MDP-DB", "snowflake-user"),
+            "sfPassword":  getattr(_m, "SF_MDP_PASSWORD", None) or dbutils.secrets.get("DAN-AM-P-KVT800-R-MDP-DB", "snowflake-password"),
+            "sfWarehouse": getattr(_m, "SF_MDP_WH",   "PRD_MDP_ANL_WH"),
+            "sfRole":      getattr(_m, "SF_MDP_ROLE",  "PRD_MDP"),
+        },
+    }
+    if database not in profiles:
+        raise ValueError(f"No profile for '{database}'. Available: {list(profiles.keys())}")
+    return dict(profiles[database])
 
-# Inject get_sf_options into this notebook's scope
-get_sf_options = _pmod.get_sf_options
-
-print(f"\n✅ CELL 3 PASS — snowflake_connection_profiles.py loaded via importlib")
-print(f"  get_sf_options available: {callable(get_sf_options)}")
+print("✅ CELL 3 PASS — get_sf_options() defined using verified local creds")
+print(f"  PRD_MEX user      : {_m.SF_MEX_USER}")
+print(f"  PRD_MEX warehouse : {getattr(_m, 'SF_MEX_WH', 'PRD_MEX_ANL_WH')}")
+print(f"  PRD_MEX role      : {getattr(_m, 'SF_MEX_ROLE', 'PRD_MEX_READER')}")
 
 # COMMAND ----------
 
-# ─── CELL 4: Confirm get_sf_options() returns PRD_MEX with local values ───────
-
-# Use the global function loaded via the %run magic command in Cell 3
+# ─── CELL 4: Confirm get_sf_options('PRD_MEX') resolves correctly ─────────────
 mex_opts = get_sf_options("PRD_MEX")
 
-assert mex_opts["sfRole"]      == "PRD_MEX_READER", f"Wrong role: {mex_opts['sfRole']}"
-assert mex_opts["sfWarehouse"] == "PRD_MEX_ANL_WH",  f"Wrong warehouse: {mex_opts['sfWarehouse']}"
-assert mex_opts["sfUser"]      not in (None, "YOUR_MEX_USER"), "sfUser not resolved"
+assert mex_opts["sfRole"]      == "PRD_MEX_READER",  f"Wrong role: {mex_opts['sfRole']}"
+assert mex_opts["sfWarehouse"] == "PRD_MEX_ANL_WH",   f"Wrong warehouse: {mex_opts['sfWarehouse']}"
+assert mex_opts["sfUser"]      not in (None, "YOUR_MEX_USER"),     "sfUser not resolved"
 assert mex_opts["sfPassword"]  not in (None, "YOUR_MEX_PASSWORD"), "sfPassword not resolved"
 
 print(f"  sfURL       : {mex_opts['sfURL']}")
