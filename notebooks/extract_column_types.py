@@ -33,24 +33,37 @@ from datetime import datetime, timezone
 #     dbutils.secrets.get(scope="<scope>", key="<key>")
 # ═══════════════════════════════════════════════════════════════════════════════
 
+import os
+
 SF_URL = "danonenam.east-us-2.azure.snowflakecomputing.com"
+KV_SCOPE_MEX = "DAN-AM-P-KVT800-R-MEX-DB"
+KV_SCOPE_MDP = "DAN-AM-P-KVT800-R-MDP-DB"
+
+def _secret(scope, key, env_fallback=None):
+    try:
+        return dbutils.secrets.get(scope=scope, key=key)
+    except Exception:
+        pass
+    val = os.getenv(env_fallback) if env_fallback else None
+    if val:
+        return val
+    raise RuntimeError(f"Cannot resolve '{key}' from scope '{scope}'. Set env var '{env_fallback}'.")
 
 # ─── Profile: PRD_MEX ─────────────────────────────────────────────────────────
 PRD_MEX_PROFILE = {
     "sfURL":       SF_URL,
-    "sfUser":      "PRD_OSM_DPH_READER",
-    "sfPassword":  "73.bBZmne7Aq",
+    "sfUser":      _secret(KV_SCOPE_MEX, "snowflake-mex-user",     "SF_MEX_USER"),
+    "sfPassword":  _secret(KV_SCOPE_MEX, "snowflake-mex-password", "SF_MEX_PASSWORD"),
     "sfWarehouse": "PRD_MEX_ANL_WH",
     "sfRole":      "PRD_MEX_READER",
 }
 
 # ─── Profile: PRD_MDP ─────────────────────────────────────────────────────────
-# Uses Key Vault credentials via Databricks secret scope
-KEYVAULT_SCOPE = "DAN-AM-P-KVT800-R-MDP-DB"
+KEYVAULT_SCOPE = KV_SCOPE_MDP
 PRD_MDP_PROFILE = {
     "sfURL":       SF_URL,
-    "sfUser":      dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-user"),
-    "sfPassword":  dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-password"),
+    "sfUser":      _secret(KV_SCOPE_MDP, "snowflake-user",     "SF_MDP_USER"),
+    "sfPassword":  _secret(KV_SCOPE_MDP, "snowflake-password", "SF_MDP_PASSWORD"),
     "sfWarehouse": "PRD_MDP_ANL_WH",
     "sfRole":      "PRD_MDP",
 }

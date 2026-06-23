@@ -28,10 +28,18 @@ Purpose     : Primary production database for Mexico commercial data.
               and EDP semantic layer views.
 
   sfURL       : danonenam.east-us-2.azure.snowflakecomputing.com
-  sfUser      : PRD_OSM_DPH_READER
-  sfPassword  : 73.bBZmne7Aq                 ← read-only analyst credential
+  sfUser      : [from Key Vault] scope=DAN-AM-P-KVT800-R-MEX-DB key=snowflake-mex-user
+  sfPassword  : [from Key Vault] scope=DAN-AM-P-KVT800-R-MEX-DB key=snowflake-mex-password
   sfWarehouse : PRD_MEX_ANL_WH
   sfRole      : PRD_MEX_READER
+
+  ⚠️  CREDENTIAL SAFETY NOTE:
+      Raw credentials were present in early commits (phase1_assessment notebooks,
+      Phase B validation notebook). These have been replaced with Key Vault lookups
+      as of commit f61434c+. If the PRD_MEX_READER account must be rotated,
+      request DBA to update KV scope DAN-AM-P-KVT800-R-MEX-DB.
+      Historical git commits containing the old credential should be considered
+      expired and the password rotated by the DBA team.
 
 Validated schemas:
   MEX_DSP_DPH_MKT   — Nielsen, MKT_OFF/ON, Water, PB, EDP views (V1–V12)

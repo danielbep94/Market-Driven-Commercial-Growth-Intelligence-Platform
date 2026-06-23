@@ -28,28 +28,48 @@
 #   See ISSUE-003 in CONNECTION_ISSUES.txt for the pattern.
 # ═══════════════════════════════════════════════════════════════════════════════
 
+import os
+
 SF_URL = "danonenam.east-us-2.azure.snowflakecomputing.com"
+
+# ─── Key Vault Scopes ─────────────────────────────────────────────────────────
+KV_SCOPE_MEX = "DAN-AM-P-KVT800-R-MEX-DB"   # PRD_MEX credentials
+KV_SCOPE_MDP = "DAN-AM-P-KVT800-R-MDP-DB"   # PRD_MDP credentials
+
+def _secret(scope, key, env_fallback=None):
+    """Resolve from Databricks KV; fall back to env var for local dev."""
+    try:
+        return dbutils.secrets.get(scope=scope, key=key)
+    except Exception:
+        pass
+    val = os.getenv(env_fallback) if env_fallback else None
+    if val:
+        return val
+    raise RuntimeError(
+        f"Cannot resolve '{key}' from scope '{scope}'. "
+        f"Set env var '{env_fallback}' for local dev."
+    )
 
 # ─── Profile: PRD_MEX ─────────────────────────────────────────────────────────
 # Role: PRD_MEX_READER | Warehouse: PRD_MEX_ANL_WH | Validated: V1–V12 ✅
+# Credentials from KV scope DAN-AM-P-KVT800-R-MEX-DB
+# Keys: snowflake-mex-user, snowflake-mex-password
 PRD_MEX_PROFILE = {
     "sfURL":       SF_URL,
-    "sfUser":      "PRD_OSM_DPH_READER",
-    "sfPassword":  "73.bBZmne7Aq",
+    "sfUser":      _secret(KV_SCOPE_MEX, "snowflake-mex-user",     "SF_MEX_USER"),
+    "sfPassword":  _secret(KV_SCOPE_MEX, "snowflake-mex-password", "SF_MEX_PASSWORD"),
     "sfWarehouse": "PRD_MEX_ANL_WH",
     "sfRole":      "PRD_MEX_READER",
 }
 
 # ─── Profile: PRD_MDP ─────────────────────────────────────────────────────────
 # Role: PRD_MDP (NOT "PRD_MDP_READER") | Warehouse: PRD_MDP_ANL_WH | Validated: V12E ✅
-# Credentials from Databricks Key Vault — scope: DAN-AM-P-KVT800-R-MDP-DB
-# Keys in scope: snowflake-user, snowflake-password
-# sfRole is a literal string "PRD_MDP" — it is NOT stored in Key Vault
-KEYVAULT_SCOPE = "DAN-AM-P-KVT800-R-MDP-DB"
+# sfRole is a literal string — it is NOT stored in Key Vault
+KEYVAULT_SCOPE = KV_SCOPE_MDP
 PRD_MDP_PROFILE = {
     "sfURL":       SF_URL,
-    "sfUser":      dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-user"),
-    "sfPassword":  dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-password"),
+    "sfUser":      _secret(KV_SCOPE_MDP, "snowflake-user",     "SF_MDP_USER"),
+    "sfPassword":  _secret(KV_SCOPE_MDP, "snowflake-password", "SF_MDP_PASSWORD"),
     "sfWarehouse": "PRD_MDP_ANL_WH",
     "sfRole":      "PRD_MDP",          # ← literal string, NOT from Key Vault
 }
@@ -69,7 +89,8 @@ def get_sf_options(database: str) -> dict:
 
 # Verify profiles loaded
 for db, profile in CONNECTION_PROFILES.items():
-    print(f"  {db}: warehouse={profile['sfWarehouse']}, role={profile['sfRole']}, user={profile['sfUser']}")
+    print(f"  {db}: warehouse={profile['sfWarehouse']}, role={profile['sfRole']}")
+
 
 # COMMAND ----------
 
