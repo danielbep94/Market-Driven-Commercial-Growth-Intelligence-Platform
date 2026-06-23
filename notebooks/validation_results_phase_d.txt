@@ -1,119 +1,119 @@
-[2026-06-23 16:33:01] ======================================================================
-[2026-06-23 16:33:01] V13 — Phase D Stage 1: Cross-Source Join Validation
-[2026-06-23 16:33:01] ======================================================================
-[2026-06-23 16:33:01] Run ID        : 91d5cc72-a5fa-4a15-b149-bad31c498d9c
-[2026-06-23 16:33:01] Run timestamp : 2026-06-23 16:33:01
-[2026-06-23 16:33:01] Mart target   : PRD_MDP.MDP_STG.MART_MARKET_GROWTH_INTELLIGENCE_MONTHLY
-[2026-06-23 16:33:01] Grain         : MARCA_STD + MONTH (brand-month)
-[2026-06-23 16:33:01] Pattern       : one SELECT per source → Python set operations (no cross-source SQL joins)
-[2026-06-23 16:33:01] 
-[2026-06-23 16:33:02]   brand_crosswalk.yaml → /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/configs/brand_crosswalk.yaml
-[2026-06-23 16:33:02]   Danone brands loaded: 32
-[2026-06-23 16:33:02]   → ['ACTIVIA', 'AGUAS FRESCAS', 'BADOIT', 'BENEGASTRO', 'BONAFONT', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANETTE', 'DANISSIMO', 'DANMIX', 'DANONE', 'DANONINO', 'DANUP', 'DANY', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'OCEAN SPRAY', 'OIKOS', 'PUREZA AGA', 'SILK', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
-[2026-06-23 16:33:02] 
-[2026-06-23 16:33:02] ======================================================================
-[2026-06-23 16:33:02] PRE-CHECK A — PRD_MDP connection health
-[2026-06-23 16:33:02] ======================================================================
-[2026-06-23 16:33:02]   Running: PRE-CHECK: PRD_MDP connection  [db=PRD_MDP]
-[2026-06-23 16:33:03]   → 1 rows returned
-[2026-06-23 16:33:04]   DB=PRD_MDP  ROLE=PRD_MDP  WH=PRD_MDP_ANL_WH
-[2026-06-23 16:33:04]   ✅ PRD_MDP role confirmed
-[2026-06-23 16:33:04] ======================================================================
-[2026-06-23 16:33:04] PRE-CHECK B — MDP_STG schema visibility via INFORMATION_SCHEMA
-[2026-06-23 16:33:04] ======================================================================
-[2026-06-23 16:33:04]   Running: PRE-CHECK: MDP_STG in INFORMATION_SCHEMA  [db=PRD_MDP]
-[2026-06-23 16:33:11]   → 1 rows returned
-[2026-06-23 16:33:13]   ✅ MDP_STG schema visible — 991 table(s) found
-[2026-06-23 16:33:14] ======================================================================
-[2026-06-23 16:33:14] V13-PRE — SELL_OUT MARCA_STD zero-tolerance NULL check
-[2026-06-23 16:33:14] Rule: NULL rate must be exactly 0%. Any NULL = hard BLOCKER.
-[2026-06-23 16:33:14] ======================================================================
-[2026-06-23 16:33:14]   Running: V13-PRE: SELL_OUT MARCA_STD null check  [db=PRD_MDP]
-[2026-06-23 16:33:15]   → 1 rows returned
-[2026-06-23 16:33:15]   SELL_OUT summary:
+[2026-06-23 20:34:11] ======================================================================
+[2026-06-23 20:34:11] V13 — Phase D Stage 1: Cross-Source Join Validation
+[2026-06-23 20:34:11] ======================================================================
+[2026-06-23 20:34:11] Run ID        : 2a7b89d8-790c-4bd0-b55f-09c8bce6e97a
+[2026-06-23 20:34:11] Run timestamp : 2026-06-23 20:34:08
+[2026-06-23 20:34:11] Mart target   : PRD_MDP.MDP_STG.MART_MARKET_GROWTH_INTELLIGENCE_MONTHLY
+[2026-06-23 20:34:11] Grain         : MARCA_STD + MONTH (brand-month)
+[2026-06-23 20:34:11] Pattern       : one SELECT per source → Python set operations (no cross-source SQL joins)
+[2026-06-23 20:34:11] 
+[2026-06-23 20:34:12]   brand_crosswalk.yaml → /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/configs/brand_crosswalk.yaml
+[2026-06-23 20:34:12]   Danone brands loaded: 32
+[2026-06-23 20:34:12]   → ['ACTIVIA', 'AGUAS FRESCAS', 'BADOIT', 'BENEGASTRO', 'BONAFONT', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANETTE', 'DANISSIMO', 'DANMIX', 'DANONE', 'DANONINO', 'DANUP', 'DANY', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'OCEAN SPRAY', 'OIKOS', 'PUREZA AGA', 'SILK', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
+[2026-06-23 20:34:12] 
+[2026-06-23 20:34:12] ======================================================================
+[2026-06-23 20:34:12] PRE-CHECK A — PRD_MDP connection health
+[2026-06-23 20:34:12] ======================================================================
+[2026-06-23 20:34:12]   Running: PRE-CHECK: PRD_MDP connection  [db=PRD_MDP]
+[2026-06-23 20:34:28]   → 1 rows returned
+[2026-06-23 20:34:29]   DB=PRD_MDP  ROLE=PRD_MDP  WH=PRD_MDP_ANL_WH
+[2026-06-23 20:34:29]   ✅ PRD_MDP role confirmed
+[2026-06-23 20:34:29] ======================================================================
+[2026-06-23 20:34:29] PRE-CHECK B — MDP_STG schema visibility via INFORMATION_SCHEMA
+[2026-06-23 20:34:29] ======================================================================
+[2026-06-23 20:34:29]   Running: PRE-CHECK: MDP_STG in INFORMATION_SCHEMA  [db=PRD_MDP]
+[2026-06-23 20:34:34]   → 1 rows returned
+[2026-06-23 20:34:37]   ✅ MDP_STG schema visible — 991 table(s) found
+[2026-06-23 20:34:37] ======================================================================
+[2026-06-23 20:34:37] V13-PRE — SELL_OUT MARCA_STD zero-tolerance NULL check
+[2026-06-23 20:34:37] Rule: NULL rate must be exactly 0%. Any NULL = hard BLOCKER.
+[2026-06-23 20:34:37] ======================================================================
+[2026-06-23 20:34:37]   Running: V13-PRE: SELL_OUT MARCA_STD null check  [db=PRD_MDP]
+[2026-06-23 20:34:39]   → 1 rows returned
+[2026-06-23 20:34:39]   SELL_OUT summary:
 +----------+--------------+--------+---------------+---------------+----------+----------+
 |TOTAL_ROWS|NULL_MARCA_STD|NULL_PCT|DISTINCT_BRANDS|DISTINCT_MONTHS|MIN_MONTH |MAX_MONTH |
 +----------+--------------+--------+---------------+---------------+----------+----------+
 |881796195 |0             |0.000000|35             |42             |2023-01-01|2026-06-01|
 +----------+--------------+--------+---------------+---------------+----------+----------+
-[2026-06-23 16:33:18]   TOTAL_ROWS=881,796,195  NULL_MARCA_STD=0  NULL_PCT=0.0000%
-[2026-06-23 16:33:18]   DISTINCT_BRANDS=35  DISTINCT_MONTHS=42
-[2026-06-23 16:33:18]   MIN_MONTH=2023-01-01  MAX_MONTH=2026-06-01
-[2026-06-23 16:33:18]   ✅ V13-PRE PASS — SELL_OUT MARCA_STD: 0 NULLs
-[2026-06-23 16:33:18]   ✅ DATE_TRUNC OK
-[2026-06-23 16:33:18] ======================================================================
-[2026-06-23 16:33:18] SHARED — SELL_OUT distinct MARCA_STD
-[2026-06-23 16:33:18] ======================================================================
-[2026-06-23 16:33:18]   Running: SHARED: SELL_OUT distinct MARCA_STD  [db=PRD_MDP]
-[2026-06-23 16:33:20]   → 35 rows returned
-[2026-06-23 16:33:21]   SELL_OUT total distinct brands: 35
-[2026-06-23 16:33:21]   SELL_OUT Danone brands:         30
-[2026-06-23 16:33:21]   → ['ACTIVIA', 'AGUAS FRESCAS', 'BADOIT', 'BENEGASTRO', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANETTE', 'DANMIX', 'DANONE', 'DANONINO', 'DANUP', 'DANY', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'OCEAN SPRAY', 'OIKOS', 'PUREZA AGA', 'SILK', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
-[2026-06-23 16:33:21] ======================================================================
-[2026-06-23 16:33:21] V13A — SELL_OUT × MKT_ON  |  threshold: WARN if < 70%
-[2026-06-23 16:33:21] ======================================================================
-[2026-06-23 16:33:21]   Running: V13A: MKT_ON distinct MARCA_STD  [db=PRD_MDP]
-[2026-06-23 16:33:23]   → 22 rows returned
-[2026-06-23 16:33:24]   MKT_ON brands: 22  |  SO Danone: 30  |  Matched: 20  |  Match%: 66.7%
-[2026-06-23 16:33:24]   Unmatched: ['BADOIT', 'BONAFONT MINERAL', 'BONAFONT SER', 'DELIGHT', 'HERSHEYS', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK']
-[2026-06-23 16:33:24] [WARNING] V13A: 66.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BONAFONT MINERAL', 'BONAFONT SER', 'DELIGHT', 'HERSHEYS', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK']
-[2026-06-23 16:33:24] ======================================================================
-[2026-06-23 16:33:24] V13B — SELL_OUT × MKT_OFF (Danone only)  |  threshold: WARN if < 70%
-[2026-06-23 16:33:24] ======================================================================
-[2026-06-23 16:33:24]   Running: V13B: MKT_OFF distinct MARCA_STD (Danone filter)  [db=PRD_MDP]
-[2026-06-23 16:33:26]   → 50 rows returned
-[2026-06-23 16:33:27]   MKT_OFF Danone brands: 14  |  SO Danone: 30  |  Matched: 14  |  Match%: 46.7%
-[2026-06-23 16:33:27]   Unmatched (expected for brands with no OFF spend): ['BADOIT', 'BENEGASTRO', 'BONAFONT MINERAL', 'BONAFONT SER', 'DANMIX', 'DELIGHT', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
-[2026-06-23 16:33:27] [WARNING] V13B: 46.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BENEGASTRO', 'BONAFONT MINERAL', 'BONAFONT SER', 'DANMIX', 'DELIGHT', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
-[2026-06-23 16:33:27] ======================================================================
-[2026-06-23 16:33:27] V13C — SELL_OUT × WASTE  |  threshold: WARN if < 80%
-[2026-06-23 16:33:27] ======================================================================
-[2026-06-23 16:33:27]   Running: V13C: WASTE distinct MARCA_STD  [db=PRD_MDP]
-[2026-06-23 16:33:29]   → 17 rows returned
-[2026-06-23 16:33:30]   WASTE brands: 17  |  SO brands: 35  |  Matched: 16  |  Match%: 45.7%
-[2026-06-23 16:33:30]   SO brands not in WASTE: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'EVIAN', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'MEMBERS MARK', 'OTROS', 'PUREZA AGA', 'STOK']
-[2026-06-23 16:33:30] [WARNING] V13C: 45.7% match (< 80%). Brands with no waste record: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'EVIAN', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'MEMBERS MARK', 'OTROS', 'PUREZA AGA', 'STOK']
-[2026-06-23 16:33:30] ======================================================================
-[2026-06-23 16:33:30] V13D — SELL_IN × IBP  |  threshold: WARN if < 80%
-[2026-06-23 16:33:30] Note: cross-DB — separate queries, Python set join (ISSUE-003)
-[2026-06-23 16:33:30] ======================================================================
-[2026-06-23 16:33:30]   Running: V13D: SELL_IN distinct MARCA_STD  [db=PRD_MEX]
-[2026-06-23 16:33:32]   → 50 rows returned
-[2026-06-23 16:33:32]   Running: V13D: IBP distinct MARCA_STD  [db=PRD_MDP]
-[2026-06-23 16:33:33]   → 21 rows returned
-[2026-06-23 16:33:35]   SELL_IN brands: 50  |  IBP brands: 21  |  Matched: 18  |  Match%: 36.0%
-[2026-06-23 16:33:35]   SELL_IN brands not in IBP: ['25 AÑOS', 'AGA', 'AGA 20 LTS', 'AGUA NATURAL', 'BADOIT', 'BASES', 'BFT 11 LTS', 'BFT 20 LTS', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BOTELLA AGA', 'BUTTER', 'CAFE', 'CARRERA', 'CIEL', "DAN'UP", 'DESTILADA', 'DISNEY', 'FRIJOLES', 'GRANEL', 'INFINIT', 'JUIZZY', 'LIBRO NAVIDEÑO', 'MUNDIAL', 'PRODUCTOS DESCONTINUADOS', 'PUREZA AGA', 'SABOR HORCHATA', 'SALMON BONAFONT', 'SO DELICIOUS', 'ULTRAPURA', 'VOLVIC', 'YOPRO']
-[2026-06-23 16:33:35] [WARNING] V13D: 36.0% match (< 80%). Unmatched: ['25 AÑOS', 'AGA', 'AGA 20 LTS', 'AGUA NATURAL', 'BADOIT', 'BASES', 'BFT 11 LTS', 'BFT 20 LTS', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BOTELLA AGA', 'BUTTER', 'CAFE', 'CARRERA', 'CIEL', "DAN'UP", 'DESTILADA', 'DISNEY', 'FRIJOLES', 'GRANEL', 'INFINIT', 'JUIZZY', 'LIBRO NAVIDEÑO', 'MUNDIAL', 'PRODUCTOS DESCONTINUADOS', 'PUREZA AGA', 'SABOR HORCHATA', 'SALMON BONAFONT', 'SO DELICIOUS', 'ULTRAPURA', 'VOLVIC', 'YOPRO']
-[2026-06-23 16:33:35] ======================================================================
-[2026-06-23 16:33:35] V13E — SELL_OUT × EDP Nielsen  |  threshold: WARN if < 60%
-[2026-06-23 16:33:35] ======================================================================
-[2026-06-23 16:33:35]   Running: V13E: EDP Nielsen distinct MARCA_STD  [db=PRD_MEX]
-[2026-06-23 16:33:36]   → 219 rows returned
-[2026-06-23 16:33:36]   Running: V13E: Nielsen max period  [db=PRD_MEX]
-[2026-06-23 16:33:38]   → 1 rows returned
-[2026-06-23 16:33:41]   Nielsen EDP brands: 219  |  SO brands: 35  |  Matched: 14  |  Match%: 40.0%
-[2026-06-23 16:33:41]   SO brands not in EDP Nielsen (expected — waters/IBP split): ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'MEMBERS MARK', 'OCEAN SPRAY', 'OTROS', 'PUREZA AGA', 'STOK']
-[2026-06-23 16:33:41]   Nielsen EDP max month : 2026-05-01
-[2026-06-23 16:33:41]   SELL_OUT max month    : 2026-06-01
-[2026-06-23 16:33:41]   Nielsen lag: 4.4 weeks behind SELL_OUT
-[2026-06-23 16:33:41]   ✅ Nielsen lag 4.4 weeks — within 8-week threshold
-[2026-06-23 16:33:41] [WARNING] V13E: 40.0% match (< 60%). Waters/EDP split expected — review if share KPIs needed for: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'MEMBERS MARK', 'OCEAN SPRAY', 'OTROS', 'PUREZA AGA', 'STOK']
-[2026-06-23 16:33:41] 
-[2026-06-23 16:33:41] ======================================================================
-[2026-06-23 16:33:41] V13 VALIDATION SUMMARY
-[2026-06-23 16:33:41] ======================================================================
-[2026-06-23 16:33:41] Run ID    : 91d5cc72-a5fa-4a15-b149-bad31c498d9c
-[2026-06-23 16:33:41] Completed : 2026-06-23 16:33:41
-[2026-06-23 16:33:41] 
-[2026-06-23 16:33:41] Hard Blockers : 0
-[2026-06-23 16:33:41] 
-[2026-06-23 16:33:41] Warnings      : 5
-[2026-06-23 16:33:41]   [WARNING] V13A: 66.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BONAFONT MINERAL', 'BONAFONT SER', 'DELIGHT', 'HERSHEYS', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK']
-[2026-06-23 16:33:41]   [WARNING] V13B: 46.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BENEGASTRO', 'BONAFONT MINERAL', 'BONAFONT SER', 'DANMIX', 'DELIGHT', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
-[2026-06-23 16:33:41]   [WARNING] V13C: 45.7% match (< 80%). Brands with no waste record: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'EVIAN', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'MEMBERS MARK', 'OTROS', 'PUREZA AGA', 'STOK']
-[2026-06-23 16:33:41]   [WARNING] V13D: 36.0% match (< 80%). Unmatched: ['25 AÑOS', 'AGA', 'AGA 20 LTS', 'AGUA NATURAL', 'BADOIT', 'BASES', 'BFT 11 LTS', 'BFT 20 LTS', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BOTELLA AGA', 'BUTTER', 'CAFE', 'CARRERA', 'CIEL', "DAN'UP", 'DESTILADA', 'DISNEY', 'FRIJOLES', 'GRANEL', 'INFINIT', 'JUIZZY', 'LIBRO NAVIDEÑO', 'MUNDIAL', 'PRODUCTOS DESCONTINUADOS', 'PUREZA AGA', 'SABOR HORCHATA', 'SALMON BONAFONT', 'SO DELICIOUS', 'ULTRAPURA', 'VOLVIC', 'YOPRO']
-[2026-06-23 16:33:41]   [WARNING] V13E: 40.0% match (< 60%). Waters/EDP split expected — review if share KPIs needed for: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'MEMBERS MARK', 'OCEAN SPRAY', 'OTROS', 'PUREZA AGA', 'STOK']
-[2026-06-23 16:33:41] 
-[2026-06-23 16:33:41] ✅ ALL HARD BLOCKERS PASSED — Stage 2 is cleared to proceed.
-[2026-06-23 16:33:41]    Review warnings above before starting Stage 2.
-[2026-06-23 16:33:41] ======================================================================
+[2026-06-23 20:34:47]   TOTAL_ROWS=881,796,195  NULL_MARCA_STD=0  NULL_PCT=0.0000%
+[2026-06-23 20:34:47]   DISTINCT_BRANDS=35  DISTINCT_MONTHS=42
+[2026-06-23 20:34:47]   MIN_MONTH=2023-01-01  MAX_MONTH=2026-06-01
+[2026-06-23 20:34:47]   ✅ V13-PRE PASS — SELL_OUT MARCA_STD: 0 NULLs
+[2026-06-23 20:34:47]   ✅ DATE_TRUNC OK
+[2026-06-23 20:34:47] ======================================================================
+[2026-06-23 20:34:47] SHARED — SELL_OUT distinct MARCA_STD
+[2026-06-23 20:34:47] ======================================================================
+[2026-06-23 20:34:47]   Running: SHARED: SELL_OUT distinct MARCA_STD  [db=PRD_MDP]
+[2026-06-23 20:34:48]   → 35 rows returned
+[2026-06-23 20:34:50]   SELL_OUT total distinct brands: 35
+[2026-06-23 20:34:50]   SELL_OUT Danone brands:         30
+[2026-06-23 20:34:50]   → ['ACTIVIA', 'AGUAS FRESCAS', 'BADOIT', 'BENEGASTRO', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANETTE', 'DANMIX', 'DANONE', 'DANONINO', 'DANUP', 'DANY', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'OCEAN SPRAY', 'OIKOS', 'PUREZA AGA', 'SILK', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
+[2026-06-23 20:34:50] ======================================================================
+[2026-06-23 20:34:50] V13A — SELL_OUT × MKT_ON  |  threshold: WARN if < 70%
+[2026-06-23 20:34:50] ======================================================================
+[2026-06-23 20:34:50]   Running: V13A: MKT_ON distinct MARCA_STD  [db=PRD_MDP]
+[2026-06-23 20:34:52]   → 22 rows returned
+[2026-06-23 20:34:53]   MKT_ON brands: 22  |  SO Danone: 30  |  Matched: 20  |  Match%: 66.7%
+[2026-06-23 20:34:53]   Unmatched: ['BADOIT', 'BONAFONT MINERAL', 'BONAFONT SER', 'DELIGHT', 'HERSHEYS', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK']
+[2026-06-23 20:34:53] [WARNING] V13A: 66.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BONAFONT MINERAL', 'BONAFONT SER', 'DELIGHT', 'HERSHEYS', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK']
+[2026-06-23 20:34:53] ======================================================================
+[2026-06-23 20:34:53] V13B — SELL_OUT × MKT_OFF (Danone only)  |  threshold: WARN if < 70%
+[2026-06-23 20:34:53] ======================================================================
+[2026-06-23 20:34:53]   Running: V13B: MKT_OFF distinct MARCA_STD (Danone filter)  [db=PRD_MDP]
+[2026-06-23 20:34:55]   → 50 rows returned
+[2026-06-23 20:34:56]   MKT_OFF Danone brands: 14  |  SO Danone: 30  |  Matched: 14  |  Match%: 46.7%
+[2026-06-23 20:34:56]   Unmatched (expected for brands with no OFF spend): ['BADOIT', 'BENEGASTRO', 'BONAFONT MINERAL', 'BONAFONT SER', 'DANMIX', 'DELIGHT', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
+[2026-06-23 20:34:56] [WARNING] V13B: 46.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BENEGASTRO', 'BONAFONT MINERAL', 'BONAFONT SER', 'DANMIX', 'DELIGHT', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
+[2026-06-23 20:34:56] ======================================================================
+[2026-06-23 20:34:56] V13C — SELL_OUT × WASTE  |  threshold: WARN if < 80%
+[2026-06-23 20:34:56] ======================================================================
+[2026-06-23 20:34:56]   Running: V13C: WASTE distinct MARCA_STD  [db=PRD_MDP]
+[2026-06-23 20:34:58]   → 17 rows returned
+[2026-06-23 20:35:00]   WASTE brands: 17  |  SO brands: 35  |  Matched: 16  |  Match%: 45.7%
+[2026-06-23 20:35:00]   SO brands not in WASTE: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'EVIAN', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'MEMBERS MARK', 'OTROS', 'PUREZA AGA', 'STOK']
+[2026-06-23 20:35:00] [WARNING] V13C: 45.7% match (< 80%). Brands with no waste record: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'EVIAN', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'MEMBERS MARK', 'OTROS', 'PUREZA AGA', 'STOK']
+[2026-06-23 20:35:00] ======================================================================
+[2026-06-23 20:35:00] V13D — SELL_IN × IBP  |  threshold: WARN if < 80%
+[2026-06-23 20:35:00] Note: cross-DB — separate queries, Python set join (ISSUE-003)
+[2026-06-23 20:35:00] ======================================================================
+[2026-06-23 20:35:00]   Running: V13D: SELL_IN distinct MARCA_STD  [db=PRD_MEX]
+[2026-06-23 20:35:06]   → 50 rows returned
+[2026-06-23 20:35:06]   Running: V13D: IBP distinct MARCA_STD  [db=PRD_MDP]
+[2026-06-23 20:35:08]   → 21 rows returned
+[2026-06-23 20:35:10]   SELL_IN brands: 50  |  IBP brands: 21  |  Matched: 18  |  Match%: 36.0%
+[2026-06-23 20:35:10]   SELL_IN brands not in IBP: ['25 AÑOS', 'AGA', 'AGA 20 LTS', 'AGUA NATURAL', 'BADOIT', 'BASES', 'BFT 11 LTS', 'BFT 20 LTS', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BOTELLA AGA', 'BUTTER', 'CAFE', 'CARRERA', 'CIEL', "DAN'UP", 'DESTILADA', 'DISNEY', 'FRIJOLES', 'GRANEL', 'INFINIT', 'JUIZZY', 'LIBRO NAVIDEÑO', 'MUNDIAL', 'PRODUCTOS DESCONTINUADOS', 'PUREZA AGA', 'SABOR HORCHATA', 'SALMON BONAFONT', 'SO DELICIOUS', 'ULTRAPURA', 'VOLVIC', 'YOPRO']
+[2026-06-23 20:35:10] [WARNING] V13D: 36.0% match (< 80%). Unmatched: ['25 AÑOS', 'AGA', 'AGA 20 LTS', 'AGUA NATURAL', 'BADOIT', 'BASES', 'BFT 11 LTS', 'BFT 20 LTS', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BOTELLA AGA', 'BUTTER', 'CAFE', 'CARRERA', 'CIEL', "DAN'UP", 'DESTILADA', 'DISNEY', 'FRIJOLES', 'GRANEL', 'INFINIT', 'JUIZZY', 'LIBRO NAVIDEÑO', 'MUNDIAL', 'PRODUCTOS DESCONTINUADOS', 'PUREZA AGA', 'SABOR HORCHATA', 'SALMON BONAFONT', 'SO DELICIOUS', 'ULTRAPURA', 'VOLVIC', 'YOPRO']
+[2026-06-23 20:35:11] ======================================================================
+[2026-06-23 20:35:11] V13E — SELL_OUT × EDP Nielsen  |  threshold: WARN if < 60%
+[2026-06-23 20:35:11] ======================================================================
+[2026-06-23 20:35:11]   Running: V13E: EDP Nielsen distinct MARCA_STD  [db=PRD_MEX]
+[2026-06-23 20:35:12]   → 219 rows returned
+[2026-06-23 20:35:12]   Running: V13E: Nielsen max period  [db=PRD_MEX]
+[2026-06-23 20:35:14]   → 1 rows returned
+[2026-06-23 20:35:15]   Nielsen EDP brands: 219  |  SO brands: 35  |  Matched: 14  |  Match%: 40.0%
+[2026-06-23 20:35:15]   SO brands not in EDP Nielsen (expected — waters/IBP split): ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'MEMBERS MARK', 'OCEAN SPRAY', 'OTROS', 'PUREZA AGA', 'STOK']
+[2026-06-23 20:35:15]   Nielsen EDP max month : 2026-05-01
+[2026-06-23 20:35:15]   SELL_OUT max month    : 2026-06-01
+[2026-06-23 20:35:15]   Nielsen lag: 4.4 weeks behind SELL_OUT
+[2026-06-23 20:35:15]   ✅ Nielsen lag 4.4 weeks — within 8-week threshold
+[2026-06-23 20:35:15] [WARNING] V13E: 40.0% match (< 60%). Waters/EDP split expected — review if share KPIs needed for: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'MEMBERS MARK', 'OCEAN SPRAY', 'OTROS', 'PUREZA AGA', 'STOK']
+[2026-06-23 20:35:15] 
+[2026-06-23 20:35:15] ======================================================================
+[2026-06-23 20:35:15] V13 VALIDATION SUMMARY
+[2026-06-23 20:35:15] ======================================================================
+[2026-06-23 20:35:15] Run ID    : 2a7b89d8-790c-4bd0-b55f-09c8bce6e97a
+[2026-06-23 20:35:15] Completed : 2026-06-23 20:35:15
+[2026-06-23 20:35:15] 
+[2026-06-23 20:35:15] Hard Blockers : 0
+[2026-06-23 20:35:15] 
+[2026-06-23 20:35:15] Warnings      : 5
+[2026-06-23 20:35:15]   [WARNING] V13A: 66.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BONAFONT MINERAL', 'BONAFONT SER', 'DELIGHT', 'HERSHEYS', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK']
+[2026-06-23 20:35:15]   [WARNING] V13B: 46.7% match (< 70%). Unmatched Danone brands: ['BADOIT', 'BENEGASTRO', 'BONAFONT MINERAL', 'BONAFONT SER', 'DANMIX', 'DELIGHT', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LICUAMIX', 'OCEAN SPRAY', 'PUREZA AGA', 'SO DELICIOUS', 'STOK', 'VITALINEA', 'YOPRO']
+[2026-06-23 20:35:15]   [WARNING] V13C: 45.7% match (< 80%). Brands with no waste record: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'EVIAN', 'INFINIT', 'JUIZZY', 'LEVITE', 'LICUAMIX', 'MEMBERS MARK', 'OTROS', 'PUREZA AGA', 'STOK']
+[2026-06-23 20:35:15]   [WARNING] V13D: 36.0% match (< 80%). Unmatched: ['25 AÑOS', 'AGA', 'AGA 20 LTS', 'AGUA NATURAL', 'BADOIT', 'BASES', 'BFT 11 LTS', 'BFT 20 LTS', 'BONAFONT JUGO', 'BONAFONT KIDS', 'BOTELLA AGA', 'BUTTER', 'CAFE', 'CARRERA', 'CIEL', "DAN'UP", 'DESTILADA', 'DISNEY', 'FRIJOLES', 'GRANEL', 'INFINIT', 'JUIZZY', 'LIBRO NAVIDEÑO', 'MUNDIAL', 'PRODUCTOS DESCONTINUADOS', 'PUREZA AGA', 'SABOR HORCHATA', 'SALMON BONAFONT', 'SO DELICIOUS', 'ULTRAPURA', 'VOLVIC', 'YOPRO']
+[2026-06-23 20:35:15]   [WARNING] V13E: 40.0% match (< 60%). Waters/EDP split expected — review if share KPIs needed for: ['ADES', 'AGUAS FRESCAS', 'BADOIT', 'BEC', 'BONAFONT', 'BONAFONT KIDS', 'BONAFONT MINERAL', 'BONAFONT SER', 'BONAFONT TE', 'DANFRUT', 'DELIGHT', 'EVIAN', 'HERSHEYS', 'INFINIT', 'JUIZZY', 'LEVITE', 'MEMBERS MARK', 'OCEAN SPRAY', 'OTROS', 'PUREZA AGA', 'STOK']
+[2026-06-23 20:35:15] 
+[2026-06-23 20:35:15] ✅ ALL HARD BLOCKERS PASSED — Stage 2 is cleared to proceed.
+[2026-06-23 20:35:15]    Review warnings above before starting Stage 2.
+[2026-06-23 20:35:15] ======================================================================
