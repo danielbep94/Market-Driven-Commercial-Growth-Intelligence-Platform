@@ -38,21 +38,66 @@ KV_SCOPE_MEX  = "DAN-AM-P-KVT800-R-MEX-DB"
 KV_SCOPE_MDP  = "DAN-AM-P-KVT800-R-MDP-DB"
 
 _creds = None
-try:
-    _p = os.path.normpath(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "configs", "snowflake_creds.py")
-    )
-    if os.path.exists(_p):
-        _spec = importlib.util.spec_from_file_location("snowflake_creds", _p)
-        _m    = importlib.util.module_from_spec(_spec)
-        _spec.loader.exec_module(_m)
-        _creds = _m
-        print("  [credentials] Loaded from configs/snowflake_creds.py")
-except Exception as _e:
-    print(f"  [credentials] snowflake_creds.py not loaded ({_e}) — trying KV")
+
+def _find_creds_file():
+    """
+    Try multiple candidate locations for snowflake_creds.py.
+    Databricks notebooks have no __file__, so we probe well-known paths.
+    Resolution order:
+      1. Same directory as this notebook (./configs/snowflake_creds.py)
+      2. CWD/../configs/snowflake_creds.py
+      3. /Workspace/…/configs/snowflake_creds.py  (Databricks workspace root)
+      4. DBFS: /dbfs/…/configs/snowflake_creds.py
+    """
+    candidates = []
+    # 1. Relative to __file__ when available (local / pytest)
+    try:
+        candidates.append(
+            os.path.normpath(
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "configs", "snowflake_creds.py")
+            )
+        )
+    except Exception:
+        pass
+    # 2. CWD-based (Databricks sets CWD to the notebook's directory)
+    try:
+        cwd = os.getcwd()
+        candidates.append(os.path.join(cwd, "configs", "snowflake_creds.py"))
+        candidates.append(os.path.normpath(os.path.join(cwd, "..", "configs", "snowflake_creds.py")))
+        # If we are already inside /notebooks, go up one level
+        if os.path.basename(cwd).lower() == "notebooks":
+            candidates.append(os.path.join(os.path.dirname(cwd), "configs", "snowflake_creds.py"))
+    except Exception:
+        pass
+    # 3. Databricks Repos path (/Workspace/Repos/<user>/<repo>/configs/...)
+    try:
+        import subprocess
+        repo_root = subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], stderr=subprocess.DEVNULL
+        ).decode().strip()
+        candidates.append(os.path.join(repo_root, "configs", "snowflake_creds.py"))
+    except Exception:
+        pass
+    return candidates
+
+for _creds_path in _find_creds_file():
+    try:
+        if os.path.exists(_creds_path):
+            _spec = importlib.util.spec_from_file_location("snowflake_creds", _creds_path)
+            _m    = importlib.util.module_from_spec(_spec)
+            _spec.loader.exec_module(_m)
+            _creds = _m
+            print(f"  [credentials] Loaded from {_creds_path}")
+            break
+    except Exception as _e:
+        print(f"  [credentials] Could not load {_creds_path}: {_e}")
+
+if _creds is None:
+    print("  [credentials] snowflake_creds.py not found via filesystem — will try Databricks KV next")
 
 
 def _secret(local_val, scope, key, env_var=None):
+    """Resolve credential: (1) local creds file → (2) Databricks KV → (3) env var."""
     if local_val is not None:
         return local_val
     try:
@@ -63,7 +108,10 @@ def _secret(local_val, scope, key, env_var=None):
     if val:
         return val
     raise RuntimeError(
-        f"Cannot resolve '{key}'. Create configs/snowflake_creds.py from the .example file."
+        f"Cannot resolve '{key}'. "
+        f"Ensure configs/snowflake_creds.py exists on the Databricks workspace "
+        f"(copy from configs/snowflake_creds.example.py and fill in values), "
+        f"OR that Databricks KV scope '{scope}' contains key '{key}'."
     )
 
 
