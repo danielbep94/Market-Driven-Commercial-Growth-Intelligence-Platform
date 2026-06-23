@@ -12,11 +12,26 @@
 
 # COMMAND ----------
 
-# ── Snowflake Connection Profiles ────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# Snowflake Connection Profiles
+# Canonical reference: SEMANTIC_LAYOUTS/INFRASTRUCTURE/SNOWFLAKE_CONNECTION.txt
+# Known issues log : SEMANTIC_LAYOUTS/INFRASTRUCTURE/CONNECTION_ISSUES.txt
+# Shared module   : configs/snowflake_connection_profiles.py
+#
+# IMPORTANT — role names are NOT symmetric:
+#   PRD_MEX → sfRole = "PRD_MEX_READER"  (valid)
+#   PRD_MDP → sfRole = "PRD_MDP"         (valid)
+#   PRD_MDP → sfRole = "PRD_MDP_READER"  ← DOES NOT EXIST (see ISSUE-002)
+#
+# Cross-DB constraint: PRD_MEX + PRD_MDP CANNOT share a Snowflake session.
+#   Run two separate spark.read calls and join results in Python.
+#   See ISSUE-003 in CONNECTION_ISSUES.txt for the pattern.
+# ═══════════════════════════════════════════════════════════════════════════════
 
 SF_URL = "danonenam.east-us-2.azure.snowflakecomputing.com"
 
 # ─── Profile: PRD_MEX ─────────────────────────────────────────────────────────
+# Role: PRD_MEX_READER | Warehouse: PRD_MEX_ANL_WH | Validated: V1–V12 ✅
 PRD_MEX_PROFILE = {
     "sfURL":       SF_URL,
     "sfUser":      "PRD_OSM_DPH_READER",
@@ -26,14 +41,17 @@ PRD_MEX_PROFILE = {
 }
 
 # ─── Profile: PRD_MDP ─────────────────────────────────────────────────────────
-# Uses Key Vault credentials via Databricks secret scope
+# Role: PRD_MDP (NOT "PRD_MDP_READER") | Warehouse: PRD_MDP_ANL_WH | Validated: V12E ✅
+# Credentials from Databricks Key Vault — scope: DAN-AM-P-KVT800-R-MDP-DB
+# Keys in scope: snowflake-user, snowflake-password
+# sfRole is a literal string "PRD_MDP" — it is NOT stored in Key Vault
 KEYVAULT_SCOPE = "DAN-AM-P-KVT800-R-MDP-DB"
 PRD_MDP_PROFILE = {
     "sfURL":       SF_URL,
     "sfUser":      dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-user"),
     "sfPassword":  dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-password"),
     "sfWarehouse": "PRD_MDP_ANL_WH",
-    "sfRole":      "PRD_MDP",
+    "sfRole":      "PRD_MDP",          # ← literal string, NOT from Key Vault
 }
 
 # ─── Profile Router ───────────────────────────────────────────────────────────
@@ -47,7 +65,7 @@ def get_sf_options(database: str) -> dict:
     if database not in CONNECTION_PROFILES:
         raise ValueError(f"No connection profile for database '{database}'. "
                          f"Available: {list(CONNECTION_PROFILES.keys())}")
-    return CONNECTION_PROFILES[database]
+    return dict(CONNECTION_PROFILES[database])  # return a copy, never the live dict
 
 # Verify profiles loaded
 for db, profile in CONNECTION_PROFILES.items():

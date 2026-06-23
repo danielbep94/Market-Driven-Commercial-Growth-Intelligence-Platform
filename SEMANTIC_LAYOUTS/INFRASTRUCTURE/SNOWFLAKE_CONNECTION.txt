@@ -1,0 +1,142 @@
+================================================================================
+SNOWFLAKE CONNECTION REFERENCE
+Market Growth Intelligence Platform — Danone Mexico
+================================================================================
+File    : SEMANTIC_LAYOUTS/INFRASTRUCTURE/SNOWFLAKE_CONNECTION.txt
+Purpose : Canonical reference for all Snowflake database connections used by
+          this project. Treat this file as the single source of truth for
+          connection parameters, role names, and Key Vault mappings.
+Updated : 2026-06-23
+Validated by : V12A–V12E (see notebooks/validation_results_nielsen_v12.txt)
+================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+GLOBAL SNOWFLAKE ENDPOINT
+────────────────────────────────────────────────────────────────────────────────
+Host        : danonenam.east-us-2.azure.snowflakecomputing.com
+Account     : danonenam (Azure East US 2)
+Cloud       : Microsoft Azure
+Spark format: net.snowflake.spark.snowflake
+
+
+────────────────────────────────────────────────────────────────────────────────
+DATABASE: PRD_MEX
+────────────────────────────────────────────────────────────────────────────────
+Purpose     : Primary production database for Mexico commercial data.
+              Contains all Nielsen, MKT, Waste, Water, Sell-In, Sell-Out,
+              and EDP semantic layer views.
+
+  sfURL       : danonenam.east-us-2.azure.snowflakecomputing.com
+  sfUser      : PRD_OSM_DPH_READER
+  sfPassword  : 73.bBZmne7Aq                 ← read-only analyst credential
+  sfWarehouse : PRD_MEX_ANL_WH
+  sfRole      : PRD_MEX_READER
+
+Validated schemas:
+  MEX_DSP_DPH_MKT   — Nielsen, MKT_OFF/ON, Water, PB, EDP views (V1–V12)
+
+Key views confirmed accessible (V1–V12, 2026-06-22/23):
+  VW_IR_YOG_GEL_MT_NLSN_PROD_DIM        ← EDP Nielsen product dim
+  VW_IR_YOG_GEL_MT_NLSN_FACT            ← EDP Nielsen fact
+  VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM      ← Water Retail product dim
+  VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM      ← Water Scantrack product dim
+  VW_SUST_LECHE_ST_NLSN_PROD_DIM        ← PB Scantrack product dim
+  VW_D_MKT_WATER_RETAIL_PROD_DIM        ← ⚠️  REQUIRES PERMISSION CHECK (see KNOWN ISSUES)
+  VW_D_MKT_WATER_SCANTRACK_PROD_DIM     ← ⚠️  REQUIRES PERMISSION CHECK (see KNOWN ISSUES)
+  VW_D_MKT_PB_SCANTRACK_PROD_DIM        ← ⚠️  REQUIRES PERMISSION CHECK (see KNOWN ISSUES)
+
+Validation status   : ✅ FULLY VALIDATED (V1–V12)
+
+
+────────────────────────────────────────────────────────────────────────────────
+DATABASE: PRD_MDP
+────────────────────────────────────────────────────────────────────────────────
+Purpose     : MDP (Master Data Platform) database for IBP / demand planning.
+              Contains the VW_FACT_DANONE_IBP view used for MARCA_STD joins.
+
+  sfURL       : danonenam.east-us-2.azure.snowflakecomputing.com
+  sfUser      : resolved from Databricks Key Vault at runtime
+  sfPassword  : resolved from Databricks Key Vault at runtime
+  sfWarehouse : PRD_MDP_ANL_WH
+  sfRole      : PRD_MDP                ← CONFIRMED CORRECT (see KNOWN ISSUES)
+
+  Key Vault scope : DAN-AM-P-KVT800-R-MDP-DB
+  Key Vault keys  :
+    snowflake-user      → maps to sfUser
+    snowflake-password  → maps to sfPassword
+    (sfRole is NOT in KV — it is the literal string "PRD_MDP")
+
+  ⚠️  CRITICAL: The role for PRD_MDP is "PRD_MDP", NOT "PRD_MDP_READER".
+      Using "PRD_MDP_READER" causes an immediate authentication failure.
+      See KNOWN ISSUES below for the full error trace.
+
+Key views confirmed accessible:
+  MDP_DSP.VW_FACT_DANONE_IBP  ← IBP brand fact (V12E confirmed, 27 MARCA_STD)
+
+Validation status   : ✅ VALIDATED (V12E, 2026-06-23)
+
+
+────────────────────────────────────────────────────────────────────────────────
+CROSS-DATABASE QUERY CONSTRAINT
+────────────────────────────────────────────────────────────────────────────────
+PRD_MEX and PRD_MDP CANNOT be queried in the same Snowflake session.
+Each database requires a different set of credentials and roles.
+
+  ❌ WRONG: Submit a single SQL query with CTEs spanning both databases
+            via one spark.read session pointed at PRD_MDP.
+
+  ✅ CORRECT: Run two separate spark.read calls (one per database),
+              collect results into Python objects, join in Python memory.
+
+  Pattern used in V12E (validate_nielsen_marca_std_v12.py):
+    df_edp = spark.read ... PRD_MEX credentials ... EDP query
+    df_ibp = spark.read ... PRD_MDP credentials ... IBP query
+    edp_set = set(row.MARCA_STD_EDP for row in df_edp.collect())
+    ibp_set = set(row.MARCA_STD_IBP for row in df_ibp.collect())
+    matched  = edp_set & ibp_set     # Python set intersection
+    no_match = edp_set - ibp_set     # Python set difference
+
+
+────────────────────────────────────────────────────────────────────────────────
+CANONICAL CODE REFERENCE
+────────────────────────────────────────────────────────────────────────────────
+All connection parameters are centralised in:
+  configs/snowflake_connection_profiles.py
+
+Notebooks should import from there rather than defining profiles inline:
+
+  # At the top of any Databricks notebook:
+  %run ../configs/snowflake_connection_profiles
+
+  opts = get_sf_options("PRD_MEX")
+  df = (
+      spark.read
+      .format("net.snowflake.spark.snowflake")
+      .options(**opts)
+      .option("sfDatabase", "PRD_MEX")
+      .option("query", sql)
+      .load()
+  )
+
+
+────────────────────────────────────────────────────────────────────────────────
+VALIDATION SUMMARY — V12 (2026-06-23)
+────────────────────────────────────────────────────────────────────────────────
+Check   Source                  Brands   Null%   Result
+V12A    EDP Nielsen (PRD_MEX)   219      1.98%   ✅ PASS (threshold 3%)
+V12B    Water Retail (PRD_MEX)  160      0.00%   ✅ PASS
+V12C    Water Scantrack (PRD_MEX)  140   4.34%   ✅ PASS (threshold 5%)
+V12D    PB Scantrack (PRD_MEX)  77       2.16%   ✅ PASS (threshold 3%)
+V12E    EDP × IBP join (cross-DB)
+          EDP MARCA_STD values: 219
+          IBP MARCA_STD values: 27
+          MATCHED (in both):    11       ✅ PASS (threshold ≥10)
+          NO_IBP_MATCH:         208      (competitors / long-tail — expected)
+
+Matched Danone brands (EDP ∩ IBP):
+  ACTIVIA, BENEGASTRO, DANETTE, DANMIX, DANONE, DANONINO,
+  DANUP, DANY, OIKOS, SILK, VITALINEA
+
+Log file: notebooks/validation_results_nielsen_v12.txt
+================================================================================

@@ -1,0 +1,173 @@
+================================================================================
+SEMANTIC LAYER — FOLDER STRUCTURE REFERENCE
+Market Growth Intelligence Platform — Danone Mexico
+================================================================================
+File    : SEMANTIC_LAYOUTS/INFRASTRUCTURE/FOLDER_STRUCTURE.txt
+Purpose : Documents the complete folder structure of the SEMANTIC_LAYER branch,
+          explains what each directory and file contains, and provides a guide
+          for where to add new artefacts.
+Updated : 2026-06-23
+================================================================================
+
+
+Market Growth Intelligence/
+│
+├── SEMANTIC_LAYOUTS/                    ← Core semantic layer definitions
+│   │
+│   ├── INFRASTRUCTURE/                  ← [NEW] Connection & ops documentation
+│   │   ├── SNOWFLAKE_CONNECTION.txt     ← Canonical connection profiles + V12 results
+│   │   ├── CONNECTION_ISSUES.txt        ← SQL error catalogue + troubleshooting guide
+│   │   └── FOLDER_STRUCTURE.txt        ← This file — project map
+│   │
+│   ├── EDP_NIELSEN/
+│   │   └── EDP_MARKET.txt              ← EDP (Yogurt/Gelatinas) Nielsen layout
+│   │                                      Source: VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
+│   │                                      Brand col: INP_56985 → ITM_UNIF_BRND
+│   │                                      MARCA_STD: ✅ Added (C.6)
+│   │
+│   ├── WATER_NEILSEN/
+│   │   ├── RETAIL_WATER.txt            ← Water Retail Nielsen layout
+│   │   │                                  Source: VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM
+│   │   │                                  Brand col: CSTM_310589 → ITM_UNIF_BRAND_DAN
+│   │   │                                  MARCA_STD: ✅ Added (C.6)
+│   │   └── SCANTRACK_WATER.txt         ← Water Scantrack Nielsen layout
+│   │                                      Source: VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM
+│   │                                      Brand col: CSTM_310589 → ITM_UNIF_BRND_DAN
+│   │                                      MARCA_STD: ✅ Added to FINAL_DATA CTE (C.6)
+│   │
+│   ├── PB_NEILSEN/
+│   │   └── PB_SCANTRACK.txt            ← Plant-Based Scantrack Nielsen layout
+│   │                                      Source: VW_SUST_LECHE_ST_NLSN_PROD_DIM
+│   │                                      Brand col: INP_56985 → ITM_UNIF_BRAND
+│   │                                      MARCA_STD: ✅ Added (C.6)
+│   │
+│   ├── IBP/
+│   │   └── IBP_DANONE.txt              ← IBP (Demand Planning) layout
+│   │                                      Source: PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP
+│   │                                      Brand col: MARCA → MARCA_STD
+│   │                                      MARCA_STD: ✅ Present (original)
+│   │
+│   ├── MKT_OFF/
+│   │   └── OFF.txt                     ← MKT Offline (Inversión) layout
+│   │                                      Source: PRD_MEX (MKT views)
+│   │                                      MARCA_STD: ✅ Present
+│   │
+│   ├── MKT_ON/
+│   │   └── ON.txt                      ← MKT Online (Inversión) layout
+│   │                                      Source: PRD_MEX (MKT views)
+│   │                                      MARCA_STD: ✅ Present
+│   │
+│   ├── SELL_IN/
+│   │   └── SELL_IN_DICT.txt            ← Sell-In layout
+│   │                                      Source: PRD_MEX (Sell-In views)
+│   │                                      MARCA_STD: ✅ Present
+│   │
+│   ├── SELL_OUT/
+│   │   └── SELL_OUT_DICT.txt           ← Sell-Out layout
+│   │                                      Source: PRD_MEX (Sell-Out views)
+│   │
+│   └── WASTE/
+│       └── DATA_WASTE.txt              ← Waste layout
+│                                          Source: PRD_MEX (Waste views)
+│                                          Null policy: zeros kept (Phase C decision)
+│
+├── configs/                             ← All YAML/SQL/Python configs
+│   ├── snowflake_connection_profiles.py ← [NEW] Canonical connection profiles (import this)
+│   ├── brand_crosswalk.yaml            ← Brand variant → MARCA_STD mapping (v2.0)
+│   ├── marca_std_case_when.sql         ← Generated CASE WHEN SQL for MARCA_STD
+│   ├── semantic_registry.yaml          ← Auto-generated: 10 sources, 148 cols, 100% coverage
+│   ├── nielsen_dq_thresholds.yaml      ← [NEW] DQ floors for 4 Nielsen sources (V12-calibrated)
+│   ├── dq_thresholds.yaml              ← General DQ thresholds (non-Nielsen)
+│   ├── dq_rules_catalog.yaml           ← DQ rule definitions
+│   ├── business_glossary_seed.yaml     ← Column definitions / glossary
+│   ├── column_name_mapping.yaml        ← Source→canonical column mappings
+│   ├── column_types_snapshot.yaml      ← Snowflake-confirmed column types
+│   ├── derived_column_crosswalk.yaml   ← Derived column definitions
+│   ├── model_config.yaml               ← Model configuration
+│   ├── pipeline_config.yaml            ← Pipeline execution config
+│   ├── product_key_crosswalk.yaml      ← Product key mappings
+│   ├── kpi_weights.yaml                ← KPI scoring weights
+│   └── tech_debt.yaml                  ← Technical debt register
+│
+├── notebooks/                           ← Databricks validation notebooks
+│   ├── validate_semantic_layer_phase_b.py ← Phase B validation (V1–V8)
+│   ├── validate_semantic_layer_phase_c.py ← Phase C validation (V9–V11)
+│   ├── validate_nielsen_marca_std_v12.py  ← [NEW] V12 Nielsen MARCA_STD validation
+│   ├── validation_results_phase_b.txt     ← Phase B log (committed)
+│   ├── validation_results_phase_c.txt     ← Phase C log (committed)
+│   └── validation_results_nielsen_v12.txt ← [NEW] V12 log — all ✅ PASS
+│
+├── scripts/                             ← Automation scripts
+│   └── build_registry.py               ← Rebuilds semantic_registry.yaml
+│
+├── docs/                                ← Project documentation
+│   ├── architecture/
+│   ├── data_contracts/
+│   ├── governance/
+│   ├── kpi_definitions/
+│   └── ml_model_cards/
+│
+├── sql/                                 ← SQL DDL, views, KPI functions
+│   ├── ddl/
+│   ├── kpi_functions/
+│   └── views/
+│
+└── tests/                               ← Automated test suite
+    ├── data_quality/
+    ├── integration/
+    └── unit/
+
+
+================================================================================
+MARCA_STD STATUS BY SOURCE (as of 2026-06-23)
+================================================================================
+
+Source key                              MARCA_STD   Layout file
+──────────────────────────────────────────────────────────────────────────
+DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN  ✅ C.6   EDP_NIELSEN/EDP_MARKET.txt
+DATA_WATER_RETAIL_NIELSEN                  ✅ C.6   WATER_NEILSEN/RETAIL_WATER.txt
+DATA_WATER_SCANTRACK_NIELSEN               ✅ C.6   WATER_NEILSEN/SCANTRACK_WATER.txt
+DATA_PB_SCANTRACK_NIELSEN                  ✅ C.6   PB_NEILSEN/PB_SCANTRACK.txt
+DATA_DANONE_IBP                            ✅ Orig  IBP/IBP_DANONE.txt
+DATA_MKT_OFF                               ✅ Orig  MKT_OFF/OFF.txt
+DATA_MKT_ON                                ✅ Orig  MKT_ON/ON.txt
+SELL_IN                                    ✅ Orig  SELL_IN/SELL_IN_DICT.txt
+SELL_OUT                                   ⬜ N/A   SELL_OUT/SELL_OUT_DICT.txt
+DATA_WASTE                                 ✅ Orig  WASTE/DATA_WASTE.txt
+
+
+================================================================================
+REGISTRY STATUS (2026-06-23)
+================================================================================
+Total sources   : 10
+Total columns   : 148 (was 144 before C.6 — +4 MARCA_STD columns)
+Glossary coverage: 100% (148/148)
+Registry hash   : sha256:89373d295be254583…
+Registry status : FRESH
+
+
+================================================================================
+NAMING CONVENTIONS
+================================================================================
+
+Layout files (.txt):
+  Format  : {SOURCE_KEY}.txt  or descriptive name (e.g., EDP_MARKET.txt)
+  Content : JSON-like dict with keys:
+    sql_ref       → source SQL reference
+    grain_hint    → human-readable grain description
+    business_keys → non-date dimension columns
+    grain_cols    → all grain columns (date + dims)
+    metric_cols   → aggregated measure columns
+    date_col      → primary date column
+    source_key    → registry key (must match configs/semantic_registry.yaml)
+
+Infrastructure files (.txt):
+  SNOWFLAKE_CONNECTION.txt  ← connection profiles + validation summary
+  CONNECTION_ISSUES.txt     ← SQL error catalogue + troubleshooting guide
+  FOLDER_STRUCTURE.txt      ← this file
+
+Config files (.yaml):
+  Prefix  : descriptive name, lowercase with underscores
+  Registry: configs/semantic_registry.yaml (auto-generated, do not edit manually)
+
+================================================================================

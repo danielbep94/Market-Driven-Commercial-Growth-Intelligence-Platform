@@ -14,9 +14,24 @@ import sys
 import io
 from datetime import datetime
 
-# ── Snowflake connection (inherit from validate_semantic_layer_phase_b.py) ──
+# ═══════════════════════════════════════════════════════════════════════════════
+# Snowflake Connection Profiles
+# Canonical reference: SEMANTIC_LAYOUTS/INFRASTRUCTURE/SNOWFLAKE_CONNECTION.txt
+# Known issues log : SEMANTIC_LAYOUTS/INFRASTRUCTURE/CONNECTION_ISSUES.txt
+# Shared module   : configs/snowflake_connection_profiles.py
+#
+# IMPORTANT — role names are NOT symmetric:
+#   PRD_MEX → sfRole = "PRD_MEX_READER"  (valid)
+#   PRD_MDP → sfRole = "PRD_MDP"         (valid)
+#   PRD_MDP → sfRole = "PRD_MDP_READER"  ← DOES NOT EXIST (ISSUE-002, resolved)
+#
+# Cross-DB constraint: PRD_MEX + PRD_MDP CANNOT share a Snowflake session.
+#   V12E uses two separate spark.read calls joined in Python (see ISSUE-003).
+# ═══════════════════════════════════════════════════════════════════════════════
 SF_URL = "danonenam.east-us-2.azure.snowflakecomputing.com"
 
+# ─── Profile: PRD_MEX ─────────────────────────────────────────────────────────
+# Role: PRD_MEX_READER | Warehouse: PRD_MEX_ANL_WH | Validated: V12A–V12D ✅
 PRD_MEX_PROFILE = {
     "sfURL":       SF_URL,
     "sfUser":      "PRD_OSM_DPH_READER",
@@ -25,13 +40,18 @@ PRD_MEX_PROFILE = {
     "sfRole":      "PRD_MEX_READER",
 }
 
+# ─── Profile: PRD_MDP ─────────────────────────────────────────────────────────
+# Role: PRD_MDP (NOT "PRD_MDP_READER") | Warehouse: PRD_MDP_ANL_WH | Validated: V12E ✅
+# Credentials from Databricks Key Vault — scope: DAN-AM-P-KVT800-R-MDP-DB
+# Keys in scope: snowflake-user, snowflake-password
+# sfRole is a literal string "PRD_MDP" — it is NOT stored in Key Vault
 KEYVAULT_SCOPE = "DAN-AM-P-KVT800-R-MDP-DB"
 PRD_MDP_PROFILE = {
     "sfURL":       SF_URL,
     "sfUser":      dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-user"),
     "sfPassword":  dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-password"),
     "sfWarehouse": "PRD_MDP_ANL_WH",
-    "sfRole": "PRD_MDP",
+    "sfRole":      "PRD_MDP",          # ← literal string, NOT from Key Vault
 }
 
 LOG_LINES = []
