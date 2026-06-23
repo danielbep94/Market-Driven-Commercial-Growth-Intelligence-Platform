@@ -35,6 +35,7 @@ snowflake_private_key.*
 *_secrets.json
 .snowflake_creds
 snowflake_creds.*
+!snowflake_creds.example.py
 
 # OS
 .DS_Store

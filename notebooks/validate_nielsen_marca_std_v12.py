@@ -14,7 +14,7 @@ import sys
 import io
 from datetime import datetime
 
-import os
+import os, importlib.util
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Snowflake Connection Profiles
@@ -22,54 +22,61 @@ import os
 # Known issues log : SEMANTIC_LAYOUTS/INFRASTRUCTURE/CONNECTION_ISSUES.txt
 # Shared module   : configs/snowflake_connection_profiles.py
 #
-# IMPORTANT — role names are NOT symmetric:
-#   PRD_MEX → sfRole = "PRD_MEX_READER"  (valid)
-#   PRD_MDP → sfRole = "PRD_MDP"         (valid)
-#   PRD_MDP → sfRole = "PRD_MDP_READER"  ← DOES NOT EXIST (ISSUE-002, resolved)
+# Credentials are resolved in priority order:
+#   1. configs/snowflake_creds.py  — local file, GITIGNORED, never goes to GitHub
+#   2. Databricks Key Vault        — dbutils.secrets.get(scope, key)
+#   3. Environment variables       — for local dev / CI
 #
-# Cross-DB constraint: PRD_MEX + PRD_MDP CANNOT share a Snowflake session.
-#   V12E uses two separate spark.read calls joined in Python (see ISSUE-003).
+# IMPORTANT — role names: PRD_MEX → "PRD_MEX_READER" | PRD_MDP → "PRD_MDP"
+# Cross-DB: PRD_MEX + PRD_MDP CANNOT share one Snowflake session (see ISSUE-003)
 # ═══════════════════════════════════════════════════════════════════════════════
 SF_URL = "danonenam.east-us-2.azure.snowflakecomputing.com"
+KV_SCOPE_MEX = "DAN-AM-P-KVT800-R-MEX-DB"
+KV_SCOPE_MDP = "DAN-AM-P-KVT800-R-MDP-DB"
 
-KV_SCOPE_MEX = "DAN-AM-P-KVT800-R-MEX-DB"   # PRD_MEX credentials
-KV_SCOPE_MDP = "DAN-AM-P-KVT800-R-MDP-DB"   # PRD_MDP credentials
+# ─── Load local credentials file (gitignored, never committed) ────────────────
+_creds = None
+try:
+    _p = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                        "..", "configs", "snowflake_creds.py"))
+    if os.path.exists(_p):
+        _spec = importlib.util.spec_from_file_location("snowflake_creds", _p)
+        _m = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_m)
+        _creds = _m
+        print("  [credentials] Loaded from configs/snowflake_creds.py")
+except Exception as _e:
+    print(f"  [credentials] snowflake_creds.py not loaded ({_e}) — trying KV")
 
-def _secret(scope, key, env_fallback=None):
-    """Resolve from Databricks KV; fall back to env var for local dev."""
+def _secret(local_val, scope, key, env_var=None):
+    """Priority: (1) local creds file → (2) Databricks KV → (3) env var."""
+    if local_val is not None:
+        return local_val
     try:
         return dbutils.secrets.get(scope=scope, key=key)
     except Exception:
         pass
-    val = os.getenv(env_fallback) if env_fallback else None
+    val = os.getenv(env_var) if env_var else None
     if val:
         return val
-    raise RuntimeError(
-        f"Cannot resolve '{key}' from scope '{scope}'. "
-        f"Set env var '{env_fallback}' for local dev."
-    )
+    raise RuntimeError(f"Cannot resolve '{key}'. Create configs/snowflake_creds.py from the .example file.")
 
-# ─── Profile: PRD_MEX ─────────────────────────────────────────────────────────
-# Role: PRD_MEX_READER | Warehouse: PRD_MEX_ANL_WH | Validated: V12A–V12D ✅
-# Keys in KV scope DAN-AM-P-KVT800-R-MEX-DB: snowflake-mex-user, snowflake-mex-password
+# ─── Profile: PRD_MEX — Role: PRD_MEX_READER | Validated: V12A–V12D ✅ ────────
 PRD_MEX_PROFILE = {
     "sfURL":       SF_URL,
-    "sfUser":      _secret(KV_SCOPE_MEX, "snowflake-mex-user",     "SF_MEX_USER"),
-    "sfPassword":  _secret(KV_SCOPE_MEX, "snowflake-mex-password", "SF_MEX_PASSWORD"),
-    "sfWarehouse": "PRD_MEX_ANL_WH",
-    "sfRole":      "PRD_MEX_READER",
+    "sfUser":      _secret(getattr(_creds, "SF_MEX_USER",     None), KV_SCOPE_MEX, "snowflake-mex-user",     "SF_MEX_USER"),
+    "sfPassword":  _secret(getattr(_creds, "SF_MEX_PASSWORD", None), KV_SCOPE_MEX, "snowflake-mex-password", "SF_MEX_PASSWORD"),
+    "sfWarehouse": getattr(_creds, "SF_MEX_WH",   "PRD_MEX_ANL_WH"),
+    "sfRole":      getattr(_creds, "SF_MEX_ROLE",  "PRD_MEX_READER"),
 }
 
-# ─── Profile: PRD_MDP ─────────────────────────────────────────────────────────
-# Role: PRD_MDP (NOT "PRD_MDP_READER") | Warehouse: PRD_MDP_ANL_WH | Validated: V12E ✅
-# sfRole is a literal string — it is NOT stored in Key Vault
+# ─── Profile: PRD_MDP — Role: PRD_MDP (NOT "PRD_MDP_READER") | Validated: V12E ✅ ─
 KEYVAULT_SCOPE = KV_SCOPE_MDP
 PRD_MDP_PROFILE = {
     "sfURL":       SF_URL,
-    "sfUser":      _secret(KV_SCOPE_MDP, "snowflake-user",     "SF_MDP_USER"),
-    "sfPassword":  _secret(KV_SCOPE_MDP, "snowflake-password", "SF_MDP_PASSWORD"),
-    "sfWarehouse": "PRD_MDP_ANL_WH",
-    "sfRole":      "PRD_MDP",          # ← literal string, NOT from Key Vault
+    "sfUser":      _secret(getattr(_creds, "SF_MDP_USER",     None), KV_SCOPE_MDP, "snowflake-user",     "SF_MDP_USER"),
+    "sfPassword":  _secret(getattr(_creds, "SF_MDP_PASSWORD", None), KV_SCOPE_MDP, "snowflake-password", "SF_MDP_PASSWORD"),
+    "sfWarehouse": getattr(_creds, "SF_MDP_WH",   "PRD_MDP_ANL_WH"),
+    "sfRole":      getattr(_creds, "SF_MDP_ROLE",  "PRD_MDP"),
 }
 
 LOG_LINES = []
