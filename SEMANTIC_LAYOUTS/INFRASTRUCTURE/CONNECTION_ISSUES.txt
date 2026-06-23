@@ -1,0 +1,240 @@
+================================================================================
+KNOWN SQL CONNECTION ISSUES — TROUBLESHOOTING LOG
+Market Growth Intelligence Platform — Danone Mexico
+================================================================================
+File    : SEMANTIC_LAYOUTS/INFRASTRUCTURE/CONNECTION_ISSUES.txt
+Purpose : Documented catalogue of every SQL / Snowflake connection error
+          encountered during Phase B and Phase C validation. Each entry
+          contains: error description, root cause, fix applied, and status.
+Updated : 2026-06-23
+================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+ISSUE-001 — Object Does Not Exist or Not Authorized (Phase B Validation)
+────────────────────────────────────────────────────────────────────────────────
+Status      : ✅ RESOLVED
+First seen  : Phase B (validate_semantic_layer_phase_b.py)
+Databases   : PRD_MEX
+
+Error message:
+  SQL compilation error: Object does not exist or not authorized.
+
+Failing objects:
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_WATER_RETAIL_PROD_DIM
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_WATER_SCANTRACK_PROD_DIM
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_D_MKT_PB_SCANTRACK_PROD_DIM
+
+Root cause:
+  The view names in the original script did not match the actual object names
+  in Snowflake. Additionally, the role PRD_MEX_READER may not have been
+  granted SELECT on these three specific views.
+
+Resolution:
+  - Confirmed actual accessible view names via INFORMATION_SCHEMA query.
+  - Correct views for Water are:
+      VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM   (Water Retail)
+      VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM   (Water Scantrack)
+  - Correct view for PB is:
+      VW_SUST_LECHE_ST_NLSN_PROD_DIM     (PB Scantrack)
+  - All three were updated in the Phase C layouts (C.6 patch).
+
+Remaining risk:
+  VW_D_MKT_WATER_RETAIL_PROD_DIM / VW_D_MKT_WATER_SCANTRACK_PROD_DIM /
+  VW_D_MKT_PB_SCANTRACK_PROD_DIM — it is unknown whether these views still
+  exist. If needed, request DBA to grant SELECT to PRD_MEX_READER.
+
+
+────────────────────────────────────────────────────────────────────────────────
+ISSUE-002 — Role 'PRD_MDP_READER' Does Not Exist (V12E First Run)
+────────────────────────────────────────────────────────────────────────────────
+Status      : ✅ RESOLVED
+First seen  : 2026-06-23 02:01:03 (validation_results_nielsen_v12.txt, first run)
+Databases   : PRD_MDP
+
+Error message:
+  An error occurred while calling o574.load.
+  net.snowflake.client.jdbc.SnowflakeSQLException:
+  Role 'PRD_MDP_READER' specified in the connect string does not exist
+  or not authorized. Contact your local system administrator, or attempt
+  to login with another role, e.g. PUBLIC.
+
+Stack trace excerpt:
+  at net.snowflake.client.core.SessionUtil.newSession(SessionUtil.java:746)
+  at net.snowflake.client.core.SessionUtil.openSession(SessionUtil.java:310)
+  at net.snowflake.client.core.SFSession.open(SFSession.java:630)
+  ...
+  at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+  ...
+  at py4j.commands.CallCommand.execute(CallCommand.java:79)
+
+Root cause:
+  The sfRole for PRD_MDP was hardcoded as "PRD_MDP_READER" in the notebook.
+  This role does NOT exist in Snowflake. The correct role is "PRD_MDP".
+
+  ⚠️  IMPORTANT: Do not confuse "PRD_MEX_READER" (valid for PRD_MEX) with
+      "PRD_MDP_READER" (does NOT exist). The pattern is NOT symmetric.
+
+  Correct roles by database:
+    PRD_MEX  →  sfRole = "PRD_MEX_READER"   (works)
+    PRD_MDP  →  sfRole = "PRD_MDP"          (works)
+    PRD_MDP  →  sfRole = "PRD_MDP_READER"   ← DOES NOT EXIST
+
+Resolution:
+  Updated PRD_MDP_PROFILE in all notebooks:
+    sfRole: "PRD_MDP_READER"   →   sfRole: "PRD_MDP"
+
+  Also centralised in configs/snowflake_connection_profiles.py so this
+  error cannot recur in new notebooks.
+
+Verified fix:
+  V12E second run (2026-06-23 02:34:19) — IBP query returned 27 rows ✅
+
+
+────────────────────────────────────────────────────────────────────────────────
+ISSUE-003 — Cross-Database CTE Fails with Single Session
+────────────────────────────────────────────────────────────────────────────────
+Status      : ✅ RESOLVED (architectural workaround implemented)
+First seen  : 2026-06-23 (V12E design phase)
+Databases   : PRD_MEX + PRD_MDP (combined)
+
+Error:
+  Attempting to run a single SQL query with CTEs that reference both
+  PRD_MEX.MEX_DSP_DPH_MKT.* and PRD_MDP.MDP_DSP.* via one spark.read
+  session fails with credential/authentication errors, because each database
+  requires a different sfUser, sfPassword, sfWarehouse, and sfRole.
+
+  Snowflake does not allow cross-database queries when each database is
+  accessed through a different security context (different account roles +
+  different credentials).
+
+Example of the failing pattern:
+  ❌ v12e_sql = """
+     WITH edp AS (SELECT ... FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_...)
+     , ibp AS (SELECT ... FROM PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP)
+     SELECT ... FROM edp LEFT JOIN ibp ...
+     """
+     df = spark.read.format("net.snowflake.spark.snowflake") \
+               .options(**PRD_MDP_PROFILE) \
+               .option("query", v12e_sql) \
+               .load()     # ← FAILS: PRD_MEX tables not accessible via PRD_MDP session
+
+Root cause:
+  The Snowflake Spark connector opens ONE JDBC session per spark.read call.
+  That session is authenticated with a SINGLE set of credentials (one user,
+  one role). A role in PRD_MDP does not grant access to PRD_MEX objects.
+
+Resolution / Architectural Pattern:
+  Split the cross-database join into TWO separate spark.read calls,
+  then perform the join in Python (or PySpark) in the Databricks driver memory:
+
+  ✅ Correct pattern:
+     # Step 1: Query PRD_MEX with PRD_MEX credentials
+     df_edp = spark.read.format(...).options(**PRD_MEX_PROFILE) \
+                   .option("query", edp_sql).load()
+     edp_brands = set(r.MARCA_STD_EDP for r in df_edp.collect())
+
+     # Step 2: Query PRD_MDP with PRD_MDP credentials
+     df_ibp = spark.read.format(...).options(**PRD_MDP_PROFILE) \
+                   .option("query", ibp_sql).load()
+     ibp_brands = set(r.MARCA_STD_IBP for r in df_ibp.collect())
+
+     # Step 3: Join in Python
+     matched  = edp_brands & ibp_brands     # intersection
+     no_match = edp_brands - ibp_brands     # left anti-join
+
+  This pattern is implemented in V12E of validate_nielsen_marca_std_v12.py.
+
+
+────────────────────────────────────────────────────────────────────────────────
+ISSUE-004 — Null Brand % Threshold False Positives (EDP + PB)
+────────────────────────────────────────────────────────────────────────────────
+Status      : ✅ RESOLVED (threshold calibrated to evidence)
+First seen  : 2026-06-23 (V12A + V12D first run)
+Databases   : PRD_MEX
+
+Description:
+  The DQ threshold for max_null_brand_pct was initially set to 0% for EDP
+  and PB, expecting INP_56985 to always be populated. The V12 run measured:
+    EDP (V12A): 1.98% null in INP_56985
+    PB  (V12D): 2.16% null in INP_56985
+
+  These caused ❌ FAIL flags for max_null_pct=0% even though the data is valid.
+
+Root cause:
+  Nielsen product dimension tables contain rows for "CONTROLLED LABEL" and
+  "SIN MARCA" (private label / generic) products. At certain hierarchy levels,
+  these products have a null INP_56985 (brand field), because the brand is
+  intentionally unnamed. This is expected Nielsen data behaviour, not a data
+  quality problem.
+
+Evidence:
+  EDP: "PL" (278 products), "SIN MARCA" (16) visible in V12A brand list as
+       ELSE pass-throughs. The null rows are their hierarchy parent rows.
+  PB: "PL" (144), "SIN MARCA" (16) visible in V12D brand list.
+
+Resolution:
+  DQ thresholds updated in configs/nielsen_dq_thresholds.yaml:
+    EDP max_null_brand_pct:  0.0 → 3.0  (evidenced: 1.98%)
+    PB  max_null_brand_pct:  0.0 → 3.0  (evidenced: 2.16%)
+
+  Threshold comment added:
+    "CONTROLLED LABEL rows have null INP_56985 by design at certain hierarchy levels"
+
+
+────────────────────────────────────────────────────────────────────────────────
+ISSUE-005 — Key Vault Secret Key Name for sfRole (PRD_MDP)
+────────────────────────────────────────────────────────────────────────────────
+Status      : ✅ RESOLVED — sfRole is NOT in Key Vault
+First seen  : 2026-06-22 (V12E initial fix attempt)
+Databases   : PRD_MDP
+
+Description:
+  An intermediate fix attempt used:
+    "sfRole": dbutils.secrets.get(scope=KEYVAULT_SCOPE, key="snowflake-role")
+  This was incorrect — the key "snowflake-role" does not exist in the
+  DAN-AM-P-KVT800-R-MDP-DB Key Vault scope.
+
+Root cause:
+  sfRole for PRD_MDP is a fixed literal ("PRD_MDP"), not a secret.
+  Only sfUser and sfPassword are stored in Key Vault.
+
+Resolution:
+  Reverted to:
+    "sfRole": "PRD_MDP"    ← literal string, no Key Vault lookup needed
+
+  Key Vault scope DAN-AM-P-KVT800-R-MDP-DB contains exactly:
+    snowflake-user     → PRD_MDP sfUser
+    snowflake-password → PRD_MDP sfPassword
+    (no snowflake-role key)
+
+
+================================================================================
+QUICK REFERENCE — CONNECTION ISSUE CHECKLIST
+================================================================================
+
+Before debugging a Snowflake connection error, verify:
+
+  □ Is the sfRole correct?
+      PRD_MEX → "PRD_MEX_READER"
+      PRD_MDP → "PRD_MDP"  (NOT "PRD_MDP_READER")
+
+  □ Is the sfWarehouse correct?
+      PRD_MEX → "PRD_MEX_ANL_WH"
+      PRD_MDP → "PRD_MDP_ANL_WH"
+
+  □ Are PRD_MDP credentials being resolved from Key Vault at runtime?
+      scope = "DAN-AM-P-KVT800-R-MDP-DB"
+      keys  = "snowflake-user", "snowflake-password"
+
+  □ Is the query trying to join PRD_MEX and PRD_MDP in the same SQL session?
+      → Split into two spark.read calls + Python join (see ISSUE-003)
+
+  □ Does the view name match exactly?
+      → Use INFORMATION_SCHEMA.VIEWS to list accessible views
+      → Common mismatch: VW_D_MKT_WATER_* vs VW_IND_AGUA_BNF_*
+
+  □ Is sfDatabase set correctly per query?
+      .option("sfDatabase", "PRD_MEX")   or   .option("sfDatabase", "PRD_MDP")
+
+================================================================================

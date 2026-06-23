@@ -1,0 +1,688 @@
+[2026-06-22 05:02:34] ======================================================================
+[2026-06-22 05:02:34] SEMANTIC LAYER VALIDATION — Phase B
+[2026-06-22 05:02:34] Candidate log paths: ['/Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/notebooks/validation_results.txt', '/Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/notebooks/validation_results.txt', '/tmp/validation_results.txt']
+[2026-06-22 05:02:34] ======================================================================
+[2026-06-22 05:02:34] V1: SELL_OUT totals comparison
+[2026-06-22 05:02:34] Running: V1A — SELL_OUT OLD (GROUP BY)  [db=PRD_MDP]
+[2026-06-22 05:02:37]   → 18 rows returned
+[2026-06-22 05:02:37] Running: V1B — SELL_OUT NEW (no GROUP BY)  [db=PRD_MDP]
+[2026-06-22 05:02:39]   → 18 rows returned
+[2026-06-22 05:02:39]   OLD totals:
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+|MES       |VOL            |PCS            |AMT              |V_INV            |P_INV            |ROW_COUNT|
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+|2025-01-01|53696504.198000|54319230.000000|1124374922.646529|1021049942.065090|1021978404.000000|19952    |
+|2025-02-01|53200366.268000|52647478.330000|1060352763.418671|873096636.647038 |838939348.000000 |17943    |
+|2025-03-01|67689818.505000|66243513.500000|1301361025.206268|1189431063.135600|898797600.000000 |20152    |
+|2025-04-01|63580991.697000|59466863.060000|1182077735.653689|978253312.508130 |927759680.000000 |20533    |
+|2025-05-01|72652196.410500|67238370.000000|1291724305.422982|1149553846.423291|966404413.000000 |21623    |
+|2025-06-01|75283235.775000|72574346.100000|1212853078.047248|1242248024.340566|1049299177.000000|21359    |
+|2025-07-01|60950920.696000|59127784.000000|1171300255.779962|1197871934.252022|1011684228.000000|22347    |
+|2025-08-01|65603944.107000|63006261.000000|1237403959.547182|1157360115.753798|968238813.000000 |22532    |
+|2025-09-01|56053406.668000|53927587.000000|1197759627.139990|956198822.643016 |843798870.000000 |21855    |
+|2025-10-01|57906449.190000|55109870.020000|1197937629.606509|964110239.707734 |842227707.000000 |22558    |
+|2025-11-01|56703399.380000|54175742.000000|1180079663.053086|865984157.280361 |778681354.000000 |21582    |
+|2025-12-01|53565586.587000|51062761.000000|1063078879.836286|895345403.481853 |785667536.000000 |22173    |
+|2026-01-01|49846076.933000|47193527.200000|1199680371.987248|898892908.128612 |814509824.000000 |22134    |
+|2026-02-01|60916160.917000|55990306.520000|1161121892.559133|887073771.238740 |772864624.000000 |20487    |
+|2026-03-01|65060483.757000|60731186.600000|1316146305.483017|1056305264.249641|895745796.000000 |23348    |
+|2026-04-01|63355322.369000|57140079.590000|1272462101.661662|1011052833.537667|882070425.000000 |22405    |
+|2026-05-01|77505981.793000|68911041.000000|1403912017.393161|1082280873.150561|943863290.000000 |23034    |
+|2026-06-01|36584751.259000|35015797.000000|716601306.252670 |613782487.879734 |519563642.000000 |12226    |
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+[2026-06-22 05:02:40]   NEW totals:
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+|MES       |VOL            |PCS            |AMT              |V_INV            |P_INV            |ROW_COUNT|
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+|2025-01-01|53696504.198000|54319230.000000|1124374922.646529|1021049942.065090|1021978404.000000|19621288 |
+|2025-02-01|53200366.268000|52647478.330000|1060352763.418671|873096636.647038 |838939348.000000 |17277075 |
+|2025-03-01|67689818.505000|66243513.500000|1301361025.206268|1189431063.135600|898797600.000000 |19225176 |
+|2025-04-01|63580991.697000|59466863.060000|1182077735.653689|978253312.508130 |927759680.000000 |19235957 |
+|2025-05-01|72652196.410500|67238370.000000|1291724305.422982|1149553846.423291|966404413.000000 |19979988 |
+|2025-06-01|75283235.775000|72574346.100000|1212853078.047248|1242248024.340566|1049299177.000000|19169748 |
+|2025-07-01|60950920.696000|59127784.000000|1171300255.779962|1197871934.252022|1011684228.000000|20113516 |
+|2025-08-01|65603944.107000|63006261.000000|1237403959.547182|1157360115.753798|968238813.000000 |19913165 |
+|2025-09-01|56053406.668000|53927587.000000|1197759627.139990|956198822.643016 |843798870.000000 |19161907 |
+|2025-10-01|57906449.190000|55109870.020000|1197937629.606509|964110239.707734 |842227707.000000 |20202127 |
+|2025-11-01|56703399.380000|54175742.000000|1180079663.053086|865984157.280361 |778681354.000000 |19802195 |
+|2025-12-01|53565586.587000|51062761.000000|1063078879.836286|895345403.481853 |785667536.000000 |19536651 |
+|2026-01-01|49846076.933000|47193527.200000|1199680371.987248|898892908.128612 |814509824.000000 |20041637 |
+|2026-02-01|60916160.917000|55990306.520000|1161121892.559133|887073771.238740 |772864624.000000 |18429364 |
+|2026-03-01|65060483.757000|60731186.600000|1316146305.483017|1056305264.249641|895745796.000000 |20871134 |
+|2026-04-01|63355322.369000|57140079.590000|1272462101.661662|1011052833.537667|882070425.000000 |20293530 |
+|2026-05-01|77505981.793000|68911041.000000|1403912017.393161|1082280873.150561|943863290.000000 |21282156 |
+|2026-06-01|36584751.259000|35015797.000000|716601306.252670 |613782487.879734 |519563642.000000 |11835253 |
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+[2026-06-22 05:02:42] V2: SELL_IN brand rollup + SKU null check
+[2026-06-22 05:02:42] Running: V2 — SELL_IN brand rollup (WATERS)  [db=PRD_MEX]
+[2026-06-22 05:02:45]   → 178 rows returned
+[2026-06-22 05:02:45]   SELL_IN brand rollup:
++------+-------------+----------+-------------------------+--------------+---------+-------------+---------+
+|CBU   |MARCA        |MES       |TOTAL_VOL                |TOTAL_VAL     |ROW_COUNT|DISTINCT_SKUS|NULL_SKUS|
++------+-------------+----------+-------------------------+--------------+---------+-------------+---------+
+|WATERS|BONAFONT     |2025-01-01|61659324.219999999999900 |410299197.6400|41       |41           |0        |
+|WATERS|BONAFONT     |2025-02-01|68688885.460000000000100 |470534827.1300|52       |52           |0        |
+|WATERS|BONAFONT     |2025-03-01|95275530.800000000001600 |653672909.0300|44       |44           |0        |
+|WATERS|BONAFONT     |2025-04-01|99300677.990000000003000 |666981748.2900|39       |39           |0        |
+|WATERS|BONAFONT     |2025-05-01|105739614.770000000002000|711163795.4700|41       |41           |0        |
+|WATERS|BONAFONT     |2025-06-01|81505393.579999999999900 |546406199.0900|40       |40           |0        |
+|WATERS|BONAFONT     |2025-07-01|57072083.620000000000200 |394068142.7900|41       |41           |0        |
+|WATERS|BONAFONT     |2025-08-01|60277178.109999999999900 |421246540.0400|38       |38           |0        |
+|WATERS|BONAFONT     |2025-09-01|63030161.300000000001800 |441448819.3900|39       |39           |0        |
+|WATERS|BONAFONT     |2025-10-01|67976336.560000000000100 |482731827.5300|44       |44           |0        |
+|WATERS|BONAFONT     |2025-11-01|70977997.490000000001400 |503174028.0800|42       |42           |0        |
+|WATERS|BONAFONT     |2025-12-01|56313945.789999999999000 |408963677.8500|40       |40           |0        |
+|WATERS|BONAFONT     |2026-01-01|76212162.570000000000000 |535087695.5600|39       |39           |0        |
+|WATERS|BONAFONT     |2026-02-01|73415193.679999999998000 |518189537.9000|39       |39           |0        |
+|WATERS|BONAFONT     |2026-03-01|86398700.380000000000100 |608726859.3200|39       |39           |0        |
+|WATERS|BONAFONT     |2026-04-01|85847137.230000000000200 |591694576.8000|40       |40           |0        |
+|WATERS|BONAFONT     |2026-05-01|106871361.750000000001100|738093211.8100|41       |41           |0        |
+|WATERS|BONAFONT     |2026-06-01|46456492.530000000000100 |324843179.3900|39       |39           |0        |
+|WATERS|BONAFONT JUGO|2025-01-01|8156362.280000000000000  |82242017.5400 |33       |33           |0        |
+|WATERS|BONAFONT JUGO|2025-02-01|9971032.024000000000000  |99260219.3000 |54       |54           |0        |
+|WATERS|BONAFONT JUGO|2025-03-01|14483066.879999999999500 |142524937.0000|36       |36           |0        |
+|WATERS|BONAFONT JUGO|2025-04-01|15532136.700000000000000 |153980944.1600|30       |30           |0        |
+|WATERS|BONAFONT JUGO|2025-05-01|17896853.499999999999700 |179889066.8600|31       |31           |0        |
+|WATERS|BONAFONT JUGO|2025-06-01|13647516.825000000000000 |134265126.4000|39       |39           |0        |
+|WATERS|BONAFONT JUGO|2025-07-01|9238280.319999999999900  |92810173.5900 |34       |34           |0        |
+|WATERS|BONAFONT JUGO|2025-08-01|10558793.832000000000000 |106993027.6400|38       |38           |0        |
+|WATERS|BONAFONT JUGO|2025-09-01|10811291.968000000000000 |110293781.6180|30       |30           |0        |
+|WATERS|BONAFONT JUGO|2025-10-01|10558014.000000000000000 |109727148.4000|27       |27           |0        |
+|WATERS|BONAFONT JUGO|2025-11-01|9726420.848000000000000  |99823215.9600 |30       |30           |0        |
+|WATERS|BONAFONT JUGO|2025-12-01|8894058.800000000000000  |94711426.0900 |30       |30           |0        |
+|WATERS|BONAFONT JUGO|2026-01-01|9594301.399999999999600  |100005216.0800|30       |30           |0        |
+|WATERS|BONAFONT JUGO|2026-02-01|10321438.900000000000000 |109646793.0600|28       |28           |0        |
+|WATERS|BONAFONT JUGO|2026-03-01|13060787.900000000000000 |139712489.7900|30       |30           |0        |
+|WATERS|BONAFONT JUGO|2026-04-01|11361960.700000000000000 |119546583.5400|27       |27           |0        |
+|WATERS|BONAFONT JUGO|2026-05-01|13978330.299999999999900 |147195445.0300|29       |29           |0        |
+|WATERS|BONAFONT JUGO|2026-06-01|7612570.500000000000000  |80294864.4600 |25       |25           |0        |
+|WATERS|BONAFONT KIDS|2025-01-01|1868213.699999999999000  |35614060.8900 |15       |15           |0        |
+|WATERS|BONAFONT KIDS|2025-02-01|1753716.600000000000000  |34140684.5900 |29       |29           |0        |
+|WATERS|BONAFONT KIDS|2025-03-01|1652661.900000000000000  |32415804.7800 |18       |18           |0        |
+|WATERS|BONAFONT KIDS|2025-04-01|1855432.800000000000000  |35929027.0300 |13       |13           |0        |
+|WATERS|BONAFONT KIDS|2025-05-01|1426669.200000000000000  |28414917.1700 |13       |13           |0        |
+|WATERS|BONAFONT KIDS|2025-06-01|1248017.400000000000000  |24633228.7500 |15       |15           |0        |
+|WATERS|BONAFONT KIDS|2025-07-01|1377027.900000000000000  |27072663.0800 |16       |16           |0        |
+|WATERS|BONAFONT KIDS|2025-08-01|2227680.900000000000000  |42721638.9900 |16       |16           |0        |
+|WATERS|BONAFONT KIDS|2025-09-01|1957059.000000000000000  |37206963.0000 |17       |17           |0        |
+|WATERS|BONAFONT KIDS|2025-10-01|1063606.500000000000000  |21990820.6900 |16       |16           |0        |
+|WATERS|BONAFONT KIDS|2025-11-01|1188942.300000000000000  |24656346.2400 |16       |16           |0        |
+|WATERS|BONAFONT KIDS|2025-12-01|1423217.699999999999000  |29438797.9700 |15       |15           |0        |
+|WATERS|BONAFONT KIDS|2026-01-01|1268743.500000000000000  |27200700.3000 |14       |14           |0        |
+|WATERS|BONAFONT KIDS|2026-02-01|1502862.300000000000000  |32890627.2700 |17       |17           |0        |
++------+-------------+----------+-------------------------+--------------+---------+-------------+---------+
+only showing top 50 rows
+[2026-06-22 05:02:50] V3: IBP null rates for FECHA and MARCA
+[2026-06-22 05:02:50] Running: V3 — IBP null rates  [db=PRD_MDP]
+[2026-06-22 05:02:52]   → 1 rows returned
+[2026-06-22 05:02:52]   IBP null rates:
++----------+----------+----------+----------+--------------+--------------+----------+----------+---------------+
+|TOTAL_ROWS|NULL_FECHA|NULL_MARCA|NULL_VALOR|PCT_NULL_FECHA|PCT_NULL_MARCA|MIN_FECHA |MAX_FECHA |DISTINCT_MARCAS|
++----------+----------+----------+----------+--------------+--------------+----------+----------+---------------+
+|5550912   |0         |0         |0         |0.00          |0.00          |2025-01-01|2026-12-01|29             |
++----------+----------+----------+----------+--------------+--------------+----------+----------+---------------+
+[2026-06-22 05:02:53] V4: WASTE SKU + WASTE_KG check
+[2026-06-22 05:02:53] Running: V4 — WASTE SKU + KG  [db=PRD_MDP]
+[2026-06-22 05:02:55]   → 1 rows returned
+[2026-06-22 05:02:55]   WASTE stats:
++----------+--------+-------------+--------------+------------+-------------+------------+-----------+-------------------+--------------------+
+|TOTAL_ROWS|NULL_SKU|NULL_WASTE_KG|NULL_WASTE_AMT|PCT_NULL_SKU|DISTINCT_SKUS|MIN_KG      |MAX_KG     |TOTAL_KG           |TOTAL_AMT           |
++----------+--------+-------------+--------------+------------+-------------+------------+-----------+-------------------+--------------------+
+|7167757   |0       |1411445      |1409576       |0.00        |1422         |-646512.2806|212288.5067|6.594406800013127E7|3.3884312150694222E9|
++----------+--------+-------------+--------------+------------+-------------+------------+-----------+-------------------+--------------------+
+[2026-06-22 05:02:57] V5: Investment shared columns — MKT_ON
+[2026-06-22 05:02:57] Running: V5A — MKT_ON columns  [db=PRD_MDP]
+[2026-06-22 05:02:59]   → 1 rows returned
+[2026-06-22 05:02:59]   MKT_ON columns:
++------+----------+----------+------------+----------+------------+----------+--------+--------------------+----------+------------+----------+------------+
+|SOURCE|TOTAL_ROWS|NULL_MEDIO|NULL_SOPORTE|NULL_MARCA|NULL_CAMPANA|NULL_FECHA|NULL_INV|TOTAL_INV           |DIST_MEDIO|DIST_SOPORTE|DIST_MARCA|DIST_CAMPANA|
++------+----------+----------+------------+----------+------------+----------+--------+--------------------+----------+------------+----------+------------+
+|MKT_ON|46642     |0         |10704       |0         |66          |0         |1475    |3.5283627987766445E8|8         |98          |32        |132         |
++------+----------+----------+------------+----------+------------+----------+--------+--------------------+----------+------------+----------+------------+
+[2026-06-22 05:03:01] V5: Investment shared columns — MKT_OFF
+[2026-06-22 05:03:01] Running: V5B — MKT_OFF columns  [db=PRD_MDP]
+[2026-06-22 05:03:02]   → 1 rows returned
+[2026-06-22 05:03:02]   MKT_OFF columns:
++-------+----------+----------+------------+----------+------------+----------+--------+------------------+----------+------------+----------+------------+
+|SOURCE |TOTAL_ROWS|NULL_MEDIO|NULL_SOPORTE|NULL_MARCA|NULL_CAMPANA|NULL_FECHA|NULL_INV|TOTAL_INV         |DIST_MEDIO|DIST_SOPORTE|DIST_MARCA|DIST_CAMPANA|
++-------+----------+----------+------------+----------+------------+----------+--------+------------------+----------+------------+----------+------------+
+|MKT_OFF|522003    |0         |163         |0         |396163      |0         |219441  |7.92335113028892E8|8         |231         |101       |42          |
++-------+----------+----------+------------+----------+------------+----------+--------+------------------+----------+------------+----------+------------+
+[2026-06-22 05:03:03] V6: SELL_OUT column types
+[2026-06-22 05:03:03] Running: V6 — SELL_OUT types  [db=PRD_MDP]
+[2026-06-22 05:03:06]   → 1 rows returned
+[2026-06-22 05:03:06]   SELL_OUT column types:
++-----------------+----------------+----------------+----------------+----------------+----------------+
+|STORE_TYPE       |UPC_TYPE        |SUBCHAIN_TYPE   |CHAIN_TYPE      |FORMAT_TYPE     |BRAND_TYPE      |
++-----------------+----------------+----------------+----------------+----------------+----------------+
+|NUMBER(38,0)[SB4]|VARCHAR(26)[LOB]|VARCHAR(42)[LOB]|VARCHAR(42)[LOB]|VARCHAR(46)[LOB]|VARCHAR(32)[LOB]|
++-----------------+----------------+----------------+----------------+----------------+----------------+
+[2026-06-22 05:03:07] V7: Cross-source MARCA comparison
+[2026-06-22 05:03:07] V7A — SELL_OUT brands (PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM.BRAND)
+[2026-06-22 05:03:07] Running: V7A — SELL_OUT MARCA  [db=PRD_MDP]
+[2026-06-22 05:03:09]   → 42 rows returned
+[2026-06-22 05:03:09]   SELL_OUT MARCA:
++----------------+
+|MARCA           |
++----------------+
+|ACTIVIA         |
+|ADES            |
+|AGUAS FRESCAS   |
+|BADOIT          |
+|BEC             |
+|BENEGASTRO      |
+|BONAFONT        |
+|BONAFONT KIDS   |
+|BONAFONT MINERAL|
+|BONAFONT SER    |
+|CHILCHOTA       |
+|DANETTE         |
+|DANFRUT         |
+|DANMIX          |
+|DANONE          |
+|DANONE FREE     |
+|DANONINO        |
+|DANUP           |
+|DANY            |
+|DELIGHT         |
+|EVIAN           |
+|FRUIX           |
+|HERSHEYS        |
+|INACTIVO        |
+|INFINIT WATER   |
+|JUIZZY          |
+|LEVITE          |
+|LICUAMIX        |
+|LIGERI          |
+|MEMBERS MARK    |
+|NA              |
+|OCEAN SPRAY     |
+|OIKOS           |
+|OIKOS UHT       |
+|OTROS           |
+|PUREZA AGA      |
+|SILK            |
+|SO DELICIOUS    |
+|STOK COLD BREW  |
+|TE BONAFONT     |
+|VITALINEA       |
+|YOPRO           |
++----------------+
+[2026-06-22 05:03:11] V7B — SELL_IN brands (PRD_MEX.MEX_DSP_OTC.V_D_ITEM.LV2_UMB_BRD_DSC)
+[2026-06-22 05:03:11] Running: V7B — SELL_IN MARCA  [db=PRD_MEX]
+[2026-06-22 05:03:12]   → 133 rows returned
+[2026-06-22 05:03:12]   SELL_IN MARCA:
++------------------------+
+|MARCA                   |
++------------------------+
+|25 Años                 |
+|2Pack Blanco            |
+|2Pack Negro             |
+|ACTIVIA                 |
+|AQUAPURA                |
+|Aga                     |
+|Aga 20 Lts              |
+|Agua Natural            |
+|Airis                   |
+|Alcancia                |
+|Arcoiris                |
+|Azul Bonafont           |
+|BADOIT                  |
+|BENEGASTRO              |
+|BONAFONT                |
+|BONAFONT JUGO           |
+|BONAFONT KIDS           |
+|BONAFONT KIDS NATURAL   |
+|BONAFONT SER            |
+|BUTTER                  |
+|Bases                   |
+|Bebedero                |
+|Bft 11 Lts              |
+|Bft 20 Lts              |
+|Bomba                   |
+|Bonafont                |
+|Botanero                |
+|Botella Aga             |
+|Bowls                   |
+|CODISTRIBUCION          |
+|COLORS & FLAVOURS       |
+|Cafe                    |
+|Carrera                 |
+|Ceramica                |
+|Ciel                    |
+|DAIRY DANONE MEXICO     |
+|DAN'UP                  |
+|DANAO                   |
+|DANETTE                 |
+|DANMIX                  |
+|DANONE CREME            |
+|DANONE HERSHEYS         |
+|DANONE YOGHURT          |
+|DANONINO                |
+|DANY                    |
+|DELIGHT                 |
+|Dairy Danone France     |
+|Danone                  |
+|Destilada               |
+|Disney                  |
+|Dispensers              |
+|EVIAN                   |
+|Especiero               |
+|FERRARELLE              |
+|FLEXIBLES               |
+|FRUIX                   |
+|Fontaine                |
+|Fresh                   |
+|Frida                   |
+|Frijoles                |
+|Granel                  |
+|HERSHEYS                |
+|Ice Age                 |
+|Infantil                |
+|Jarra                   |
+|Juizzy                  |
+|KINDER                  |
+|KUYEN KAAT              |
+|Kids                    |
+|Kung Fu Panda           |
+|LEVITE                  |
+|LICUAMIX                |
+|Lapicera                |
+|Levite                  |
+|Lonchera                |
+|MILK POWDERS            |
+|Metalico                |
+|Mineralizada            |
+|Mundial                 |
+|NATURAL                 |
+|Nano                    |
+|Naturillas              |
+|OCEAN SPRAY             |
+|OIKOS                   |
+|OTHERS                  |
+|PLASTIC BOTTLE          |
+|PRIVADA                 |
+|PROMO                   |
+|PUREZA AGA              |
+|Palas                   |
+|Patrio                  |
+|Polar                   |
+|Pouch                   |
+|Primavera               |
+|Productos Descontinuados|
+|Promo                   |
+|Refractarios            |
+|Reto                    |
+|SABOR FRESA             |
+|SABOR HORCHATA          |
+|SABOR JAMAICA           |
+|SABOR LIMON             |
+|SABOR NARANJA           |
+|SILK                    |
+|SILK ORIG 946ML         |
+|SILKCHOCO190ML          |
+|SO DELICIOUS            |
+|STOK                    |
+|Salmon Bonafont         |
+|Ser Pura                |
+|Silk                    |
+|Sport                   |
+|Star Wars               |
+|Tablas                  |
+|Tazas                   |
+|Termo                   |
+|Toallas                 |
+|Tupper                  |
+|TÉ BONAFONT             |
+|Ultrapura               |
+|Utensilios              |
+|VITALINEA               |
+|VOLVIC                  |
+|Vajilla                 |
+|Vasos                   |
+|WATER BONAFONT          |
+|WATER INFINIT           |
+|Wmw                     |
+|YOPRO                   |
+|cosmetiquera            |
+|libro navideño          |
+|playera mundial         |
+|portavasos              |
++------------------------+
+[2026-06-22 05:03:14] V7C — MKT_ON brands (PRD_MDP.MDP_DSP.VW_MKT_ECOMM.MARCA)
+[2026-06-22 05:03:14] Running: V7C — MKT_ON MARCA  [db=PRD_MDP]
+[2026-06-22 05:03:15]   → 42 rows returned
+[2026-06-22 05:03:15]   MKT_ON MARCA:
++---------------------+
+|MARCA                |
++---------------------+
+|ACTIVIA              |
+|AGUAS FRESCAS        |
+|BEC                  |
+|BENEG                |
+|BENEGASTRO           |
+|BFT AGUAS FRESCAS    |
+|BONAFONT             |
+|BONAFONT KIDS        |
+|BONAFONT TE          |
+|BONAFONT_AGUASFRESCAS|
+|BONAFONT_KIDS        |
+|BONAFONT_LEVITE      |
+|BONAFONT_NATURAL     |
+|BONAFONT_TE          |
+|DANETTE              |
+|DANMIX               |
+|DANONE               |
+|DANONE FS            |
+|DANONE GRIEGO        |
+|DANONINO             |
+|DANUP                |
+|DANY                 |
+|DANY DANETTE         |
+|DNP                  |
+|EVIAN                |
+|INFINITY             |
+|INSTITUTO DANONE     |
+|JUIZZY               |
+|LEVITE               |
+|LICUADERIA           |
+|MULTIBRAND           |
+|MULTIBRAND DAIRY     |
+|MULTIBRAND DANONE    |
+|MULTIBRAND INDULGENCE|
+|MULTIBRAND INNOS     |
+|MULTIBRAND KIDS      |
+|MULTIBRAND WATERS    |
+|MULTIMARCA           |
+|OIKOS                |
+|SILK                 |
+|VITALINEA            |
+|YOPRO                |
++---------------------+
+[2026-06-22 05:03:15] V7D — MKT_OFF brands (PRD_MDP.MDP_STG.FACT_MEDIA_OFF.MARCA)
+[2026-06-22 05:03:15] Running: V7D — MKT_OFF MARCA  [db=PRD_MDP]
+[2026-06-22 05:03:17]   → 179 rows returned
+[2026-06-22 05:03:17]   MKT_OFF MARCA:
++--------------------------+
+|MARCA                     |
++--------------------------+
+|A DE COCO                 |
+|ACTIVIA                   |
+|AGA                       |
+|AGUA VIDA NUTRICION       |
+|AGUAS_TAGARE              |
+|AGUA_OASIS                |
+|AGUA_PASCUAL              |
+|AJEMEX                    |
+|ALPURA                    |
+|ALPURA_GRIEGO             |
+|ALPURA_LECHES             |
+|ALPURA_TOYS               |
+|ALPURA_YOGURT             |
+|ALPURA_YOGURT_COLAGENO    |
+|ALPURA_YOGURT_DESLACTOSADO|
+|AQUA                      |
+|B WATER                   |
+|BAD MOOD                  |
+|BARRILITOS                |
+|BE LIGHT                  |
+|BELIGHT                   |
+|BFT AGUAS FRESCAS         |
+|BIG AQUA VITAL            |
+|BIG COLA                  |
+|BODEGAAURRERA             |
+|BOING                     |
+|BONAFONT                  |
+|BONAFONT LEVITE           |
+|BONAFONT_AGUASFRESCAS     |
+|BONAFONT_KIDS             |
+|BONAFONT_LEVITE           |
+|BONAFONT_NATURAL          |
+|BONAFONT_TE               |
+|CACHANTUN CHI             |
+|CADBURY SCHWEPPES         |
+|CANADA DRY                |
+|CANADADRY                 |
+|CARNATION CLAVEL          |
+|CIEL                      |
+|CIELO                     |
+|CIEL_EXPRIM               |
+|CIEL_MINERAL              |
+|CIFRUT                    |
+|CLINIK WATER              |
+|COCA COLA                 |
+|COCA COLA FEMSA           |
+|COCA-COLA                 |
+|COCACOLA                  |
+|CRISTAL CO                |
+|CUNNINGTON                |
+|DACLAF PHARMA GOODS       |
+|DANETTE                   |
+|DANONE                    |
+|DANONINO                  |
+|DANUP                     |
+|DANY                      |
+|DEL VALLE                 |
+|DELVALLE                  |
+|DELVALLE_FIZZ             |
+|DELVALLE_FRUT             |
+|DELVALLE_JUNIOR           |
+|DGARI                     |
+|DNP                       |
+|DRPEPPER                  |
+|E PURA                    |
+|E PURITA                  |
+|EMBOTELLAD MEXICANA       |
+|EPURA                     |
+|EVIAN                     |
+|FANTA                     |
+|FITZER                    |
+|FRESCA                    |
+|FRUVITA                   |
+|GANADEROS PROD LECHE      |
+|GLUGURT                   |
+|GPO INDUSTRIAL LALA       |
+|JARRITOS                  |
+|JARRITOS+RED COLA         |
+|JOYA                      |
+|JUGOS DEL VALLE           |
+|JUMEX                     |
+|JUMEXITO                  |
+|JUMEX_AMI                 |
+|JUMEX_BIDA                |
+|JUMEX_CERO                |
+|JUMEX_FRESCO              |
+|JUMEX_FRESH               |
+|JUMEX_FRUTZZO             |
+|JUMEX_HYDROLIT            |
+|JUMEX_MIA                 |
+|JUMEX_SPORT               |
+|JUMEX_UNICO               |
+|JUMEX_XODA                |
+|JUMEX_XOT                 |
+|KEM CHI                   |
+|LALA                      |
+|LALA_BIO4                 |
+|LALA_CHIQUITIN            |
+|LALA_CREMA                |
+|LALA_GRIEGO               |
+|LALA_LECHE                |
+|LALA_LECHE_100            |
+|LALA_MAESTROS             |
+|LALA_NATURALES            |
+|LALA_PLENIA               |
+|LALA_PROBIOC              |
+|LALA_QUESOS               |
+|LALA_YOGURT               |
+|LALA_YOGURT_100           |
+|LALA_YOMI                 |
+|LEVITE                    |
+|LIMON SODA CHI            |
+|LULU                      |
+|MANZANITA                 |
+|MANZANITA SOL             |
+|MAS CHI                   |
+|MEXICOLA                  |
+|MINERALITA                |
+|MIRINDA                   |
+|MUNDET                    |
+|NATURES HEART             |
+|NECTASIS                  |
+|NOTMILK                   |
+|NOVA LIV                  |
+|NOVALIV                   |
+|NUTRILECHE                |
+|OIKOS                     |
+|ORANGE CRUSH              |
+|PASCUAL                   |
+|PENAFIEL                  |
+|PEPSI                     |
+|PEPSI COLA MEXICANA       |
+|PEPSICOLA MEXICANA        |
+|PERRIER                   |
+|PULP                      |
+|QUALAMEX                  |
+|RED COLA                  |
+|REDCOLA                   |
+|SABRITAS                  |
+|SANGRIA                   |
+|SANGRIA SENORIAL          |
+|SANGRIA SENORIAL+MANZ SEN |
+|SANTA CLARA               |
+|SANTA MARIA               |
+|SANTAMARIA                |
+|SANTA_CLARA               |
+|SCHWEPPES                 |
+|SEVEN UP                  |
+|SEVEN UP CHI              |
+|SEVENUP                   |
+|SIGMA ALIMENTOS           |
+|SILK                      |
+|SKARCH                    |
+|SKARCH_FRUTALE            |
+|SKARCH_MINERAL            |
+|SOC COOP TRAB PASCUA      |
+|SOPROLE 1+1 CHI           |
+|SOPROLE CHI               |
+|SPRITE                    |
+|SQUIRT                    |
+|SUPER COLA GUAT           |
+|TERRAFERTIL               |
+|THE COCA COLA EXPORT      |
+|THE WATER HOUSE           |
+|TOPO CHICO                |
+|TOPOCHICO                 |
+|UNILEVER DE MEX           |
+|VITAL CHI                 |
+|VITALOE                   |
+|WALMART                   |
+|YAKULT                    |
+|YOGURISIMO ARG            |
+|YOPLAIT                   |
+|YOPLAIT_DOBLECERO         |
+|YOPLAIT_GRIEGO            |
+|YOPLAIT_GRIE_GO           |
+|YOPLAIT_KIDS              |
+|YOPLAIT_SKYR              |
+|ZOE WATER                 |
++--------------------------+
+[2026-06-22 05:03:18] V7E — WASTE brands (PRD_MDP.MDP_STG.VW_WASTE.MARCA)
+[2026-06-22 05:03:18] Running: V7E — WASTE MARCA  [db=PRD_MDP]
+[2026-06-22 05:03:19]   → 26 rows returned
+[2026-06-22 05:03:19]   WASTE MARCA:
++---------------+
+|MARCA          |
++---------------+
+|0              |
+|ACTIVIA        |
+|BENEG          |
+|BENEGASTRO     |
+|DAIRY          |
+|DANETTE        |
+|DANISSIMO      |
+|DANMIX         |
+|DANMMIX        |
+|DANONE         |
+|DANONE HERSHEYS|
+|DANONE YOGHURT |
+|DANONINO       |
+|DANONINOLIQUIDO|
+|DANUP          |
+|DANY           |
+|DELIGHT        |
+|HERSHEYS       |
+|MULTI          |
+|OCEAN          |
+|OCEAN SPRAY    |
+|OIKOS          |
+|SILK           |
+|SO DELICIOUS   |
+|VITALINEA      |
+|YO PRO         |
++---------------+
+[2026-06-22 05:03:20] V7F — IBP brands (PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP.MARCA)
+[2026-06-22 05:03:20] Running: V7F — IBP MARCA  [db=PRD_MDP]
+[2026-06-22 05:03:21]   → 29 rows returned
+[2026-06-22 05:03:21]   IBP MARCA:
++-------------+
+|MARCA        |
++-------------+
+|ACTIVIA      |
+|AGUAS FRESCAS|
+|BENEGASTRO   |
+|BONAFONT     |
+|BONAFONT TÉ  |
+|CIRCULO K    |
+|DAN MIX      |
+|DAN UP       |
+|DANETTE      |
+|DANONE       |
+|DANONE FREE  |
+|DANONE GRIEGO|
+|DANONINO     |
+|DANY         |
+|DELIGHT      |
+|EVIAN        |
+|FERRAR       |
+|HERSHEY'S    |
+|INFINIT      |
+|KIDS         |
+|LEVITE       |
+|NETO         |
+|OCEAN SPRAY  |
+|OIKOS        |
+|SILK         |
+|STOK         |
+|SUEROX       |
+|VITALINEA    |
+|VOLVIC       |
++-------------+
+[2026-06-22 05:03:23] V8: SELL_OUT row count impact at new grain
+[2026-06-22 05:03:23] Running: V8 — SELL_OUT row count + cardinality  [db=PRD_MDP]
+[2026-06-22 05:03:24]   → 18 rows returned
+[2026-06-22 05:03:24]   SELL_OUT row count + cardinality:
++----------+--------+---------------+-------------+----------------+---------------+------------------+
+|MES       |NEW_ROWS|DISTINCT_STORES|DISTINCT_UPCS|DISTINCT_CADENAS|DISTINCT_MARCAS|DISTINCT_SUBCHAINS|
++----------+--------+---------------+-------------+----------------+---------------+------------------+
+|2025-01-01|19621288|5578           |745          |13              |29             |34                |
+|2025-02-01|17277075|5582           |730          |13              |29             |34                |
+|2025-03-01|19225176|5601           |738          |13              |30             |34                |
+|2025-04-01|19235957|5613           |749          |13              |30             |34                |
+|2025-05-01|19979988|5645           |753          |13              |30             |34                |
+|2025-06-01|19169748|5656           |750          |13              |31             |34                |
+|2025-07-01|20113516|5675           |762          |13              |31             |34                |
+|2025-08-01|19913165|5713           |774          |13              |31             |34                |
+|2025-09-01|19161907|5749           |768          |13              |32             |34                |
+|2025-10-01|20202127|5830           |759          |13              |31             |34                |
+|2025-11-01|19802195|5871           |743          |13              |30             |34                |
+|2025-12-01|19536651|5898           |756          |13              |32             |34                |
+|2026-01-01|20041637|5906           |759          |13              |32             |34                |
+|2026-02-01|18429364|5934           |730          |13              |34             |34                |
+|2026-03-01|20871134|5951           |1004         |13              |34             |34                |
+|2026-04-01|20293530|5968           |698          |13              |32             |34                |
+|2026-05-01|21282156|6011           |699          |13              |32             |34                |
+|2026-06-01|11835253|6008           |678          |13              |32             |34                |
++----------+--------+---------------+-------------+----------------+---------------+------------------+
+[2026-06-22 05:03:25] ======================================================================
+[2026-06-22 05:03:25] VALIDATION COMPLETE
+[2026-06-22 05:03:25] ======================================================================

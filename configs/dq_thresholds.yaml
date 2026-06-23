@@ -26,26 +26,50 @@ sell_out_coverage_medium_threshold: 0.85  # Below this → confidence_level = ME
 
 # --- Per-source thresholds ---
 sell_in:
-  required_not_null: ["sku_id", "customer_id", "ship_date", "units_shipped"]
+  # Updated per Q10: SKU-level grain approved. MAT_IDT exposed as SKU.
+  # CADENA→CLIENTE_ID: SELL_IN uses customer identity, not retail chain.
+  required_not_null: ["FECHA", "CLIENTE_ID", "MARCA", "SKU", "VOLUMEN"]
   value_range:
-    units_shipped: {min: 0, max: 10000000}
-    net_revenue: {min: -1000000, max: 100000000}
+    VOLUMEN: {min: 0, max: 10000000}
+    VALOR: {min: -1000000, max: 100000000}
 
 sell_out:
-  required_not_null: ["sku_id", "store_id", "sell_out_week", "units_sold"]
+  # Updated per Q9: store/UPC-level grain approved.
+  # STORE_ID, UPC, SUBCHAIN added; GROUP BY removed (fact-level rows).
+  required_not_null: ["FECHA", "STORE_ID", "UPC", "CADENA", "FORMATO_CADENA", "MARCA", "VOL_SELL_OUT"]
   value_range:
-    units_sold: {min: 0, max: 5000000}
+    VOL_SELL_OUT: {min: 0, max: 1000000}
+    PCS_SELL_OUT: {min: 0, max: 1000000}
+    AMOUNT_SELL_OUT: {min: 0, max: 100000000}
+    VOL_INV: {min: 0, max: 1000000}
+    PCS_INV: {min: 0, max: 1000000}
 
 waste:
-  required_not_null: ["sku_id", "customer_id", "waste_date", "waste_units"]
+  # WASTE_AMOUNT and WASTE_KG are COALESCE'd to 0 in layout SQL — no nulls in output.
+  # Negative values are valid (waste adjustments/credits, confirmed by business).
+  # SKU has 0% nulls (validated V4).
+  required_not_null: ["CADENA", "MARCA", "FECHA", "SKU", "WASTE_AMOUNT", "WASTE_KG"]
   value_range:
-    waste_units: {min: 0, max: 1000000}
-  # Anomaly: waste_units > sell_in_units in same period → flag is_anomaly = TRUE, do not drop
+    WASTE_AMOUNT: {min: -100000000, max: 100000000}  # negatives allowed (adjustments)
+    WASTE_KG: {min: -1000000, max: 10000000}          # negatives allowed (adjustments)
+  # Anomaly: waste_amount > sell_in_valor in same period → flag is_anomaly = TRUE, do not drop
 
-investment:
-  required_not_null: ["brand_id", "channel_id", "period_month", "total_spend"]
+# Investment thresholds split by source (V5 validation showed different null profiles)
+investment_mkt_on:
+  # MKT_ON (VW_MKT_ECOMM): 46K rows. SOPORTE_PLATAFORMA 22.9% null — not required.
+  # CAMPANA 0.1% null — acceptable. INVERSION_REAL 3.2% null — keep required.
+  required_not_null: ["MEDIO", "MARCA", "FECHA", "INVERSION_REAL"]
   value_range:
-    total_spend: {min: 0, max: 500000000}
+    INVERSION_REAL: {min: 0, max: 500000000}
+
+investment_mkt_off:
+  # MKT_OFF (FACT_MEDIA_OFF): 522K rows. Includes competitor brands.
+  # CAMPANA 75.9% null — NOT required (many non-campaign line items).
+  # INVERSION_REAL 42% null — NOT required (competitor rows may lack amounts).
+  # CAMPANA nulls allowed for non-Danone brands.
+  required_not_null: ["MEDIO", "MARCA", "FECHA"]
+  value_range:
+    INVERSION_REAL: {min: 0, max: 500000000}
 
 # --- Waste risk thresholds ---
 waste_risk:

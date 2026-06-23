@@ -96,36 +96,113 @@ pipeline:
 
 sources:
   sell_in:
+    semantic_key: "SELL_IN"
+    snowflake_db: "PRD_MEX"
+    snowflake_schema: "MEX_DSP_OTC"
+    source_tables:
+      - PRD_MEX.MEX_DSP_OTC.VW_D_CUSTOMER_DICTONARY
+      - PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV
+      - PRD_MEX.MEX_DSP_OTC.V_D_CLIENT
+      - PRD_MEX.MEX_DSP_OTC.V_D_PERIOD
+      - PRD_MEX.MEX_DSP_OTC.V_D_ITEM
     extract_type: "data_warehouse"
     expected_delivery_day: "sunday"
     expected_delivery_hour: 23
     min_row_count_pct_vs_prior_week: 0.80
   sell_out:
+    semantic_key: "SELL_OUT"
+    snowflake_db: "PRD_MDP"
+    snowflake_schema: "MDP_DSP"
+    source_tables:
+      - PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
+      - PRD_MDP.MDP_DWH.V_D_PERIOD
+      - PRD_MDP.MDP_DSP.VW_D_STORE_RM
+      - PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM
     extract_type: "data_warehouse"
     expected_delivery_day: "sunday"
     expected_delivery_hour: 23
     min_row_count_pct_vs_prior_week: 0.75
   waste:
+    semantic_key: "DATA_WASTE"
+    snowflake_db: "PRD_MDP"
+    snowflake_schema: "MDP_STG"
+    source_tables:
+      - PRD_MDP.MDP_STG.VW_WASTE
     extract_type: "data_warehouse"
     expected_delivery_day: "monday"
     expected_delivery_hour: 2
     min_row_count_pct_vs_prior_week: 0.60
   investment:
+    semantic_key:
+      - "DATA_MKT_OFF"
+      - "DATA_MKT_ON"
+    snowflake_db: "PRD_MDP"
+    snowflake_schema:
+      off: "MDP_STG"
+      on: "MDP_DSP"
+    source_tables:
+      - PRD_MDP.MDP_STG.FACT_MEDIA_OFF
+      - PRD_MDP.MDP_DSP.VW_MKT_ECOMM
     extract_type: "data_warehouse"
     expected_delivery_day: "first_monday_of_month"
     expected_delivery_hour: 6
     min_row_count_pct_vs_prior_period: 0.70
   forecast:
+    semantic_key: "DATA_DANONE_IBP"
+    snowflake_db: "PRD_MDP"
+    snowflake_schema: "MDP_DSP"
+    source_tables:
+      - PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP
     extract_type: "data_warehouse"
     expected_delivery_day: "sunday"
     expected_delivery_hour: 20
     min_row_count_pct_vs_prior_week: 0.80
   nielsen:
+    semantic_key:
+      - "DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"
+      - "DATA_PB_SCANTRACK_NIELSEN"
+      - "DATA_WATER_RETAIL_NIELSEN"
+      - "DATA_WATER_SCANTRACK_NIELSEN"
+    snowflake_db: "PRD_MEX"
+    snowflake_schema: "MEX_DSP_DPH_MKT"
+    source_tables:
+      # EDP Yogurt / Gelatinas
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_MKT_DIM
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PER_DIM
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_FACT_REF
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
+      # Plant Based / Scantrack
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_AGG_DATA_PVT
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_PROD_DIM
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_MKT_DIM
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_PER_DIM
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_FACT_REF
+      # Water Retail
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_MKT_DIM
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_PER_DIM
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_FACT_REF
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM
+      # Water Scantrack
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PER_DIM
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_FACT_REF
+      - PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM
     extract_type: "data_warehouse"
     expected_delivery_day: "TBD_confirm_with_market_intelligence"
     expected_delivery_hour: 0
     min_row_count_pct_vs_prior_period: 0.85
   inventory:
+    semantic_key: "SELL_OUT"   # Inventory metrics (VOL_INV, PCS_INV) live inside the SELL_OUT semantic layer
+    snowflake_db: "PRD_MDP"
+    snowflake_schema: "MDP_DSP"
+    source_tables:
+      - PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
+      - PRD_MDP.MDP_DWH.V_D_PERIOD
+      - PRD_MDP.MDP_DSP.VW_D_STORE_RM
+      - PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM
     extract_type: "data_warehouse"
     stock_type_default: "IN_WAREHOUSE"  # Q5 resolved: exclude transit stock by default
     include_transit_stock: false

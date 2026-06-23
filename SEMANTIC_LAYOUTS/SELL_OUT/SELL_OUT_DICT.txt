@@ -1,0 +1,132 @@
+{
+    "SELL_OUT": {
+        "db": "PRD_MDP",
+        "schema": "MDP_DSP",
+        "sql": """
+        WITH fact_filtered AS (
+            SELECT
+                PER_ID,
+                STORE,
+                UPC,
+                VOL_SELL_OUT,
+                PCS_SELL_OUT,
+                AMOUNT_SELL_OUT,
+                VOL_INV,
+                PCS_INV,
+                CBU_ID
+            FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT
+            WHERE PER_ID >= 20250101
+        ),
+        base AS (
+            SELECT
+                per."DAY"  AS FECHA,
+                st.CHAIN   AS CADENA,
+                st.FORMAT  AS FORMATO_CADENA,
+                prod.BRAND AS MARCA,
+                f.STORE        AS STORE_ID,
+                TO_VARCHAR(f.UPC) AS UPC,
+                st.SUBCHAIN    AS SUBCHAIN,
+                f.VOL_SELL_OUT,
+                f.PCS_SELL_OUT,
+                f.AMOUNT_SELL_OUT,
+                f.VOL_INV,
+                f.PCS_INV
+            FROM fact_filtered f
+            INNER JOIN PRD_MDP.MDP_DWH.V_D_PERIOD per
+                ON f.PER_ID = per.PER_ID
+            INNER JOIN PRD_MDP.MDP_DSP.VW_D_STORE_RM st
+                ON f.STORE = st.INT_ID
+               AND f.CBU_ID = st.CBU_ID
+            INNER JOIN PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
+                ON TO_VARCHAR(f.UPC) = TO_VARCHAR(prod.INT_ID)
+               AND f.CBU_ID = prod.CBU_ID
+        )
+        SELECT
+            FECHA,
+            CADENA,
+            FORMATO_CADENA,
+            MARCA,
+            CASE
+                WHEN TRIM(UPPER(MARCA)) IN ('ACTIVIA') THEN 'ACTIVIA'
+                WHEN TRIM(UPPER(MARCA)) IN ('AGUAS FRESCAS', 'BFT AGUAS FRESCAS', 'BONAFONT_AGUASFRESCAS', 'BONAFONT AGUA FRESCAS') THEN 'AGUAS FRESCAS'
+                WHEN TRIM(UPPER(MARCA)) IN ('BADOIT') THEN 'BADOIT'
+                WHEN TRIM(UPPER(MARCA)) IN ('BENEGASTRO', 'BENEG') THEN 'BENEGASTRO'
+                WHEN TRIM(UPPER(MARCA)) IN ('BONAFONT', 'BONAFONT_NATURAL', 'AZUL BONAFONT') THEN 'BONAFONT'
+                WHEN TRIM(UPPER(MARCA)) IN ('BONAFONT JUGO') THEN 'BONAFONT JUGO'
+                WHEN TRIM(UPPER(MARCA)) IN ('BONAFONT KIDS', 'BONAFONT_KIDS', 'BONAFONT KIDS NATURAL') THEN 'BONAFONT KIDS'
+                WHEN TRIM(UPPER(MARCA)) IN ('BONAFONT MINERAL', 'MINERALIZADA') THEN 'BONAFONT MINERAL'
+                WHEN TRIM(UPPER(MARCA)) IN ('BONAFONT SER', 'SER PURA') THEN 'BONAFONT SER'
+                WHEN TRIM(UPPER(MARCA)) IN ('TE BONAFONT', 'TÉ BONAFONT', 'BONAFONT TE', 'BONAFONT_TE', 'BONAFONT TÉ') THEN 'BONAFONT TE'
+                WHEN TRIM(UPPER(MARCA)) IN ('DANETTE') THEN 'DANETTE'
+                WHEN TRIM(UPPER(MARCA)) IN ('DANMIX', 'DAN MIX', 'DANMMIX') THEN 'DANMIX'
+                WHEN TRIM(UPPER(MARCA)) IN ('DANONE', 'DANONE YOGHURT', 'DANONE CREME', 'DANONE FREE', 'DANONE GRIEGO', 'DANONE FS', 'DAIRY') THEN 'DANONE'
+                WHEN TRIM(UPPER(MARCA)) IN ('DANONINO', 'DANONINOLIQUIDO') THEN 'DANONINO'
+                WHEN TRIM(UPPER(MARCA)) IN ('DANUP', 'DAN UP', 'DAN''UP') THEN 'DANUP'
+                WHEN TRIM(UPPER(MARCA)) IN ('DANY', 'DANY DANETTE') THEN 'DANY'
+                WHEN TRIM(UPPER(MARCA)) IN ('DELIGHT') THEN 'DELIGHT'
+                WHEN TRIM(UPPER(MARCA)) IN ('EVIAN') THEN 'EVIAN'
+                WHEN TRIM(UPPER(MARCA)) IN ('HERSHEYS', 'HERSHEY''S', 'DANONE HERSHEYS') THEN 'HERSHEYS'
+                WHEN TRIM(UPPER(MARCA)) IN ('INFINIT WATER', 'INFINIT', 'INFINITY', 'WATER INFINIT') THEN 'INFINIT'
+                WHEN TRIM(UPPER(MARCA)) IN ('JUIZZY') THEN 'JUIZZY'
+                WHEN TRIM(UPPER(MARCA)) IN ('LEVITE', 'BONAFONT_LEVITE', 'BONAFONT LEVITE') THEN 'LEVITE'
+                WHEN TRIM(UPPER(MARCA)) IN ('LICUAMIX') THEN 'LICUAMIX'
+                WHEN TRIM(UPPER(MARCA)) IN ('OCEAN SPRAY', 'OCEAN') THEN 'OCEAN SPRAY'
+                WHEN TRIM(UPPER(MARCA)) IN ('OIKOS', 'OIKOS UHT') THEN 'OIKOS'
+                WHEN TRIM(UPPER(MARCA)) IN ('PUREZA AGA', 'AGA', 'AGA 20 LTS', 'AQUAPURA', 'AGUA NATURAL') THEN 'PUREZA AGA'
+                WHEN TRIM(UPPER(MARCA)) IN ('SILK', 'SILK ORIG 946ML', 'SILKCHOCO190ML') THEN 'SILK'
+                WHEN TRIM(UPPER(MARCA)) IN ('SO DELICIOUS') THEN 'SO DELICIOUS'
+                WHEN TRIM(UPPER(MARCA)) IN ('STOK COLD BREW', 'STOK') THEN 'STOK'
+                WHEN TRIM(UPPER(MARCA)) IN ('VITALINEA') THEN 'VITALINEA'
+                WHEN TRIM(UPPER(MARCA)) IN ('YOPRO', 'YO PRO') THEN 'YOPRO'
+                ELSE TRIM(UPPER(MARCA))
+            END AS MARCA_STD,
+            STORE_ID,
+            UPC,
+            SUBCHAIN,
+            VOL_SELL_OUT,
+            PCS_SELL_OUT,
+            AMOUNT_SELL_OUT,
+            VOL_INV,
+            PCS_INV
+        FROM base
+        """,
+        "grain_hint": "Granularidad por FECHA, STORE_ID, UPC, CADENA, FORMATO_CADENA, SUBCHAIN, MARCA, MARCA_STD",
+        "business_keys": [
+            "STORE_ID",
+            "UPC",
+            "MARCA",
+            "MARCA_STD",
+            "CADENA",
+            "FORMATO_CADENA",
+            "SUBCHAIN"
+        ],
+        "date_col": "FECHA",
+        "date_format": "yyyy-MM-dd",
+        "date_requires_cast": False,
+        "grain_cols": [
+            "FECHA",
+            "STORE_ID",
+            "UPC",
+            "CADENA",
+            "FORMATO_CADENA",
+            "SUBCHAIN",
+            "MARCA",
+            "MARCA_STD"
+        ],
+        "metric_cols": [
+            "VOL_SELL_OUT",
+            "PCS_SELL_OUT",
+            "AMOUNT_SELL_OUT",
+            "VOL_INV",
+            "PCS_INV"
+        ],
+        "source_tables": [
+            "PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT",
+            "PRD_MDP.MDP_DWH.V_D_PERIOD",
+            "PRD_MDP.MDP_DSP.VW_D_STORE_RM",
+            "PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM"
+        ],
+        "category_hint": "Sell Out Danone por tienda / UPC / cadena / formato / marca",
+        "notes": "Grano a nivel tienda/UPC (sin agregación). Cada fila es un registro del fact table con sus dimensiones resueltas."
+    }
+}

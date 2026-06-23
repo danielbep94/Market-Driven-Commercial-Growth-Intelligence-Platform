@@ -1,0 +1,3541 @@
+_meta:
+  snapshot_timestamp: '2026-06-21T04:26:36Z'
+  content_hash: sha256:9ee198aeb8158edb5620dc55a5bc5bc96d1c84bf9587a8fc47c562c9e68f8d3a
+  snowflake_host: danonenam.east-us-2.azure.snowflakecomputing.com
+  connection_profiles:
+    PRD_MEX:
+      warehouse: PRD_MEX_ANL_WH
+      role: PRD_MEX_READER
+      user: PRD_OSM_DPH_READER
+    PRD_MDP:
+      warehouse: PRD_MDP_ANL_WH
+      role: PRD_MDP
+      user: PRD_MDP
+  extracted_via: databricks_notebook
+  notebook_path: /Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/notebooks/extract_column_types
+tables:
+  PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM:
+    columns:
+      CBU_ID:
+        data_type: NUMBER
+        is_nullable: 'NO'
+        numeric_precision: 1
+        numeric_scale: 0
+      UPC:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 25
+        numeric_scale: 0
+      INT_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 38
+      IMPORT_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 38
+      NAME:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 178
+      BRAND:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 32
+      CATEGORY:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 38
+      GLOBAL_STATUS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16
+      FORECAST_UNIT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16
+      DESCRIPTION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 146
+      PACKAGING:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 20
+      MANUFACTURER:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 34
+      FACTOR_CONVERSION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      FLAVOR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 88
+      SKU:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 26
+      SIZE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 30
+      STATUS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 46
+      RELEASE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      PRESENTATION_PN6:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 92
+      UNIT_PIECE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 4
+      FAMILY:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 56
+      PROJECT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 42
+      PIECES_BY_BOX_MIDGET:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 4
+      NEW_SAP_CODE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16
+      BUSINESS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 26
+      INNOVATION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 22
+      PRODUCT_NATURE_PN6:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 52
+      PRESENTATION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 94
+      FORMAT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      PROD_TYPE_WASTE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 52
+      CBU:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 48
+      CBU_ID_REALMETRICS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 6
+      CATEGORY_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 8
+      PROD_NAME_APP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 126
+      CUSTOM_APP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 4
+      GOAL_DOH:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 26
+      PACKAGING_SIZE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 32
+      GROUPED_BRAND:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 68
+      BRAND_SHORT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 42
+      FILE_SOURCE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      T_OS_INS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      T_OS_UPD:
+        data_type: TIMESTAMP_NTZ
+        is_nullable: 'YES'
+      BUSINESS_BRANCH:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+  PRD_MDP.MDP_DSP.VW_D_STORE_RM:
+    columns:
+      INT_ID:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CBU_ID:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 1
+        numeric_scale: 0
+      CBU:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 8
+      STORE_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 102
+      CHAIN_ID:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CHAIN:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 42
+      FORMAT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 46
+      STORE_NUM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 102
+      POS_IMPORT_02:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 124
+      POS_IMPORT_03:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 88
+      DELEGATION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 106
+      CITY:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 150
+      STATE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 38
+      COD_SAP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 24
+      PADLOCK:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 102
+      CODE_SG:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 8
+      POS_ACTIVE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 25
+      REGION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 12
+      PROJECT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 32
+      SECTOR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 24
+      CHANNEL_BOSS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 62
+      AREA_BOSS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 80
+      SECTOR_BOSS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 82
+      GROUPER:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 42
+      FORMAT_SHORT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 44
+      DISTRIBUTOR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 32
+      AREA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 66
+      SPECTRUM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 25
+      PROMOTOR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 150
+      FORMAT_PROMOTIONS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 46
+      CITY_SHORT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 34
+      SECTOR_SHORT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 24
+      GROUPER_FORMAT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 44
+      CLIENT_TYPE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      BANNER:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 34
+      WAROOM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      ORDER_TYPE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 32
+      STORE_NAME_BI:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 76
+      YEAR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 8
+      DETERMINANT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 38
+      FORMATO_LONG:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      BANNER_ONE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 20
+      STORE_NAME:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 72
+      SITE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 36
+      PROMOTOR_SERVICE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 28
+      SITE_ONE_DANONE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 36
+      STORE_SIZE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      SITE_LEADER:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 70
+      POS_TYPE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 26
+      BEC_NAME:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 92
+      CHANNER_LEADER_BEC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 38
+      CLUSTER:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 22
+      COOLERS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 62
+      CUSTOM_APP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 15
+      FLAG_CLUBE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 4
+      HEAD_DISTRIBUTOR_BEC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 150
+      REGION_BEC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 18
+      REGION_LEADER_BEC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 68
+      REGION_ONE_DANONE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 12
+      SECTOR_ONE_DANONE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 24
+      SERVICE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 28
+      STATE_BEC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 30
+      STORE_NUM_CHAIN:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 38
+      SUBCHAIN:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 42
+      FILE_SOURCE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      T_OS_INS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      T_OS_UPD:
+        data_type: TIMESTAMP_NTZ
+        is_nullable: 'YES'
+  PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP:
+    columns:
+      CATEGORIA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      AÑO:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MES:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 5
+      FECHA:
+        data_type: DATE
+        is_nullable: 'YES'
+      ID_FECHA:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      ID_MES:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 25
+      DIAS_HABILES:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      ETIQUETA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      NOMBRE_ETIQUETA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      FCST_TYPE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      FOLIO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      CONCEPTO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      ACTIVIDAD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      AGRUPADOR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      GRANULARIDAD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      RESPONSABLE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      ACCOUNTABLE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      FU:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      PV:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      SKU:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      DESCRIPCION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 150
+      MARCA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      GRAMAJE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      FORMATO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      SABOR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      PACK:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 18
+        numeric_scale: 6
+      FAMILIA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      PLANTA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      TAPA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      PRESENTACION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      DEST_LOG:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      PRES_NEW:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      CC_ALINEACION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      PN:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      AREA_GEO_RUSH:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      SEGMENTO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      SOURCE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      PRODUCTO_ATRIBUTO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      SOM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      COMPARABLE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      GRAN_CANAL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      CANAL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      GRUPO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      CADENA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      FM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      VALOR:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 18
+        numeric_scale: 6
+      CICLO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      F_NAME:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 150
+      F_UPDATE:
+        data_type: TIMESTAMP_LTZ
+        is_nullable: 'YES'
+      TIPO_FILTRO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 3
+      MERCADO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      SEGMENTO_SOM_FCST:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+  PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT:
+    columns:
+      PER_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      STORE:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      UPC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 26
+      VOL_SELL_OUT:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 18
+        numeric_scale: 6
+      PCS_SELL_OUT:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 18
+        numeric_scale: 6
+      AMOUNT_SELL_OUT:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 18
+        numeric_scale: 6
+      VOL_INV:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 18
+        numeric_scale: 6
+      PCS_INV:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 18
+        numeric_scale: 6
+      AVG_SELL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 18
+        numeric_scale: 6
+      BU:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16
+      CBU_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 1
+      F_UPDATE:
+        data_type: TIMESTAMP_NTZ
+        is_nullable: 'YES'
+      F_NAME:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 255
+  PRD_MDP.MDP_DSP.VW_MKT_ECOMM:
+    columns:
+      MEDIO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      SOPORTE_PLATAFORMA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CATEGORIA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      MARCA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      ANUNCIANTE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      TARGET:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      DIVISA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      TRIBU:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FUENTE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      ECOMM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CAMPANA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      ANIO:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      FECHA:
+        data_type: DATE
+        is_nullable: 'YES'
+      NUM_MES:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      PERIODO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      LINE_ITEM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FECHA_LINE_ITEM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      LINE_ITEM_TYPE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      IMPRESIONES:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      ACTIVE_VIEW:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CLICS:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      VIDEO_50:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      VIDEO_100:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      VISTAS:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      INVERSION_REAL:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      ALCANCE:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      IDENTIFICADOR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      OBJETIVO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      TIPO_COMPRA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      OBJETIVO_FUNNEL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      PROSPECTING_REMARKETING:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FORMATO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      INICIO_INFORME:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FIN_INFORME:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      NOMBRE_CUENTA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      NOMBRE_ANUNCIO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      GRUPO_ANUNCIOS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      VIDEO_3SEG:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      CLICS_ENLACE:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      THRUPLAY:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      INTERACCION:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CONVERSIONES:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      ID_CLIENTE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      PALABRA_CLAVE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CONCORDANCIA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CTR:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      CPC:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      CPM:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPR_ABS_TOP:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPR_TOP:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      CONVERSION_PERCENT:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      VIEW_CONVERSION:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      COST_CONV:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      CONV_RATE:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      VIDEO_25:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      VIDEO_75:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      RETAIL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      NUM_SEMANA:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MES:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CLASIFICACION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CLUSTER:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CADENA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      PLACEMENT_1:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      PLACEMENT_2:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      DETALLE_CATEGORIA_PRENDIDA_KW_PRENDIDAS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      MENSAJE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CLAIM_CTA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      PRODUCTOS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      HERO_PRODUCTO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      UPC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      DBAS_Y_N:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      VALUE_ATTRIBUTE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      VALUE_TYPE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CVR:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      CPI:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPR_(ABS.TOP)_%:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPR_(TOP):
+        data_type: FLOAT
+        is_nullable: 'YES'
+  PRD_MDP.MDP_STG.FACT_MEDIA_OFF:
+    columns:
+      MEDIO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      SOPORTE_PLATAFORMA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CATEGORIA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      MARCA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      ANUNCIANTE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CAMPANA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      ANIO:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      FECHA:
+        data_type: DATE
+        is_nullable: 'YES'
+      NUM_MES:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      INVERSION_REAL:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IDENTIFICADOR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      INICIO_INFORME:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FIN_INFORME:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      START_TIME:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      END_TIME:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      SECTOR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CLASE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      AGENCIA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      SUBMARCA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      TIPO_SPOT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      VERSION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FRANJA_HORARIA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      PROGRAMA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      TIPOLOGIA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      POSICION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      DURACION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      INSERCION:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      INV_PUBLICADA:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      DESCUENTO:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      INV_DEFLACTADA:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_HT:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_HT:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_HG_MEXICO_PONDERADOS:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_AMAS:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_AMAS:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_HG_CDMX:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_HG_CDMX:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_HG_CDMX_PONDERADOS:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_AMAS_CDMX:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_AMAS_CDMX:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_HG_GDL:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_HG_GDL:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_HG_GDL_PONDERADOS:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_AMAS_GDL:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_AMAS_GDL:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_HG_MTY:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_HG_MTY:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_HG_MTY_PONDERADOS:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_AMAS_MTY:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_AMAS_MTY:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IDENTIFICADOR_FDP:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      IDENTIFICADOR_AGUA_NATURAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      IDENTIFICADOR_AQUADRINKS:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      IDENTIFICADOR_PLANT_BASED:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CATEGORIA_NUEVA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      GRPS_HT_20:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      NETWORK_PROVEEDOR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      PLATAFORMA_TRANSMITIDO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      IMPORTE_BONIF:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      UBICACION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      REGION_MP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      PRODUCCION_FACTURABLE:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      PRODUCCION_BONIFICABLE:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      NUM_SEMANA:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MES:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CLASIFICACION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      PLATAFORMA_COMPRA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      GRPS_AMAS_20:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_INDIV19:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_INDIV19:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      GRPS_INDIV19_20:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      GRPS_INDIV19_CDMX:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_INDIV19_CDMX:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      GRPS_INDIV19_CDMX_20:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_INDIV19_GDL:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_INDIV19_GDL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      GRPS_INDIV19_GDL_20:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_INDIV19_MTY:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_INDIV19_MTY:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      GRPS_INDIV19_MTY_20:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      PERIODO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      DIVISA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FUENTE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      ECOMM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      IMPRESIONES:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      CLICS:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      VISTAS:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      ALCANCE:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      OBJETIVO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      TIPO_COMPRA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      OBJETIVO_FUNNEL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FORMATO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      NOMBRE_CUENTA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      NOMBRE_ANUNCIO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      GRUPO_ANUNCIOS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      VIDEO_3SEG:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      CLICS_ENLACE:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      THRUPLAY:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      INTERACCION:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_HT_20_BADQUOTE:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      GRPS_AMAS_20_BADQUOTE:
+        data_type: FLOAT
+        is_nullable: 'YES'
+      IMPACTOS_INDIV_19:
+        data_type: FLOAT
+        is_nullable: 'YES'
+  PRD_MDP.MDP_STG.VW_WASTE:
+    columns:
+      ANIO:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MES:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CADENA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      SKU:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      DESCRIPCION:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      TIPO_PRODUCTO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      MARCA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      PROYECTO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CANAL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      Waste ($):
+        data_type: FLOAT
+        is_nullable: 'YES'
+      Waste (KG):
+        data_type: FLOAT
+        is_nullable: 'YES'
+      FUENTE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      FECHA:
+        data_type: DATE
+        is_nullable: 'YES'
+      FORMATO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT:
+    columns:
+      market_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      product_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      period_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      FACT_COLUMN:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FACT_VALUE:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 9
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_FACT_REF:
+    columns:
+      fact_column:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_group:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_subgroup:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_MKT_DIM:
+    columns:
+      market_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MRKT_DSC_SHRT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      hierarchy_level:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_number:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_name:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      hierarchy_column:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_PER_DIM:
+    columns:
+      period_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      period_short_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      period_long_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      period_ending_datetime:
+        data_type: TIMESTAMP_NTZ
+        is_nullable: 'YES'
+      niq_calendar:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      niq_periodicity:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM:
+    columns:
+      product_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CSTM_10000000000000673935:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_321331:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_421268:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_310589:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_972397:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_940056:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_57051:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_942012:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_384949:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      hierarchy_number:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_level:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_level_name:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT:
+    columns:
+      market_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      product_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      period_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      FACT_COLUMN:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FACT_VALUE:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 9
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_FACT_REF:
+    columns:
+      fact_column:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_group:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_subgroup:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM:
+    columns:
+      market_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MRKT_DSC_SHRT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      hierarchy_level:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_number:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_name:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      hierarchy_column:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PER_DIM:
+    columns:
+      period_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      period_short_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      period_long_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      period_ending_datetime:
+        data_type: TIMESTAMP_NTZ
+        is_nullable: 'YES'
+      niq_calendar:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      niq_periodicity:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM:
+    columns:
+      product_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CSTM_10000000000000673935:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_321331:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_421268:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_310589:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_972397:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_940056:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_57051:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_942012:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_384949:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      PRDC_LNG_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 500
+      PRDC_CD:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_number:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_level:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_level_name:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT:
+    columns:
+      market_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      product_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      period_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      FACT_COLUMN:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FACT_VALUE:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 9
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_FACT_REF:
+    columns:
+      fact_column:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_group:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_subgroup:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_MKT_DIM:
+    columns:
+      market_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MRKT_DSC_SHRT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      hierarchy_level:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_number:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_name:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      hierarchy_column:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PER_DIM:
+    columns:
+      period_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      period_short_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      period_long_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      period_ending_datetime:
+        data_type: TIMESTAMP_NTZ
+        is_nullable: 'YES'
+      niq_calendar:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      niq_periodicity:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM:
+    columns:
+      product_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CSTM_10000000000000667636:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_310594:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_56982:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_56985:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_978840:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_401828:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_57006:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_57063:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_57051:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      PRDC_LNG_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 500
+      PRDC_CD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      hierarchy_number:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_level:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_level_name:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_AGG_DATA_PVT:
+    columns:
+      market_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      product_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      period_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      FACT_COLUMN:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      FACT_VALUE:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 9
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_FACT_REF:
+    columns:
+      fact_column:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_group:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      fact_subgroup:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_MKT_DIM:
+    columns:
+      market_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MRKT_DSC_SHRT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      hierarchy_level:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_number:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_name:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      hierarchy_column:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_PER_DIM:
+    columns:
+      period_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      period_short_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      period_long_description:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      period_ending_datetime:
+        data_type: TIMESTAMP_NTZ
+        is_nullable: 'YES'
+      niq_calendar:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      niq_periodicity:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_PROD_DIM:
+    columns:
+      product_id:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CSTM_10000000000000681840:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_331037:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_56985:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_56988:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_56991:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_57045:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_57006:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      INP_56997:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CSTM_403959:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      PRDC_LNG_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 500
+      PRDC_CD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      hierarchy_number:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_level:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      hierarchy_level_name:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+  PRD_MEX.MEX_DSP_OTC.VW_D_CUSTOMER_DICTONARY:
+    columns:
+      SAL_ORG_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 12
+      NEW_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 30
+      NEW_CUS_NAM_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      OLD_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 30
+      OLD_CUS_NAM_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      NEW_CUS_CHL_ARE_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      OLD_CUS_CHL_ARE_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      NEW_CUS_ADR_CTY_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      OLD_CUS_ADR_CTY_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      NEW_CUS_SAL_RGN_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      OLD_CUS_SAL_RGN_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      NEW_CUS_CHL_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      OLD_CUS_CHL_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      NEW_PLT_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      OLD_PLT_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+  PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV:
+    columns:
+      BIL_DAT:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 8
+        numeric_scale: 0
+      BIL_DOC_IDT:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 11
+        numeric_scale: 0
+      SHP_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 30
+      PAY_CUS_IDT:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 11
+        numeric_scale: 0
+      DIS_CHL_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 8
+      SAL_ORG_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16
+      CUS_SAL_RGN_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 18
+      PLT_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16
+      CUS_1ST_IND_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_IND_KEY_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_PRC_LIS_TYP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_GRP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_OFI_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_ABC_CLS_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      MAT_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 20
+      SND_ITM_CAT_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 40
+      BIL_DOC_TYP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 80
+      LITER:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 15
+      CASES:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 15
+      PACK:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 15
+      SALE_DISCOUNT:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      EVIAN_DISCOUNTS:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      EVIAN_GROSS_SALES:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      GROSS_SALES:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 4
+      PROMOTION:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      IEPS:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      IVA:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 6
+      BIL_NET_KGR:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 18
+        numeric_scale: 6
+      BIL_INV:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 20
+        numeric_scale: 4
+      BIL_SKU_QTY:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 3
+      CBU:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      IEPS_TOT_PROMO:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      RUT_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 12
+      LITERS_20:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 18
+        numeric_scale: 6
+      TOT_COST:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      TOT_PROMO:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      CAB_WO_IEPS:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      CAB:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      BIL_PYD:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      CANN_CAF:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      TOT_IEPS:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      TOT_DISCOUNT:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 31
+        numeric_scale: 3
+      RUT_PV_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 12
+  PRD_MEX.MEX_DSP_OTC.V_D_CLIENT:
+    columns:
+      CBU:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 6
+      SAL_ORG_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_ACC_GRP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_NAM_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_GRN_CHL_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_GRN_CHL_ANT_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_CHL_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_CHL_ANT_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CBU_DIS_GRP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_IND_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 30
+      CUS_IND_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CUS_1ST_IND_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_1ST_IND_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CUS_2ND_IND_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_2ND_IND_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_3RD_IND_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 30
+      CUS_3RD_IND_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CUS_4TH_IND_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_4TH_IND_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CUS_5TH_IND_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_5TH_IND_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      DIS_CHL_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      DIS_CHL_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CUS_CHL_ARE_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_RGN_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CUS_SAL_PLT_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_PLT_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      CUS_SAL_PLT_PLAZA:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 400
+      PLT_TYP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      CUS_PRC_LIS_TYP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      PXY_CAT_1ST_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      PXY_CAT_1ST_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      PXY_CAT_2ND_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 18
+      PXY_CAT_2ND_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 120
+      CLU_SHT_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_ABC_CLS_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_OFI_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_OFI_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_GRP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_GRP_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_RGN_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_NIE_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_IND_KEY_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_IND_KEY_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CUS_1ST_TAX_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CTECAD_RAZONSOCIAL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      ITM_PRP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      PRV_CUS_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_ADR_CTY_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_ADR_CTY_PST_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_ADR_RGN_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_ADR_RGN_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_ADR_STR_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_ADR_STR_TOP_1ST_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_ADR_STR_TOP_2ND_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_LCT_LGD_VAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 15
+        numeric_scale: 12
+      CUS_LCT_LTD_VAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 15
+        numeric_scale: 12
+      CUS_BIL_BLK_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_DEL_BLK_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_ORD_BLK_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_DLT_FLG:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_BIL_BLK_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_DEL_BLK_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_DLT_FLG:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_ORD_BLK_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      LV4_HIE_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      LV4_HIE_CUS_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      LV5_HIE_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      LV5_HIE_CUS_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      LV6_HIE_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      LV6_HIE_CUS_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      PTR_1ST_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      PTR_1ST_CUS_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      PTR_2ND_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      PTR_3RD_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      PTR_4TH_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      PTR_4TH_CUS_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      PTR_5TH_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      PTR_5TH_CUS_DSC_SAP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      PTR_5TH_CUS_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      PTR_6TH_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      PTR_6TH_CUS_DSC_SAP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      PTR_6TH_CUS_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      PTR_7TH_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      PTR_7TH_CUS_DSC_SAP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      PTR_7TH_CUS_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 250
+      PTR_8TH_CUS_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      CUS_GRP_1ST_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 20
+      CUS_GRP_1ST_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      CUS_GRP_2ND_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_GRP_2ND_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CUS_GRP_3RD_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_GRP_3RD_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CUS_GRP_4TH_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 9
+      CUS_GRP_4TH_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CUS_GRP_5TH_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_GRP_5TH_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CUS_GRP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_GRP_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CUS_GROUP_PROMO:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      CUS_PROCE:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CUS_PROCE_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      CUS_TYP_COD:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CUS_TYP_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 60
+      CHL_CSL_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CHN_CSL_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CHN_FMT_DSL_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_CHN_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 6
+      CUS_CHN_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      CUS_SLS_MNG_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 150
+      CUS_SLS_TEAM_LDR_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 150
+      CUS_X_DOC_FINAL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      CUS_PLT_DEL_EXT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      CUS_TYP_DEL_PNT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      CUS_DIS_EXT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      ADR_STR_NUM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      ADR_STR_ADD_NUM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      ADR_RGN_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      TEL_NUM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 90
+      TEL_NUM2:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 90
+      CUS_DFT_PAY_MET_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      EML_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 723
+      CUS_FIS_ADR:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_CRE_DAT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CUS_END_DAT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      STAT_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      T_REC_CRE_DAT:
+        data_type: TIMESTAMP_TZ
+        is_nullable: 'YES'
+      CUS_UNI_COD:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 8
+        numeric_scale: 0
+      CUS_CSL_GRP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_CHL_DSC_EXT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      CUS_GRN_CHL_DSC_EXT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      CUS_CHN_UNI_DSC_EXT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 150
+      CUS_CHL_ARE_DSC_EXT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      CUS_SAL_RGN_DSC_EXT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      CUS_SAL_BLK_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_SAL_ORD_BLK_FLG:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CUS_ATT_8TH_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 16777216
+      CUS_CADENA_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 14
+      CUS_CADENA_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      CUS_PRC_PRO_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 5
+  PRD_MEX.MEX_DSP_OTC.V_D_ITEM:
+    columns:
+      CBU:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 6
+      MAT_IDT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 54
+      MAT_LCL_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 120
+      MAT_TYP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 12
+      LV1_PDT_ARE_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 54
+      LV1_PDT_ARE_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 120
+      LV2_UMB_BRD_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 54
+      LV2_UMB_BRD_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 120
+      LV3_PDT_BRD_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 54
+      LV3_PDT_BRD_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 120
+      LV4_PDT_FAM_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 54
+      LV4_PDT_FAM_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 120
+      LV5_PDT_SFM_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 54
+      LV5_PDT_SFM_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 120
+      LV6_PDT_NAT_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 54
+      LV6_PDT_NAT_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 120
+      UOM_CALC_BOX_PU:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      UOM_CALC_LIT_PU:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      UOM_CAL_QTY_BOX:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      UOM_CAL_QTY_BED:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      UOM_CAL_QTY_PAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      UOM_CAL_BOX_BED:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      UOM_CAL_BED_PAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      UOM_CAL_BOX_PAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      UOM_CAL_WGH_PAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      LV2_UMB_BRD_EXT_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      LV2_UMB_BRD_ST_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      MAT_PRC_EXT_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      MAT_FAM_EXT_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      MAT_TYP_EXT_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 90
+      MAT_STS_CSL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      MAT_DAT_DEL_CSL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      MAT_ACT_FLG:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MAT_CMP_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      MAT_GRP_CAT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 11
+      MAT_CRE_DAT:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 8
+        numeric_scale: 0
+      SKU_EAN_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 54
+      SKU_UNT_NBR:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      CRS_PLT_MAT_STS_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 6
+      SKU_NET_STD_WGH_VAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      STD_WGH_UOM_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 9
+      CSM_UNT_CPC_VAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      FMT_TYP_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 9
+      TOT_SHF_LIF_DAY_NBR:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 4
+        numeric_scale: 0
+      LV2_UMB_BRD_TYP_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      LV2_UMB_BRD_RNI_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      LV2_UMB_BRD_GRP_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      MNI_SHF_LIF_DAY_NBR:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 4
+        numeric_scale: 0
+      SAL_PDT_HIE_COD:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 54
+      SKU_CNV_RAT_VAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      SKU_CNV_LTR_VAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      SKU_KGS_PZA:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+      MAT_CAT_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      MAT_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 120
+      MAT_SEGM:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      MAT_CLASS:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      LV2_UMB_BRD_MRC_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      SKU_NET_STD_WGH_VAL_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 256
+      UOM_2ND_CNV_RAT_VAL:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 22
+        numeric_scale: 12
+  PRD_MEX.MEX_DSP_OTC.V_D_PERIOD:
+    columns:
+      PER_ID:
+        data_type: NUMBER
+        is_nullable: 'NO'
+        numeric_precision: 38
+        numeric_scale: 0
+      DAY_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      DAY:
+        data_type: DATE
+        is_nullable: 'YES'
+      DAY_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      DAY_NUM_OF_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 20
+      WEEK_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      WEEK_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      WEEK_DSC_SHORT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      WEEK_DSC_W:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      WEEK_DAY_FULL:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      WEEK_DAY_SHORT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      WEEK_START_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      WEEK_END_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      DAY_NUM_OF_WEEK:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      DAY_NUM_OF_MONTH:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      DAY_NUM_OF_YEAR:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MONTH_ID:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MONTH_TIME_SPAN:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      MONTH_START_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      MONTH_END_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      MONTH_SHORT_DESC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      MONTH_LONG_DESC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      MONTH_LONG_DES_ESP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      MONTH_SHORT:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      MONTH_LONG:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      MONTH_SHORT_ESP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      MONTH_LONG_ESP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      DAY_MONTH:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      MONTH_NUM_OF_YEAR:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      BIMESTER_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      BIMESTER_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      BIMESTER_TIME_SPAN:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      BIMESTER_NUM_OF_YEAR:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      BIMESTER_START_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      BIMESTER_END_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      TRIMESTER_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      TRIMESTER_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      TRIMESTER_TIME_SPAN:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      TRIMESTER_NUM_OF_YEAR:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      TRIMESTER_START_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      TRIMESTER_END_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      QUARTER_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      QUARTER_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      QUARTER_TIME_SPAN:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      QUARTER_NUM_OF_YEAR:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      QUARTER_START_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      QUARTER_END_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      SEMESTER_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      SEMESTER_DSC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      SEMESTER_TIME_SPAN:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      SEMESTER_NUM_OF_YEAR:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      SEMESTER_START_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      SEMESTER_END_DATE:
+        data_type: DATE
+        is_nullable: 'YES'
+      YEAR_ID:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      YEAR_TIME_SPAN:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      YEAR_END_DATE:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 200
+      WEEK_EDP_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      WEEK_NUMBER_EDP:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      WEEK_START_DATE_EDP:
+        data_type: DATE
+        is_nullable: 'YES'
+      WEEK_END_DATE_EDP:
+        data_type: DATE
+        is_nullable: 'YES'
+      WEEK_LONG_DSC_EDP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      WEEK_LONG_ESP_DSC_EDP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      WEEK_SHORT_DSC_EDP:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      WEEK_EDP_DSC_W:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 20
+      WEEK_PET_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      WEEK_NUMBER_PET:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      WEEK_START_DATE_PET:
+        data_type: DATE
+        is_nullable: 'YES'
+      WEEK_END_DATE_PET:
+        data_type: DATE
+        is_nullable: 'YES'
+      WEEK_LONG_DSC_PET:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      WEEK_LONG_ESP_DSC_PET:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      WEEK_SHORT_DSC_PET:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      WEEK_PET_DSC_W:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 20
+      WEEK_BEC_ID:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 10
+      WEEK_NUMBER_BEC:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      WEEK_START_DATE_BEC:
+        data_type: DATE
+        is_nullable: 'YES'
+      WEEK_END_DATE_BEC:
+        data_type: DATE
+        is_nullable: 'YES'
+      WEEK_LONG_DSC_BEC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 100
+      WEEK_LONG_ESP_DSC_BEC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      WEEK_SHORT_DSC_BEC:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 50
+      WEEK_BEC_DSC_W:
+        data_type: TEXT
+        is_nullable: 'YES'
+        character_maximum_length: 20
+      WORKING_DAY_EDP:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 1
+        numeric_scale: 0
+      WORKING_DAY_PET:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 1
+        numeric_scale: 0
+      WORKING_DAY_BEC:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 1
+        numeric_scale: 0
+      WORKING_DATE_EDP:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      WORKING_DATE_PET:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0
+      WORKING_DATE_BEC:
+        data_type: NUMBER
+        is_nullable: 'YES'
+        numeric_precision: 38
+        numeric_scale: 0

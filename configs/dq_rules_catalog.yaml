@@ -1,302 +1,192 @@
-# ─────────────────────────────────────────────────────────────────────────────
 # Data Quality Rules Catalog — Enterprise Metadata Catalog
-# Version: 2.0
-# Purpose: Configurable DQ rules consumed by 00b_snowflake_discovery.py (Step 4).
+# Version: 1.0
+# Purpose: Configurable DQ rules consumed by 00b_snowflake_discovery.py (Step 4 — DQ Validation).
 #
-# CRITICAL RULE: The top-level key in this file MUST EXACTLY MATCH the key used
-# in the SOURCES dict in 00b_snowflake_discovery.py.
-# Example: if the source is "DATA_MKT_ON" in SOURCES, the key here is DATA_MKT_ON.
-# A mismatch causes Step 4 to silently find no rules (no error, no validation).
+# Rule Types:
+#   mandatory:       Column must have 0% nulls for PASS.
+#   allowed_values:  Exhaustive list of valid values. Any value outside = violation.
+#   value_range:     Numeric min/max bounds. Violations = flagged rows.
+#   pattern:         Regex the value must match (e.g. date formats, codes).
+#   unique:          Column must be unique within the dataset (candidate PK check).
 #
-# ─────────────────────────────────────────────────────────────────────────────
-# YAML STRUCTURE
-# ─────────────────────────────────────────────────────────────────────────────
-# Each source key contains a dict of column names.
-# Each column dict contains:
-#
-#   severity:        CRITICAL | HIGH | MEDIUM | LOW
-#                    Affects Step 9 readiness score and the icon shown in the report.
-#                    CRITICAL  → integration blocked; readiness score -15 per failure
-#                    HIGH      → integration conditional; readiness score -8
-#                    MEDIUM    → monitoring alert only; readiness score -3
-#                    LOW       → informational; no score impact
-#
-#   description:     (string) Human-readable explanation of the rule. Required for the
-#                    business glossary and data contracts.
-#
-# Rule types (one or more per column — all are evaluated independently):
-#
-#   mandatory: true
-#     The column must have 0% null values.
-#     Applies even if the column is nullable in Snowflake.
-#     FAIL if null_pct > 0.
-#
-#   allowed_values: [val1, val2, ...]
-#     Every non-null value must appear in this explicit list.
-#     Values are case-sensitive (match Snowflake storage casing exactly).
-#     FAIL if any row contains a value outside the list.
-#
-#   value_range:
-#     min: <number>     (optional — omit to skip lower-bound check)
-#     max: <number>     (optional — omit to skip upper-bound check)
-#     FAIL if any non-null value is < min or > max.
-#     Note: null values are ignored (use mandatory: true to also check nulls).
-#
-#   unique: true
-#     The column must be a primary key candidate:
-#     distinct count == total row count AND null_pct == 0.
-#     Uses results already computed in Step 2 — no extra Spark action.
-#     FAIL if duplicates exist.
-#
-# ─────────────────────────────────────────────────────────────────────────────
-# HOW RULES ARE APPLIED IN THE NOTEBOOK
-# ─────────────────────────────────────────────────────────────────────────────
-# Step 4 in 00b_snowflake_discovery.py:
-#   1. Loads this file: DQ_RULES = yaml.safe_load(...)
-#   2. Looks up the current source: source_rules = DQ_RULES.get(source_key, {})
-#   3. If empty (key not found or no rules) → prints "No DQ rules configured" and skips.
-#   4. For each column_name in source_rules:
-#      a. Checks col_exists = column_name in df.columns
-#      b. Evaluates each rule_type (mandatory, allowed_values, value_range, unique)
-#      c. Prints result row + appends to res["dq_results"]
-#      d. Increments dq_pass_count or dq_fail_count
-#   5. dq_pass_count / dq_fail_count feed into Step 9 scoring.
-#
-# HOW FAILED RULES ARE REPORTED
-# ─────────────────────────────────────────────────────────────────────────────
-# Console: tabular row with column name, rule type, expected value, actual value,
-#          severity icon, and PASS/FAIL status.
-# CSV:     data_quality_assessment.csv — one row per rule per source.
-# Score:   CRITICAL fails reduce readiness score; source may drop to NOT READY.
-# COLUMN MISSING: if a column declared in DQ rules is absent from the DataFrame,
-#                 the rule is evaluated as FAIL with status "COLUMN MISSING".
-#                 This catches schema drift early.
-#
-# ─────────────────────────────────────────────────────────────────────────────
-# GENERIC vs SOURCE-SPECIFIC RULES
-# ─────────────────────────────────────────────────────────────────────────────
-# Generic rules (apply to any source that has the column):
-#   - mandatory: true on primary key columns (UPC, SKU, FECHA, etc.)
-#   - value_range on numeric volumes (min: 0 guards against accidental negatives)
-#
-# Source-specific rules:
-#   - allowed_values: constrain domain-specific enumerations (CANAL, FORMAT, etc.)
-#     that are only meaningful in a particular source's context.
-#   - value_range with business-domain bounds (e.g. MARKET_SHARE max: 100)
-#   - unique: only where a column is expected to be a natural PK (e.g. DATE_ID)
-#
-# ─────────────────────────────────────────────────────────────────────────────
-
+# Severity:
+#   CRITICAL  → blocks integration (readiness score −15)
+#   HIGH      → integration possible with documented mitigation (readiness score −8)
+#   MEDIUM    → monitoring alert only (readiness score −3)
+#   LOW       → informational (readiness score 0)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# DATA_MKT_ON — Investment / Marketing Online (VW_MKT_ECOMM)
-# Key matches: SOURCES["DATA_MKT_ON"] in 00b_snowflake_discovery.py
-# ─────────────────────────────────────────────────────────────────────────────
-DATA_MKT_ON:
-  MARCA:
-    mandatory: true
-    severity: CRITICAL
-    description: "Brand — must always be populated. Primary business dimension and
-      fallback join key when UPC is null."
-
-  FECHA:
-    mandatory: true
-    severity: CRITICAL
-    description: "Transaction/campaign date — required for all temporal joins and
-      Gap Detection (Step 5)."
-
-  ANIO:
-    mandatory: true
-    severity: HIGH
-    description: "Year partition key — used as a Snowflake partition pruning key.
-      Must equal YEAR(FECHA). Mismatch indicates a data pipeline bug."
-
-  INVERSION_REAL:
-    mandatory: false
-    severity: MEDIUM
-    value_range:
-      min: 0
-      max: 500000000
-    description: "Actual marketing spend in MXN. Must be non-negative. Values > 500M
-      are suspect and should be investigated before MMM input."
-
-  INVERSION_PRESUPUESTADA:
-    mandatory: false
-    severity: MEDIUM
-    value_range:
-      min: 0
-      max: 500000000
-    description: "Budgeted marketing spend in MXN. Must be non-negative."
-
-  UPC:
-    mandatory: false
-    severity: LOW
-    description: "UPC — expected to be ~94% null for brand-level eComm campaigns.
-      Document this as a known pattern, not a defect."
-
-  CADENA:
-    mandatory: false
-    severity: MEDIUM
-    description: "Retailer chain — expected for channel-level investment breakdowns.
-      Not always present for digital / programmatic campaigns."
-
-  CANAL:
-    mandatory: false
-    severity: MEDIUM
-    allowed_values:
-      - "ECOMMERCE"
-      - "MODERN_TRADE"
-      - "TRADITIONAL_TRADE"
-      - "DIGITAL"
-      - "OOH"
-      - "TV"
-      - "RADIO"
-      - "PRINT"
-      - "OTHER"
-    description: "Marketing channel. Must be a recognized value. Add new values
-      here (not in the notebook) if the business adds channels."
-
-  CAMPANA:
-    mandatory: false
-    severity: LOW
-    description: "Campaign name — informational. Used for domain profiling (Step 3)
-      and campaign-level investment analysis."
-
-  MEDIO:
-    mandatory: false
-    severity: LOW
-    description: "Media type. Used as a grain dimension. Profiled in Step 3."
-
-  PLATAFORMA:
-    mandatory: false
-    severity: LOW
-    description: "Digital platform (e.g. FACEBOOK, GOOGLE). Sub-dimension of MEDIO."
-
-  OBJETIVO:
-    mandatory: false
-    severity: LOW
-    description: "Funnel objective (AWARENESS, CONSIDERATION, CONVERSION, RETENTION).
-      Profiled in Step 3."
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# DATA_MKT_OFF — Investment / Marketing Offline (FACT_MEDIA_OFF)
-# Key matches: SOURCES["DATA_MKT_OFF"] in 00b_snowflake_discovery.py
-# Note: Share rules with DATA_MKT_ON where applicable. Keep separate blocks
-#       to allow source-specific overrides in future.
+# DATA_MKT_OFF — Offline Marketing / Media (PRD_MDP.MDP_STG.FACT_MEDIA_OFF)
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_MKT_OFF:
   MARCA:
     mandatory: true
     severity: CRITICAL
-    description: "Brand — must always be populated for offline investment."
-
+    column_type: TEXT(16777216)
+    description: "Brand must always be populated — primary business dimension"
   FECHA:
     mandatory: true
     severity: CRITICAL
-    description: "Campaign/flight date — required for temporal joins."
-
-  ANIO:
-    mandatory: true
-    severity: HIGH
-    description: "Year partition key — must equal YEAR(FECHA)."
-
-  INVERSION_REAL:
-    mandatory: false
-    severity: MEDIUM
-    value_range:
-      min: 0
-      max: 500000000
-    description: "Actual offline investment in MXN."
-
-  INVERSION_PRESUPUESTADA:
-    mandatory: false
-    severity: MEDIUM
-    value_range:
-      min: 0
-      max: 500000000
-    description: "Budgeted offline investment in MXN."
-
-  CANAL:
-    mandatory: false
-    severity: MEDIUM
-    allowed_values:
-      - "TV"
-      - "RADIO"
-      - "PRINT"
-      - "OOH"
-      - "MODERN_TRADE"
-      - "TRADITIONAL_TRADE"
-      - "OTHER"
-    description: "Offline channel. Different allowed_values set from DATA_MKT_ON."
-
+    column_type: DATE
+    description: "Campaign date — required for temporal joins"
   CAMPANA:
     mandatory: false
     severity: LOW
-    description: "Campaign name — informational."
-
+    column_type: TEXT(16777216)
+    description: "Campaign name — informational, used for domain profiling"
   MEDIO:
     mandatory: false
-    severity: LOW
-    description: "Offline media type."
+    severity: MEDIUM
+    column_type: TEXT(16777216)
+    description: "Media type (TV, OOH, Radio, Print, etc.)"
+  SOPORTE_PLATAFORMA:
+    mandatory: false
+    severity: MEDIUM
+    column_type: TEXT(16777216)
+    canonical_name: PLATAFORMA
+    description: "Platform / support — media placement"
+  CATEGORIA:
+    mandatory: false
+    severity: MEDIUM
+    column_type: TEXT(16777216)
+    description: "Product category"
+  CLASE:
+    mandatory: false
+    severity: MEDIUM
+    column_type: TEXT(16777216)
+    description: "Media class — sub-classification of media type"
+  INVERSION_REAL:
+    mandatory: false
+    severity: MEDIUM
+    column_type: FLOAT
+    value_range:
+      min: 0
+      max: 500000000
+    description: "Actual marketing investment in local currency — must be non-negative"
+  IMPACTOS_HT:
+    mandatory: false
+    severity: MEDIUM
+    column_type: FLOAT
+    value_range:
+      min: 0
+      max: 1000000000
+    description: "Media impacts (reach/impressions for offline channels)"
+  # Phase 3a: INVERSION_PRESUPUESTADA not in current layout — verify if available in source table
+  # Phase 3a: ANIO not in current layout output — derivable from FECHA
 
+# ─────────────────────────────────────────────────────────────────────────────
+# DATA_MKT_ON — Online Marketing / eCommerce (PRD_MDP.MDP_DSP.VW_MKT_ECOMM)
+# ─────────────────────────────────────────────────────────────────────────────
+DATA_MKT_ON:
+  MARCA:
+    mandatory: true
+    severity: CRITICAL
+    column_type: TEXT(16777216)
+    description: "Brand must always be populated — primary business dimension"
+  FECHA:
+    mandatory: true
+    severity: CRITICAL
+    column_type: DATE
+    description: "Campaign date — required for temporal joins"
+  CAMPANA:
+    mandatory: false
+    severity: LOW
+    column_type: TEXT(16777216)
+    description: "Campaign name — informational, used for domain profiling"
+  MEDIO:
+    mandatory: false
+    severity: MEDIUM
+    column_type: TEXT(16777216)
+    description: "Media type (digital channels)"
+  SOPORTE_PLATAFORMA:
+    mandatory: false
+    severity: MEDIUM
+    column_type: TEXT(16777216)
+    canonical_name: PLATAFORMA
+    description: "Platform / support — digital media placement"
+  CATEGORIA:
+    mandatory: false
+    severity: MEDIUM
+    column_type: TEXT(16777216)
+    description: "Product category"
+  CADENA:
+    mandatory: false
+    severity: MEDIUM
+    column_type: TEXT(16777216)
+    description: "Retailer chain — expected for eCommerce channel-level breakdowns"
+  INVERSION_REAL:
+    mandatory: false
+    severity: MEDIUM
+    column_type: FLOAT
+    value_range:
+      min: 0
+      max: 500000000
+    description: "Actual marketing investment in local currency — must be non-negative"
+  IMPRESIONES:
+    mandatory: false
+    severity: MEDIUM
+    column_type: FLOAT
+    value_range:
+      min: 0
+      max: 10000000000
+    description: "Digital impressions — non-negative"
+  CLICS:
+    mandatory: false
+    severity: MEDIUM
+    column_type: FLOAT
+    value_range:
+      min: 0
+      max: 1000000000
+    description: "Digital clicks — non-negative and must not exceed IMPRESIONES"
+  # Phase 3a: UPC, CANAL not in current layout — verify if available in source table
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_SELL_OUT — Point-of-Sale / Consumer Sales
-# Key matches: SOURCES["DATA_SELL_OUT"] in 00b_snowflake_discovery.py
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_SELL_OUT:
   UPC:
     mandatory: true
     severity: CRITICAL
-    description: "Product UPC — primary join key to product dimension and to
-      DATA_SELL_IN (via homologation). 0% null required."
-
+    column_type: NUMBER(25,0)
+    canonical_name: SKU
+    description: "Product UPC — primary join key to product dimension"
   CHAIN:
     mandatory: true
     severity: CRITICAL
-    description: "Retailer chain — required for customer dimension join.
-      Must be homologated to CADENA in DATA_MKT / DATA_WASTE."
-
-  DAY:
+    column_type: TEXT(42)
+    canonical_name: CADENA
+    description: "Retailer chain — required for customer dimension join"
+  DAY_ID:
     mandatory: true
     severity: CRITICAL
-    description: "Transaction day as a proper DATE — comes from V_D_PERIOD join.
-      Required for temporal gap detection (Step 5)."
-
+    column_type: NUMBER(38,0)
+    canonical_name: FECHA
+    description: "Transaction day surrogate key — required for time dimension join"
   VOL_SELL_OUT:
     mandatory: false
     severity: HIGH
+    column_type: NUMBER(18,6)
     value_range:
       min: 0
       max: 50000000
-    description: "Consumer sales volume in category-specific units. Must be
-      non-negative. Negatives indicate a data pipeline error."
-
+    description: "Consumer sales volume in units — must be non-negative"
   PCS_SELL_OUT:
     mandatory: false
     severity: HIGH
+    column_type: NUMBER(18,6)
     value_range:
       min: 0
       max: 50000000
-    description: "Consumer sales in pieces. Must be non-negative."
-
-  AMOUNT_SELL_OUT:
-    mandatory: false
-    severity: MEDIUM
-    value_range:
-      min: 0
-      max: 5000000000
-    description: "Consumer sales revenue in MXN. Must be non-negative."
-
+    description: "Consumer sales in pieces — must be non-negative"
   SUBCHAIN:
     mandatory: false
     severity: MEDIUM
-    description: "Sub-chain / banner — used for granular retail analytics."
-
+    column_type: TEXT(42)
+    description: "Sub-chain / banner — used for granular retail analytics"
   FORMAT:
     mandatory: false
     severity: MEDIUM
+    column_type: TEXT(46)
     allowed_values:
       - "HYPERMARKET"
       - "SUPERMARKET"
@@ -305,304 +195,298 @@ DATA_SELL_OUT:
       - "DRUGSTORE"
       - "ONLINE"
       - "OTHER"
-    description: "Store format. Must be a recognized value for channel segmentation."
-
-  CBU_ID:
-    mandatory: true
-    severity: HIGH
-    description: "Consumer Business Unit ID — used as a grain column and join key
-      to the CBU catalog."
-
+    description: "Store format — must be a recognized value for segmentation"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_SELL_IN — Factory / Distributor Shipments
-# Key matches: SOURCES["DATA_SELL_IN"] in 00b_snowflake_discovery.py
-# Status: source is currently None — rules are pre-populated for when the
-#         SQL query is added.
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_SELL_IN:
   SKU:
     mandatory: true
     severity: CRITICAL
-    description: "SKU — primary product join key for sell-in. Must match
-      Danone product master."
-
+    column_type: TEXT(26)
+    description: "SKU — primary product join key for sell-in"
   INT_ID:
     mandatory: false
     severity: HIGH
-    description: "Internal Danone product ID — bridge key between ERP and UPC.
-      Allows joining Sell-In to Sell-Out via product master homologation."
-
+    column_type: TEXT(38)
+    canonical_name: SKU
+    description: "Internal Danone product ID — join to product master"
   CADENA:
     mandatory: true
     severity: CRITICAL
-    description: "Customer/chain — required for all customer-level sell-in analytics.
-      Must be homologated to CHAIN in DATA_SELL_OUT."
-
+    column_type: TEXT(16777216)
+    description: "Customer/chain for sell-in transaction"
   FECHA:
     mandatory: true
     severity: CRITICAL
-    description: "Shipment date — required for temporal alignment with Sell-Out
-      and Waste."
-
+    column_type: DATE
+    description: "Shipment date — required for temporal alignment"
   UNIDADES:
     mandatory: false
     severity: HIGH
+    column_type: NUMBER(31,15)
     value_range:
       min: 0
       max: 10000000
-    description: "Shipped units. Must be non-negative (negatives indicate returns
-      — document as known if returns are expected in this table)."
-
+    description: "Shipped units — must be non-negative"
   MONTO:
     mandatory: false
     severity: HIGH
+    column_type: NUMBER(18,6)
+    canonical_name: VALOR
     value_range:
       min: -1000000
       max: 100000000
-    description: "Invoice amount in MXN. Negatives are allowed for credit notes
-      and returns. Values outside range are suspect."
-
+    description: "Invoice amount — negatives allowed for returns/credits"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_WASTE — Waste / Merma
-# Key matches: SOURCES["DATA_WASTE"] in 00b_snowflake_discovery.py
-# Note: These rules are configured based on expected VW_WASTE schema.
-#       Run Step 2 first to verify actual column names.
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_WASTE:
   SKU:
     mandatory: true
     severity: CRITICAL
-    description: "SKU identifier — required for product-level waste analytics
-      and join to DATA_SELL_IN."
-
+    column_type: TEXT(16777216)
+    description: "SKU identifier — required for product-level waste analytics"
   CADENA:
     mandatory: true
     severity: CRITICAL
-    description: "Customer chain — required for waste by retailer analytics."
-
+    column_type: TEXT(16777216)
+    description: "Customer chain — required for waste by retailer analytics"
   MARCA:
     mandatory: true
     severity: HIGH
-    description: "Brand — join key to brand dimension. Used for brand-level
-      waste rate calculation."
-
+    column_type: TEXT(16777216)
+    description: "Brand — join key to brand dimension"
   FECHA:
     mandatory: true
     severity: CRITICAL
-    description: "Waste date — required for temporal alignment with Sell-In."
-
+    column_type: DATE
+    description: "Waste date — required for temporal alignment"
   UNIDADES_MERMA:
     mandatory: false
     severity: HIGH
+    column_type: FLOAT
     value_range:
       min: 0
       max: 1000000
-    description: "Waste units. Must be non-negative. Zero is valid (no waste).
-      Values > 1M are suspect — investigate before using in the waste risk model."
-
+    description: "Waste units — must be non-negative; zero is valid (no waste)"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_FORECAST — Demand Forecast
-# Source: currently None — rules pre-populated.
+# STATUS: deprecated_replaced_by_IBP
+# Business confirmed IBP is the forecast/planning source (Q7).
+# These rules expect columns (SKU, FORECAST_UNITS, VERSION) that do not exist
+# in the IBP semantic layout. Rules are blocked pending column remap.
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_FORECAST:
+  _status: deprecated_replaced_by_IBP
+  _replacement_source: DATA_DANONE_IBP
+  _reason: "Business confirmed IBP is the forecast/planning source. Keep source name as IBP."
+  _blocked_reason: "Expected columns (SKU, FORECAST_UNITS, VERSION) do not match IBP layout columns (CICLO, CATEGORIA, FORMATO, IBP_AMOUNT, etc.)."
   SKU:
     mandatory: true
     severity: CRITICAL
-    description: "SKU — must match sell-in SKU universe. Unmatched SKUs produce
-      orphan forecast rows."
-
+    column_type: pending_discovery
+    status: blocked_pending_remap
+    description: "SKU — must match sell-in SKU universe"
   CADENA:
     mandatory: false
     severity: HIGH
-    description: "Customer chain forecast target. May be at aggregated level."
-
+    column_type: pending_discovery
+    status: blocked_pending_remap
+    description: "Customer chain forecast target"
   FECHA:
     mandatory: true
     severity: CRITICAL
-    description: "Forecast period date — required. Must align with sell-in periods."
-
+    column_type: pending_discovery
+    status: blocked_pending_remap
+    note: "FECHA now exists in IBP layout — this rule could be remapped"
+    description: "Forecast period date — required"
   FORECAST_UNITS:
     mandatory: true
     severity: HIGH
+    column_type: pending_discovery
+    status: blocked_pending_remap
+    note: "IBP has IBP_AMOUNT (monetary), not FORECAST_UNITS. Cannot remap without business confirmation."
     value_range:
       min: 0
       max: 50000000
-    description: "Forecasted units — must be non-negative."
-
+    description: "Forecasted units — must be non-negative"
   VERSION:
     mandatory: false
     severity: MEDIUM
-    description: "Forecast version identifier. Used to select the official version
-      per pipeline_config.yaml: forecast.official_version_policy."
-
+    column_type: pending_discovery
+    status: blocked_pending_remap
+    description: "Forecast version identifier — used to select official version"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_NIELSEN — Nielsen Market Share
-# Source: currently None — rules pre-populated.
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_NIELSEN:
   CBU_CODE:
     mandatory: false
     severity: HIGH
-    description: "Nielsen product code — must be homologated to internal SKU/UPC
-      via homologation/ dict before joining to internal data."
-
+    column_type: pending_discovery
+    canonical_name: SKU
+    description: "Nielsen product code — must be homologated to internal SKU/UPC"
   MARCA:
     mandatory: true
     severity: CRITICAL
-    description: "Brand — primary dimension for market share analysis."
-
+    column_type: pending_discovery
+    description: "Brand — primary dimension for market share analysis"
   CATEGORIA:
     mandatory: true
     severity: HIGH
-    description: "Category — required for competitive benchmarking."
-
+    column_type: pending_discovery
+    description: "Category — required for competitive benchmarking"
   YEAR_ID:
     mandatory: true
     severity: CRITICAL
-    description: "Nielsen year period — required for temporal join.
-      Must be mapped to calendar year for joins with other sources."
-
+    column_type: pending_discovery
+    canonical_name: ANIO
+    description: "Nielsen year period — required for temporal join"
   MARKET_SHARE:
     mandatory: false
     severity: HIGH
+    column_type: pending_discovery
     value_range:
       min: 0
       max: 100
-    description: "Market share % — must be between 0 and 100. Values outside
-      this range indicate a data extraction or transformation error."
-
+    description: "Market share % — must be between 0 and 100"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_PRICE — Pricing
-# Source: currently None — rules pre-populated.
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_PRICE:
   UPC:
     mandatory: true
     severity: CRITICAL
-    description: "UPC — product join key for pricing."
-
+    column_type: pending_discovery
+    canonical_name: SKU
+    description: "UPC — product join key for pricing"
   CHAIN:
     mandatory: true
     severity: CRITICAL
-    description: "Retailer chain — price varies by customer."
-
+    column_type: pending_discovery
+    canonical_name: CADENA
+    description: "Retailer chain — price varies by customer"
   FECHA:
     mandatory: true
     severity: CRITICAL
-    description: "Effective price date."
-
+    column_type: pending_discovery
+    description: "Effective price date"
   PRECIO:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     value_range:
       min: 0.01
       max: 100000
-    description: "Retail price in MXN — must be strictly positive. Zero is not
-      a valid price (use null to indicate missing price)."
-
+    description: "Price — must be strictly positive"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_PROMO — Promotions
-# Source: currently None — rules pre-populated.
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_PROMO:
   UPC:
     mandatory: false
     severity: HIGH
-    description: "Product UPC for promotion — may be at brand level (null UPC
-      = brand-level promotion)."
-
+    column_type: pending_discovery
+    canonical_name: SKU
+    description: "Product UPC for promotion — may be at brand level"
   CADENA:
     mandatory: true
     severity: CRITICAL
-    description: "Retailer chain — promotions are customer-specific."
-
+    column_type: pending_discovery
+    description: "Retailer chain — promotions are customer-specific"
   FECHA_INICIO:
     mandatory: true
     severity: CRITICAL
-    description: "Promotion start date."
-
+    column_type: pending_discovery
+    description: "Promotion start date"
   FECHA_FIN:
     mandatory: true
     severity: CRITICAL
-    description: "Promotion end date — must be >= FECHA_INICIO.
-      Note: cross-date validation (FECHA_FIN >= FECHA_INICIO) is not supported
-      by the current rule engine — validate in Silver layer instead."
-
+    column_type: pending_discovery
+    description: "Promotion end date — must be >= FECHA_INICIO"
   DESCUENTO_PCT:
     mandatory: false
     severity: HIGH
+    column_type: pending_discovery
     value_range:
       min: 0
       max: 100
-    description: "Discount percentage — must be between 0 and 100."
-
+    description: "Discount percentage — must be between 0 and 100"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_INVENTORY — Inventory / Stock
-# Source: currently None — rules pre-populated.
+# STATUS: deprecated_replaced_by_SELL_OUT
+# Business confirmed inventory comes from sell-out data (Q8).
+# Inventory metrics are VOL_INV and PCS_INV in the SELL_OUT semantic layout.
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_INVENTORY:
+  _status: deprecated_replaced_by_SELL_OUT
+  _replacement_source: SELL_OUT
+  _replacement_columns:
+    STOCK_UNITS: PCS_INV
+    STOCK_VOLUME: VOL_INV
+  _reason: "Business confirmed inventory comes from sell-out data."
   SKU:
     mandatory: true
     severity: CRITICAL
-    description: "SKU — product join key for inventory."
-
+    column_type: pending_discovery
+    status: remapped_to_SELL_OUT
+    note: "Now available as UPC in SELL_OUT layout (Q9 grain change)."
+    description: "SKU — product join key for inventory"
   FECHA:
     mandatory: true
     severity: CRITICAL
-    description: "Inventory snapshot date."
-
+    column_type: pending_discovery
+    status: remapped_to_SELL_OUT
+    note: "FECHA exists in SELL_OUT layout."
+    description: "Inventory snapshot date"
   STOCK_UNITS:
     mandatory: false
     severity: HIGH
+    column_type: pending_discovery
+    status: remapped_to_SELL_OUT
+    note: "Maps to PCS_INV in SELL_OUT layout."
     value_range:
       min: 0
       max: 100000000
-    description: "Stock on hand in units. Must be non-negative. Zero is valid
-      (empty warehouse). Excludes transit stock by default
-      (see pipeline_config.yaml: include_transit_stock: false)."
-
+    description: "Stock on hand — must be non-negative (zero is valid)"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA_CALENDAR — Date Dimension
-# Source: currently None — rules pre-populated.
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_CALENDAR:
   DATE_ID:
     mandatory: true
     severity: CRITICAL
+    column_type: pending_discovery
     unique: true
-    description: "Primary key of the calendar — must be unique and never null."
-
+    description: "Primary key of calendar — must be unique and never null"
   YEAR:
     mandatory: true
     severity: CRITICAL
-    description: "Calendar year (integer)."
-
+    column_type: pending_discovery
+    canonical_name: ANIO
+    description: "Calendar year"
   MONTH:
     mandatory: true
     severity: CRITICAL
-    value_range:
-      min: 1
-      max: 12
-    description: "Calendar month (1-12)."
-
+    column_type: pending_discovery
+    canonical_name: MES
+    description: "Calendar month (1-12)"
   WEEK:
     mandatory: false
     severity: HIGH
-    value_range:
-      min: 1
-      max: 53
-    description: "ISO week number (1-53)."
-
+    column_type: pending_discovery
+    description: "ISO week number"
   IS_FISCAL:
     mandatory: false
     severity: LOW
-    description: "Flag for fiscal vs calendar period alignment.
-      See pipeline_config.yaml: fiscal_calendar for the fiscal year definition."
+    column_type: pending_discovery
+    description: "Flag for fiscal vs calendar period alignment"

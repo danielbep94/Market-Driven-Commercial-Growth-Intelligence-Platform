@@ -1,0 +1,604 @@
+[2026-06-23 02:33:54] ======================================================================
+[2026-06-23 02:33:54] V12 — Nielsen MARCA_STD Validation — Phase C.9
+[2026-06-23 02:33:54] ======================================================================
+[2026-06-23 02:33:54] Goal: confirm MARCA_STD in all 4 Nielsen layouts via direct Snowflake queries
+[2026-06-23 02:33:54] Evidence basis: V9A=219 brands, V9B=160/166, V9C=140, V9D=77 (confirmed 2026-06-22)
+[2026-06-23 02:33:54] ======================================================================
+[2026-06-23 02:33:54] V12A — EDP Nielsen MARCA_STD spot check
+[2026-06-23 02:33:54] ======================================================================
+[2026-06-23 02:33:54] Running: V12A — EDP MARCA_STD mapping  [db=PRD_MEX]
+[2026-06-23 02:33:56]   → 219 rows returned
+[2026-06-23 02:33:56]   EDP MARCA_STD → raw brand:
++-----------------------+-----------------------+-------------+
+|ITM_UNIF_BRND          |MARCA_STD              |PRODUCT_COUNT|
++-----------------------+-----------------------+-------------+
+|A MORA TI              |A MORA TI              |8            |
+|ACTIMEL                |ACTIMEL                |8            |
+|ACTIVIA                |ACTIVIA                |334          |
+|AGUASCALIENTES         |AGUASCALIENTES         |48           |
+|AL DIA                 |AL DIA                 |136          |
+|ALDAMA                 |ALDAMA                 |8            |
+|ALMAGUER               |ALMAGUER               |8            |
+|ALPURA                 |ALPURA                 |417          |
+|ANELA                  |ANELA                  |18           |
+|ARACELI                |ARACELI                |18           |
+|ARISBEY                |ARISBEY                |47           |
+|ART                    |ART                    |67           |
+|BAD MOOD               |BAD MOOD               |14           |
+|BAKER'S BITES          |BAKER'S BITES          |10           |
+|BAMBI                  |BAMBI                  |73           |
+|BELL                   |BELL                   |25           |
+|BELLINI                |BELLINI                |11           |
+|BELOE                  |BELOE                  |8            |
+|BENEGASTRO             |BENEGASTRO             |45           |
+|BIO 4                  |BIO 4                  |46           |
+|BIO 4BALAN-CE          |BIO 4BALAN-CE          |56           |
+|BIOLAC                 |BIOLAC                 |8            |
+|BIORGANIC              |BIORGANIC              |17           |
+|BOIRE                  |BOIRE                  |16           |
+|BOLYOGHURT             |BOLYOGHURT             |8            |
+|BONACULT               |BONACULT               |8            |
+|BONAFINA               |BONAFINA               |49           |
+|BONDELI                |BONDELI                |10           |
+|BONTA                  |BONTA                  |8            |
+|BONTA DIVINA           |BONTA DIVINA           |18           |
+|BONYUR                 |BONYUR                 |26           |
+|BOVE                   |BOVE                   |70           |
+|BREAK                  |BREAK                  |32           |
+|CAMPO ALEGRE           |CAMPO ALEGRE           |37           |
+|CARACOL                |CARACOL                |24           |
+|CASA BLANCA            |CASA BLANCA            |10           |
+|CASA PROBIOTICOS       |CASA PROBIOTICOS       |12           |
+|CHAMYTO                |CHAMYTO                |32           |
+|CHELSY                 |CHELSY                 |8            |
+|CHEN                   |CHEN                   |14           |
+|CHIA MIA               |CHIA MIA               |20           |
+|CHILCHOTA              |CHILCHOTA              |143          |
+|CHIQUITIN              |CHIQUITIN              |53           |
+|CHOBANI                |CHOBANI                |345          |
+|CHOIX                  |CHOIX                  |8            |
+|CLUB                   |CLUB                   |42           |
+|CREMERIA CHALCO        |CREMERIA CHALCO        |8            |
+|CREMOSO ALPURA         |CREMOSO ALPURA         |8            |
+|CUADRITOS              |CUADRITOS              |34           |
+|D'GARI                 |D'GARI                 |39           |
+|DALUH                  |DALUH                  |36           |
+|DANETTE                |DANETTE                |171          |
+|DAN MIX                |DANMIX                 |48           |
+|DANONE                 |DANONE                 |682          |
+|DANONINO               |DANONINO               |330          |
+|DAN UP                 |DANUP                  |174          |
+|DANY                   |DANY                   |150          |
+|DE LA ABUELA           |DE LA ABUELA           |25           |
+|DELIGHURT              |DELIGHURT              |34           |
+|DELIRIO NATURAL        |DELIRIO NATURAL        |16           |
+|DIVERTIGELL            |DIVERTIGELL            |10           |
+|DOLCE FLAN             |DOLCE FLAN             |10           |
+|DONA PINTA             |DONA PINTA             |14           |
+|DULAIT                 |DULAIT                 |8            |
+|DULCES SOLIS           |DULCES SOLIS           |10           |
+|EHRMANN                |EHRMANN                |20           |
+|EL ACICATE             |EL ACICATE             |25           |
+|EL CIRUELO             |EL CIRUELO             |8            |
+|EL PINAR               |EL PINAR               |8            |
+|EL SABINO              |EL SABINO              |25           |
+|ELI                    |ELI                    |8            |
+|ESTI                   |ESTI                   |19           |
+|FAGE                   |FAGE                   |117          |
+|FLANBY                 |FLANBY                 |8            |
+|FLANDY                 |FLANDY                 |15           |
+|FLIPPER                |FLIPPER                |31           |
+|FLOR DE ALFALFA        |FLOR DE ALFALFA        |75           |
+|FLORENTINA             |FLORENTINA             |24           |
+|FORAGER                |FORAGER                |62           |
+|FORTI                  |FORTI                  |12           |
+|FRUGGIS                |FRUGGIS                |19           |
+|FRUTTISIMA             |FRUTTISIMA             |24           |
+|GASTRO PROTECT         |GASTRO PROTECT         |43           |
+|GELATIX                |GELATIX                |11           |
+|GELY CREAM             |GELY CREAM             |8            |
+|GERBER                 |GERBER                 |16           |
+|GLAD                   |GLAD                   |8            |
+|GOTA BLANCA            |GOTA BLANCA            |24           |
+|GRANDMA S              |GRANDMA S              |10           |
+|GRANJA                 |GRANJA                 |14           |
+|GREEN FEELING          |GREEN FEELING          |14           |
+|GRIEGO                 |GRIEGO                 |17           |
+|HUNT'S                 |HUNT'S                 |8            |
+|ISSANA                 |ISSANA                 |30           |
+|JERSEY                 |JERSEY                 |39           |
+|KASUL PLUS             |KASUL PLUS             |19           |
+|KIPURI                 |KIPURI                 |8            |
+|KOOL-AID               |KOOL-AID               |10           |
+|KOURELLAS              |KOURELLAS              |13           |
+|LA ABUELA              |LA ABUELA              |8            |
+|LA CASERA              |LA CASERA              |16           |
+|LA HACIENDA ANTIGUA    |LA HACIENDA ANTIGUA    |29           |
+|LA LECHERA             |LA LECHERA             |8            |
+|LA NENA                |LA NENA                |10           |
+|LA PASTORA             |LA PASTORA             |24           |
+|LA PILARICA            |LA PILARICA            |20           |
+|LA PRIMAVERA           |LA PRIMAVERA           |83           |
+|LA QUESERA DE SALAMANCA|LA QUESERA DE SALAMANCA|8            |
+|LA TIA SARA            |LA TIA SARA            |43           |
+|LACTEOS MOJICA         |LACTEOS MOJICA         |19           |
+|LACTIGURT              |LACTIGURT              |41           |
+|LAKEVIEW               |LAKEVIEW               |8            |
+|LALA                   |LALA                   |830          |
+|LALA CULT              |LALA CULT              |25           |
+|LALA SEMILLAS          |LALA SEMILLAS          |38           |
+|LAS MORAS              |LAS MORAS              |12           |
+|LEOLI                  |LEOLI                  |35           |
+|LEON                   |LEON                   |46           |
+|LEVIA                  |LEVIA                  |84           |
+|LICUADO NESTLE         |LICUADO NESTLE         |67           |
+|LICUAMIX               |LICUAMIX               |10           |
+|LIFEWAY                |LIFEWAY                |66           |
+|LIZETH                 |LIZETH                 |29           |
+|LONCH EXPRESS          |LONCH EXPRESS          |8            |
+|LOS 19 HERMANOS        |LOS 19 HERMANOS        |121          |
+|LOS AZAHARES           |LOS AZAHARES           |8            |
+|LOS CUATES             |LOS CUATES             |40           |
+|LUCERNA                |LUCERNA                |41           |
+|LUMA                   |LUMA                   |13           |
+|LYNCOTT                |LYNCOTT                |33           |
+|MARSELLA               |MARSELLA               |17           |
+|MARUSIA                |MARUSIA                |116          |
+|MUUU                   |MUUU                   |8            |
+|NATURLI                |NATURLI                |18           |
+|NATURLICH              |NATURLICH              |8            |
+|NESQUIK                |NESQUIK                |8            |
+|NESTLE                 |NESTLE                 |67           |
+|NIDO PETIT SUISSE      |NIDO PETIT SUISSE      |8            |
+|NUTRI VAKITA           |NUTRI VAKITA           |26           |
+|NUTRI YOGHURT          |NUTRI YOGHURT          |133          |
+|OIKOS                  |OIKOS                  |237          |
+|ONEI                   |ONEI                   |34           |
+|PALMALAC               |PALMALAC               |8            |
+|PASCUAL                |PASCUAL                |8            |
+|PETIZOO                |PETIZOO                |51           |
+|PINK                   |PINK                   |8            |
+|PL                     |PL                     |278          |
+|POSTRES GOLDI          |POSTRES GOLDI          |8            |
+|PROBIOTIC SOUL         |PROBIOTIC SOUL         |16           |
+|PRODUCTOS CHOYS        |PRODUCTOS CHOYS        |8            |
+|PRODUCTOS ROSITA       |PRODUCTOS ROSITA       |12           |
+|PROLEUKIN              |PROLEUKIN              |13           |
+|PUREZA VITAL           |PUREZA VITAL           |8            |
+|QUALITA FOODS          |QUALITA FOODS          |8            |
+|QUERETARO              |QUERETARO              |37           |
+|REINA                  |REINA                  |21           |
+|ROLY                   |ROLY                   |77           |
+|ROSITA                 |ROSITA                 |8            |
+|SABALITO               |SABALITO               |8            |
+|SABINO                 |SABINO                 |24           |
+|SABOR DEL HOGAR        |SABOR DEL HOGAR        |8            |
+|SALVA                  |SALVA                  |15           |
+|SAN JUAN               |SAN JUAN               |34           |
+|SAN MARCOS             |SAN MARCOS             |36           |
+|SANTA CLARA            |SANTA CLARA            |200          |
+|SANTE                  |SANTE                  |19           |
+|SELLO ROJO             |SELLO ROJO             |157          |
+|SENOR RICO             |SENOR RICO             |24           |
+|SIERRA VERDE           |SIERRA VERDE           |8            |
+|SILK                   |SILK                   |42           |
+|SILUETTE               |SILUETTE               |16           |
+|SIN MARCA              |SIN MARCA              |16           |
+|SLAVIANI               |SLAVIANI               |8            |
+|SNACKPACK              |SNACKPACK              |18           |
+|SO DELICIOUS           |SO DELICIOUS           |12           |
+|SOFUL                  |SOFUL                  |82           |
+|SOL DE MONTERREY       |SOL DE MONTERREY       |8            |
+|SORIANO                |SORIANO                |8            |
+|SVELTY                 |SVELTY                 |44           |
+|TEMAZCAL               |TEMAZCAL               |32           |
+|TIA VICKY              |TIA VICKY              |31           |
+|TIKITO                 |TIKITO                 |26           |
+|TROPI LEON             |TROPI LEON             |8            |
+|TUBAZO                 |TUBAZO                 |10           |
+|TUBIX                  |TUBIX                  |14           |
+|UNIGURT                |UNIGURT                |14           |
+|VEGGIE                 |VEGGIE                 |15           |
+|VENECIA                |VENECIA                |16           |
+|VENTRO                 |VENTRO                 |16           |
+|VIDAPLUS               |VIDAPLUS               |32           |
+|VILLA ALPINA           |VILLA ALPINA           |12           |
+|VILLA DE PATOS         |VILLA DE PATOS         |8            |
+|VILOE                  |VILOE                  |13           |
+|VIRY                   |VIRY                   |8            |
+|VITAGHURT              |VITAGHURT              |10           |
+|VITAL                  |VITAL                  |12           |
+|VITALINEA              |VITALINEA              |131          |
+|VIVE EN EQUILIBRIO     |VIVE EN EQUILIBRIO     |36           |
+|VIVENDI                |VIVENDI                |22           |
+|WAY FARE               |WAY FARE               |17           |
+|WAYFARE                |WAYFARE                |13           |
+|XCULT                  |XCULT                  |8            |
+|YAKULT                 |YAKULT                 |51           |
+|YAQUI                  |YAQUI                  |23           |
+|YO CRUNCH              |YO CRUNCH              |15           |
+|YOBELL                 |YOBELL                 |26           |
+|YOCREME                |YOCREME                |10           |
+|YOFRUT                 |YOFRUT                 |12           |
+|YOGU                   |YOGU                   |8            |
+|YOGU RICO              |YOGU RICO              |13           |
+|YOGURT DE COCO         |YOGURT DE COCO         |14           |
+|YOMI LALA              |YOMI LALA              |122          |
+|YOPLAIT                |YOPLAIT                |1212         |
+|YOPLI                  |YOPLI                  |40           |
+|YOPLUS                 |YOPLUS                 |32           |
+|YOPRO                  |YOPRO                  |8            |
+|YOPSI                  |YOPSI                  |12           |
+|ZAHINI                 |ZAHINI                 |38           |
+|ZUMAR                  |ZUMAR                  |8            |
++-----------------------+-----------------------+-------------+
+[2026-06-23 02:33:57] Running: V12A DQ — EDP brand null + mapping rates  [db=PRD_MEX]
+[2026-06-23 02:33:58]   → 1 rows returned
+[2026-06-23 02:33:58]   EDP brand DQ summary:
++------------+-------------+------------------+--------------+
+|TOTAL_BRANDS|MAPPED_BRANDS|PASSTHROUGH_BRANDS|PCT_NULL_BRAND|
++------------+-------------+------------------+--------------+
+|219         |15           |204               |1.981870      |
++------------+-------------+------------------+--------------+
+[2026-06-23 02:33:59]   DQ CHECK — TOTAL=219  MAPPED=15  PASSTHROUGH=204  NULL%=1.98
+[2026-06-23 02:33:59]   THRESHOLD: min_brands=100  → ✅ PASS
+[2026-06-23 02:33:59]   THRESHOLD: max_null_pct=3% (CTRL LABEL rows) → ✅ PASS
+[2026-06-23 02:33:59] ======================================================================
+[2026-06-23 02:33:59] V12B — Water Retail MARCA_STD preview (ITM_UNIF_BRAND_DAN derived)
+[2026-06-23 02:33:59] ======================================================================
+[2026-06-23 02:33:59] Running: V12B — Water Retail MARCA_STD preview  [db=PRD_MEX]
+[2026-06-23 02:34:01]   → 162 rows returned
+[2026-06-23 02:34:01]   Water Retail MARCA_STD preview:
++--------------------+--------------------+-------------+
+|ITM_UNIF_BRAND_RAW  |MARCA_STD_PREVIEW   |PRODUCT_COUNT|
++--------------------+--------------------+-------------+
+|A DE COCO           |A DE COCO           |6            |
+|ACAPULCO            |ACAPULCO            |3            |
+|ACAPULCOCO          |ACAPULCOCO          |5            |
+|AGA PUREZA          |AGA PUREZA          |9            |
+|AGUA AZUL           |AGUA AZUL           |3            |
+|AGUA PURA           |AGUA PURA           |2            |
+|AGUAFIEL            |AGUAFIEL            |20           |
+|AGUAS FRESCAS       |AGUAS FRESCAS       |2            |
+|AGUITAS             |AGUITAS             |2            |
+|AL DIA              |AL DIA              |6            |
+|ALPINA              |ALPINA              |2            |
+|AQUA                |AQUA                |7            |
+|AQUA PURA           |AQUA PURA           |4            |
+|AQUA VITA           |AQUA VITA           |1            |
+|ARCOIRIS            |ARCOIRIS            |1            |
+|ARIZONA             |ARIZONA             |17           |
+|ARROWHEAD           |ARROWHEAD           |7            |
+|AURORA              |AURORA              |6            |
+|AWA                 |AWA                 |6            |
+|BAVIEN              |BAVIEN              |3            |
+|BE LIGHT            |BE LIGHT            |9            |
+|BEBERE FRUT         |BEBERE FRUT         |5            |
+|BIG                 |BIG                 |25           |
+|BIG AQUA VITAL      |BIG AQUA VITAL      |11           |
+|BLANQUITA           |BLANQUITA           |13           |
+|BOING               |BOING               |16           |
+|BONAFINA            |BONAFINA            |29           |
+|BONAFONT            |BONAFONT            |70           |
+|BONAFONT            |BONAFONT KIDS       |8            |
+|BONLATTI            |BONLATTI            |1            |
+|BUONA               |BUONA               |3            |
+|CACTUS              |CACTUS              |8            |
+|CALAHUA             |CALAHUA             |2            |
+|CAPRISUN            |CAPRISUN            |12           |
+|CASCADA             |CASCADA             |1            |
+|CHAPARRITA          |CHAPARRITA          |4            |
+|CHECHI              |CHECHI              |4            |
+|CIEL                |CIEL                |47           |
+|CLARA               |CLARA               |3            |
+|CLIGHT              |CLIGHT              |1            |
+|COCO NIAU           |COCO NIAU           |2            |
+|COYUCA              |COYUCA              |3            |
+|CRISTAL             |CRISTAL             |20           |
+|CRYSPURA            |CRYSPURA            |7            |
+|CRYSTAL             |CRYSTAL             |7            |
+|D'SOLARES           |D'SOLARES           |8            |
+|DASANI              |DASANI              |2            |
+|DE LOS ANGELES      |DE LOS ANGELES      |1            |
+|DEL VALLE           |DEL VALLE           |28           |
+|DELAWARE PUNCH      |DELAWARE PUNCH      |14           |
+|DELICIAS            |DELICIAS            |1            |
+|E-PURA              |E-PURA              |26           |
+|E-PURA BEBE         |E-PURA BEBE         |2            |
+|E-PURITA            |E-PURITA            |4            |
+|EL MEXICANO         |EL MEXICANO         |2            |
+|ELECTROPURA         |ELECTROPURA         |4            |
+|ENERGIE             |ENERGIE             |2            |
+|EVIAN               |EVIAN               |10           |
+|FARAON              |FARAON              |3            |
+|FESTIN              |FESTIN              |1            |
+|FITLINE             |FITLINE             |1            |
+|FLORIDA 7           |FLORIDA 7           |5            |
+|FRIKO               |FRIKO               |1            |
+|FRUT                |FRUT                |1            |
+|FRUTI QUEKO         |FRUTI QUEKO         |8            |
+|FRUTIER             |FRUTIER             |2            |
+|FRUTOS DE VIDA      |FRUTOS DE VIDA      |3            |
+|FRUTSI              |FRUTSI              |11           |
+|FUENSANTA           |FUENSANTA           |9            |
+|FUZE                |FUZE                |1            |
+|GERBER              |GERBER              |33           |
+|GLACEAU             |GLACEAU             |5            |
+|GLACIAL             |GLACIAL             |2            |
+|GUD                 |GUD                 |2            |
+|GUGAR               |GUGAR               |12           |
+|GUGARIN             |GUGARIN             |2            |
+|GYM WATER           |GYM WATER           |5            |
+|HARMONY BROOK       |HARMONY BROOK       |4            |
+|HAWAIIAN PUNCH      |HAWAIIAN PUNCH      |5            |
+|HIDROPURA           |HIDROPURA           |4            |
+|INFINIT             |INFINIT             |1            |
+|JARRITA             |JARRITA             |1            |
+|JERSEY              |JERSEY              |5            |
+|JULIGHT             |JULIGHT             |1            |
+|JUMEX               |JUMEX               |89           |
+|JUMEX FRESH         |JUMEX FRESH         |11           |
+|JUMEX MIA           |JUMEX MIA           |5            |
+|JUNGHANNS           |JUNGHANNS           |3            |
+|KABALA              |KABALA              |1            |
+|KING FRUT           |KING FRUT           |3            |
+|KOOL-AID            |KOOL-AID            |7            |
+|LA JOLLA            |LA JOLLA            |4            |
+|LA NORIA            |LA NORIA            |1            |
+|LA PUREZA           |LA PUREZA           |1            |
+|LALA                |LALA                |17           |
+|LAS BRISAS          |LAS BRISAS          |4            |
+|LAS PUENTES         |LAS PUENTES         |1            |
+|LEON                |LEON                |2            |
+|BONAFONT            |LEVITE              |15           |
+|LOS 19 HERMANOS     |LOS 19 HERMANOS     |18           |
+|LOS ALPES           |LOS ALPES           |2            |
+|LYDER               |LYDER               |1            |
+|MANANTIAL           |MANANTIAL           |1            |
+|MINUTE MAID         |MINUTE MAID         |10           |
+|MISTER Q            |MISTER Q            |3            |
+|MONDARIZ            |MONDARIZ            |1            |
+|NATURES HEART       |NATURES HEART       |3            |
+|NIAGARA             |NIAGARA             |6            |
+|NOSSO COCO          |NOSSO COCO          |5            |
+|NOVALIV             |NOVALIV             |12           |
+|OASIS               |OASIS               |11           |
+|OCEAN SPRAY         |OCEAN SPRAY         |2            |
+|OSO POKY            |OSO POKY            |4            |
+|OTHERS MARCA        |OTHERS MARCA        |809          |
+|OYE                 |OYE                 |2            |
+|PATO PASCUAL        |PATO PASCUAL        |2            |
+|PENA PURA           |PENA PURA           |4            |
+|PL                  |PL                  |4            |
+|POWER PUNCH         |POWER PUNCH         |6            |
+|POWERADE            |POWERADE            |4            |
+|PREMIER             |PREMIER             |8            |
+|PROPEL              |PROPEL              |2            |
+|PULPY               |PULPY               |2            |
+|PURA SOL            |PURA SOL            |3            |
+|PURE LIFE           |PURE LIFE           |2            |
+|PUREZA VITAL        |PUREZA VITAL        |28           |
+|PUREZA VITAL KIDS   |PUREZA VITAL KIDS   |2            |
+|PURISIMA            |PURISIMA            |3            |
+|ROCIO               |ROCIO               |3            |
+|SABOR X             |SABOR X             |3            |
+|SABOREX             |SABOREX             |1            |
+|SAFARI              |SAFARI              |5            |
+|SAN JUDAS TADEO     |SAN JUDAS TADEO     |6            |
+|SANTA MARIA COAHUILA|SANTA MARIA COAHUILA|4            |
+|SANTA MONICA        |SANTA MONICA        |2            |
+|SANTORINI           |SANTORINI           |8            |
+|SELLO ROJO          |SELLO ROJO          |15           |
+|SIERRA AZUL         |SIERRA AZUL         |10           |
+|SKARCH              |SKARCH              |16           |
+|SNAPPLE             |SNAPPLE             |3            |
+|SOLEM               |SOLEM               |5            |
+|SONRISA             |SONRISA             |1            |
+|SPARKLETTS          |SPARKLETTS          |5            |
+|STA. MARIA -NESTLE- |STA. MARIA -NESTLE- |22           |
+|SUN LIGHT           |SUN LIGHT           |2            |
+|SUNNY DELIGHT       |SUNNY DELIGHT       |5            |
+|SUPER STAR          |SUPER STAR          |5            |
+|TAMPICO             |TAMPICO             |25           |
+|TROPIFRUT           |TROPIFRUT           |8            |
+|VALLE FRUT          |VALLE FRUT          |39           |
+|VICTORIA            |VICTORIA            |7            |
+|VIKA 8.5            |VIKA 8.5            |2            |
+|VILLA DE PATOS      |VILLA DE PATOS      |2            |
+|VIRY                |VIRY                |2            |
+|VOSS                |VOSS                |6            |
+|WELCH'S             |WELCH'S             |3            |
+|WINKY               |WINKY               |4            |
+|XALLAPAN            |XALLAPAN            |3            |
+|YUKAI               |YUKAI               |2            |
+|ZAMBA               |ZAMBA               |8            |
+|ZOE                 |ZOE                 |11           |
+|ZUBBA               |ZUBBA               |12           |
++--------------------+--------------------+-------------+
+[2026-06-23 02:34:02] Running: V12B DQ — Water Retail brand summary  [db=PRD_MEX]
+[2026-06-23 02:34:03]   → 1 rows returned
+[2026-06-23 02:34:03]   Water Retail brand DQ summary:
++----------------+------------------+------------+--------+
+|TOTAL_RAW_BRANDS|PCT_NULL_RAW_BRAND|HAS_BONAFONT|HAS_CIEL|
++----------------+------------------+------------+--------+
+|160             |0.000000          |1           |1       |
++----------------+------------------+------------+--------+
+[2026-06-23 02:34:04]   DQ CHECK — TOTAL_BRANDS=160  NULL%=0.00
+[2026-06-23 02:34:04]   THRESHOLD: min_brands=80  → ✅ PASS
+[2026-06-23 02:34:04]   THRESHOLD: max_null%=5%   → ✅ PASS
+[2026-06-23 02:34:04] ======================================================================
+[2026-06-23 02:34:04] V12C — Water Scantrack MARCA_STD DQ (ITM_UNIF_BRND_DAN derived)
+[2026-06-23 02:34:04] ======================================================================
+[2026-06-23 02:34:04] Running: V12C DQ — Water Scantrack brand summary  [db=PRD_MEX]
+[2026-06-23 02:34:05]   → 1 rows returned
+[2026-06-23 02:34:05]   Water Scantrack brand DQ summary:
++----------------+------------------+------------+--------+
+|TOTAL_RAW_BRANDS|PCT_NULL_RAW_BRAND|HAS_BONAFONT|HAS_CIEL|
++----------------+------------------+------------+--------+
+|140             |4.336821          |1           |1       |
++----------------+------------------+------------+--------+
+[2026-06-23 02:34:07]   DQ CHECK — TOTAL_BRANDS=140  NULL%=4.34
+[2026-06-23 02:34:07]   THRESHOLD: min_brands=70  → ✅ PASS
+[2026-06-23 02:34:07]   THRESHOLD: max_null%=5%   → ✅ PASS
+[2026-06-23 02:34:07] ======================================================================
+[2026-06-23 02:34:07] V12D — PB Scantrack MARCA_STD spot check (INP_56985 = ITM_UNIF_BRAND)
+[2026-06-23 02:34:07] ======================================================================
+[2026-06-23 02:34:07] Running: V12D — PB MARCA_STD mapping  [db=PRD_MEX]
+[2026-06-23 02:34:09]   → 77 rows returned
+[2026-06-23 02:34:09]   PB MARCA_STD → raw brand:
++-------------------+-------------------+-------------+
+|ITM_UNIF_BRAND     |MARCA_STD          |PRODUCT_COUNT|
++-------------------+-------------------+-------------+
+|A DE COCO          |A DE COCO          |36           |
+|ADES               |ADES               |180          |
+|ALPURA             |ALPURA             |16           |
+|AMANDIN            |AMANDIN            |9            |
+|AVELINA            |AVELINA            |9            |
+|BANANOH            |BANANOH            |19           |
+|BE CLEAR           |BE CLEAR           |9            |
+|BIRDMAN            |BIRDMAN            |24           |
+|BLUE DIAMOND       |BLUE DIAMOND       |87           |
+|BOULDER            |BOULDER            |15           |
+|CALAHUA            |CALAHUA            |35           |
+|CALIFIA FARMS      |CALIFIA FARMS      |102          |
+|CALIFORNIA SUNSHINE|CALIFORNIA SUNSHINE|15           |
+|CALPIS             |CALPIS             |9            |
+|CARNATION          |CARNATION          |28           |
+|CHOBANI            |CHOBANI            |36           |
+|CONDORELLI         |CONDORELLI         |9            |
+|DEL VALLE          |DEL VALLE          |9            |
+|ELMHURST           |ELMHURST           |71           |
+|ESSENTIAL WAITROSE |ESSENTIAL WAITROSE |11           |
+|GOOD KARMA         |GOOD KARMA         |15           |
+|GRANVITA           |GRANVITA           |11           |
+|GUD                |GUD                |100          |
+|HAPPY DAY          |HAPPY DAY          |16           |
+|HEARTBEST          |HEARTBEST          |48           |
+|HERDEZ             |HERDEZ             |9            |
+|ISOLA BIO          |ISOLA BIO          |32           |
+|LA CASA DEL JUGO   |LA CASA DEL JUGO   |9            |
+|LALA VITA          |LALA               |93           |
+|LEOLI              |LEOLI              |16           |
+|MALK               |MALK               |15           |
+|MAMMA CHIA         |MAMMA CHIA         |15           |
+|MANDOR             |MANDOR             |16           |
+|PL                 |MARCAS GENERICAS   |144          |
+|SIN MARCA          |MARCAS GENERICAS   |16           |
+|MARIANI            |MARIANI            |17           |
+|MILKADAMIA         |MILKADAMIA         |27           |
+|MOOALA             |MOOALA             |61           |
+|MW POLAR           |MW POLAR           |9            |
+|N JOY BRAND        |N JOY BRAND        |15           |
+|NATUR ALL          |NATUR ALL          |23           |
+|NATURAL GOOD SHAPE |NATURAL GOOD SHAPE |9            |
+|NATURALS           |NATURALS           |9            |
+|NATURES HEART      |NATURES HEART      |160          |
+|NOTMILK            |NOTMILK            |47           |
+|OAT WORLD          |OAT WORLD          |20           |
+|OATLY              |OATLY              |22           |
+|OKKO SUPER FOODS   |OKKO SUPER FOODS   |9            |
+|PACIFIC            |PACIFIC            |77           |
+|PEARL              |PEARL              |15           |
+|PLANT              |PLANT              |14           |
+|PLANT FOLK         |PLANT FOLK         |29           |
+|PROVAMEL           |PROVAMEL           |9            |
+|PURE               |PURE               |9            |
+|REAL NATURAL       |REAL NATURAL       |32           |
+|RICE DREAM         |RICE DREAM         |12           |
+|RIPPLE             |RIPPLE             |32           |
+|ROCKVIEW           |ROCKVIEW           |29           |
+|RUDE HEALTH        |RUDE HEALTH        |23           |
+|SAN MIGUEL         |SAN MIGUEL         |9            |
+|SILK               |SILK               |321          |
+|SO DELICIOUS       |SO DELICIOUS       |25           |
+|SOLE               |SOLE               |20           |
+|SOY                |SOY                |26           |
+|SOYALAC            |SOYALAC            |9            |
+|SOYAPAC            |SOYAPAC            |9            |
+|THAI               |THAI               |9            |
+|THAI COCO          |THAI COCO          |22           |
+|THAI HERITAGE      |THAI HERITAGE      |11           |
+|THAI KITCHEN       |THAI KITCHEN       |9            |
+|TWO BEARS          |TWO BEARS          |18           |
+|UTEKI              |UTEKI              |9            |
+|VILLA DE PATOS     |VILLA DE PATOS     |9            |
+|WEST SOY           |WEST SOY           |9            |
+|WILD HARVEST       |WILD HARVEST       |9            |
+|YOPRO              |YOPRO              |9            |
+|YUMMA AVOCADO      |YUMMA AVOCADO      |9            |
++-------------------+-------------------+-------------+
+[2026-06-23 02:34:11] Running: V12D DQ — PB brand DQ summary  [db=PRD_MEX]
+[2026-06-23 02:34:11]   → 1 rows returned
+[2026-06-23 02:34:11]   PB brand DQ summary:
++------------+--------------+----------------+
+|TOTAL_BRANDS|PCT_NULL_BRAND|DANONE_PB_BRANDS|
++------------+--------------+----------------+
+|77          |2.161328      |3               |
++------------+--------------+----------------+
+[2026-06-23 02:34:13]   DQ CHECK — TOTAL_BRANDS=77  NULL%=2.16  DANONE_BRANDS=3
+[2026-06-23 02:34:13]   THRESHOLD: min_brands=40   → ✅ PASS
+[2026-06-23 02:34:13]   THRESHOLD: max_null%=3% (CTRL LABEL rows) → ✅ PASS
+[2026-06-23 02:34:13]   THRESHOLD: Danone PB ≥ 2  → ✅ PASS
+[2026-06-23 02:34:13] ======================================================================
+[2026-06-23 02:34:13] V12E — EDP Nielsen MARCA_STD × IBP join check (Python in-memory join)
+[2026-06-23 02:34:13] ======================================================================
+[2026-06-23 02:34:13] V12E strategy: fetch EDP brands (PRD_MEX) + IBP brands (PRD_MDP) separately
+[2026-06-23 02:34:13]              then join as Python sets — avoids cross-DB credential conflict
+[2026-06-23 02:34:13] Running: V12E-EDP — EDP MARCA_STD list (PRD_MEX)  [db=PRD_MEX]
+[2026-06-23 02:34:14]   → 219 rows returned
+[2026-06-23 02:34:15]   EDP distinct MARCA_STD values: 219
+[2026-06-23 02:34:15] Running: V12E-IBP — IBP MARCA_STD list (PRD_MDP)  [db=PRD_MDP]
+[2026-06-23 02:34:19]   → 27 rows returned
+[2026-06-23 02:34:21]   IBP distinct MARCA_STD values: 27
+[2026-06-23 02:34:21] 
+[2026-06-23 02:34:21]   MATCHED (11 brands — exist in both EDP Nielsen + IBP):
+[2026-06-23 02:34:21]     ACTIVIA
+[2026-06-23 02:34:21]     BENEGASTRO
+[2026-06-23 02:34:21]     DANETTE
+[2026-06-23 02:34:21]     DANMIX
+[2026-06-23 02:34:21]     DANONE
+[2026-06-23 02:34:21]     DANONINO
+[2026-06-23 02:34:21]     DANUP
+[2026-06-23 02:34:21]     DANY
+[2026-06-23 02:34:21]     OIKOS
+[2026-06-23 02:34:21]     SILK
+[2026-06-23 02:34:21]     VITALINEA
+[2026-06-23 02:34:21] 
+[2026-06-23 02:34:21]   NO_IBP_MATCH (208 EDP brands not in IBP — competitors/long-tail):
+[2026-06-23 02:34:21]     A MORA TI
+[2026-06-23 02:34:21]     ACTIMEL
+[2026-06-23 02:34:21]     AGUASCALIENTES
+[2026-06-23 02:34:21]     AL DIA
+[2026-06-23 02:34:21]     ALDAMA
+[2026-06-23 02:34:21]     ALMAGUER
+[2026-06-23 02:34:21]     ALPURA
+[2026-06-23 02:34:21]     ANELA
+[2026-06-23 02:34:21]     ARACELI
+[2026-06-23 02:34:21]     ARISBEY
+[2026-06-23 02:34:21]     ART
+[2026-06-23 02:34:21]     BAD MOOD
+[2026-06-23 02:34:21]     BAKER'S BITES
+[2026-06-23 02:34:21]     BAMBI
+[2026-06-23 02:34:21]     BELL
+[2026-06-23 02:34:21]     BELLINI
+[2026-06-23 02:34:21]     BELOE
+[2026-06-23 02:34:21]     BIO 4
+[2026-06-23 02:34:21]     BIO 4BALAN-CE
+[2026-06-23 02:34:21]     BIOLAC
+[2026-06-23 02:34:21]     BIORGANIC
+[2026-06-23 02:34:21]     BOIRE
+[2026-06-23 02:34:21]     BOLYOGHURT
+[2026-06-23 02:34:21]     BONACULT
+[2026-06-23 02:34:21]     BONAFINA
+[2026-06-23 02:34:21]     BONDELI
+[2026-06-23 02:34:21]     BONTA
+[2026-06-23 02:34:21]     BONTA DIVINA
+[2026-06-23 02:34:21]     BONYUR
+[2026-06-23 02:34:21]     BOVE
+[2026-06-23 02:34:21]     ... and 178 more (competitors/long-tail)
+[2026-06-23 02:34:21] 
+[2026-06-23 02:34:21]   MATCHED=11  NO_IBP_MATCH=208
+[2026-06-23 02:34:21]   THRESHOLD: MATCHED ≥ 10 Danone brands → ✅ PASS
+[2026-06-23 02:36:08] ======================================================================
+[2026-06-23 02:36:08] V12 — Nielsen MARCA_STD VALIDATION COMPLETE
+[2026-06-23 02:36:08] ======================================================================

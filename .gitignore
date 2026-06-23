@@ -26,6 +26,17 @@ secrets/
 *.p8
 *.pfx
 snowflake_private_key.*
+# Additional credential patterns — block files that store secrets
+configs/*_credentials.py
+configs/*_credentials.yaml
+configs/*_credentials.json
+configs/*_secrets.py
+configs/*_secrets.yaml
+configs/*_secrets.json
+!notebooks/validate_credentials.py
+.snowflake_creds
+snowflake_creds.*
+!snowflake_creds.example.py
 
 # OS
 .DS_Store

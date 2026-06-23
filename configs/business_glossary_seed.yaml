@@ -22,11 +22,11 @@ columns:
     definition: >
       Unique numeric barcode assigned to each consumer-facing product SKU.
       Used as the primary product join key between Sell-Out, Pricing, and Promotions.
-      Expected to be ~94% null in DATA_MKT (brand-level investment campaigns).
+      Expected to be ~94% null in DATA_MKT_ON / DATA_MKT_OFF (brand-level investment campaigns).
     calculation_logic: "Assigned by GS1 / Product Master"
     unit: "Code"
     owner: "Supply Chain / Commercial Operations"
-    datasets: ["DATA_MKT", "DATA_SELL_OUT", "DATA_PRICE", "DATA_PROMO"]
+    datasets: ["DATA_SELL_OUT", "DATA_PRICE", "DATA_PROMO"]
     is_business_key: true
     dimension: DIM_PRODUCT
 
@@ -82,12 +82,12 @@ columns:
     business_name: Brand
     definition: >
       Danone brand name (e.g. OIKOS, ACTIVIA, ACTIMEL, DANUP, DANONE).
-      The most reliable cross-dataset join key — 0% null in DATA_MKT.
+      The most reliable cross-dataset join key — 0% null in DATA_MKT_ON / DATA_MKT_OFF.
       Used as fallback join when UPC is unavailable.
     calculation_logic: "Product hierarchy attribute"
     unit: "Text"
     owner: "Marketing"
-    datasets: ["DATA_MKT", "DATA_WASTE", "DATA_SELL_OUT", "DATA_NIELSEN"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF", "DATA_WASTE", "DATA_SELL_OUT", "DATA_NIELSEN"]
     is_business_key: true
     dimension: DIM_BRAND
 
@@ -99,7 +99,7 @@ columns:
     calculation_logic: "Product hierarchy attribute"
     unit: "Text"
     owner: "Commercial / Marketing"
-    datasets: ["DATA_MKT", "DATA_NIELSEN"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF", "DATA_NIELSEN"]
     is_business_key: false
     dimension: DIM_BRAND
 
@@ -109,7 +109,7 @@ columns:
     calculation_logic: "Product hierarchy attribute"
     unit: "Text"
     owner: "Commercial / Marketing"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT"]  # Phase 3a: SUBCATEGORIA not in MKT_ON/OFF layouts — verify source
     is_business_key: false
     dimension: DIM_BRAND
 
@@ -118,12 +118,12 @@ columns:
     business_name: Retail Chain (Spanish)
     definition: >
       Retailer chain name in Spanish (e.g. WALMART, OXXO, CHEDRAUI).
-      Used in DATA_MKT and DATA_WASTE as the customer dimension key.
+      Used in DATA_MKT_ON and DATA_WASTE as the customer dimension key.
       Must be homologated to CHAIN in DATA_SELL_OUT (may differ in spelling).
     calculation_logic: "Customer master attribute"
     unit: "Text"
     owner: "Commercial / Key Account Management"
-    datasets: ["DATA_MKT", "DATA_WASTE", "DATA_SELL_IN"]
+    datasets: ["DATA_MKT_ON", "DATA_WASTE", "DATA_SELL_IN"]
     is_business_key: true
     dimension: DIM_CUSTOMER
 
@@ -170,7 +170,7 @@ columns:
     calculation_logic: "Customer hierarchy attribute"
     unit: "Text"
     owner: "Commercial"
-    datasets: ["DATA_MKT", "DATA_WASTE"]
+    datasets: ["DATA_WASTE"]
     is_business_key: false
     dimension: DIM_CUSTOMER
 
@@ -179,12 +179,12 @@ columns:
     business_name: Transaction Date
     definition: >
       Full calendar date of the transaction, campaign, or event.
-      Confirmed as auto-detected date column in DATA_MKT.
+      Confirmed as auto-detected date column in DATA_MKT_ON / DATA_MKT_OFF.
       Used for temporal alignment across all datasets.
     calculation_logic: "Source system timestamp truncated to DATE"
     unit: "Date (YYYY-MM-DD)"
     owner: "Data Engineering"
-    datasets: ["DATA_MKT", "DATA_SELL_IN", "DATA_WASTE", "DATA_PRICE"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF", "DATA_SELL_IN", "DATA_WASTE", "DATA_PRICE"]
     is_business_key: true
     dimension: DIM_DATE
 
@@ -206,7 +206,7 @@ columns:
     calculation_logic: "YEAR(FECHA)"
     unit: "Integer (YYYY)"
     owner: "Data Engineering"
-    datasets: ["DATA_MKT", "DATA_SELL_IN"]
+    datasets: ["DATA_SELL_IN"]
     is_business_key: false
     dimension: DIM_DATE
 
@@ -237,7 +237,7 @@ columns:
     calculation_logic: "Source system attribute"
     unit: "Text"
     owner: "Marketing"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF"]
     is_business_key: false
     dimension: DIM_MARKETING
 
@@ -247,7 +247,7 @@ columns:
     calculation_logic: "Source system attribute"
     unit: "Text"
     owner: "Marketing / Media Agency"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF"]
     is_business_key: false
     dimension: DIM_MARKETING
 
@@ -257,7 +257,7 @@ columns:
     calculation_logic: "Source system attribute"
     unit: "Text"
     owner: "Marketing / Media Agency"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF"]
     is_business_key: false
     dimension: DIM_MARKETING
 
@@ -267,7 +267,7 @@ columns:
     calculation_logic: "Assigned at campaign creation"
     unit: "Text"
     owner: "Marketing"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT"]  # Phase 3a: OBJETIVO not in MKT_ON/OFF layouts — verify source
     is_business_key: false
     dimension: DIM_MARKETING
 
@@ -281,7 +281,7 @@ columns:
     calculation_logic: "Actualized spend from finance reconciliation"
     unit: "MXN"
     owner: "Marketing Finance"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT_ON", "DATA_MKT_OFF"]
     is_business_key: false
     dimension: null
 
@@ -291,7 +291,7 @@ columns:
     calculation_logic: "Annual budget allocation"
     unit: "MXN"
     owner: "Marketing Finance"
-    datasets: ["DATA_MKT"]
+    datasets: ["DATA_MKT"]  # Phase 3a: INVERSION_PRESUPUESTADA not in MKT_ON/OFF layouts — verify source
     is_business_key: false
     dimension: null
 
@@ -374,3 +374,855 @@ columns:
     datasets: ["DATA_INVENTORY"]
     is_business_key: false
     dimension: null
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Phase 3a Expansion — 98 new columns (2026-06-21)
+  # Traced from semantic_registry.yaml + derived_column_crosswalk.yaml
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # ── Nielsen Sales Metrics (pivoted from FACT_VALUE via SUM+CASE) ────────
+  - column_name: VTAS_VALOR
+    business_name: Sales Value
+    definition: >
+      Total monetary sales value for the product/market/period combination.
+      Pivoted from Nielsen AGG_DATA_PVT.FACT_VALUE where fact_description = 'Vtas Valor' (or FACT_TAG = 'DOL' in EDP).
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Vtas Valor' THEN FACT_VALUE ELSE 0 END)"
+    unit: "MXN"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN", "DATA_WATER_SCANTRACK_NIELSEN", "DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN", "DATA_PB_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: VTAS_UNDS
+    business_name: Sales Units
+    definition: >
+      Total units sold for the product/market/period combination.
+      Pivoted from Nielsen FACT_VALUE where fact_description = 'Vtas Unds'.
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Vtas Unds' THEN FACT_VALUE ELSE 0 END)"
+    unit: "Units"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN", "DATA_WATER_SCANTRACK_NIELSEN", "DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN", "DATA_PB_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: VTAS_KGS
+    business_name: Sales in Kilograms
+    definition: >
+      Total weight-based sales volume in KGs for EDP (Yogurt/Gelatin) products.
+      Pivoted from Nielsen FACT_VALUE where fact_description = 'Vtas (KGS)'.
+    calculation_logic: "SUM(CASE WHEN FACT_TAG = 'E' THEN FACT_VALUE ELSE 0 END)"
+    unit: "KG"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: VTAS_LITROS
+    business_name: Sales in Liters (Retail)
+    definition: >
+      Total liquid volume sales in liters for Water products in Nielsen Retail panel.
+      Pivoted from FACT_VALUE where fact_description = 'Vtas (LITRES)'.
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Vtas (LITRES)' THEN FACT_VALUE ELSE 0 END)"
+    unit: "Liters"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: VTAS_LITRES
+    business_name: Sales in Liters (Scantrack)
+    definition: >
+      Total liquid volume sales in liters for Water products in Nielsen Scantrack panel.
+      Same metric as VTAS_LITROS but from Scantrack data source.
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Vtas (LITRES)' THEN FACT_VALUE ELSE 0 END)"
+    unit: "Liters"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: VTAS_UNDS_CUALQUIER_PROMO
+    business_name: Sales Units (Any Promotion)
+    definition: "Units sold under any promotional activity in the Nielsen Scantrack panel."
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Vtas Unds Cualquier Promo' THEN FACT_VALUE ELSE 0 END)"
+    unit: "Units"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN", "DATA_PB_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: VTAS_VALOR_CUALQUIER_PROMO
+    business_name: Sales Value (Any Promotion)
+    definition: "Monetary sales value under any promotional activity in the Nielsen Scantrack panel."
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Vtas Valor Cualquier Promo' THEN FACT_VALUE ELSE 0 END)"
+    unit: "MXN"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN", "DATA_PB_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: VTAS_LITRES_CUALQUIER_PROMO
+    business_name: Sales Liters (Any Promotion)
+    definition: "Liter volume sold under any promotional activity in the Nielsen Scantrack panel."
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Vtas (LITRES) Cualquier Promo' THEN FACT_VALUE ELSE 0 END)"
+    unit: "Liters"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  # ── Nielsen Price Metrics ───────────────────────────────────────────────
+  - column_name: PRECIO_KGS_PROM
+    business_name: Average Price per KG
+    definition: "Weighted average price per kilogram for EDP products in the Nielsen panel."
+    calculation_logic: "SUM(CASE WHEN FACT_TAG = 'AVG_E_PRC' THEN FACT_VALUE ELSE 0 END)"
+    unit: "MXN/KG"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: PRECIO_UNDS_PROM
+    business_name: Average Price per Unit
+    definition: "Weighted average price per unit across all Nielsen panel sources."
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Precio Unds Prom.' THEN FACT_VALUE ELSE 0 END)"
+    unit: "MXN/Unit"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN", "DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: PRECIO_LITROS_PROM
+    business_name: Average Price per Liter
+    definition: "Weighted average price per liter for Water products in the Nielsen Retail panel."
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Precio (LITRES) Prom.' THEN FACT_VALUE ELSE 0 END)"
+    unit: "MXN/Liter"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  # ── Nielsen Ratio Metrics ───────────────────────────────────────────────
+  - column_name: RATIO_VTAS_KGS
+    business_name: Sales Ratio (KG)
+    definition: "Market share ratio by weight for EDP products. Represents Danone's share of total category KG sales."
+    calculation_logic: "SUM(CASE WHEN FACT_TAG = 'AP_E' THEN FACT_VALUE ELSE 0 END)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: RATIO_VTAS_UNDS
+    business_name: Sales Ratio (Units)
+    definition: "Market share ratio by units for EDP products. Represents Danone's share of total category unit sales."
+    calculation_logic: "SUM(CASE WHEN FACT_TAG = 'AP_U' THEN FACT_VALUE ELSE 0 END)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: RATIO_VTAS_VALOR
+    business_name: Sales Ratio (Value)
+    definition: "Market share ratio by monetary value for EDP products. Represents Danone's share of total category MXN sales."
+    calculation_logic: "SUM(CASE WHEN FACT_TAG = 'AP_DOL' THEN FACT_VALUE ELSE 0 END)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  # ── Nielsen Distribution Metrics ────────────────────────────────────────
+  - column_name: DIST_NUM
+    business_name: Numeric Distribution
+    definition: "Percentage of stores carrying the product (numeric, unweighted). Measures breadth of availability."
+    calculation_logic: "SUM/MAX(CASE WHEN fact_description = 'Dist. Num.' THEN FACT_VALUE) — source varies by panel"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN", "DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN", "DATA_PB_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: DIST_NUM_TDP
+    business_name: Numeric Distribution TDP
+    definition: "Numeric distribution — Total Distribution Points. Unweighted % of stores carrying the product in Scantrack panel."
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Dist. Num. TDP' THEN FACT_VALUE ELSE 0 END)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_PB_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: DIST_NUM_CUALQUIER_PROMO
+    business_name: Numeric Distribution (Any Promo)
+    definition: "Percentage of stores carrying the product with any promotional activity."
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Dist. Num. Cualquier Promo' THEN FACT_VALUE ELSE 0 END)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: DIST_NUM_TIENDAS_VENDEDORAS
+    business_name: Numeric Distribution (Selling Stores)
+    definition: "Count/percentage of stores with actual sales (vs. just carrying). More precise than DIST_NUM."
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Dist. Num. Tiendas Vendedoras (C)' THEN FACT_VALUE ELSE 0 END)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: DIST_POND
+    business_name: Weighted Distribution
+    definition: "Weighted distribution — stores are weighted by their share of total category sales."
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Dist. Pond.' THEN FACT_VALUE ELSE 0 END)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: DIST_POND_REACH
+    business_name: Weighted Distribution Reach
+    definition: "Weighted distribution reach — share of category-selling stores carrying the product."
+    calculation_logic: "SUM/MAX(CASE WHEN fact_description = 'Dist. Pond. Reach' THEN FACT_VALUE)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN", "DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: DIST_POND_SIN_VTAS
+    business_name: Weighted Distribution (No Sales)
+    definition: "Weighted distribution in stores that carry the product but had no sales in the period."
+    calculation_logic: "MAX(CASE WHEN fact_tag = 'DOL_CCV_NON_REACH_CONTEXT' THEN FACT_VALUE)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: DIST_POND_TDP_REACH
+    business_name: Weighted Distribution TDP Reach
+    definition: "Weighted distribution TDP reach — Total Distribution Points weighted by store importance."
+    calculation_logic: "MAX(CASE WHEN fact_tag = 'DOL_CCV_TDP_NON_REACH_CONTEXT' THEN FACT_VALUE)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: DIST_POND_TDP
+    business_name: Weighted Distribution TDP
+    definition: "Weighted distribution — Total Distribution Points in the Scantrack panel."
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Dist. Pond. TDP' THEN FACT_VALUE ELSE 0 END)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: DIST_POND_CUALQUIER_PROMO
+    business_name: Weighted Distribution (Any Promo)
+    definition: "Weighted distribution for stores with any promotional activity."
+    calculation_logic: "SUM(CASE WHEN fact_description = 'Dist. Pond. Cualquier Promo' THEN FACT_VALUE ELSE 0 END)"
+    unit: "%"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  # ── Nielsen Product Dimension Aliases ───────────────────────────────────
+  - column_name: MKT_SHORT_DSC
+    business_name: Market Short Description
+    definition: "Nielsen market geography name (e.g., 'MEXICO TOTAL', 'AREA METROPOLITANA'). Aliased from MRKT_DSC_SHRT in MKT_DIM tables."
+    calculation_logic: "K.\"MRKT_DSC_SHRT\" AS MKT_SHORT_DSC"
+    unit: "Text"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN", "DATA_WATER_SCANTRACK_NIELSEN", "DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN", "DATA_PB_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_GEOGRAPHY
+
+  - column_name: ITM_UNIF_BRAND
+    business_name: Unified Brand Name
+    definition: "Nielsen unified brand name for the product. Aliased from CSTM_310589 (Water/PB) or INP_56985 (EDP) in PROD_DIM tables."
+    calculation_logic: "A.\"CSTM_310589\" AS ITM_UNIF_BRAND (Water/PB)"
+    unit: "Text"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN", "DATA_WATER_SCANTRACK_NIELSEN", "DATA_PB_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_BRND
+    business_name: Unified Brand Name (EDP)
+    definition: "Nielsen unified brand name for EDP (Yogurt/Gelatin) products. Aliased from INP_56985 in VW_IR_YOG_GEL_MT_NLSN_PROD_DIM."
+    calculation_logic: "A.\"INP_56985\" AS ITM_UNIF_BRND"
+    unit: "Text"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_MANUF
+    business_name: Unified Manufacturer Name
+    definition: "Nielsen unified manufacturer/company name. Aliased from CSTM_321331 (Water) or INP_56982 (EDP) in PROD_DIM tables."
+    calculation_logic: "A.\"CSTM_321331\" AS ITM_UNIF_MANUF"
+    unit: "Text"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN", "DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_MANUF_DAN
+    business_name: Manufacturer (Danone Classification)
+    definition: "Manufacturer name reclassified by Danone business logic (e.g., 'COCA-COLA', 'PEPSI', 'MARCAS GENERICAS'). CASE expression over ITM_UNIF_MANUF."
+    calculation_logic: "CASE WHEN ITM_UNIF_MANUF IN ('IND. REFRESQUERA...', 'COCA-COLA...') THEN 'COCA-COLA' ..."
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN", "DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_BRAND_DAN
+    business_name: Brand (Danone Classification - Retail)
+    definition: "Brand name reclassified by Danone business logic for Water Retail. Groups sub-brands like 'LEVITE CLASICA'→'LEVITE', 'BONAFONT KIDS', etc."
+    calculation_logic: "CASE WHEN ... ELSE ITM_UNIF_BRAND END"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_BRND_DAN
+    business_name: Brand (Danone Classification - Scantrack)
+    definition: "Brand name reclassified by Danone business logic for Water Scantrack. Variant spelling of ITM_UNIF_BRAND_DAN."
+    calculation_logic: "CASE WHEN ... ELSE ITM_UNIF_BRAND END"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_SUBBRND
+    business_name: Unified Sub-brand
+    definition: "Nielsen unified sub-brand within a brand (e.g., 'LEVITE CLASICA', 'KIDS'). Aliased from CSTM_972397 in PROD_DIM."
+    calculation_logic: "A.\"CSTM_972397\" AS ITM_UNIF_SUBBRND"
+    unit: "Text"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_SUBBRND_DAN
+    business_name: Sub-brand (Danone Classification)
+    definition: "Sub-brand reclassified by Danone business logic. CASE expression over CSTM_972397."
+    calculation_logic: "CASE WHEN ... ELSE ITM_UNIF_SUBBRND END"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_SUBSEG_DAN
+    business_name: Unified Sub-segment (Danone - EDP)
+    definition: "Danone sub-segment classification for EDP products. Aliased from INP_57006 in EDP PROD_DIM."
+    calculation_logic: "A.\"INP_57006\" AS ITM_UNIF_SUBSEG_DAN"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_SUBSEG_DAN_1
+    business_name: Sub-segment Level 1 (Waters)
+    definition: "Top-level Water segment. Constant = 'TOTAL WATERS' for all Water Nielsen sources."
+    calculation_logic: "Literal 'TOTAL WATERS'"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_SUBSEG_DAN_2
+    business_name: Sub-segment Level 2 (Waters)
+    definition: "Second-level Water segment derived from ITM_SEGMENT_2 and product attributes."
+    calculation_logic: "CASE WHEN CSTM_421268 IN (...) THEN ... END"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_SUBSEG_DAN_3
+    business_name: Sub-segment Level 3 (Waters)
+    definition: "Third-level Water segment with size/format granularity."
+    calculation_logic: "CASE WHEN CSTM_421268 AND CSTM_940056 AND CSTM_384949 ... END"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_SUBSEG_DAN_4
+    business_name: Sub-segment Level 4 (Waters)
+    definition: "Fourth-level Water segment combining SEGMENTO_LOCAL and PRESENTACION_LOCAL."
+    calculation_logic: "CASE WHEN SEGMENTO_LOCAL = ... AND PRESENTACION_LOCAL = ... END"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_UNIF_SUBSEG_DAN_5
+    business_name: Sub-segment Level 5 (Waters)
+    definition: "Fifth-level (most granular) Water segment derived from ITM_UNIF_SUBSEG_DAN_4."
+    calculation_logic: "CASE WHEN ITM_UNIF_SUBSEG_DAN_4 = ... END"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_SUBSEG_UNIF
+    business_name: Unified Sub-segment (EDP)
+    definition: "Nielsen unified sub-segment for EDP products. Aliased from INP_57063 (EDP) or CSTM_310594."
+    calculation_logic: "A.\"INP_57063\" AS ITM_SUBSEG_UNIF"
+    unit: "Text"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITM_SEGMENT_2
+    business_name: Product Segment Level 2
+    definition: "Nielsen product segment classification (e.g., 'AGUA NATURAL', 'BEBIDAS REFRESCANTES', 'AGUA SABORIZADA'). Aliased from CSTM_421268."
+    calculation_logic: "A.\"CSTM_421268\" AS ITM_SEGMENT_2"
+    unit: "Text"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN", "DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: ITEM_UNIF_SUBBRND
+    business_name: Unified Sub-brand (Plant-Based)
+    definition: "Sub-brand for Plant-Based (PB) products. Aliased from INP_56991 in VW_SUST_LECHE_ST_NLSN_PROD_DIM."
+    calculation_logic: "A.\"INP_56991\" AS ITEM_UNIF_SUBBRND"
+    unit: "Text"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_PB_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: SEGMENTACION_2025
+    business_name: 2025 Segmentation
+    definition: "Danone internal product segmentation classification for 2025. CASE expression over multiple PROD_DIM columns."
+    calculation_logic: "CASE WHEN ITM_UNIF_SUBSEG_DAN IN (...) THEN 'CORE' WHEN ... THEN 'INNOVATION' END"
+    unit: "Text"
+    owner: "Commercial Intelligence / Category Management"
+    datasets: ["DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: SEGMENTO_LOCAL
+    business_name: Local Segment (Waters)
+    definition: "Danone local market segment for Water products. Reclassifies ITM_SEGMENT_2 into 'SABOR' or 'NATURAL'."
+    calculation_logic: "CASE WHEN ITM_SEGMENT_2 IN ('BEBIDAS REFRESCANTES', 'AGUA SABORIZADA') THEN 'SABOR' WHEN 'AGUA NATURAL' THEN 'NATURAL' END"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN", "DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: SUBSEGMENTO_LOCAL
+    business_name: Local Sub-segment (Waters)
+    definition: "Detailed Water sub-segment combining SEGMENTO_LOCAL and PRESENTACION_LOCAL (e.g., 'NATURAL CORE', 'NATURAL KIDS', 'JUGS', 'AQUADRINKS CORE')."
+    calculation_logic: "CASE WHEN SEGMENTO_LOCAL = 'NATURAL' AND PRESENTACION_LOCAL = 'ADULTO' THEN 'NATURAL CORE' ..."
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: PRESENTACION_LOCAL
+    business_name: Local Presentation (Waters)
+    definition: "Product presentation classification for Waters (e.g., 'ADULTO', 'KIDS', 'GARRAFON'). Derived from size, brand, and segment attributes."
+    calculation_logic: "CASE WHEN ITM_UNIF_SUBBRND IN ('JUIZZY'...) THEN 'ADULTO' WHEN ... AND ITM_RANKS = '0-350' THEN 'KIDS' ..."
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: TIPO
+    business_name: Product Type (Waters)
+    definition: "Product type classification in Water Scantrack. Derived via CASE over ITM_SEGMENT_2 and ITM_UNIF_BRAND."
+    calculation_logic: "CASE WHEN ... END"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: SUBCATEGORIA
+    business_name: Sub-category (Plant-Based)
+    definition: "Constant 'SUSTITUTOS DE LECHE' for all Plant-Based Scantrack records."
+    calculation_logic: "Literal 'SUSTITUTOS DE LECHE'"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_PB_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: PER_DATE
+    business_name: Period Date (Nielsen Scantrack)
+    definition: "Monthly period date derived from Nielsen period_ending_datetime via DATE_TRUNC('MONTH'). Used as date grain in Scantrack sources."
+    calculation_logic: "DATE_TRUNC('MONTH', TO_DATE(period_ending_datetime))::DATE"
+    unit: "Date"
+    owner: "Commercial Intelligence / Nielsen"
+    datasets: ["DATA_WATER_SCANTRACK_NIELSEN"]
+    is_business_key: false
+    dimension: DIM_DATE
+
+  - column_name: SOURCE
+    business_name: Data Source Tag (Waters)
+    definition: "Constant identifying the Water sub-source (e.g., 'WATERS RIE', 'WATERS RIE_GEN'). Used to distinguish branded vs. generic label data."
+    calculation_logic: "Literal value set in UNION ALL branches"
+    unit: "Text"
+    owner: "Commercial Intelligence"
+    datasets: ["DATA_WATER_RETAIL_NIELSEN"]
+    is_business_key: false
+    dimension: null
+
+  # ── IBP (Integrated Business Planning) ──────────────────────────────────
+  - column_name: CICLO
+    business_name: Planning Cycle
+    definition: "IBP planning cycle identifier (e.g., 'OP1', 'OP2', 'M01-M12'). Determines which planning iteration a forecast belongs to."
+    calculation_logic: "Direct from VW_FACT_DANONE_IBP.CICLO"
+    unit: "Text"
+    owner: "S&OP / Demand Planning"
+    datasets: ["DATA_DANONE_IBP"]
+    is_business_key: true
+    dimension: DIM_PLANNING
+
+  - column_name: ETIQUETA
+    business_name: Planning Label
+    definition: "IBP forecast label (e.g., 'REAL', 'IBP', 'M01'). Identifies whether the value is actuals, consensus forecast, or a monthly rolling forecast."
+    calculation_logic: "Direct from VW_FACT_DANONE_IBP.ETIQUETA"
+    unit: "Text"
+    owner: "S&OP / Demand Planning"
+    datasets: ["DATA_DANONE_IBP"]
+    is_business_key: true
+    dimension: DIM_PLANNING
+
+  - column_name: NOMBRE_ETIQUETA
+    business_name: Label Name (IBP)
+    definition: "Human-readable name for the IBP label. Maps to SCENARIO via CASE WHEN (REAL→ACTUAL, IBP→IBP_FORECAST, M%→ROLLING_FORECAST)."
+    calculation_logic: "Direct from VW_FACT_DANONE_IBP.NOMBRE_ETIQUETA"
+    unit: "Text"
+    owner: "S&OP / Demand Planning"
+    datasets: ["DATA_DANONE_IBP"]
+    is_business_key: false
+    dimension: DIM_PLANNING
+
+  - column_name: GRAN_CANAL
+    business_name: Grand Channel (IBP)
+    definition: "High-level channel grouping in IBP (e.g., 'AUTOSERVICIOS', 'TRADICIONAL'). Higher-level than CANAL."
+    calculation_logic: "Direct from VW_FACT_DANONE_IBP.GRAN_CANAL"
+    unit: "Text"
+    owner: "S&OP / Commercial"
+    datasets: ["DATA_DANONE_IBP"]
+    is_business_key: false
+    dimension: DIM_CHANNEL
+
+  - column_name: MERCADO
+    business_name: Market (IBP)
+    definition: "Market segment in IBP planning (e.g., 'YOGHURT', 'WATER', 'PLANT BASED'). Aligns with CBU structure."
+    calculation_logic: "Direct from VW_FACT_DANONE_IBP.MERCADO"
+    unit: "Text"
+    owner: "S&OP / Demand Planning"
+    datasets: ["DATA_DANONE_IBP"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  - column_name: VALOR
+    business_name: Planning Value (IBP)
+    definition: "The numeric value associated with the IBP record. Business confirmed this represents monetary amount (Q1). Aliased as IBP_AMOUNT in semantic layout."
+    calculation_logic: "Direct from VW_FACT_DANONE_IBP.VALOR — type NUMBER(18,6). Aliased as IBP_AMOUNT."
+    unit: "MXN"
+    owner: "S&OP / Demand Planning"
+    datasets: ["DATA_DANONE_IBP"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: IBP_AMOUNT
+    business_name: IBP Forecast/Planning Amount
+    definition: "Monetary forecast/planning value from IBP system. Aliased from VW_FACT_DANONE_IBP.VALOR. Business confirmed this represents monetary amount, not volume or units (Q1)."
+    calculation_logic: "t.VALOR AS IBP_AMOUNT — source type NUMBER(18,6)"
+    unit: "MXN"
+    owner: "Demand Planning / Finance"
+    datasets: ["DATA_DANONE_IBP"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: FORMATO
+    business_name: Format
+    definition: >
+      Product format (e.g., 'INDIVIDUAL', 'MULTIPACK', 'FAMILIAR').
+      Used in IBP and WASTE sources. In WASTE context refers to the
+      store/distribution format.
+    calculation_logic: "Direct from source table"
+    unit: "Text"
+    owner: "Category Management / Supply Chain"
+    datasets: ["DATA_DANONE_IBP", "DATA_WASTE"]
+    is_business_key: false
+    dimension: DIM_PRODUCT
+
+  # ── SELL_IN Derived ─────────────────────────────────────────────────────
+  - column_name: VOLUMEN
+    business_name: Sales Volume (Sell-In)
+    definition: >
+      Aggregated sell-in volume. NOT homologated across CBUs:
+      WATERS = SUM(LITER) in liters; EDP = SUM(BIL_NET_KGR/1000) in metric tons.
+      For cross-CBU comparison, use homologize_volume.py → VOLUMEN_HOMOLOGATED_KG.
+    calculation_logic: "SUM(LITER) for WATERS CBU, SUM(BIL_NET_KGR / 1000) for EDP CBU"
+    unit: "Liters (WATERS) / Metric Tons (EDP)"
+    owner: "Commercial Operations"
+    datasets: ["SELL_IN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: VALOR
+    business_name: Sales Value (Sell-In)
+    definition: "Total sell-in monetary value (invoiced amount). SUM(BIL_INV) from VW_FACT_RNV."
+    calculation_logic: "SUM(BIL_INV) — source type NUMBER(20,4)"
+    unit: "MXN"
+    owner: "Commercial Operations / Finance"
+    datasets: ["SELL_IN"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: CBU
+    business_name: Consumer Business Unit
+    definition: "Danone CBU code from the billing fact table (e.g., 'EDP', 'WATERS'). Determines which volume formula to apply."
+    calculation_logic: "Direct from VW_FACT_RNV.CBU — type TEXT(10)"
+    unit: "Code"
+    owner: "Commercial Operations"
+    datasets: ["SELL_IN"]
+    is_business_key: true
+    dimension: DIM_PRODUCT
+
+  - column_name: CEDIS_DSC
+    business_name: Distribution Center Description
+    definition: "Name of the Danone distribution center (CEDIS). Aliased from V_D_CLIENT.CUS_SAL_PLT_DSC."
+    calculation_logic: "c.CUS_SAL_PLT_DSC AS CEDIS_DSC"
+    unit: "Text"
+    owner: "Supply Chain / Logistics"
+    datasets: ["SELL_IN"]
+    is_business_key: false
+    dimension: DIM_GEOGRAPHY
+
+  - column_name: ID_CEDIS
+    business_name: Distribution Center ID
+    definition: "Code of the Danone distribution center. Aliased from V_D_CLIENT.CUS_SAL_PLT_COD."
+    calculation_logic: "c.CUS_SAL_PLT_COD AS ID_CEDIS"
+    unit: "Code"
+    owner: "Supply Chain / Logistics"
+    datasets: ["SELL_IN"]
+    is_business_key: true
+    dimension: DIM_GEOGRAPHY
+
+  - column_name: CLIENTE
+    business_name: Customer Name (Sell-In)
+    definition: "Customer name derived from VW_D_CUSTOMER_DICTONARY or V_D_CLIENT. Used for Sell-In analysis by customer."
+    calculation_logic: "IFNULL(DC1.NEW_CUS_IDT, ...) — complex customer mapping logic"
+    unit: "Text"
+    owner: "Commercial Operations"
+    datasets: ["SELL_IN"]
+    is_business_key: false
+    dimension: DIM_CUSTOMER
+
+  - column_name: CLIENTE_ID
+    business_name: Customer ID (Sell-In)
+    definition: "Composite customer identifier created by prefixing SHP_CUS_IDT with CBU code ('0068' for WATERS, '0049' for EDP)."
+    calculation_logic: "CONCAT('0068'/'0049', IFNULL(DC1.NEW_CUS_IDT, SHP_CUS_IDT))"
+    unit: "Code"
+    owner: "Commercial Operations"
+    datasets: ["SELL_IN"]
+    is_business_key: true
+    dimension: DIM_CUSTOMER
+
+  - column_name: CLUSTER
+    business_name: Customer Cluster
+    definition: "Customer proximity classification. Aliased from V_D_CLIENT.PXY_CAT_1ST_DSC."
+    calculation_logic: "c.PXY_CAT_1ST_DSC AS CLUSTER"
+    unit: "Text"
+    owner: "Commercial Operations"
+    datasets: ["SELL_IN"]
+    is_business_key: false
+    dimension: DIM_CUSTOMER
+
+  - column_name: REGION
+    business_name: Sales Region
+    definition: "Geographic sales region. Aliased from V_D_CLIENT.CUS_SAL_RGN_DSC_EXT."
+    calculation_logic: "c.CUS_SAL_RGN_DSC_EXT AS REGION"
+    unit: "Text"
+    owner: "Commercial Operations"
+    datasets: ["SELL_IN"]
+    is_business_key: false
+    dimension: DIM_GEOGRAPHY
+
+  # ── SELL_OUT Derived ────────────────────────────────────────────────────
+  - column_name: FORMATO_CADENA
+    business_name: Store Format
+    definition: "Retail store format (e.g., 'HIPERMERCADO', 'SUPERMERCADO', 'EXPRESS'). Aliased from VW_D_STORE_RM.FORMAT."
+    calculation_logic: "st.FORMAT AS FORMATO_CADENA — source type TEXT(46)"
+    unit: "Text"
+    owner: "Commercial Operations / Trade Marketing"
+    datasets: ["SELL_OUT"]
+    is_business_key: false
+    dimension: DIM_CUSTOMER
+
+  - column_name: STORE_ID
+    business_name: Store Identifier
+    definition: "Unique numeric store identifier from VW_FACT_SELL_OUT.STORE. Join key to VW_D_STORE_RM.INT_ID. Added per Q9 grain change to support store-level analysis."
+    calculation_logic: "f.STORE AS STORE_ID — source type NUMBER(38,0)"
+    unit: "ID"
+    owner: "Commercial Operations / Trade Marketing"
+    datasets: ["SELL_OUT"]
+    is_business_key: true
+    dimension: DIM_CUSTOMER
+  - column_name: AMOUNT_SELL_OUT
+    business_name: Sell-Out Sales Amount
+    definition: "Total monetary sell-out value at POS level. SUM(AMOUNT_SELL_OUT) from VW_FACT_SELL_OUT."
+    calculation_logic: "SUM(f.AMOUNT_SELL_OUT) — type NUMBER(18,6)"
+    unit: "MXN"
+    owner: "Commercial Operations"
+    datasets: ["SELL_OUT"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: VOL_INV
+    business_name: Inventory Volume (Sell-Out)
+    definition: "Volume of inventory at POS level (from RealMetrics). SUM(VOL_INV) from VW_FACT_SELL_OUT."
+    calculation_logic: "SUM(f.VOL_INV) — type NUMBER(18,6)"
+    unit: "Liters"
+    owner: "Supply Chain / Commercial Operations"
+    datasets: ["SELL_OUT"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: PCS_INV
+    business_name: Inventory Pieces (Sell-Out)
+    definition: "Pieces of inventory at POS level (from RealMetrics). SUM(PCS_INV) from VW_FACT_SELL_OUT."
+    calculation_logic: "SUM(f.PCS_INV) — type NUMBER(18,6)"
+    unit: "Pieces"
+    owner: "Supply Chain / Commercial Operations"
+    datasets: ["SELL_OUT"]
+    is_business_key: false
+    dimension: null
+
+  # ── WASTE Derived ───────────────────────────────────────────────────────
+  - column_name: WASTE_AMOUNT
+    business_name: Waste Amount (MXN)
+    definition: "Monetary value of wasted product. Aliased from VW_WASTE.\"Waste ($)\" (quoted Snowflake column)."
+    calculation_logic: "\"Waste ($)\" AS WASTE_AMOUNT — source type FLOAT"
+    unit: "MXN"
+    owner: "Supply Chain / Sustainability"
+    datasets: ["DATA_WASTE"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: WASTE_KG
+    business_name: Waste Volume (KG)
+    definition: "Weight of wasted product in kilograms. Aliased from VW_WASTE.\"Waste (KG)\" (quoted Snowflake column)."
+    calculation_logic: "\"Waste (KG)\" AS WASTE_KG — source type FLOAT"
+    unit: "KG"
+    owner: "Supply Chain / Sustainability"
+    datasets: ["DATA_WASTE"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: FUENTE
+    business_name: Data Source (Waste)
+    definition: "Source identifier for waste data (e.g., 'DANONE', 'EXTERNO'). Direct from VW_WASTE.FUENTE."
+    calculation_logic: "Direct from VW_WASTE.FUENTE — type TEXT(10)"
+    unit: "Text"
+    owner: "Supply Chain"
+    datasets: ["DATA_WASTE"]
+    is_business_key: false
+    dimension: null
+
+  # ── Marketing (MKT_OFF / MKT_ON) ───────────────────────────────────────
+  - column_name: SOPORTE_PLATAFORMA
+    business_name: Media Platform/Support
+    definition: "Media platform or support type (e.g., 'FACEBOOK', 'TELEVISION', 'YOUTUBE'). Used in both offline and online investment tracking."
+    calculation_logic: "Direct from source table"
+    unit: "Text"
+    owner: "Marketing / Media"
+    datasets: ["DATA_MKT_OFF", "DATA_MKT_ON"]
+    is_business_key: false
+    dimension: DIM_MEDIA
+
+  - column_name: CLASE
+    business_name: Media Class (Offline)
+    definition: "Media class for offline campaigns (e.g., 'TELEVISION ABIERTA', 'TELEVISION DE PAGA'). Only in offline investment data."
+    calculation_logic: "Direct from FACT_MEDIA_OFF.CLASE"
+    unit: "Text"
+    owner: "Marketing / Media"
+    datasets: ["DATA_MKT_OFF"]
+    is_business_key: false
+    dimension: DIM_MEDIA
+
+  - column_name: IMPACTOS_HT
+    business_name: Home Impacts (Offline)
+    definition: "Number of household impacts (viewership-weighted impressions) for offline media campaigns."
+    calculation_logic: "Direct from FACT_MEDIA_OFF.IMPACTOS_HT — type FLOAT"
+    unit: "Impacts"
+    owner: "Marketing / Media"
+    datasets: ["DATA_MKT_OFF"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: IMPRESIONES
+    business_name: Impressions (Online)
+    definition: "Number of digital ad impressions served for online campaigns."
+    calculation_logic: "Direct from VW_MKT_ECOMM.IMPRESIONES — type FLOAT"
+    unit: "Impressions"
+    owner: "Marketing / Digital"
+    datasets: ["DATA_MKT_ON"]
+    is_business_key: false
+    dimension: null
+
+  - column_name: CLICS
+    business_name: Clicks (Online)
+    definition: "Number of clicks on digital ads for online campaigns."
+    calculation_logic: "Direct from VW_MKT_ECOMM.CLICS — type FLOAT"
+    unit: "Clicks"
+    owner: "Marketing / Digital"
+    datasets: ["DATA_MKT_ON"]
+    is_business_key: false
+    dimension: null
+
+  # ── Phase C — MARCA Standardization ───────────────────────────────────────
+  - column_name: MARCA_STD
+    business_name: Brand (Standardized)
+    definition: >
+      Canonical brand name derived from MARCA via a CASE WHEN crosswalk.
+      Resolves all source-specific naming variants (e.g., DANUP / DAN UP / DAN'UP → DANUP;
+      TE BONAFONT / TÉ BONAFONT / BONAFONT TE → BONAFONT TE).
+      Keeps both MARCA (raw) and MARCA_STD (canonical) in all layouts so raw traceability
+      is preserved. Special values: _MERCHANDISE (SELL_IN non-product SKUs),
+      _UNKNOWN (WASTE anomaly rows), _MULTIBRAND (multi-brand campaign rows).
+      Nielsen layouts are EXCLUDED until V9 brand values are confirmed.
+    calculation_logic: >
+      CASE WHEN TRIM(UPPER(MARCA)) IN (...variants...) THEN 'CANONICAL_NAME'
+      ELSE TRIM(UPPER(MARCA)) END
+      Generated from configs/brand_crosswalk.yaml via scripts/generate_marca_std.py.
+    unit: "Categorical"
+    owner: "Commercial Intelligence / Data Engineering"
+    datasets: ["DATA_SELL_OUT", "DATA_SELL_IN", "DATA_DANONE_IBP",
+               "DATA_MKT_ON", "DATA_MKT_OFF", "DATA_WASTE"]
+    is_business_key: true
+    dimension: "Brand"

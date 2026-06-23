@@ -83,6 +83,43 @@ investment_efficiency:
     - "is_holiday"
     - "sell_out_lag_4w"
 
+  # Semantic metadata for features (auto-enriched from semantic_registry + column_name_mapping)
+  feature_semantic_metadata:
+    hill_transformed_investment:
+      semantic_ref: INVERSION_REAL
+      column_type: FLOAT
+      source_key: DATA_MKT_ON, DATA_MKT_OFF
+      note: "After adstock + Hill transform"
+    promotion_active:
+      semantic_ref: DESCUENTO_PCT
+      column_type: UNKNOWN
+      source_key: DATA_PROMO
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_PROMO does not have a confirmed semantic layout or Snowflake source mapping."
+      note: "Binary flag derived from promo data"
+    price_index_vs_category:
+      semantic_ref: PRECIO
+      column_type: UNKNOWN
+      source_key: DATA_PRICE, DATA_NIELSEN
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_PRICE does not have a confirmed semantic layout or Snowflake source mapping."
+    nielsen_weighted_distribution:
+      semantic_ref: DIST_POND_REACH
+      column_type: NUMBER(38,9)
+      source_key: DATA_EDP_YOG_GEL_RETAIL_SCANTRACK_NIELSEN
+    is_holiday:
+      semantic_ref: IS_FISCAL
+      column_type: UNKNOWN
+      source_key: DATA_CALENDAR
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_CALENDAR does not have a confirmed semantic layout or Snowflake source mapping."
+      note: "Derived from calendar table"
+    sell_out_lag_4w:
+      semantic_ref: VOL_SELL_OUT
+      column_type: NUMBER(18,6)
+      source_key: SELL_OUT
+      note: "4-week lag of VOL_SELL_OUT"
+
   winsorize_investment_percentile: 0.99   # Before adstock transformation
   min_months_history: 12
   attribution_scope: "measured_investment_only"  # Document in every dashboard tooltip
@@ -118,6 +155,35 @@ competitive_risk:
     weighted_distribution_change_13w: 0.15
     share_yoy_change_pp: 0.10
 
+  # Semantic metadata for score components (auto-enriched from semantic_registry + column_name_mapping)
+  score_semantic_metadata:
+    share_loss_rate_13w:
+      semantic_ref: MARKET_SHARE
+      column_type: UNKNOWN
+      source_key: DATA_NIELSEN
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_NIELSEN does not have a confirmed semantic layout or Snowflake source mapping."
+    price_gap_widening:
+      semantic_ref: PRECIO
+      column_type: UNKNOWN
+      source_key: DATA_PRICE
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_PRICE does not have a confirmed semantic layout or Snowflake source mapping."
+    numeric_distribution_change_13w:
+      semantic_ref: DIST_NUM
+      column_type: NUMBER(38,9)
+      source_key: DATA_NIELSEN
+    weighted_distribution_change_13w:
+      semantic_ref: DIST_POND_REACH
+      column_type: NUMBER(38,9)
+      source_key: DATA_NIELSEN
+    share_yoy_change_pp:
+      semantic_ref: MARKET_SHARE
+      column_type: UNKNOWN
+      source_key: DATA_NIELSEN
+      status: blocked_pending_registry
+      reason: "Referenced source DATA_NIELSEN does not have a confirmed semantic layout or Snowflake source mapping."
+
   # Alert thresholds
   alert_threshold_score: 70
   alert_consecutive_periods: 2
@@ -139,6 +205,24 @@ recommendation_engine:
   gqs_input_field: "gqs_score_4w_avg"   # 4-week rolling average — never raw weekly GQS
   min_weeks_history: 4
   required_kpis: ["gqs_score_4w_avg", "waste_risk_category", "waste_adjusted_roi"]
+
+  # Semantic metadata for required KPIs (auto-enriched from semantic_registry + column_name_mapping)
+  kpi_semantic_metadata:
+    gqs_score_4w_avg:
+      semantic_ref: null
+      column_type: DERIVED
+      source_key: null
+      note: "Composite GQS score — 4-week rolling average computed in Gold layer"
+    waste_risk_category:
+      semantic_ref: null
+      column_type: DERIVED
+      source_key: null
+      note: "Categorical output from waste_risk model (low/medium/high)"
+    waste_adjusted_roi:
+      semantic_ref: null
+      column_type: DERIVED
+      source_key: null
+      note: "ROI adjusted for waste — computed from INVERSION_REAL and WASTE_AMOUNT"
 
   output_fields:
     - primary_action        # INCREASE | MAINTAIN | OPTIMIZE | REDUCE | WATCH

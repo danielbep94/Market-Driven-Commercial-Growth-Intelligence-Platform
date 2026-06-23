@@ -1,0 +1,485 @@
+"DATA_WATER_SCANTRACK_NIELSEN": {
+    "db": "PRD_MEX",
+    "schema": "MEX_DSP_DPH_MKT",
+    "notes": "Monthly Waters Scantrack semantic layer. Uses a hardcoded FECHA_FIN mapping table and includes descriptive constant ITM_UNIF_SUBSEG_DAN_1 = 'TOTAL WATERS'.",
+    "sql": """
+        WITH CTE_FECHA_FIN AS (
+
+            SELECT
+                INDEX,
+                TO_DATE(
+                    TRIM(REPLACE(REPLACE(VALUE, CHR(10), ''), CHR(13), '')),
+                    'YYYY-MM-DD'
+                ) AS FECHA_FIN
+            FROM LATERAL SPLIT_TO_TABLE(
+                '2024-01-07,2024-01-14,2024-01-21,2024-01-28,2024-02-04,2024-02-11,2024-02-18,2024-02-25,2024-03-03,2024-03-10,2024-03-17,2024-03-24,2024-03-31,2024-04-07,2024-04-14,2024-04-21,2024-04-28,2024-05-05,2024-05-12,2024-05-19,2024-05-26,2024-06-02,2024-06-09,2024-06-16,2024-06-23,2024-06-30,2024-07-07,2024-07-14,2024-07-21,2024-07-28,2024-08-04,2024-08-11,2024-08-18,2024-08-25,2024-09-01,2024-09-08,2024-09-15,2024-09-22,2024-09-29,2024-10-06,2024-10-13,2024-10-20,2024-10-27,2024-11-03,2024-11-10,2024-11-17,2024-11-24,2024-12-01,2024-12-08,2024-12-15,2024-12-22,2024-12-29,2025-01-05,2025-01-12,2025-01-19,2025-01-26,2025-02-02,2025-02-09,2025-02-16,2025-02-23,2025-03-02,2025-03-09,2025-03-16,2025-03-23,2025-03-30,2025-04-06,2025-04-13,2025-04-20,2025-04-27,2025-05-04,2025-05-11,2025-05-18,2025-05-25,2025-06-01,2025-06-08,2025-06-15,2025-06-22,2025-06-29,2025-07-06,2025-07-13,2025-07-20,2025-07-27,2025-08-03,2025-08-10,2025-08-17,2025-08-24,2025-08-31,2025-09-07,2025-09-14,2025-09-21,2025-09-28,2025-10-05,2025-10-12,2025-10-19,2025-10-26,2025-11-02,2025-11-09,2025-11-16,2025-11-23,2025-11-30,2025-12-07,2025-12-14,2025-12-21,2025-12-28,2026-01-04,2026-01-11,2026-01-18,2026-01-25,2026-02-01,2026-02-08,2026-02-15,2026-02-22,2026-03-01,2026-03-08,2026-03-15,2026-03-22,2026-03-29,2026-04-05,2026-04-12,2026-04-19,2026-04-26,2026-05-03,2026-05-10,2026-05-17,2026-05-24,2026-05-31,2026-06-07,2026-06-14,2026-06-21,2026-06-28,2026-07-05,2026-07-12,2026-07-19,2026-07-26,2026-08-02,2026-08-09,2026-08-16,2026-08-23,2026-08-30,2026-09-06,2026-09-13,2026-09-20,2026-09-27,2026-10-04,2026-10-11,2026-10-18,2026-10-25,2026-11-01,2026-11-08,2026-11-15,2026-11-22,2026-11-29,2026-12-06,2026-12-13,2026-12-20,2026-12-27',
+                ','
+            )
+
+        ),
+
+        CTE_PERIOD AS (
+
+            SELECT
+                FECHA_FIN,
+                DATE_TRUNC('MONTH', FECHA_FIN)::DATE AS FECHA
+            FROM CTE_FECHA_FIN
+
+        ),
+
+        BASE_DATA AS (
+
+            SELECT 
+                PR.FECHA AS PER_DATE,
+
+                TRIM(A."CSTM_421268") AS ITM_SEGMENT_2,
+                TRIM(A."CSTM_310589") AS ITM_UNIF_BRAND,
+                TRIM(A."CSTM_972397") AS ITM_UNIF_SUBBRND,
+
+                D."fact_description" AS FACT_SHORT_DSC,
+                K."MRKT_DSC_SHRT"    AS MKT_SHORT_DSC,
+                J."FACT_VALUE"       AS FACT_VALUE,
+
+                'TOTAL WATERS' AS ITM_UNIF_SUBSEG_DAN_1,
+
+                CASE
+                    WHEN TRIM(A."CSTM_421268") IN ('BEBIDAS REFRESCANTES', 'AGUA SABORIZADA') THEN 'SABOR'
+                    WHEN TRIM(A."CSTM_421268") = 'AGUA NATURAL' THEN 'NATURAL'
+                    ELSE TRIM(A."CSTM_421268")
+                END AS SEGMENTO_LOCAL,
+
+                CASE
+                    WHEN TRIM(A."CSTM_972397") IN ('JUIZZY', 'AGUAS FRESCAS', 'JUIZZY + AGUAS FRESCAS') THEN 'ADULTO'
+
+                    WHEN TRIM(A."CSTM_321331") = 'QUALAMEX' THEN 'ADULTO'
+
+                    WHEN TRIM(A."CSTM_421268") = 'AGUA NATURAL'
+                         AND TRIM(A."CSTM_940056") = '0-350'
+                         AND TRIM(A."CSTM_310589") = 'PUREZA VITAL'
+                    THEN 'KIDS'
+
+                    WHEN TRIM(A."CSTM_421268") = 'AGUA NATURAL'
+                         AND TRIM(A."CSTM_310589") = 'E-PURITA'
+                    THEN 'KIDS'
+
+                    WHEN TRIM(A."CSTM_421268") = 'AGUA NATURAL'
+                         AND TRIM(A."CSTM_940056") = '0-350'
+                         AND TRIM(A."CSTM_310589") = 'CIEL'
+                    THEN 'KIDS'
+
+                    WHEN TRIM(A."CSTM_421268") = 'AGUA NATURAL'
+                         AND TRIM(A."CSTM_310589") = 'BONAFONT'
+                         AND TRIM(A."CSTM_972397") = 'KIDS'
+                    THEN 'KIDS'
+
+                    WHEN TRIM(A."CSTM_421268") IN ('BEBIDAS REFRESCANTES', 'AGUA SABORIZADA')
+                         AND TRIM(A."CSTM_310589") = 'BONAFONT'
+                         AND TRIM(A."CSTM_972397") = 'KIDS'
+                    THEN 'KIDS'
+
+                    WHEN TRIM(A."CSTM_421268") = 'BEBIDAS REFRESCANTES'
+                         AND TRIM(A."CSTM_940056") = '0-350'
+                         AND TRIM(A."CSTM_384949") <> 'PERSONAL/LATA'
+                    THEN 'KIDS'
+
+                    WHEN TRIM(A."CSTM_421268") IN ('BEBIDAS REFRESCANTES', 'AGUA SABORIZADA')
+                         AND TRY_TO_NUMBER(A."INP_57051") BETWEEN 0 AND 15000
+                    THEN 'ADULTO'
+
+                    WHEN TRIM(A."CSTM_421268") = 'AGUA NATURAL'
+                         AND TRY_TO_NUMBER(A."INP_57051") BETWEEN 0 AND 10999
+                    THEN 'ADULTO'
+
+                    WHEN TRIM(A."CSTM_421268") = 'AGUA NATURAL'
+                         AND TRY_TO_NUMBER(A."INP_57051") BETWEEN 11000 AND 30000
+                    THEN 'GARRAFON'
+
+                    ELSE TRIM(A."CSTM_421268")
+                END AS PRESENTACION_LOCAL,
+
+                CASE
+                    WHEN TRIM(A."CSTM_321331") IN ('IND. REFRESQUERA PENINSULAR', 'COCA-COLA COMPANY') THEN 'COCA-COLA'
+                    WHEN TRIM(A."CSTM_321331") IN ('GRUPO GEPP', 'PEPSICO') THEN 'PEPSI'
+                    WHEN TRIM(A."CSTM_321331") = 'O.FAB.' THEN 'OTHERS'
+                    WHEN TRIM(A."CSTM_310589") = 'JUMEX FRESH' THEN 'PEPSI'
+                    WHEN TRIM(A."CSTM_321331") = 'LALA PRODS. LACTEOS' THEN 'LALA'
+                    WHEN TRIM(A."CSTM_321331") = 'GRUPO PENAFIEL' THEN 'PEÑAFIEL'
+                    WHEN TRIM(A."CSTM_321331") = 'FRESKITO'
+                         AND TRIM(A."CSTM_310589") = 'VIKA 8.5'
+                    THEN 'VIKA 8.5'
+                    ELSE TRIM(A."CSTM_321331")
+                END AS ITM_UNIF_MANUF_DAN,
+
+                CASE
+                    WHEN TRIM(A."CSTM_321331") = 'FIJI' THEN 'FIJI'
+                    WHEN TRIM(A."CSTM_310589") = 'OTHERS MARCA' THEN 'OTHER BRANDS'
+                    WHEN TRIM(A."CSTM_310589") = 'STA. MARIA -NESTLE' THEN 'SANTA MARIA (NESTLE)'
+                    WHEN TRIM(A."CSTM_972397") = 'JUIZZY + AGUAS FRESCAS' THEN 'JUIZZY + AGUAS FRESCAS'
+
+                    WHEN TRIM(A."CSTM_972397") IN (
+                        'LEVITE CLASICA',
+                        'LEVITE INFUSIONES',
+                        'LEVITE CERO',
+                        'LEVITE BALANCE'
+                    )
+                    THEN 'LEVITE'
+
+                    WHEN TRIM(A."CSTM_310589") = 'BONAFONT'
+                         AND TRIM(A."CSTM_972397") = 'KIDS'
+                    THEN 'BONAFONT KIDS'
+
+                    WHEN TRIM(A."CSTM_310589") = 'BONAFONT'
+                         AND TRIM(A."CSTM_972397") = 'AGUAS FRESCAS'
+                    THEN 'BONAFONT AGUA FRESCAS'
+
+                    WHEN TRIM(A."CSTM_310589") = 'JUMEX'
+                         AND TRIM(A."CSTM_972397") = 'AMI'
+                    THEN 'AMI'
+
+                    WHEN TRIM(A."CSTM_310589") = 'JUMEX'
+                         AND TRIM(A."CSTM_972397") = 'BIDA'
+                    THEN 'BIDA'
+
+                    WHEN TRIM(A."CSTM_310589") = 'JUMEX'
+                         AND TRIM(A."CSTM_972397") = 'PAU-PAU'
+                    THEN 'PAU-PAU'
+
+                    WHEN TRIM(A."CSTM_310589") = 'JUMEX'
+                         AND TRIM(A."CSTM_972397") = 'CAPRI SUN'
+                    THEN 'CAPRISUN'
+
+                    WHEN TRIM(A."CSTM_310589") = 'JUMEX'
+                         AND TRIM(A."CSTM_972397") = 'JUMEX MIA'
+                    THEN 'MIA'
+
+                    WHEN TRIM(A."CSTM_310589") = 'BIG AQUA VITAL' THEN 'BIG AQUA'
+
+                    WHEN TRIM(A."CSTM_310589") = 'QUALAMEX'
+                         AND TRY_TO_NUMBER(A."INP_57051") = 320
+                    THEN 'VITALOE'
+
+                    WHEN TRIM(A."CSTM_310589") = 'QUALAMEX'
+                         AND TRY_TO_NUMBER(A."INP_57051") = 500
+                    THEN 'ALOEYA'
+
+                    ELSE TRIM(A."CSTM_310589")
+                END AS ITM_UNIF_BRND_DAN,
+
+                CASE
+                    WHEN TRIM(A."CSTM_972397") = 'LEVITE CLASICA' THEN 'CLASICA'
+                    WHEN TRIM(A."CSTM_972397") = 'LEVITE INFUSIONES' THEN 'INFUSIONES'
+                    WHEN TRIM(A."CSTM_972397") = 'LEVITE CERO' THEN 'CERO'
+                    WHEN TRIM(A."CSTM_972397") = 'LEVITE BALANCE' THEN 'BALANCE'
+                    ELSE TRIM(A."CSTM_972397")
+                END AS ITM_UNIF_SUBBRND_DAN,
+
+                CASE
+                    WHEN TRIM(A."CSTM_421268") = 'AGUA NATURAL'
+                         AND TRIM(A."CSTM_310589") IN (
+                            'BAVIEN',
+                            'ENERGIE',
+                            'VIKA 8.5',
+                            'GYM WATER',
+                            'NIVALIV',
+                            'AWA',
+                            'ZOE',
+                            'INFINIT',
+                            'VEEN'
+                         )
+                    THEN 'ALCALINA'
+
+                    WHEN TRIM(A."CSTM_421268") = 'AGUA NATURAL'
+                         AND TRIM(A."CSTM_310589") IN ('GLACEAU', 'EVIAN', 'FIJI')
+                    THEN 'PREMIUM'
+
+                    ELSE 'REGULAR'
+                END AS TIPO,
+
+                CASE
+                    WHEN TRIM(A."CSTM_421268") IN ('AGUA NATURAL', 'BEBIDAS REFRESCANTES', 'AGUA SABORIZADA')
+                         AND TRIM(A."CSTM_384949") NOT IN ('GARRAFON/BOTELLA', 'GARRAFON/GARRAFON')
+                    THEN 'ONE WAY'
+
+                    WHEN TRIM(A."CSTM_421268") <> 'JUGOS' THEN 'JUGS'
+
+                    ELSE TRIM(A."CSTM_421268")
+                END AS ITM_UNIF_SUBSEG_DAN_2,
+
+                CASE
+                    WHEN TRIM(A."CSTM_940056") <> ''
+                         AND TRIM(A."CSTM_421268") IN ('BEBIDAS REFRESCANTES', 'AGUA SABORIZADA')
+                    THEN 'AQUADRINKS'
+
+                    WHEN TRIM(A."CSTM_421268") = 'AGUA NATURAL'
+                         AND TRIM(A."CSTM_384949") NOT IN ('GARRAFON/BOTELLA', 'GARRAFON/GARRAFON')
+                    THEN 'NATURAL PET'
+
+                    WHEN TRIM(A."CSTM_384949") IN ('GARRAFON/BOTELLA', 'GARRAFON/GARRAFON')
+                    THEN 'JUGS'
+
+                    ELSE TRIM(A."CSTM_421268")
+                END AS ITM_UNIF_SUBSEG_DAN_3
+
+            FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT AS J
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM AS K
+                ON J."market_id" = K."market_id"
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PER_DIM AS L
+                ON L."period_id" = J."period_id"
+
+            JOIN CTE_PERIOD AS PR
+                ON TO_DATE(L."period_ending_datetime") = PR.FECHA_FIN
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_FACT_REF AS D
+                ON J.FACT_COLUMN = D."fact_column"
+
+            JOIN PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM AS A
+                ON J."product_id" = A."product_id"
+
+            WHERE J."FACT_COLUMN" IN (
+                'U',
+                'AP_U',
+                'E',
+                'AP_E',
+                'DOL',
+                'AP_DOL',
+                'NUM_DIST',
+                'DOL_CCV_TDP_NON_REACH_CONTEXT',
+                'DOL_CCV_NON_REACH_CONTEXT',
+                'AP_NUM_DIST',
+                'AP_DOL_SGV_NON_REACH_CONTEXT'
+            )
+            AND YEAR(TO_DATE(L."period_ending_datetime")) >= 2024
+            AND A."hierarchy_level" = '9'
+
+        ),
+
+        ENRICHED_DATA AS (
+
+            SELECT
+                PER_DATE,
+                ITM_SEGMENT_2,
+                ITM_UNIF_BRAND,
+                ITM_UNIF_SUBBRND,
+                FACT_SHORT_DSC,
+                MKT_SHORT_DSC,
+                FACT_VALUE,
+                ITM_UNIF_SUBSEG_DAN_1,
+                SEGMENTO_LOCAL,
+                PRESENTACION_LOCAL,
+                ITM_UNIF_MANUF_DAN,
+                ITM_UNIF_BRND_DAN,
+                ITM_UNIF_SUBBRND_DAN,
+                TIPO,
+                ITM_UNIF_SUBSEG_DAN_2,
+                ITM_UNIF_SUBSEG_DAN_3,
+
+                CASE
+                    WHEN SEGMENTO_LOCAL = 'NATURAL'
+                         AND PRESENTACION_LOCAL = 'ADULTO'
+                    THEN 'NATURAL CORE'
+
+                    WHEN SEGMENTO_LOCAL = 'NATURAL'
+                         AND PRESENTACION_LOCAL = 'KIDS'
+                    THEN 'NATURAL KIDS'
+
+                    WHEN SEGMENTO_LOCAL = 'NATURAL'
+                         AND PRESENTACION_LOCAL = 'GARRAFON'
+                    THEN 'JUGS'
+
+                    WHEN SEGMENTO_LOCAL = 'SABOR'
+                         AND PRESENTACION_LOCAL = 'ADULTO'
+                    THEN 'AQUADRINKS CORE'
+
+                    WHEN SEGMENTO_LOCAL = 'SABOR'
+                         AND PRESENTACION_LOCAL = 'KIDS'
+                    THEN 'KIDS SABOR'
+
+                    ELSE SEGMENTO_LOCAL
+                END AS ITM_UNIF_SUBSEG_DAN_4
+
+            FROM BASE_DATA
+
+        ),
+
+        FINAL_DATA AS (
+
+            SELECT
+                PER_DATE,
+                ITM_SEGMENT_2,
+                ITM_UNIF_BRAND,
+                ITM_UNIF_SUBBRND,
+                FACT_SHORT_DSC,
+                MKT_SHORT_DSC,
+                FACT_VALUE,
+                ITM_UNIF_SUBSEG_DAN_1,
+                SEGMENTO_LOCAL,
+                PRESENTACION_LOCAL,
+                ITM_UNIF_MANUF_DAN,
+                ITM_UNIF_BRND_DAN,
+
+                -- C.6: MARCA_STD — canonical brand for cross-source joins
+                -- Derived from ITM_UNIF_BRND_DAN (canonical Water Scantrack brand), confirmed V9C (140 brands)
+                CASE
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('BONAFONT', 'BONAFONT NATURAL',
+                                                             'WATER BONAFONT')                THEN 'BONAFONT'
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('BONAFONT KIDS')                 THEN 'BONAFONT KIDS'
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('BONAFONT AGUA FRESCAS',
+                                                             'AGUAS FRESCAS')                 THEN 'AGUAS FRESCAS'
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('LEVITE', 'BONAFONT_LEVITE',
+                                                             'BONAFONT LEVITE')               THEN 'LEVITE'
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('JUIZZY',
+                                                             'JUIZZY + AGUAS FRESCAS')        THEN 'JUIZZY'
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('LALA', 'LALA PRODS. LACTEOS')  THEN 'LALA'
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('COCA-COLA', 'COCACOLA')         THEN 'COCA-COLA'
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('PEPSI', 'PEPSICOLA')            THEN 'PEPSI'
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('PEÑAFIEL')                     THEN 'PEÑAFIEL'
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('OTHER BRANDS')                  THEN 'OTHER BRANDS'
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('MARCAS GENERICAS')              THEN 'MARCAS GENERICAS'
+                    WHEN TRIM(UPPER(ITM_UNIF_BRND_DAN)) IN ('SANTA MARIA (NESTLE)')          THEN 'SANTA MARIA (NESTLE)'
+                    ELSE TRIM(UPPER(ITM_UNIF_BRND_DAN))
+                END AS MARCA_STD,
+
+                ITM_UNIF_SUBBRND_DAN,
+                TIPO,
+                ITM_UNIF_SUBSEG_DAN_2,
+                ITM_UNIF_SUBSEG_DAN_3,
+                ITM_UNIF_SUBSEG_DAN_4,
+
+                CASE
+                    WHEN ITM_UNIF_SUBSEG_DAN_4 = 'NATURAL CORE' THEN 'NATURAL CORE'
+                    WHEN ITM_UNIF_SUBSEG_DAN_4 = 'NATURAL KIDS' THEN 'KIDS NATURAL'
+                    WHEN ITM_UNIF_SUBSEG_DAN_4 = 'JUGS' THEN 'JUGS'
+                    ELSE ITM_UNIF_SUBSEG_DAN_4
+                END AS ITM_UNIF_SUBSEG_DAN_5
+
+            FROM ENRICHED_DATA
+
+        )
+
+        SELECT 
+            PER_DATE,
+            ITM_SEGMENT_2,
+            ITM_UNIF_BRAND,
+            ITM_UNIF_SUBBRND,
+            MKT_SHORT_DSC,
+            ITM_UNIF_SUBSEG_DAN_1,
+            SEGMENTO_LOCAL,
+            PRESENTACION_LOCAL,
+            ITM_UNIF_MANUF_DAN,
+            ITM_UNIF_BRND_DAN,
+            MARCA_STD,
+            ITM_UNIF_SUBBRND_DAN,
+            TIPO,
+            ITM_UNIF_SUBSEG_DAN_2,
+            ITM_UNIF_SUBSEG_DAN_3,
+            ITM_UNIF_SUBSEG_DAN_4,
+            ITM_UNIF_SUBSEG_DAN_5,
+
+            SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Pond.' THEN FACT_VALUE ELSE 0 END) AS DIST_POND,
+            SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas Valor Cualquier Promo' THEN FACT_VALUE ELSE 0 END) AS VTAS_VALOR_CUALQUIER_PROMO,
+            SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas (LITRES) Cualquier Promo' THEN FACT_VALUE ELSE 0 END) AS VTAS_LITRES_CUALQUIER_PROMO,
+            SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Num.' THEN FACT_VALUE ELSE 0 END) AS DIST_NUM,
+            SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas Unds Cualquier Promo' THEN FACT_VALUE ELSE 0 END) AS VTAS_UNDS_CUALQUIER_PROMO,
+            SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas (LITRES)' THEN FACT_VALUE ELSE 0 END) AS VTAS_LITRES,
+            SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas Unds' THEN FACT_VALUE ELSE 0 END) AS VTAS_UNDS,
+            SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Pond. TDP' THEN FACT_VALUE ELSE 0 END) AS DIST_POND_TDP,
+            SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Num. Cualquier Promo' THEN FACT_VALUE ELSE 0 END) AS DIST_NUM_CUALQUIER_PROMO,
+            SUM(CASE WHEN FACT_SHORT_DSC = 'Dist. Pond. Cualquier Promo' THEN FACT_VALUE ELSE 0 END) AS DIST_POND_CUALQUIER_PROMO,
+            SUM(CASE WHEN FACT_SHORT_DSC = 'Vtas Valor' THEN FACT_VALUE ELSE 0 END) AS VTAS_VALOR
+
+        FROM FINAL_DATA
+
+        GROUP BY 
+            PER_DATE,
+            ITM_SEGMENT_2,
+            ITM_UNIF_BRAND,
+            ITM_UNIF_SUBBRND,
+            MKT_SHORT_DSC,
+            ITM_UNIF_SUBSEG_DAN_1,
+            SEGMENTO_LOCAL,
+            PRESENTACION_LOCAL,
+            ITM_UNIF_MANUF_DAN,
+            ITM_UNIF_BRND_DAN,
+            MARCA_STD,
+            ITM_UNIF_SUBBRND_DAN,
+            TIPO,
+            ITM_UNIF_SUBSEG_DAN_2,
+            ITM_UNIF_SUBSEG_DAN_3,
+            ITM_UNIF_SUBSEG_DAN_4,
+            ITM_UNIF_SUBSEG_DAN_5
+
+        ORDER BY
+            PER_DATE,
+            MKT_SHORT_DSC,
+            ITM_UNIF_BRAND,
+            ITM_UNIF_SUBBRND
+    """,
+    "grain_hint": "Granularidad mensual por PER_DATE, ITM_SEGMENT_2, ITM_UNIF_BRAND, ITM_UNIF_SUBBRND, MKT_SHORT_DSC, ITM_UNIF_SUBSEG_DAN_1, SEGMENTO_LOCAL, PRESENTACION_LOCAL, ITM_UNIF_MANUF_DAN, ITM_UNIF_BRND_DAN, MARCA_STD, ITM_UNIF_SUBBRND_DAN, TIPO, ITM_UNIF_SUBSEG_DAN_2, ITM_UNIF_SUBSEG_DAN_3, ITM_UNIF_SUBSEG_DAN_4, ITM_UNIF_SUBSEG_DAN_5",
+    "business_keys": [
+        "ITM_SEGMENT_2",
+        "ITM_UNIF_BRAND",
+        "ITM_UNIF_SUBBRND",
+        "MKT_SHORT_DSC",
+        "ITM_UNIF_SUBSEG_DAN_1",
+        "SEGMENTO_LOCAL",
+        "PRESENTACION_LOCAL",
+        "ITM_UNIF_MANUF_DAN",
+        "ITM_UNIF_BRND_DAN",
+        "MARCA_STD",
+        "ITM_UNIF_SUBBRND_DAN",
+        "TIPO",
+        "ITM_UNIF_SUBSEG_DAN_2",
+        "ITM_UNIF_SUBSEG_DAN_3",
+        "ITM_UNIF_SUBSEG_DAN_4",
+        "ITM_UNIF_SUBSEG_DAN_5"
+    ],
+    "date_col": "PER_DATE",
+    "date_format": "yyyy-MM-dd",
+    "date_requires_cast": False,
+    "grain_cols": [
+        "PER_DATE",
+        "ITM_SEGMENT_2",
+        "ITM_UNIF_BRAND",
+        "ITM_UNIF_SUBBRND",
+        "MKT_SHORT_DSC",
+        "ITM_UNIF_SUBSEG_DAN_1",
+        "SEGMENTO_LOCAL",
+        "PRESENTACION_LOCAL",
+        "ITM_UNIF_MANUF_DAN",
+        "ITM_UNIF_BRND_DAN",
+        "MARCA_STD",
+        "ITM_UNIF_SUBBRND_DAN",
+        "TIPO",
+        "ITM_UNIF_SUBSEG_DAN_2",
+        "ITM_UNIF_SUBSEG_DAN_3",
+        "ITM_UNIF_SUBSEG_DAN_4",
+        "ITM_UNIF_SUBSEG_DAN_5"
+    ],
+    "metric_cols": [
+        "DIST_POND",
+        "VTAS_VALOR_CUALQUIER_PROMO",
+        "VTAS_LITRES_CUALQUIER_PROMO",
+        "DIST_NUM",
+        "VTAS_UNDS_CUALQUIER_PROMO",
+        "VTAS_LITRES",
+        "VTAS_UNDS",
+        "DIST_POND_TDP",
+        "DIST_NUM_CUALQUIER_PROMO",
+        "DIST_POND_CUALQUIER_PROMO",
+        "VTAS_VALOR"
+    ],
+    "source_tables": [
+        "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT",
+        "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM",
+        "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PER_DIM",
+        "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_FACT_REF",
+        "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM"
+    ],
+    "source_coverage": [
+        "NIELSEN_SCANTRACK"
+    ],
+    "nielsen_study_type": "Scantrack",
+    "category_hint": "Waters / Nielsen Scantrack / Total Waters / mensual"
+}

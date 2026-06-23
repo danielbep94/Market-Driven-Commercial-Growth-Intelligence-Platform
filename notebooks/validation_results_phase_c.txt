@@ -1,0 +1,1888 @@
+[2026-06-22 20:23:21] ======================================================================
+[2026-06-22 20:23:21] SEMANTIC LAYER VALIDATION — Phase B
+[2026-06-22 20:23:21] Candidate log paths: ['/Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/notebooks/validation_results.txt', '/Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/notebooks/validation_results.txt', '/tmp/validation_results.txt']
+[2026-06-22 20:23:21] ======================================================================
+[2026-06-22 20:23:21] V1: SELL_OUT totals comparison
+[2026-06-22 20:23:21] Running: V1A — SELL_OUT OLD (GROUP BY)  [db=PRD_MDP]
+[2026-06-22 20:23:23]   → 18 rows returned
+[2026-06-22 20:23:23] Running: V1B — SELL_OUT NEW (no GROUP BY)  [db=PRD_MDP]
+[2026-06-22 20:23:26]   → 18 rows returned
+[2026-06-22 20:23:26]   OLD totals:
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+|MES       |VOL            |PCS            |AMT              |V_INV            |P_INV            |ROW_COUNT|
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+|2025-01-01|53696504.198000|54319230.000000|1124374922.646529|1021049942.065090|1021978404.000000|19952    |
+|2025-02-01|53200366.268000|52647478.330000|1060352763.418671|873096636.647038 |838939348.000000 |17943    |
+|2025-03-01|67689818.505000|66243513.500000|1301361025.206268|1189431063.135600|898797600.000000 |20152    |
+|2025-04-01|63580991.697000|59466863.060000|1182077735.653689|978253312.508130 |927759680.000000 |20533    |
+|2025-05-01|72652196.410500|67238370.000000|1291724305.422982|1149553846.423291|966404413.000000 |21623    |
+|2025-06-01|75283235.775000|72574346.100000|1212853078.047248|1242248024.340566|1049299177.000000|21359    |
+|2025-07-01|60950920.696000|59127784.000000|1171300255.779962|1197871934.252022|1011684228.000000|22347    |
+|2025-08-01|65603944.107000|63006261.000000|1237403959.547182|1157360115.753798|968238813.000000 |22532    |
+|2025-09-01|56053406.668000|53927587.000000|1197759627.139990|956198822.643016 |843798870.000000 |21855    |
+|2025-10-01|57906449.190000|55109870.020000|1197937629.606509|964110239.707734 |842227707.000000 |22558    |
+|2025-11-01|56703399.380000|54175742.000000|1180079663.053086|865984157.280361 |778681354.000000 |21582    |
+|2025-12-01|53565586.587000|51062761.000000|1063078879.836286|895345403.481853 |785667536.000000 |22173    |
+|2026-01-01|49846076.933000|47193527.200000|1199680371.987248|898892908.128612 |814509824.000000 |22134    |
+|2026-02-01|60916160.917000|55990306.520000|1161121892.559133|887073771.238740 |772864624.000000 |20487    |
+|2026-03-01|65060483.757000|60731186.600000|1316146305.483017|1056305264.249641|895745796.000000 |23348    |
+|2026-04-01|63355322.369000|57140079.590000|1272462101.661662|1011052833.537667|882070425.000000 |22405    |
+|2026-05-01|77505981.793000|68911041.000000|1403912017.393161|1082280873.150561|943863290.000000 |23034    |
+|2026-06-01|36584751.259000|35015797.000000|716601306.252670 |613782487.879734 |519563642.000000 |12226    |
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+[2026-06-22 20:23:28]   NEW totals:
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+|MES       |VOL            |PCS            |AMT              |V_INV            |P_INV            |ROW_COUNT|
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+|2025-01-01|53696504.198000|54319230.000000|1124374922.646529|1021049942.065090|1021978404.000000|19621288 |
+|2025-02-01|53200366.268000|52647478.330000|1060352763.418671|873096636.647038 |838939348.000000 |17277075 |
+|2025-03-01|67689818.505000|66243513.500000|1301361025.206268|1189431063.135600|898797600.000000 |19225176 |
+|2025-04-01|63580991.697000|59466863.060000|1182077735.653689|978253312.508130 |927759680.000000 |19235957 |
+|2025-05-01|72652196.410500|67238370.000000|1291724305.422982|1149553846.423291|966404413.000000 |19979988 |
+|2025-06-01|75283235.775000|72574346.100000|1212853078.047248|1242248024.340566|1049299177.000000|19169748 |
+|2025-07-01|60950920.696000|59127784.000000|1171300255.779962|1197871934.252022|1011684228.000000|20113516 |
+|2025-08-01|65603944.107000|63006261.000000|1237403959.547182|1157360115.753798|968238813.000000 |19913165 |
+|2025-09-01|56053406.668000|53927587.000000|1197759627.139990|956198822.643016 |843798870.000000 |19161907 |
+|2025-10-01|57906449.190000|55109870.020000|1197937629.606509|964110239.707734 |842227707.000000 |20202127 |
+|2025-11-01|56703399.380000|54175742.000000|1180079663.053086|865984157.280361 |778681354.000000 |19802195 |
+|2025-12-01|53565586.587000|51062761.000000|1063078879.836286|895345403.481853 |785667536.000000 |19536651 |
+|2026-01-01|49846076.933000|47193527.200000|1199680371.987248|898892908.128612 |814509824.000000 |20041637 |
+|2026-02-01|60916160.917000|55990306.520000|1161121892.559133|887073771.238740 |772864624.000000 |18429364 |
+|2026-03-01|65060483.757000|60731186.600000|1316146305.483017|1056305264.249641|895745796.000000 |20871134 |
+|2026-04-01|63355322.369000|57140079.590000|1272462101.661662|1011052833.537667|882070425.000000 |20293530 |
+|2026-05-01|77505981.793000|68911041.000000|1403912017.393161|1082280873.150561|943863290.000000 |21282156 |
+|2026-06-01|36584751.259000|35015797.000000|716601306.252670 |613782487.879734 |519563642.000000 |11835253 |
++----------+---------------+---------------+-----------------+-----------------+-----------------+---------+
+[2026-06-22 20:23:29] V2: SELL_IN brand rollup + SKU null check
+[2026-06-22 20:23:29] Running: V2 — SELL_IN brand rollup (WATERS)  [db=PRD_MEX]
+[2026-06-22 20:23:32]   → 178 rows returned
+[2026-06-22 20:23:32]   SELL_IN brand rollup:
++------+-------------+----------+-------------------------+--------------+---------+-------------+---------+
+|CBU   |MARCA        |MES       |TOTAL_VOL                |TOTAL_VAL     |ROW_COUNT|DISTINCT_SKUS|NULL_SKUS|
++------+-------------+----------+-------------------------+--------------+---------+-------------+---------+
+|WATERS|BONAFONT     |2025-01-01|61659324.219999999999900 |410299197.6400|41       |41           |0        |
+|WATERS|BONAFONT     |2025-02-01|68688885.460000000000100 |470534827.1300|52       |52           |0        |
+|WATERS|BONAFONT     |2025-03-01|95275530.800000000001600 |653672909.0300|44       |44           |0        |
+|WATERS|BONAFONT     |2025-04-01|99300677.990000000003000 |666981748.2900|39       |39           |0        |
+|WATERS|BONAFONT     |2025-05-01|105739614.770000000002000|711163795.4700|41       |41           |0        |
+|WATERS|BONAFONT     |2025-06-01|81505393.579999999999900 |546406199.0900|40       |40           |0        |
+|WATERS|BONAFONT     |2025-07-01|57072083.620000000000200 |394068142.7900|41       |41           |0        |
+|WATERS|BONAFONT     |2025-08-01|60277178.109999999999900 |421246540.0400|38       |38           |0        |
+|WATERS|BONAFONT     |2025-09-01|63030161.300000000001800 |441448819.3900|39       |39           |0        |
+|WATERS|BONAFONT     |2025-10-01|67976336.560000000000100 |482731827.5300|44       |44           |0        |
+|WATERS|BONAFONT     |2025-11-01|70977997.490000000001400 |503174028.0800|42       |42           |0        |
+|WATERS|BONAFONT     |2025-12-01|56313945.789999999999000 |408963677.8500|40       |40           |0        |
+|WATERS|BONAFONT     |2026-01-01|76212162.570000000000000 |535087695.5600|39       |39           |0        |
+|WATERS|BONAFONT     |2026-02-01|73415193.679999999998000 |518189537.9000|39       |39           |0        |
+|WATERS|BONAFONT     |2026-03-01|86398700.380000000000100 |608726859.3200|39       |39           |0        |
+|WATERS|BONAFONT     |2026-04-01|85847137.230000000000200 |591694576.8000|40       |40           |0        |
+|WATERS|BONAFONT     |2026-05-01|106871361.750000000001100|738093211.8100|41       |41           |0        |
+|WATERS|BONAFONT     |2026-06-01|47602148.470000000000100 |331703624.1600|39       |39           |0        |
+|WATERS|BONAFONT JUGO|2025-01-01|8156362.280000000000000  |82242017.5400 |33       |33           |0        |
+|WATERS|BONAFONT JUGO|2025-02-01|9971032.024000000000000  |99260219.3000 |54       |54           |0        |
+|WATERS|BONAFONT JUGO|2025-03-01|14483066.879999999999500 |142524937.0000|36       |36           |0        |
+|WATERS|BONAFONT JUGO|2025-04-01|15532136.700000000000000 |153980944.1600|30       |30           |0        |
+|WATERS|BONAFONT JUGO|2025-05-01|17896853.499999999999700 |179889066.8600|31       |31           |0        |
+|WATERS|BONAFONT JUGO|2025-06-01|13647516.825000000000000 |134265126.4000|39       |39           |0        |
+|WATERS|BONAFONT JUGO|2025-07-01|9238280.319999999999900  |92810173.5900 |34       |34           |0        |
+|WATERS|BONAFONT JUGO|2025-08-01|10558793.832000000000000 |106993027.6400|38       |38           |0        |
+|WATERS|BONAFONT JUGO|2025-09-01|10811291.968000000000000 |110293781.6180|30       |30           |0        |
+|WATERS|BONAFONT JUGO|2025-10-01|10558014.000000000000000 |109727148.4000|27       |27           |0        |
+|WATERS|BONAFONT JUGO|2025-11-01|9726420.848000000000000  |99823215.9600 |30       |30           |0        |
+|WATERS|BONAFONT JUGO|2025-12-01|8894058.800000000000000  |94711426.0900 |30       |30           |0        |
+|WATERS|BONAFONT JUGO|2026-01-01|9594301.399999999999600  |100005216.0800|30       |30           |0        |
+|WATERS|BONAFONT JUGO|2026-02-01|10321438.900000000000000 |109646793.0600|28       |28           |0        |
+|WATERS|BONAFONT JUGO|2026-03-01|13060787.900000000000000 |139712489.7900|30       |30           |0        |
+|WATERS|BONAFONT JUGO|2026-04-01|11361960.700000000000000 |119546583.5400|27       |27           |0        |
+|WATERS|BONAFONT JUGO|2026-05-01|13978330.299999999999900 |147195445.0300|29       |29           |0        |
+|WATERS|BONAFONT JUGO|2026-06-01|7734638.100000000000000  |81544180.4900 |25       |25           |0        |
+|WATERS|BONAFONT KIDS|2025-01-01|1868213.699999999999000  |35614060.8900 |15       |15           |0        |
+|WATERS|BONAFONT KIDS|2025-02-01|1753716.600000000000000  |34140684.5900 |29       |29           |0        |
+|WATERS|BONAFONT KIDS|2025-03-01|1652661.900000000000000  |32415804.7800 |18       |18           |0        |
+|WATERS|BONAFONT KIDS|2025-04-01|1855432.800000000000000  |35929027.0300 |13       |13           |0        |
+|WATERS|BONAFONT KIDS|2025-05-01|1426669.200000000000000  |28414917.1700 |13       |13           |0        |
+|WATERS|BONAFONT KIDS|2025-06-01|1248017.400000000000000  |24633228.7500 |15       |15           |0        |
+|WATERS|BONAFONT KIDS|2025-07-01|1377027.900000000000000  |27072663.0800 |16       |16           |0        |
+|WATERS|BONAFONT KIDS|2025-08-01|2227680.900000000000000  |42721638.9900 |16       |16           |0        |
+|WATERS|BONAFONT KIDS|2025-09-01|1957059.000000000000000  |37206963.0000 |17       |17           |0        |
+|WATERS|BONAFONT KIDS|2025-10-01|1063606.500000000000000  |21990820.6900 |16       |16           |0        |
+|WATERS|BONAFONT KIDS|2025-11-01|1188942.300000000000000  |24656346.2400 |16       |16           |0        |
+|WATERS|BONAFONT KIDS|2025-12-01|1423217.699999999999000  |29438797.9700 |15       |15           |0        |
+|WATERS|BONAFONT KIDS|2026-01-01|1268743.500000000000000  |27200700.3000 |14       |14           |0        |
+|WATERS|BONAFONT KIDS|2026-02-01|1502862.300000000000000  |32890627.2700 |17       |17           |0        |
++------+-------------+----------+-------------------------+--------------+---------+-------------+---------+
+only showing top 50 rows
+[2026-06-22 20:23:34] V3: IBP null rates for FECHA and MARCA
+[2026-06-22 20:23:34] Running: V3 — IBP null rates  [db=PRD_MDP]
+[2026-06-22 20:23:36]   → 1 rows returned
+[2026-06-22 20:23:36]   IBP null rates:
++----------+----------+----------+----------+--------------+--------------+----------+----------+---------------+
+|TOTAL_ROWS|NULL_FECHA|NULL_MARCA|NULL_VALOR|PCT_NULL_FECHA|PCT_NULL_MARCA|MIN_FECHA |MAX_FECHA |DISTINCT_MARCAS|
++----------+----------+----------+----------+--------------+--------------+----------+----------+---------------+
+|5550912   |0         |0         |0         |0.00          |0.00          |2025-01-01|2026-12-01|29             |
++----------+----------+----------+----------+--------------+--------------+----------+----------+---------------+
+[2026-06-22 20:23:38] V4: WASTE SKU + WASTE_KG check
+[2026-06-22 20:23:38] Running: V4 — WASTE SKU + KG  [db=PRD_MDP]
+[2026-06-22 20:23:39]   → 1 rows returned
+[2026-06-22 20:23:39]   WASTE stats:
++----------+--------+-------------+--------------+------------+-------------+------------+-----------+-------------------+--------------------+
+|TOTAL_ROWS|NULL_SKU|NULL_WASTE_KG|NULL_WASTE_AMT|PCT_NULL_SKU|DISTINCT_SKUS|MIN_KG      |MAX_KG     |TOTAL_KG           |TOTAL_AMT           |
++----------+--------+-------------+--------------+------------+-------------+------------+-----------+-------------------+--------------------+
+|7167757   |0       |1411445      |1409576       |0.00        |1422         |-646512.2806|212288.5067|6.594406800013127E7|3.3884312150694222E9|
++----------+--------+-------------+--------------+------------+-------------+------------+-----------+-------------------+--------------------+
+[2026-06-22 20:23:41] V5: Investment shared columns — MKT_ON
+[2026-06-22 20:23:41] Running: V5A — MKT_ON columns  [db=PRD_MDP]
+[2026-06-22 20:23:42]   → 1 rows returned
+[2026-06-22 20:23:42]   MKT_ON columns:
++------+----------+----------+------------+----------+------------+----------+--------+--------------------+----------+------------+----------+------------+
+|SOURCE|TOTAL_ROWS|NULL_MEDIO|NULL_SOPORTE|NULL_MARCA|NULL_CAMPANA|NULL_FECHA|NULL_INV|TOTAL_INV           |DIST_MEDIO|DIST_SOPORTE|DIST_MARCA|DIST_CAMPANA|
++------+----------+----------+------------+----------+------------+----------+--------+--------------------+----------+------------+----------+------------+
+|MKT_ON|46642     |0         |10704       |0         |66          |0         |1475    |3.5283627987766445E8|8         |98          |32        |132         |
++------+----------+----------+------------+----------+------------+----------+--------+--------------------+----------+------------+----------+------------+
+[2026-06-22 20:23:44] V5: Investment shared columns — MKT_OFF
+[2026-06-22 20:23:44] Running: V5B — MKT_OFF columns  [db=PRD_MDP]
+[2026-06-22 20:23:46]   → 1 rows returned
+[2026-06-22 20:23:46]   MKT_OFF columns:
++-------+----------+----------+------------+----------+------------+----------+--------+------------------+----------+------------+----------+------------+
+|SOURCE |TOTAL_ROWS|NULL_MEDIO|NULL_SOPORTE|NULL_MARCA|NULL_CAMPANA|NULL_FECHA|NULL_INV|TOTAL_INV         |DIST_MEDIO|DIST_SOPORTE|DIST_MARCA|DIST_CAMPANA|
++-------+----------+----------+------------+----------+------------+----------+--------+------------------+----------+------------+----------+------------+
+|MKT_OFF|522003    |0         |163         |0         |396163      |0         |219441  |7.92335113028892E8|8         |231         |101       |42          |
++-------+----------+----------+------------+----------+------------+----------+--------+------------------+----------+------------+----------+------------+
+[2026-06-22 20:23:47] V6: SELL_OUT column types
+[2026-06-22 20:23:47] Running: V6 — SELL_OUT types  [db=PRD_MDP]
+[2026-06-22 20:23:48]   → 1 rows returned
+[2026-06-22 20:23:48]   SELL_OUT column types:
++-----------------+----------------+----------------+----------------+----------------+----------------+
+|STORE_TYPE       |UPC_TYPE        |SUBCHAIN_TYPE   |CHAIN_TYPE      |FORMAT_TYPE     |BRAND_TYPE      |
++-----------------+----------------+----------------+----------------+----------------+----------------+
+|NUMBER(38,0)[SB4]|VARCHAR(26)[LOB]|VARCHAR(42)[LOB]|VARCHAR(42)[LOB]|VARCHAR(46)[LOB]|VARCHAR(32)[LOB]|
++-----------------+----------------+----------------+----------------+----------------+----------------+
+[2026-06-22 20:23:50] V7: Cross-source MARCA comparison
+[2026-06-22 20:23:50] V7A — SELL_OUT brands (PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM.BRAND)
+[2026-06-22 20:23:50] Running: V7A — SELL_OUT MARCA  [db=PRD_MDP]
+[2026-06-22 20:23:51]   → 42 rows returned
+[2026-06-22 20:23:51]   SELL_OUT MARCA:
++----------------+
+|MARCA           |
++----------------+
+|ACTIVIA         |
+|ADES            |
+|AGUAS FRESCAS   |
+|BADOIT          |
+|BEC             |
+|BENEGASTRO      |
+|BONAFONT        |
+|BONAFONT KIDS   |
+|BONAFONT MINERAL|
+|BONAFONT SER    |
+|CHILCHOTA       |
+|DANETTE         |
+|DANFRUT         |
+|DANMIX          |
+|DANONE          |
+|DANONE FREE     |
+|DANONINO        |
+|DANUP           |
+|DANY            |
+|DELIGHT         |
+|EVIAN           |
+|FRUIX           |
+|HERSHEYS        |
+|INACTIVO        |
+|INFINIT WATER   |
+|JUIZZY          |
+|LEVITE          |
+|LICUAMIX        |
+|LIGERI          |
+|MEMBERS MARK    |
+|NA              |
+|OCEAN SPRAY     |
+|OIKOS           |
+|OIKOS UHT       |
+|OTROS           |
+|PUREZA AGA      |
+|SILK            |
+|SO DELICIOUS    |
+|STOK COLD BREW  |
+|TE BONAFONT     |
+|VITALINEA       |
+|YOPRO           |
++----------------+
+[2026-06-22 20:23:52] V7B — SELL_IN brands (PRD_MEX.MEX_DSP_OTC.V_D_ITEM.LV2_UMB_BRD_DSC)
+[2026-06-22 20:23:52] Running: V7B — SELL_IN MARCA  [db=PRD_MEX]
+[2026-06-22 20:23:53]   → 133 rows returned
+[2026-06-22 20:23:53]   SELL_IN MARCA:
++------------------------+
+|MARCA                   |
++------------------------+
+|25 Años                 |
+|2Pack Blanco            |
+|2Pack Negro             |
+|ACTIVIA                 |
+|AQUAPURA                |
+|Aga                     |
+|Aga 20 Lts              |
+|Agua Natural            |
+|Airis                   |
+|Alcancia                |
+|Arcoiris                |
+|Azul Bonafont           |
+|BADOIT                  |
+|BENEGASTRO              |
+|BONAFONT                |
+|BONAFONT JUGO           |
+|BONAFONT KIDS           |
+|BONAFONT KIDS NATURAL   |
+|BONAFONT SER            |
+|BUTTER                  |
+|Bases                   |
+|Bebedero                |
+|Bft 11 Lts              |
+|Bft 20 Lts              |
+|Bomba                   |
+|Bonafont                |
+|Botanero                |
+|Botella Aga             |
+|Bowls                   |
+|CODISTRIBUCION          |
+|COLORS & FLAVOURS       |
+|Cafe                    |
+|Carrera                 |
+|Ceramica                |
+|Ciel                    |
+|DAIRY DANONE MEXICO     |
+|DAN'UP                  |
+|DANAO                   |
+|DANETTE                 |
+|DANMIX                  |
+|DANONE CREME            |
+|DANONE HERSHEYS         |
+|DANONE YOGHURT          |
+|DANONINO                |
+|DANY                    |
+|DELIGHT                 |
+|Dairy Danone France     |
+|Danone                  |
+|Destilada               |
+|Disney                  |
+|Dispensers              |
+|EVIAN                   |
+|Especiero               |
+|FERRARELLE              |
+|FLEXIBLES               |
+|FRUIX                   |
+|Fontaine                |
+|Fresh                   |
+|Frida                   |
+|Frijoles                |
+|Granel                  |
+|HERSHEYS                |
+|Ice Age                 |
+|Infantil                |
+|Jarra                   |
+|Juizzy                  |
+|KINDER                  |
+|KUYEN KAAT              |
+|Kids                    |
+|Kung Fu Panda           |
+|LEVITE                  |
+|LICUAMIX                |
+|Lapicera                |
+|Levite                  |
+|Lonchera                |
+|MILK POWDERS            |
+|Metalico                |
+|Mineralizada            |
+|Mundial                 |
+|NATURAL                 |
+|Nano                    |
+|Naturillas              |
+|OCEAN SPRAY             |
+|OIKOS                   |
+|OTHERS                  |
+|PLASTIC BOTTLE          |
+|PRIVADA                 |
+|PROMO                   |
+|PUREZA AGA              |
+|Palas                   |
+|Patrio                  |
+|Polar                   |
+|Pouch                   |
+|Primavera               |
+|Productos Descontinuados|
+|Promo                   |
+|Refractarios            |
+|Reto                    |
+|SABOR FRESA             |
+|SABOR HORCHATA          |
+|SABOR JAMAICA           |
+|SABOR LIMON             |
+|SABOR NARANJA           |
+|SILK                    |
+|SILK ORIG 946ML         |
+|SILKCHOCO190ML          |
+|SO DELICIOUS            |
+|STOK                    |
+|Salmon Bonafont         |
+|Ser Pura                |
+|Silk                    |
+|Sport                   |
+|Star Wars               |
+|Tablas                  |
+|Tazas                   |
+|Termo                   |
+|Toallas                 |
+|Tupper                  |
+|TÉ BONAFONT             |
+|Ultrapura               |
+|Utensilios              |
+|VITALINEA               |
+|VOLVIC                  |
+|Vajilla                 |
+|Vasos                   |
+|WATER BONAFONT          |
+|WATER INFINIT           |
+|Wmw                     |
+|YOPRO                   |
+|cosmetiquera            |
+|libro navideño          |
+|playera mundial         |
+|portavasos              |
++------------------------+
+[2026-06-22 20:23:54] V7C — MKT_ON brands (PRD_MDP.MDP_DSP.VW_MKT_ECOMM.MARCA)
+[2026-06-22 20:23:54] Running: V7C — MKT_ON MARCA  [db=PRD_MDP]
+[2026-06-22 20:23:55]   → 42 rows returned
+[2026-06-22 20:23:55]   MKT_ON MARCA:
++---------------------+
+|MARCA                |
++---------------------+
+|ACTIVIA              |
+|AGUAS FRESCAS        |
+|BEC                  |
+|BENEG                |
+|BENEGASTRO           |
+|BFT AGUAS FRESCAS    |
+|BONAFONT             |
+|BONAFONT KIDS        |
+|BONAFONT TE          |
+|BONAFONT_AGUASFRESCAS|
+|BONAFONT_KIDS        |
+|BONAFONT_LEVITE      |
+|BONAFONT_NATURAL     |
+|BONAFONT_TE          |
+|DANETTE              |
+|DANMIX               |
+|DANONE               |
+|DANONE FS            |
+|DANONE GRIEGO        |
+|DANONINO             |
+|DANUP                |
+|DANY                 |
+|DANY DANETTE         |
+|DNP                  |
+|EVIAN                |
+|INFINITY             |
+|INSTITUTO DANONE     |
+|JUIZZY               |
+|LEVITE               |
+|LICUADERIA           |
+|MULTIBRAND           |
+|MULTIBRAND DAIRY     |
+|MULTIBRAND DANONE    |
+|MULTIBRAND INDULGENCE|
+|MULTIBRAND INNOS     |
+|MULTIBRAND KIDS      |
+|MULTIBRAND WATERS    |
+|MULTIMARCA           |
+|OIKOS                |
+|SILK                 |
+|VITALINEA            |
+|YOPRO                |
++---------------------+
+[2026-06-22 20:23:57] V7D — MKT_OFF brands (PRD_MDP.MDP_STG.FACT_MEDIA_OFF.MARCA)
+[2026-06-22 20:23:57] Running: V7D — MKT_OFF MARCA  [db=PRD_MDP]
+[2026-06-22 20:23:57]   → 179 rows returned
+[2026-06-22 20:23:57]   MKT_OFF MARCA:
++--------------------------+
+|MARCA                     |
++--------------------------+
+|A DE COCO                 |
+|ACTIVIA                   |
+|AGA                       |
+|AGUA VIDA NUTRICION       |
+|AGUAS_TAGARE              |
+|AGUA_OASIS                |
+|AGUA_PASCUAL              |
+|AJEMEX                    |
+|ALPURA                    |
+|ALPURA_GRIEGO             |
+|ALPURA_LECHES             |
+|ALPURA_TOYS               |
+|ALPURA_YOGURT             |
+|ALPURA_YOGURT_COLAGENO    |
+|ALPURA_YOGURT_DESLACTOSADO|
+|AQUA                      |
+|B WATER                   |
+|BAD MOOD                  |
+|BARRILITOS                |
+|BE LIGHT                  |
+|BELIGHT                   |
+|BFT AGUAS FRESCAS         |
+|BIG AQUA VITAL            |
+|BIG COLA                  |
+|BODEGAAURRERA             |
+|BOING                     |
+|BONAFONT                  |
+|BONAFONT LEVITE           |
+|BONAFONT_AGUASFRESCAS     |
+|BONAFONT_KIDS             |
+|BONAFONT_LEVITE           |
+|BONAFONT_NATURAL          |
+|BONAFONT_TE               |
+|CACHANTUN CHI             |
+|CADBURY SCHWEPPES         |
+|CANADA DRY                |
+|CANADADRY                 |
+|CARNATION CLAVEL          |
+|CIEL                      |
+|CIELO                     |
+|CIEL_EXPRIM               |
+|CIEL_MINERAL              |
+|CIFRUT                    |
+|CLINIK WATER              |
+|COCA COLA                 |
+|COCA COLA FEMSA           |
+|COCA-COLA                 |
+|COCACOLA                  |
+|CRISTAL CO                |
+|CUNNINGTON                |
+|DACLAF PHARMA GOODS       |
+|DANETTE                   |
+|DANONE                    |
+|DANONINO                  |
+|DANUP                     |
+|DANY                      |
+|DEL VALLE                 |
+|DELVALLE                  |
+|DELVALLE_FIZZ             |
+|DELVALLE_FRUT             |
+|DELVALLE_JUNIOR           |
+|DGARI                     |
+|DNP                       |
+|DRPEPPER                  |
+|E PURA                    |
+|E PURITA                  |
+|EMBOTELLAD MEXICANA       |
+|EPURA                     |
+|EVIAN                     |
+|FANTA                     |
+|FITZER                    |
+|FRESCA                    |
+|FRUVITA                   |
+|GANADEROS PROD LECHE      |
+|GLUGURT                   |
+|GPO INDUSTRIAL LALA       |
+|JARRITOS                  |
+|JARRITOS+RED COLA         |
+|JOYA                      |
+|JUGOS DEL VALLE           |
+|JUMEX                     |
+|JUMEXITO                  |
+|JUMEX_AMI                 |
+|JUMEX_BIDA                |
+|JUMEX_CERO                |
+|JUMEX_FRESCO              |
+|JUMEX_FRESH               |
+|JUMEX_FRUTZZO             |
+|JUMEX_HYDROLIT            |
+|JUMEX_MIA                 |
+|JUMEX_SPORT               |
+|JUMEX_UNICO               |
+|JUMEX_XODA                |
+|JUMEX_XOT                 |
+|KEM CHI                   |
+|LALA                      |
+|LALA_BIO4                 |
+|LALA_CHIQUITIN            |
+|LALA_CREMA                |
+|LALA_GRIEGO               |
+|LALA_LECHE                |
+|LALA_LECHE_100            |
+|LALA_MAESTROS             |
+|LALA_NATURALES            |
+|LALA_PLENIA               |
+|LALA_PROBIOC              |
+|LALA_QUESOS               |
+|LALA_YOGURT               |
+|LALA_YOGURT_100           |
+|LALA_YOMI                 |
+|LEVITE                    |
+|LIMON SODA CHI            |
+|LULU                      |
+|MANZANITA                 |
+|MANZANITA SOL             |
+|MAS CHI                   |
+|MEXICOLA                  |
+|MINERALITA                |
+|MIRINDA                   |
+|MUNDET                    |
+|NATURES HEART             |
+|NECTASIS                  |
+|NOTMILK                   |
+|NOVA LIV                  |
+|NOVALIV                   |
+|NUTRILECHE                |
+|OIKOS                     |
+|ORANGE CRUSH              |
+|PASCUAL                   |
+|PENAFIEL                  |
+|PEPSI                     |
+|PEPSI COLA MEXICANA       |
+|PEPSICOLA MEXICANA        |
+|PERRIER                   |
+|PULP                      |
+|QUALAMEX                  |
+|RED COLA                  |
+|REDCOLA                   |
+|SABRITAS                  |
+|SANGRIA                   |
+|SANGRIA SENORIAL          |
+|SANGRIA SENORIAL+MANZ SEN |
+|SANTA CLARA               |
+|SANTA MARIA               |
+|SANTAMARIA                |
+|SANTA_CLARA               |
+|SCHWEPPES                 |
+|SEVEN UP                  |
+|SEVEN UP CHI              |
+|SEVENUP                   |
+|SIGMA ALIMENTOS           |
+|SILK                      |
+|SKARCH                    |
+|SKARCH_FRUTALE            |
+|SKARCH_MINERAL            |
+|SOC COOP TRAB PASCUA      |
+|SOPROLE 1+1 CHI           |
+|SOPROLE CHI               |
+|SPRITE                    |
+|SQUIRT                    |
+|SUPER COLA GUAT           |
+|TERRAFERTIL               |
+|THE COCA COLA EXPORT      |
+|THE WATER HOUSE           |
+|TOPO CHICO                |
+|TOPOCHICO                 |
+|UNILEVER DE MEX           |
+|VITAL CHI                 |
+|VITALOE                   |
+|WALMART                   |
+|YAKULT                    |
+|YOGURISIMO ARG            |
+|YOPLAIT                   |
+|YOPLAIT_DOBLECERO         |
+|YOPLAIT_GRIEGO            |
+|YOPLAIT_GRIE_GO           |
+|YOPLAIT_KIDS              |
+|YOPLAIT_SKYR              |
+|ZOE WATER                 |
++--------------------------+
+[2026-06-22 20:23:58] V7E — WASTE brands (PRD_MDP.MDP_STG.VW_WASTE.MARCA)
+[2026-06-22 20:23:58] Running: V7E — WASTE MARCA  [db=PRD_MDP]
+[2026-06-22 20:23:59]   → 26 rows returned
+[2026-06-22 20:23:59]   WASTE MARCA:
++---------------+
+|MARCA          |
++---------------+
+|0              |
+|ACTIVIA        |
+|BENEG          |
+|BENEGASTRO     |
+|DAIRY          |
+|DANETTE        |
+|DANISSIMO      |
+|DANMIX         |
+|DANMMIX        |
+|DANONE         |
+|DANONE HERSHEYS|
+|DANONE YOGHURT |
+|DANONINO       |
+|DANONINOLIQUIDO|
+|DANUP          |
+|DANY           |
+|DELIGHT        |
+|HERSHEYS       |
+|MULTI          |
+|OCEAN          |
+|OCEAN SPRAY    |
+|OIKOS          |
+|SILK           |
+|SO DELICIOUS   |
+|VITALINEA      |
+|YO PRO         |
++---------------+
+[2026-06-22 20:24:00] V7F — IBP brands (PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP.MARCA)
+[2026-06-22 20:24:00] Running: V7F — IBP MARCA  [db=PRD_MDP]
+[2026-06-22 20:24:02]   → 29 rows returned
+[2026-06-22 20:24:02]   IBP MARCA:
++-------------+
+|MARCA        |
++-------------+
+|ACTIVIA      |
+|AGUAS FRESCAS|
+|BENEGASTRO   |
+|BONAFONT     |
+|BONAFONT TÉ  |
+|CIRCULO K    |
+|DAN MIX      |
+|DAN UP       |
+|DANETTE      |
+|DANONE       |
+|DANONE FREE  |
+|DANONE GRIEGO|
+|DANONINO     |
+|DANY         |
+|DELIGHT      |
+|EVIAN        |
+|FERRAR       |
+|HERSHEY'S    |
+|INFINIT      |
+|KIDS         |
+|LEVITE       |
+|NETO         |
+|OCEAN SPRAY  |
+|OIKOS        |
+|SILK         |
+|STOK         |
+|SUEROX       |
+|VITALINEA    |
+|VOLVIC       |
++-------------+
+[2026-06-22 20:24:03] V8: SELL_OUT row count impact at new grain
+[2026-06-22 20:24:03] Running: V8 — SELL_OUT row count + cardinality  [db=PRD_MDP]
+[2026-06-22 20:24:06]   → 18 rows returned
+[2026-06-22 20:24:06]   SELL_OUT row count + cardinality:
++----------+--------+---------------+-------------+----------------+---------------+------------------+
+|MES       |NEW_ROWS|DISTINCT_STORES|DISTINCT_UPCS|DISTINCT_CADENAS|DISTINCT_MARCAS|DISTINCT_SUBCHAINS|
++----------+--------+---------------+-------------+----------------+---------------+------------------+
+|2025-01-01|19621288|5578           |745          |13              |29             |34                |
+|2025-02-01|17277075|5582           |730          |13              |29             |34                |
+|2025-03-01|19225176|5601           |738          |13              |30             |34                |
+|2025-04-01|19235957|5613           |749          |13              |30             |34                |
+|2025-05-01|19979988|5645           |753          |13              |30             |34                |
+|2025-06-01|19169748|5656           |750          |13              |31             |34                |
+|2025-07-01|20113516|5675           |762          |13              |31             |34                |
+|2025-08-01|19913165|5713           |774          |13              |31             |34                |
+|2025-09-01|19161907|5749           |768          |13              |32             |34                |
+|2025-10-01|20202127|5830           |759          |13              |31             |34                |
+|2025-11-01|19802195|5871           |743          |13              |30             |34                |
+|2025-12-01|19536651|5898           |756          |13              |32             |34                |
+|2026-01-01|20041637|5906           |759          |13              |32             |34                |
+|2026-02-01|18429364|5934           |730          |13              |34             |34                |
+|2026-03-01|20871134|5951           |1004         |13              |34             |34                |
+|2026-04-01|20293530|5968           |698          |13              |32             |34                |
+|2026-05-01|21282156|6011           |699          |13              |32             |34                |
+|2026-06-01|11835253|6008           |678          |13              |32             |34                |
++----------+--------+---------------+-------------+----------------+---------------+------------------+
+[2026-06-22 20:24:10] ======================================================================
+[2026-06-22 20:24:10] V9: Nielsen distinct brand values (unblocks C.5)
+[2026-06-22 20:24:10] ======================================================================
+[2026-06-22 20:24:10] CORRECTED TABLE NAMES (fixed from session — previous names did not exist):
+[2026-06-22 20:24:10]   Water Retail  → VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM
+[2026-06-22 20:24:10]   Water Scantrk → VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM
+[2026-06-22 20:24:10]   PB Scantrack  → VW_SUST_LECHE_ST_NLSN_PROD_DIM
+[2026-06-22 20:24:10] V9A — EDP Nielsen brands (INP_56985 / confirmed working)
+[2026-06-22 20:24:10] Running: V9A — EDP MARCA  [db=PRD_MEX]
+[2026-06-22 20:24:12]   → 219 rows returned
+[2026-06-22 20:24:12]   EDP Nielsen brands:
++-----------------------+----------+
+|MARCA                  |SOURCE    |
++-----------------------+----------+
+|A MORA TI              |EDP_MARKET|
+|ACTIMEL                |EDP_MARKET|
+|ACTIVIA                |EDP_MARKET|
+|AGUASCALIENTES         |EDP_MARKET|
+|AL DIA                 |EDP_MARKET|
+|ALDAMA                 |EDP_MARKET|
+|ALMAGUER               |EDP_MARKET|
+|ALPURA                 |EDP_MARKET|
+|ANELA                  |EDP_MARKET|
+|ARACELI                |EDP_MARKET|
+|ARISBEY                |EDP_MARKET|
+|ART                    |EDP_MARKET|
+|BAD MOOD               |EDP_MARKET|
+|BAKER'S BITES          |EDP_MARKET|
+|BAMBI                  |EDP_MARKET|
+|BELL                   |EDP_MARKET|
+|BELLINI                |EDP_MARKET|
+|BELOE                  |EDP_MARKET|
+|BENEGASTRO             |EDP_MARKET|
+|BIO 4                  |EDP_MARKET|
+|BIO 4BALAN-CE          |EDP_MARKET|
+|BIOLAC                 |EDP_MARKET|
+|BIORGANIC              |EDP_MARKET|
+|BOIRE                  |EDP_MARKET|
+|BOLYOGHURT             |EDP_MARKET|
+|BONACULT               |EDP_MARKET|
+|BONAFINA               |EDP_MARKET|
+|BONDELI                |EDP_MARKET|
+|BONTA                  |EDP_MARKET|
+|BONTA DIVINA           |EDP_MARKET|
+|BONYUR                 |EDP_MARKET|
+|BOVE                   |EDP_MARKET|
+|BREAK                  |EDP_MARKET|
+|CAMPO ALEGRE           |EDP_MARKET|
+|CARACOL                |EDP_MARKET|
+|CASA BLANCA            |EDP_MARKET|
+|CASA PROBIOTICOS       |EDP_MARKET|
+|CHAMYTO                |EDP_MARKET|
+|CHELSY                 |EDP_MARKET|
+|CHEN                   |EDP_MARKET|
+|CHIA MIA               |EDP_MARKET|
+|CHILCHOTA              |EDP_MARKET|
+|CHIQUITIN              |EDP_MARKET|
+|CHOBANI                |EDP_MARKET|
+|CHOIX                  |EDP_MARKET|
+|CLUB                   |EDP_MARKET|
+|CREMERIA CHALCO        |EDP_MARKET|
+|CREMOSO ALPURA         |EDP_MARKET|
+|CUADRITOS              |EDP_MARKET|
+|D'GARI                 |EDP_MARKET|
+|DALUH                  |EDP_MARKET|
+|DAN MIX                |EDP_MARKET|
+|DAN UP                 |EDP_MARKET|
+|DANETTE                |EDP_MARKET|
+|DANONE                 |EDP_MARKET|
+|DANONINO               |EDP_MARKET|
+|DANY                   |EDP_MARKET|
+|DE LA ABUELA           |EDP_MARKET|
+|DELIGHURT              |EDP_MARKET|
+|DELIRIO NATURAL        |EDP_MARKET|
+|DIVERTIGELL            |EDP_MARKET|
+|DOLCE FLAN             |EDP_MARKET|
+|DONA PINTA             |EDP_MARKET|
+|DULAIT                 |EDP_MARKET|
+|DULCES SOLIS           |EDP_MARKET|
+|EHRMANN                |EDP_MARKET|
+|EL ACICATE             |EDP_MARKET|
+|EL CIRUELO             |EDP_MARKET|
+|EL PINAR               |EDP_MARKET|
+|EL SABINO              |EDP_MARKET|
+|ELI                    |EDP_MARKET|
+|ESTI                   |EDP_MARKET|
+|FAGE                   |EDP_MARKET|
+|FLANBY                 |EDP_MARKET|
+|FLANDY                 |EDP_MARKET|
+|FLIPPER                |EDP_MARKET|
+|FLOR DE ALFALFA        |EDP_MARKET|
+|FLORENTINA             |EDP_MARKET|
+|FORAGER                |EDP_MARKET|
+|FORTI                  |EDP_MARKET|
+|FRUGGIS                |EDP_MARKET|
+|FRUTTISIMA             |EDP_MARKET|
+|GASTRO PROTECT         |EDP_MARKET|
+|GELATIX                |EDP_MARKET|
+|GELY CREAM             |EDP_MARKET|
+|GERBER                 |EDP_MARKET|
+|GLAD                   |EDP_MARKET|
+|GOTA BLANCA            |EDP_MARKET|
+|GRANDMA S              |EDP_MARKET|
+|GRANJA                 |EDP_MARKET|
+|GREEN FEELING          |EDP_MARKET|
+|GRIEGO                 |EDP_MARKET|
+|HUNT'S                 |EDP_MARKET|
+|ISSANA                 |EDP_MARKET|
+|JERSEY                 |EDP_MARKET|
+|KASUL PLUS             |EDP_MARKET|
+|KIPURI                 |EDP_MARKET|
+|KOOL-AID               |EDP_MARKET|
+|KOURELLAS              |EDP_MARKET|
+|LA ABUELA              |EDP_MARKET|
+|LA CASERA              |EDP_MARKET|
+|LA HACIENDA ANTIGUA    |EDP_MARKET|
+|LA LECHERA             |EDP_MARKET|
+|LA NENA                |EDP_MARKET|
+|LA PASTORA             |EDP_MARKET|
+|LA PILARICA            |EDP_MARKET|
+|LA PRIMAVERA           |EDP_MARKET|
+|LA QUESERA DE SALAMANCA|EDP_MARKET|
+|LA TIA SARA            |EDP_MARKET|
+|LACTEOS MOJICA         |EDP_MARKET|
+|LACTIGURT              |EDP_MARKET|
+|LAKEVIEW               |EDP_MARKET|
+|LALA                   |EDP_MARKET|
+|LALA CULT              |EDP_MARKET|
+|LALA SEMILLAS          |EDP_MARKET|
+|LAS MORAS              |EDP_MARKET|
+|LEOLI                  |EDP_MARKET|
+|LEON                   |EDP_MARKET|
+|LEVIA                  |EDP_MARKET|
+|LICUADO NESTLE         |EDP_MARKET|
+|LICUAMIX               |EDP_MARKET|
+|LIFEWAY                |EDP_MARKET|
+|LIZETH                 |EDP_MARKET|
+|LONCH EXPRESS          |EDP_MARKET|
+|LOS 19 HERMANOS        |EDP_MARKET|
+|LOS AZAHARES           |EDP_MARKET|
+|LOS CUATES             |EDP_MARKET|
+|LUCERNA                |EDP_MARKET|
+|LUMA                   |EDP_MARKET|
+|LYNCOTT                |EDP_MARKET|
+|MARSELLA               |EDP_MARKET|
+|MARUSIA                |EDP_MARKET|
+|MUUU                   |EDP_MARKET|
+|NATURLI                |EDP_MARKET|
+|NATURLICH              |EDP_MARKET|
+|NESQUIK                |EDP_MARKET|
+|NESTLE                 |EDP_MARKET|
+|NIDO PETIT SUISSE      |EDP_MARKET|
+|NUTRI VAKITA           |EDP_MARKET|
+|NUTRI YOGHURT          |EDP_MARKET|
+|OIKOS                  |EDP_MARKET|
+|ONEI                   |EDP_MARKET|
+|PALMALAC               |EDP_MARKET|
+|PASCUAL                |EDP_MARKET|
+|PETIZOO                |EDP_MARKET|
+|PINK                   |EDP_MARKET|
+|PL                     |EDP_MARKET|
+|POSTRES GOLDI          |EDP_MARKET|
+|PROBIOTIC SOUL         |EDP_MARKET|
+|PRODUCTOS CHOYS        |EDP_MARKET|
+|PRODUCTOS ROSITA       |EDP_MARKET|
+|PROLEUKIN              |EDP_MARKET|
+|PUREZA VITAL           |EDP_MARKET|
+|QUALITA FOODS          |EDP_MARKET|
+|QUERETARO              |EDP_MARKET|
+|REINA                  |EDP_MARKET|
+|ROLY                   |EDP_MARKET|
+|ROSITA                 |EDP_MARKET|
+|SABALITO               |EDP_MARKET|
+|SABINO                 |EDP_MARKET|
+|SABOR DEL HOGAR        |EDP_MARKET|
+|SALVA                  |EDP_MARKET|
+|SAN JUAN               |EDP_MARKET|
+|SAN MARCOS             |EDP_MARKET|
+|SANTA CLARA            |EDP_MARKET|
+|SANTE                  |EDP_MARKET|
+|SELLO ROJO             |EDP_MARKET|
+|SENOR RICO             |EDP_MARKET|
+|SIERRA VERDE           |EDP_MARKET|
+|SILK                   |EDP_MARKET|
+|SILUETTE               |EDP_MARKET|
+|SIN MARCA              |EDP_MARKET|
+|SLAVIANI               |EDP_MARKET|
+|SNACKPACK              |EDP_MARKET|
+|SO DELICIOUS           |EDP_MARKET|
+|SOFUL                  |EDP_MARKET|
+|SOL DE MONTERREY       |EDP_MARKET|
+|SORIANO                |EDP_MARKET|
+|SVELTY                 |EDP_MARKET|
+|TEMAZCAL               |EDP_MARKET|
+|TIA VICKY              |EDP_MARKET|
+|TIKITO                 |EDP_MARKET|
+|TROPI LEON             |EDP_MARKET|
+|TUBAZO                 |EDP_MARKET|
+|TUBIX                  |EDP_MARKET|
+|UNIGURT                |EDP_MARKET|
+|VEGGIE                 |EDP_MARKET|
+|VENECIA                |EDP_MARKET|
+|VENTRO                 |EDP_MARKET|
+|VIDAPLUS               |EDP_MARKET|
+|VILLA ALPINA           |EDP_MARKET|
+|VILLA DE PATOS         |EDP_MARKET|
+|VILOE                  |EDP_MARKET|
+|VIRY                   |EDP_MARKET|
+|VITAGHURT              |EDP_MARKET|
+|VITAL                  |EDP_MARKET|
+|VITALINEA              |EDP_MARKET|
+|VIVE EN EQUILIBRIO     |EDP_MARKET|
+|VIVENDI                |EDP_MARKET|
+|WAY FARE               |EDP_MARKET|
+|WAYFARE                |EDP_MARKET|
+|XCULT                  |EDP_MARKET|
+|YAKULT                 |EDP_MARKET|
+|YAQUI                  |EDP_MARKET|
+|YO CRUNCH              |EDP_MARKET|
+|YOBELL                 |EDP_MARKET|
+|YOCREME                |EDP_MARKET|
+|YOFRUT                 |EDP_MARKET|
+|YOGU                   |EDP_MARKET|
+|YOGU RICO              |EDP_MARKET|
+|YOGURT DE COCO         |EDP_MARKET|
+|YOMI LALA              |EDP_MARKET|
+|YOPLAIT                |EDP_MARKET|
+|YOPLI                  |EDP_MARKET|
+|YOPLUS                 |EDP_MARKET|
+|YOPRO                  |EDP_MARKET|
+|YOPSI                  |EDP_MARKET|
+|ZAHINI                 |EDP_MARKET|
+|ZUMAR                  |EDP_MARKET|
++-----------------------+----------+
+[2026-06-22 20:24:13] V9B — Water Retail raw brands (CSTM_310589 — VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM)
+[2026-06-22 20:24:13] Running: V9B — Water Retail MARCA raw  [db=PRD_MEX]
+[2026-06-22 20:24:15]   → 160 rows returned
+[2026-06-22 20:24:15]   Water Retail raw brands (CSTM_310589):
++--------------------+------------+-------------+
+|ITM_UNIF_BRAND_RAW  |SOURCE      |PRODUCT_COUNT|
++--------------------+------------+-------------+
+|A DE COCO           |WATER_RETAIL|6            |
+|ACAPULCO            |WATER_RETAIL|3            |
+|ACAPULCOCO          |WATER_RETAIL|5            |
+|AGA PUREZA          |WATER_RETAIL|9            |
+|AGUA AZUL           |WATER_RETAIL|3            |
+|AGUA PURA           |WATER_RETAIL|2            |
+|AGUAFIEL            |WATER_RETAIL|20           |
+|AGUAS FRESCAS       |WATER_RETAIL|2            |
+|AGUITAS             |WATER_RETAIL|2            |
+|AL DIA              |WATER_RETAIL|6            |
+|ALPINA              |WATER_RETAIL|2            |
+|AQUA                |WATER_RETAIL|7            |
+|AQUA PURA           |WATER_RETAIL|4            |
+|AQUA VITA           |WATER_RETAIL|1            |
+|ARCOIRIS            |WATER_RETAIL|1            |
+|ARIZONA             |WATER_RETAIL|17           |
+|ARROWHEAD           |WATER_RETAIL|7            |
+|AURORA              |WATER_RETAIL|6            |
+|AWA                 |WATER_RETAIL|6            |
+|BAVIEN              |WATER_RETAIL|3            |
+|BE LIGHT            |WATER_RETAIL|9            |
+|BEBERE FRUT         |WATER_RETAIL|5            |
+|BIG                 |WATER_RETAIL|25           |
+|BIG AQUA VITAL      |WATER_RETAIL|11           |
+|BLANQUITA           |WATER_RETAIL|13           |
+|BOING               |WATER_RETAIL|16           |
+|BONAFINA            |WATER_RETAIL|29           |
+|BONAFONT            |WATER_RETAIL|93           |
+|BONLATTI            |WATER_RETAIL|1            |
+|BUONA               |WATER_RETAIL|3            |
+|CACTUS              |WATER_RETAIL|8            |
+|CALAHUA             |WATER_RETAIL|2            |
+|CAPRISUN            |WATER_RETAIL|12           |
+|CASCADA             |WATER_RETAIL|1            |
+|CHAPARRITA          |WATER_RETAIL|4            |
+|CHECHI              |WATER_RETAIL|4            |
+|CIEL                |WATER_RETAIL|47           |
+|CLARA               |WATER_RETAIL|3            |
+|CLIGHT              |WATER_RETAIL|1            |
+|COCO NIAU           |WATER_RETAIL|2            |
+|COYUCA              |WATER_RETAIL|3            |
+|CRISTAL             |WATER_RETAIL|20           |
+|CRYSPURA            |WATER_RETAIL|7            |
+|CRYSTAL             |WATER_RETAIL|7            |
+|D'SOLARES           |WATER_RETAIL|8            |
+|DASANI              |WATER_RETAIL|2            |
+|DE LOS ANGELES      |WATER_RETAIL|1            |
+|DEL VALLE           |WATER_RETAIL|28           |
+|DELAWARE PUNCH      |WATER_RETAIL|14           |
+|DELICIAS            |WATER_RETAIL|1            |
+|E-PURA              |WATER_RETAIL|26           |
+|E-PURA BEBE         |WATER_RETAIL|2            |
+|E-PURITA            |WATER_RETAIL|4            |
+|EL MEXICANO         |WATER_RETAIL|2            |
+|ELECTROPURA         |WATER_RETAIL|4            |
+|ENERGIE             |WATER_RETAIL|2            |
+|EVIAN               |WATER_RETAIL|10           |
+|FARAON              |WATER_RETAIL|3            |
+|FESTIN              |WATER_RETAIL|1            |
+|FITLINE             |WATER_RETAIL|1            |
+|FLORIDA 7           |WATER_RETAIL|5            |
+|FRIKO               |WATER_RETAIL|1            |
+|FRUT                |WATER_RETAIL|1            |
+|FRUTI QUEKO         |WATER_RETAIL|8            |
+|FRUTIER             |WATER_RETAIL|2            |
+|FRUTOS DE VIDA      |WATER_RETAIL|3            |
+|FRUTSI              |WATER_RETAIL|11           |
+|FUENSANTA           |WATER_RETAIL|9            |
+|FUZE                |WATER_RETAIL|1            |
+|GERBER              |WATER_RETAIL|33           |
+|GLACEAU             |WATER_RETAIL|5            |
+|GLACIAL             |WATER_RETAIL|2            |
+|GUD                 |WATER_RETAIL|2            |
+|GUGAR               |WATER_RETAIL|12           |
+|GUGARIN             |WATER_RETAIL|2            |
+|GYM WATER           |WATER_RETAIL|5            |
+|HARMONY BROOK       |WATER_RETAIL|4            |
+|HAWAIIAN PUNCH      |WATER_RETAIL|5            |
+|HIDROPURA           |WATER_RETAIL|4            |
+|INFINIT             |WATER_RETAIL|1            |
+|JARRITA             |WATER_RETAIL|1            |
+|JERSEY              |WATER_RETAIL|5            |
+|JULIGHT             |WATER_RETAIL|1            |
+|JUMEX               |WATER_RETAIL|89           |
+|JUMEX FRESH         |WATER_RETAIL|11           |
+|JUMEX MIA           |WATER_RETAIL|5            |
+|JUNGHANNS           |WATER_RETAIL|3            |
+|KABALA              |WATER_RETAIL|1            |
+|KING FRUT           |WATER_RETAIL|3            |
+|KOOL-AID            |WATER_RETAIL|7            |
+|LA JOLLA            |WATER_RETAIL|4            |
+|LA NORIA            |WATER_RETAIL|1            |
+|LA PUREZA           |WATER_RETAIL|1            |
+|LALA                |WATER_RETAIL|17           |
+|LAS BRISAS          |WATER_RETAIL|4            |
+|LAS PUENTES         |WATER_RETAIL|1            |
+|LEON                |WATER_RETAIL|2            |
+|LOS 19 HERMANOS     |WATER_RETAIL|18           |
+|LOS ALPES           |WATER_RETAIL|2            |
+|LYDER               |WATER_RETAIL|1            |
+|MANANTIAL           |WATER_RETAIL|1            |
+|MINUTE MAID         |WATER_RETAIL|10           |
+|MISTER Q            |WATER_RETAIL|3            |
+|MONDARIZ            |WATER_RETAIL|1            |
+|NATURES HEART       |WATER_RETAIL|3            |
+|NIAGARA             |WATER_RETAIL|6            |
+|NOSSO COCO          |WATER_RETAIL|5            |
+|NOVALIV             |WATER_RETAIL|12           |
+|OASIS               |WATER_RETAIL|11           |
+|OCEAN SPRAY         |WATER_RETAIL|2            |
+|OSO POKY            |WATER_RETAIL|4            |
+|OTHERS MARCA        |WATER_RETAIL|809          |
+|OYE                 |WATER_RETAIL|2            |
+|PATO PASCUAL        |WATER_RETAIL|2            |
+|PENA PURA           |WATER_RETAIL|4            |
+|PL                  |WATER_RETAIL|4            |
+|POWER PUNCH         |WATER_RETAIL|6            |
+|POWERADE            |WATER_RETAIL|4            |
+|PREMIER             |WATER_RETAIL|8            |
+|PROPEL              |WATER_RETAIL|2            |
+|PULPY               |WATER_RETAIL|2            |
+|PURA SOL            |WATER_RETAIL|3            |
+|PURE LIFE           |WATER_RETAIL|2            |
+|PUREZA VITAL        |WATER_RETAIL|28           |
+|PUREZA VITAL KIDS   |WATER_RETAIL|2            |
+|PURISIMA            |WATER_RETAIL|3            |
+|ROCIO               |WATER_RETAIL|3            |
+|SABOR X             |WATER_RETAIL|3            |
+|SABOREX             |WATER_RETAIL|1            |
+|SAFARI              |WATER_RETAIL|5            |
+|SAN JUDAS TADEO     |WATER_RETAIL|6            |
+|SANTA MARIA COAHUILA|WATER_RETAIL|4            |
+|SANTA MONICA        |WATER_RETAIL|2            |
+|SANTORINI           |WATER_RETAIL|8            |
+|SELLO ROJO          |WATER_RETAIL|15           |
+|SIERRA AZUL         |WATER_RETAIL|10           |
+|SKARCH              |WATER_RETAIL|16           |
+|SNAPPLE             |WATER_RETAIL|3            |
+|SOLEM               |WATER_RETAIL|5            |
+|SONRISA             |WATER_RETAIL|1            |
+|SPARKLETTS          |WATER_RETAIL|5            |
+|STA. MARIA -NESTLE- |WATER_RETAIL|22           |
+|SUN LIGHT           |WATER_RETAIL|2            |
+|SUNNY DELIGHT       |WATER_RETAIL|5            |
+|SUPER STAR          |WATER_RETAIL|5            |
+|TAMPICO             |WATER_RETAIL|25           |
+|TROPIFRUT           |WATER_RETAIL|8            |
+|VALLE FRUT          |WATER_RETAIL|39           |
+|VICTORIA            |WATER_RETAIL|7            |
+|VIKA 8.5            |WATER_RETAIL|2            |
+|VILLA DE PATOS      |WATER_RETAIL|2            |
+|VIRY                |WATER_RETAIL|2            |
+|VOSS                |WATER_RETAIL|6            |
+|WELCH'S             |WATER_RETAIL|3            |
+|WINKY               |WATER_RETAIL|4            |
+|XALLAPAN            |WATER_RETAIL|3            |
+|YUKAI               |WATER_RETAIL|2            |
+|ZAMBA               |WATER_RETAIL|8            |
+|ZOE                 |WATER_RETAIL|11           |
+|ZUBBA               |WATER_RETAIL|12           |
++--------------------+------------+-------------+
+[2026-06-22 20:24:16] V9B_DAN — Water Retail derived brands (ITM_UNIF_BRAND_DAN — canonical output column)
+[2026-06-22 20:24:16] Running: V9B_DAN — Water Retail MARCA_DAN  [db=PRD_MEX]
+[2026-06-22 20:24:17]   → 166 rows returned
+[2026-06-22 20:24:17]   Water Retail ITM_UNIF_BRAND_DAN:
++--------------------+--------------------+------------+
+|MARCA_DAN           |MARCA_RAW           |SOURCE      |
++--------------------+--------------------+------------+
+|A DE COCO           |A DE COCO           |WATER_RETAIL|
+|ACAPULCO            |ACAPULCO            |WATER_RETAIL|
+|ACAPULCOCO          |ACAPULCOCO          |WATER_RETAIL|
+|AGA PUREZA          |AGA PUREZA          |WATER_RETAIL|
+|AGUA AZUL           |AGUA AZUL           |WATER_RETAIL|
+|AGUA PURA           |AGUA PURA           |WATER_RETAIL|
+|AGUAS FRESCAS       |AGUAS FRESCAS       |WATER_RETAIL|
+|AGUITAS             |AGUITAS             |WATER_RETAIL|
+|AL DIA              |AL DIA              |WATER_RETAIL|
+|ALPINA              |ALPINA              |WATER_RETAIL|
+|AQUA                |AQUA                |WATER_RETAIL|
+|AQUA PURA           |AQUA PURA           |WATER_RETAIL|
+|AQUA VITA           |AQUA VITA           |WATER_RETAIL|
+|ARCOIRIS            |ARCOIRIS            |WATER_RETAIL|
+|ARIZONA             |ARIZONA             |WATER_RETAIL|
+|ARROWHEAD           |ARROWHEAD           |WATER_RETAIL|
+|AURORA              |AURORA              |WATER_RETAIL|
+|AWA                 |AWA                 |WATER_RETAIL|
+|BAVIEN              |BAVIEN              |WATER_RETAIL|
+|BIG                 |BIG                 |WATER_RETAIL|
+|BIG AQUA VITAL      |BIG AQUA VITAL      |WATER_RETAIL|
+|BLANQUITA           |BLANQUITA           |WATER_RETAIL|
+|BOING               |BOING               |WATER_RETAIL|
+|BONAFINA            |BONAFINA            |WATER_RETAIL|
+|BONAFONT            |BONAFONT            |WATER_RETAIL|
+|BONAFONT KIDS       |BONAFONT            |WATER_RETAIL|
+|BONLATTI            |BONLATTI            |WATER_RETAIL|
+|BUONA               |BUONA               |WATER_RETAIL|
+|CACTUS              |CACTUS              |WATER_RETAIL|
+|CALAHUA             |CALAHUA             |WATER_RETAIL|
+|CAPRISUN            |CAPRISUN            |WATER_RETAIL|
+|CASCADA             |CASCADA             |WATER_RETAIL|
+|CHAPARRITA          |CHAPARRITA          |WATER_RETAIL|
+|CHECHI              |CHECHI              |WATER_RETAIL|
+|CLARA               |CLARA               |WATER_RETAIL|
+|CLIGHT              |CLIGHT              |WATER_RETAIL|
+|COCA-COLA           |VICTORIA            |WATER_RETAIL|
+|COCA-COLA           |LA JOLLA            |WATER_RETAIL|
+|COCA-COLA           |DASANI              |WATER_RETAIL|
+|COCA-COLA           |PULPY               |WATER_RETAIL|
+|COCA-COLA           |FLORIDA 7           |WATER_RETAIL|
+|COCA-COLA           |FUZE                |WATER_RETAIL|
+|COCA-COLA           |FRUTSI              |WATER_RETAIL|
+|COCA-COLA           |BEBERE FRUT         |WATER_RETAIL|
+|COCA-COLA           |CRISTAL             |WATER_RETAIL|
+|COCA-COLA           |CIEL                |WATER_RETAIL|
+|COCA-COLA           |PENA PURA           |WATER_RETAIL|
+|COCA-COLA           |PURA SOL            |WATER_RETAIL|
+|COCA-COLA           |DELAWARE PUNCH      |WATER_RETAIL|
+|COCA-COLA           |TROPIFRUT           |WATER_RETAIL|
+|COCA-COLA           |FRUTIER             |WATER_RETAIL|
+|COCA-COLA           |MINUTE MAID         |WATER_RETAIL|
+|COCA-COLA           |VALLE FRUT          |WATER_RETAIL|
+|COCA-COLA           |POWERADE            |WATER_RETAIL|
+|COCA-COLA           |DEL VALLE           |WATER_RETAIL|
+|COCA-COLA           |GLACEAU             |WATER_RETAIL|
+|COCO NIAU           |COCO NIAU           |WATER_RETAIL|
+|COYUCA              |COYUCA              |WATER_RETAIL|
+|CRISTAL             |CRISTAL             |WATER_RETAIL|
+|CRYSPURA            |CRYSPURA            |WATER_RETAIL|
+|CRYSTAL             |CRYSTAL             |WATER_RETAIL|
+|D'SOLARES           |D'SOLARES           |WATER_RETAIL|
+|DE LOS ANGELES      |DE LOS ANGELES      |WATER_RETAIL|
+|DEL VALLE           |DEL VALLE           |WATER_RETAIL|
+|DELICIAS            |DELICIAS            |WATER_RETAIL|
+|EL MEXICANO         |EL MEXICANO         |WATER_RETAIL|
+|ENERGIE             |ENERGIE             |WATER_RETAIL|
+|EVIAN               |EVIAN               |WATER_RETAIL|
+|FARAON              |FARAON              |WATER_RETAIL|
+|FESTIN              |FESTIN              |WATER_RETAIL|
+|FIJI                |OTHERS MARCA        |WATER_RETAIL|
+|FRIKO               |FRIKO               |WATER_RETAIL|
+|FRUT                |FRUT                |WATER_RETAIL|
+|FRUTI QUEKO         |FRUTI QUEKO         |WATER_RETAIL|
+|FRUTOS DE VIDA      |FRUTOS DE VIDA      |WATER_RETAIL|
+|FUENSANTA           |FUENSANTA           |WATER_RETAIL|
+|GERBER              |GERBER              |WATER_RETAIL|
+|GUD                 |GUD                 |WATER_RETAIL|
+|GUGAR               |GUGAR               |WATER_RETAIL|
+|GUGARIN             |GUGARIN             |WATER_RETAIL|
+|GYM WATER           |GYM WATER           |WATER_RETAIL|
+|HARMONY BROOK       |HARMONY BROOK       |WATER_RETAIL|
+|HAWAIIAN PUNCH      |HAWAIIAN PUNCH      |WATER_RETAIL|
+|HIDROPURA           |HIDROPURA           |WATER_RETAIL|
+|INFINIT             |INFINIT             |WATER_RETAIL|
+|JERSEY              |JERSEY              |WATER_RETAIL|
+|JULIGHT             |JULIGHT             |WATER_RETAIL|
+|JUMEX               |JUMEX               |WATER_RETAIL|
+|JUMEX FRESH         |JUMEX FRESH         |WATER_RETAIL|
+|JUMEX MIA           |JUMEX MIA           |WATER_RETAIL|
+|KABALA              |KABALA              |WATER_RETAIL|
+|KING FRUT           |KING FRUT           |WATER_RETAIL|
+|KOOL-AID            |KOOL-AID            |WATER_RETAIL|
+|LA NORIA            |LA NORIA            |WATER_RETAIL|
+|LA PUREZA           |LA PUREZA           |WATER_RETAIL|
+|LALA                |LALA                |WATER_RETAIL|
+|LAS BRISAS          |LAS BRISAS          |WATER_RETAIL|
+|LAS PUENTES         |LAS PUENTES         |WATER_RETAIL|
+|LEON                |LEON                |WATER_RETAIL|
+|LEVITE              |BONAFONT            |WATER_RETAIL|
+|LOS 19 HERMANOS     |LOS 19 HERMANOS     |WATER_RETAIL|
+|LOS ALPES           |LOS ALPES           |WATER_RETAIL|
+|LYDER               |LYDER               |WATER_RETAIL|
+|MANANTIAL           |MANANTIAL           |WATER_RETAIL|
+|MINUTE MAID         |MINUTE MAID         |WATER_RETAIL|
+|MONDARIZ            |MONDARIZ            |WATER_RETAIL|
+|NATURES HEART       |NATURES HEART       |WATER_RETAIL|
+|NIAGARA             |NIAGARA             |WATER_RETAIL|
+|NOSSO COCO          |NOSSO COCO          |WATER_RETAIL|
+|NOVALIV             |NOVALIV             |WATER_RETAIL|
+|OASIS               |OASIS               |WATER_RETAIL|
+|OCEAN SPRAY         |OCEAN SPRAY         |WATER_RETAIL|
+|OSO POKY            |OSO POKY            |WATER_RETAIL|
+|OTHER BRANDS        |OTHERS MARCA        |WATER_RETAIL|
+|OYE                 |OYE                 |WATER_RETAIL|
+|PATO PASCUAL        |PATO PASCUAL        |WATER_RETAIL|
+|PEPSI               |PROPEL              |WATER_RETAIL|
+|PEPSI               |JUNGHANNS           |WATER_RETAIL|
+|PEPSI               |JARRITA             |WATER_RETAIL|
+|PEPSI               |E-PURA BEBE         |WATER_RETAIL|
+|PEPSI               |SUN LIGHT           |WATER_RETAIL|
+|PEPSI               |POWER PUNCH         |WATER_RETAIL|
+|PEPSI               |BE LIGHT            |WATER_RETAIL|
+|PEPSI               |SANTORINI           |WATER_RETAIL|
+|PEPSI               |FITLINE             |WATER_RETAIL|
+|PEPSI               |E-PURITA            |WATER_RETAIL|
+|PEPSI               |E-PURA              |WATER_RETAIL|
+|PEPSI               |MISTER Q            |WATER_RETAIL|
+|PEPSI               |GLACIAL             |WATER_RETAIL|
+|PEPSI               |ELECTROPURA         |WATER_RETAIL|
+|PEÑAFIEL            |AGUAFIEL            |WATER_RETAIL|
+|PL                  |PL                  |WATER_RETAIL|
+|PREMIER             |PREMIER             |WATER_RETAIL|
+|PURE LIFE           |PURE LIFE           |WATER_RETAIL|
+|PUREZA VITAL        |PUREZA VITAL        |WATER_RETAIL|
+|PUREZA VITAL KIDS   |PUREZA VITAL KIDS   |WATER_RETAIL|
+|PURISIMA            |PURISIMA            |WATER_RETAIL|
+|ROCIO               |ROCIO               |WATER_RETAIL|
+|SABOR X             |SABOR X             |WATER_RETAIL|
+|SABOREX             |SABOREX             |WATER_RETAIL|
+|SAFARI              |SAFARI              |WATER_RETAIL|
+|SAN JUDAS TADEO     |SAN JUDAS TADEO     |WATER_RETAIL|
+|SANTA MARIA COAHUILA|SANTA MARIA COAHUILA|WATER_RETAIL|
+|SANTA MONICA        |SANTA MONICA        |WATER_RETAIL|
+|SELLO ROJO          |SELLO ROJO          |WATER_RETAIL|
+|SIERRA AZUL         |SIERRA AZUL         |WATER_RETAIL|
+|SKARCH              |SKARCH              |WATER_RETAIL|
+|SNAPPLE             |SNAPPLE             |WATER_RETAIL|
+|SOLEM               |SOLEM               |WATER_RETAIL|
+|SONRISA             |SONRISA             |WATER_RETAIL|
+|SPARKLETTS          |SPARKLETTS          |WATER_RETAIL|
+|STA. MARIA -NESTLE- |STA. MARIA -NESTLE- |WATER_RETAIL|
+|SUNNY DELIGHT       |SUNNY DELIGHT       |WATER_RETAIL|
+|SUPER STAR          |SUPER STAR          |WATER_RETAIL|
+|TAMPICO             |TAMPICO             |WATER_RETAIL|
+|VIKA 8.5            |VIKA 8.5            |WATER_RETAIL|
+|VILLA DE PATOS      |VILLA DE PATOS      |WATER_RETAIL|
+|VIRY                |VIRY                |WATER_RETAIL|
+|VOSS                |VOSS                |WATER_RETAIL|
+|WELCH'S             |WELCH'S             |WATER_RETAIL|
+|WINKY               |WINKY               |WATER_RETAIL|
+|XALLAPAN            |XALLAPAN            |WATER_RETAIL|
+|YUKAI               |YUKAI               |WATER_RETAIL|
+|ZAMBA               |ZAMBA               |WATER_RETAIL|
+|ZOE                 |ZOE                 |WATER_RETAIL|
+|ZUBBA               |ZUBBA               |WATER_RETAIL|
++--------------------+--------------------+------------+
+[2026-06-22 20:24:19] V9C — Water Scantrack raw brands (CSTM_310589 — VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM)
+[2026-06-22 20:24:19] Running: V9C — Water Scantrack MARCA  [db=PRD_MEX]
+[2026-06-22 20:24:20]   → 140 rows returned
+[2026-06-22 20:24:20]   Water Scantrack brands (CSTM_310589):
++--------------------+---------------+-------------+
+|ITM_UNIF_BRAND_RAW  |SOURCE         |PRODUCT_COUNT|
++--------------------+---------------+-------------+
+|A DE COCO           |WATER_SCANTRACK|34           |
+|ACAPULCO            |WATER_SCANTRACK|14           |
+|ACAPULCOCO          |WATER_SCANTRACK|42           |
+|AGA PUREZA          |WATER_SCANTRACK|39           |
+|AGUAFIEL            |WATER_SCANTRACK|110          |
+|AGUAS FRESCAS       |WATER_SCANTRACK|20           |
+|AGUITAS             |WATER_SCANTRACK|58           |
+|AL DIA              |WATER_SCANTRACK|32           |
+|ALPINA              |WATER_SCANTRACK|13           |
+|AQUA                |WATER_SCANTRACK|16           |
+|AQUA PURA           |WATER_SCANTRACK|8            |
+|ARIZONA             |WATER_SCANTRACK|105          |
+|ARROWHEAD           |WATER_SCANTRACK|40           |
+|AURORA              |WATER_SCANTRACK|14           |
+|AWA                 |WATER_SCANTRACK|26           |
+|BAVIEN              |WATER_SCANTRACK|18           |
+|BE LIGHT            |WATER_SCANTRACK|97           |
+|BEAUTY DRINK        |WATER_SCANTRACK|8            |
+|BEBERE FRUT         |WATER_SCANTRACK|52           |
+|BIG                 |WATER_SCANTRACK|83           |
+|BIG AQUA VITAL      |WATER_SCANTRACK|41           |
+|BLANQUITA           |WATER_SCANTRACK|57           |
+|BOING               |WATER_SCANTRACK|235          |
+|BONAFINA            |WATER_SCANTRACK|124          |
+|BONAFONT            |WATER_SCANTRACK|932          |
+|BONLATTI            |WATER_SCANTRACK|8            |
+|CACTUS              |WATER_SCANTRACK|35           |
+|CALAHUA             |WATER_SCANTRACK|18           |
+|CAPRISUN            |WATER_SCANTRACK|73           |
+|CASCADA             |WATER_SCANTRACK|10           |
+|CHAPARRITA          |WATER_SCANTRACK|18           |
+|CHECHI              |WATER_SCANTRACK|21           |
+|CHIQUITA            |WATER_SCANTRACK|8            |
+|CIEL                |WATER_SCANTRACK|347          |
+|CLIGHT              |WATER_SCANTRACK|8            |
+|COCO NIAU           |WATER_SCANTRACK|16           |
+|CRISTAL             |WATER_SCANTRACK|93           |
+|CRYSPURA            |WATER_SCANTRACK|34           |
+|CRYSTAL             |WATER_SCANTRACK|20           |
+|DE LOS ANGELES      |WATER_SCANTRACK|8            |
+|DEL VALLE           |WATER_SCANTRACK|109          |
+|DELAWARE PUNCH      |WATER_SCANTRACK|43           |
+|DUCOCO              |WATER_SCANTRACK|14           |
+|E-PURA              |WATER_SCANTRACK|152          |
+|E-PURA BEBE         |WATER_SCANTRACK|14           |
+|E-PURITA            |WATER_SCANTRACK|46           |
+|EL MEXICANO         |WATER_SCANTRACK|20           |
+|ELECTROPURA         |WATER_SCANTRACK|37           |
+|ENERGIE             |WATER_SCANTRACK|8            |
+|EVIAN               |WATER_SCANTRACK|65           |
+|FARAON              |WATER_SCANTRACK|24           |
+|FESTIN              |WATER_SCANTRACK|8            |
+|FITLINE             |WATER_SCANTRACK|8            |
+|FLORIDA 7           |WATER_SCANTRACK|55           |
+|FOCO                |WATER_SCANTRACK|16           |
+|FRIKO               |WATER_SCANTRACK|16           |
+|FRUTI QUEKO         |WATER_SCANTRACK|49           |
+|FRUTIER             |WATER_SCANTRACK|31           |
+|FRUTOS DE VIDA      |WATER_SCANTRACK|16           |
+|FRUTSI              |WATER_SCANTRACK|63           |
+|FUENSANTA           |WATER_SCANTRACK|45           |
+|GERBER              |WATER_SCANTRACK|218          |
+|GLACEAU             |WATER_SCANTRACK|70           |
+|GLACIAL             |WATER_SCANTRACK|14           |
+|GUD                 |WATER_SCANTRACK|16           |
+|GUGAR               |WATER_SCANTRACK|14           |
+|GYM WATER           |WATER_SCANTRACK|10           |
+|HARMONY BROOK       |WATER_SCANTRACK|28           |
+|HAWAIIAN PUNCH      |WATER_SCANTRACK|18           |
+|INFINIT             |WATER_SCANTRACK|8            |
+|JERSEY              |WATER_SCANTRACK|36           |
+|JULIGHT             |WATER_SCANTRACK|10           |
+|JUMEX               |WATER_SCANTRACK|597          |
+|JUMEX FRESH         |WATER_SCANTRACK|69           |
+|JUMEX MIA           |WATER_SCANTRACK|22           |
+|JUNGHANNS           |WATER_SCANTRACK|16           |
+|KING FRUT           |WATER_SCANTRACK|14           |
+|KOOL-AID            |WATER_SCANTRACK|35           |
+|LA JOLLA            |WATER_SCANTRACK|20           |
+|LALA                |WATER_SCANTRACK|57           |
+|LAS BRISAS          |WATER_SCANTRACK|16           |
+|LEON                |WATER_SCANTRACK|10           |
+|LOS 19 HERMANOS     |WATER_SCANTRACK|37           |
+|LOS ALPES           |WATER_SCANTRACK|16           |
+|MINUTE MAID         |WATER_SCANTRACK|65           |
+|MISTER Q            |WATER_SCANTRACK|14           |
+|MONDARIZ            |WATER_SCANTRACK|8            |
+|NATURES HEART       |WATER_SCANTRACK|22           |
+|NIAGARA             |WATER_SCANTRACK|44           |
+|NOSSO COCO          |WATER_SCANTRACK|27           |
+|NOVALIV             |WATER_SCANTRACK|66           |
+|OASIS               |WATER_SCANTRACK|8            |
+|OSO POKY            |WATER_SCANTRACK|27           |
+|OTHERS MARCA        |WATER_SCANTRACK|4216         |
+|OYE                 |WATER_SCANTRACK|21           |
+|PENA PURA           |WATER_SCANTRACK|20           |
+|PL                  |WATER_SCANTRACK|27           |
+|POWER PUNCH         |WATER_SCANTRACK|10           |
+|POWERADE            |WATER_SCANTRACK|18           |
+|PREMIER             |WATER_SCANTRACK|29           |
+|PULPY               |WATER_SCANTRACK|19           |
+|PURA SOL            |WATER_SCANTRACK|8            |
+|PURE LIFE           |WATER_SCANTRACK|8            |
+|PUREZA VITAL        |WATER_SCANTRACK|155          |
+|PUREZA VITAL KIDS   |WATER_SCANTRACK|42           |
+|PURISIMA            |WATER_SCANTRACK|14           |
+|ROCIO               |WATER_SCANTRACK|8            |
+|SABOR X             |WATER_SCANTRACK|24           |
+|SABOREX             |WATER_SCANTRACK|8            |
+|SAN JUDAS TADEO     |WATER_SCANTRACK|26           |
+|SANTA MARIA COAHUILA|WATER_SCANTRACK|14           |
+|SANTA MONICA        |WATER_SCANTRACK|22           |
+|SANTORINI           |WATER_SCANTRACK|32           |
+|SELLO ROJO          |WATER_SCANTRACK|124          |
+|SHANDY              |WATER_SCANTRACK|8            |
+|SIERRA AZUL         |WATER_SCANTRACK|36           |
+|SKARCH              |WATER_SCANTRACK|87           |
+|SNAPPLE             |WATER_SCANTRACK|16           |
+|SOLEM               |WATER_SCANTRACK|67           |
+|SONRISA             |WATER_SCANTRACK|12           |
+|SPARKLETTS          |WATER_SCANTRACK|42           |
+|STA. MARIA -NESTLE- |WATER_SCANTRACK|114          |
+|SUN LIGHT           |WATER_SCANTRACK|8            |
+|SUNNY DELIGHT       |WATER_SCANTRACK|44           |
+|SUPER STAR          |WATER_SCANTRACK|8            |
+|TAMPICO             |WATER_SCANTRACK|126          |
+|TROPIFRUT           |WATER_SCANTRACK|27           |
+|VALLE FRUT          |WATER_SCANTRACK|183          |
+|VICTORIA            |WATER_SCANTRACK|20           |
+|VIKA 8.5            |WATER_SCANTRACK|22           |
+|VILLA DE PATOS      |WATER_SCANTRACK|20           |
+|VIRY                |WATER_SCANTRACK|10           |
+|VOSS                |WATER_SCANTRACK|38           |
+|WELCH'S             |WATER_SCANTRACK|20           |
+|WINKY               |WATER_SCANTRACK|20           |
+|XALLAPAN            |WATER_SCANTRACK|14           |
+|YUKAI               |WATER_SCANTRACK|16           |
+|ZAMBA               |WATER_SCANTRACK|16           |
+|ZOE                 |WATER_SCANTRACK|80           |
+|ZUBBA               |WATER_SCANTRACK|33           |
++--------------------+---------------+-------------+
+[2026-06-22 20:24:21] V9D — PB Scantrack brands (INP_56985 — VW_SUST_LECHE_ST_NLSN_PROD_DIM)
+[2026-06-22 20:24:21] Running: V9D — PB Scantrack MARCA  [db=PRD_MEX]
+[2026-06-22 20:24:22]   → 77 rows returned
+[2026-06-22 20:24:22]   PB Scantrack brands (INP_56985):
++-------------------+------------+-------------+
+|MARCA              |SOURCE      |PRODUCT_COUNT|
++-------------------+------------+-------------+
+|A DE COCO          |PB_SCANTRACK|36           |
+|ADES               |PB_SCANTRACK|180          |
+|ALPURA             |PB_SCANTRACK|16           |
+|AMANDIN            |PB_SCANTRACK|9            |
+|AVELINA            |PB_SCANTRACK|9            |
+|BANANOH            |PB_SCANTRACK|19           |
+|BE CLEAR           |PB_SCANTRACK|9            |
+|BIRDMAN            |PB_SCANTRACK|24           |
+|BLUE DIAMOND       |PB_SCANTRACK|87           |
+|BOULDER            |PB_SCANTRACK|15           |
+|CALAHUA            |PB_SCANTRACK|35           |
+|CALIFIA FARMS      |PB_SCANTRACK|102          |
+|CALIFORNIA SUNSHINE|PB_SCANTRACK|15           |
+|CALPIS             |PB_SCANTRACK|9            |
+|CARNATION          |PB_SCANTRACK|28           |
+|CHOBANI            |PB_SCANTRACK|36           |
+|CONDORELLI         |PB_SCANTRACK|9            |
+|DEL VALLE          |PB_SCANTRACK|9            |
+|ELMHURST           |PB_SCANTRACK|71           |
+|ESSENTIAL WAITROSE |PB_SCANTRACK|11           |
+|GOOD KARMA         |PB_SCANTRACK|15           |
+|GRANVITA           |PB_SCANTRACK|11           |
+|GUD                |PB_SCANTRACK|100          |
+|HAPPY DAY          |PB_SCANTRACK|16           |
+|HEARTBEST          |PB_SCANTRACK|48           |
+|HERDEZ             |PB_SCANTRACK|9            |
+|ISOLA BIO          |PB_SCANTRACK|32           |
+|LA CASA DEL JUGO   |PB_SCANTRACK|9            |
+|LALA VITA          |PB_SCANTRACK|93           |
+|LEOLI              |PB_SCANTRACK|16           |
+|MALK               |PB_SCANTRACK|15           |
+|MAMMA CHIA         |PB_SCANTRACK|15           |
+|MANDOR             |PB_SCANTRACK|16           |
+|MARIANI            |PB_SCANTRACK|17           |
+|MILKADAMIA         |PB_SCANTRACK|27           |
+|MOOALA             |PB_SCANTRACK|61           |
+|MW POLAR           |PB_SCANTRACK|9            |
+|N JOY BRAND        |PB_SCANTRACK|15           |
+|NATUR ALL          |PB_SCANTRACK|23           |
+|NATURAL GOOD SHAPE |PB_SCANTRACK|9            |
+|NATURALS           |PB_SCANTRACK|9            |
+|NATURES HEART      |PB_SCANTRACK|160          |
+|NOTMILK            |PB_SCANTRACK|47           |
+|OAT WORLD          |PB_SCANTRACK|20           |
+|OATLY              |PB_SCANTRACK|22           |
+|OKKO SUPER FOODS   |PB_SCANTRACK|9            |
+|PACIFIC            |PB_SCANTRACK|77           |
+|PEARL              |PB_SCANTRACK|15           |
+|PL                 |PB_SCANTRACK|144          |
+|PLANT              |PB_SCANTRACK|14           |
+|PLANT FOLK         |PB_SCANTRACK|29           |
+|PROVAMEL           |PB_SCANTRACK|9            |
+|PURE               |PB_SCANTRACK|9            |
+|REAL NATURAL       |PB_SCANTRACK|32           |
+|RICE DREAM         |PB_SCANTRACK|12           |
+|RIPPLE             |PB_SCANTRACK|32           |
+|ROCKVIEW           |PB_SCANTRACK|29           |
+|RUDE HEALTH        |PB_SCANTRACK|23           |
+|SAN MIGUEL         |PB_SCANTRACK|9            |
+|SILK               |PB_SCANTRACK|321          |
+|SIN MARCA          |PB_SCANTRACK|16           |
+|SO DELICIOUS       |PB_SCANTRACK|25           |
+|SOLE               |PB_SCANTRACK|20           |
+|SOY                |PB_SCANTRACK|26           |
+|SOYALAC            |PB_SCANTRACK|9            |
+|SOYAPAC            |PB_SCANTRACK|9            |
+|THAI               |PB_SCANTRACK|9            |
+|THAI COCO          |PB_SCANTRACK|22           |
+|THAI HERITAGE      |PB_SCANTRACK|11           |
+|THAI KITCHEN       |PB_SCANTRACK|9            |
+|TWO BEARS          |PB_SCANTRACK|18           |
+|UTEKI              |PB_SCANTRACK|9            |
+|VILLA DE PATOS     |PB_SCANTRACK|9            |
+|WEST SOY           |PB_SCANTRACK|9            |
+|WILD HARVEST       |PB_SCANTRACK|9            |
+|YOPRO              |PB_SCANTRACK|9            |
+|YUMMA AVOCADO      |PB_SCANTRACK|9            |
++-------------------+------------+-------------+
+[2026-06-22 20:24:24] V10: MARCA_STD spot check
+[2026-06-22 20:24:24] V10A — SELL_IN (LV2_UMB_BRD_DSC → MARCA_STD)
+[2026-06-22 20:24:24] Running: V10A — SELL_IN MARCA_STD spot check  [db=PRD_MEX]
+[2026-06-22 20:24:26]   → 133 rows returned
+[2026-06-22 20:24:26]   SELL_IN MARCA_STD mapping:
++------------------------+------------------------+---------+
+|MARCA                   |MARCA_STD               |ROW_COUNT|
++------------------------+------------------------+---------+
+|25 Años                 |25 AÑOS                 |7        |
+|2Pack Blanco            |2PACK BLANCO            |1        |
+|2Pack Negro             |2PACK NEGRO             |1        |
+|ACTIVIA                 |ACTIVIA                 |335      |
+|Aga                     |AGA                     |4        |
+|Aga 20 Lts              |AGA 20 LTS              |3        |
+|Agua Natural            |AGUA NATURAL            |27       |
+|Airis                   |AIRIS                   |1        |
+|Alcancia                |ALCANCIA                |2        |
+|AQUAPURA                |AQUAPURA                |3        |
+|Arcoiris                |ARCOIRIS                |1        |
+|BADOIT                  |BADOIT                  |17       |
+|Bases                   |BASES                   |42       |
+|Bebedero                |BEBEDERO                |1        |
+|BENEGASTRO              |BENEGASTRO              |17       |
+|Bft 11 Lts              |BFT 11 LTS              |2        |
+|Bft 20 Lts              |BFT 20 LTS              |1        |
+|Bomba                   |BOMBA                   |12       |
+|Azul Bonafont           |BONAFONT                |1        |
+|BONAFONT                |BONAFONT                |274      |
+|Bonafont                |BONAFONT                |3        |
+|BONAFONT JUGO           |BONAFONT JUGO           |301      |
+|BONAFONT KIDS           |BONAFONT KIDS           |151      |
+|BONAFONT KIDS NATURAL   |BONAFONT KIDS           |5        |
+|BONAFONT SER            |BONAFONT SER            |10       |
+|TÉ BONAFONT             |BONAFONT TE             |7        |
+|Botanero                |BOTANERO                |1        |
+|Botella Aga             |BOTELLA AGA             |13       |
+|Bowls                   |BOWLS                   |1        |
+|BUTTER                  |BUTTER                  |1        |
+|Cafe                    |CAFE                    |2        |
+|Carrera                 |CARRERA                 |2        |
+|Ciel                    |CIEL                    |1        |
+|CODISTRIBUCION          |CODISTRIBUCION          |338      |
+|COLORS & FLAVOURS       |COLORS & FLAVOURS       |3        |
+|cosmetiquera            |COSMETIQUERA            |1        |
+|Dairy Danone France     |DAIRY DANONE FRANCE     |1        |
+|DAIRY DANONE MEXICO     |DAIRY DANONE MEXICO     |419      |
+|DANAO                   |DANAO                   |1        |
+|DANETTE                 |DANETTE                 |96       |
+|DANMIX                  |DANMIX                  |30       |
+|DANONE CREME            |DANONE                  |11       |
+|DANONE YOGHURT          |DANONE                  |463      |
+|Danone                  |DANONE                  |6        |
+|DANONINO                |DANONINO                |277      |
+|DAN'UP                  |DANUP                   |184      |
+|DANY                    |DANY                    |108      |
+|DELIGHT                 |DELIGHT                 |18       |
+|Destilada               |DESTILADA               |2        |
+|Disney                  |DISNEY                  |5        |
+|Dispensers              |DISPENSERS              |8        |
+|Especiero               |ESPECIERO               |3        |
+|EVIAN                   |EVIAN                   |143      |
+|FERRARELLE              |FERRARELLE              |4        |
+|FLEXIBLES               |FLEXIBLES               |2        |
+|Fontaine                |FONTAINE                |2        |
+|Fresh                   |FRESH                   |1        |
+|Frida                   |FRIDA                   |2        |
+|Frijoles                |FRIJOLES                |3        |
+|FRUIX                   |FRUIX                   |14       |
+|Granel                  |GRANEL                  |3        |
+|DANONE HERSHEYS         |HERSHEYS                |3        |
+|HERSHEYS                |HERSHEYS                |1        |
+|Ice Age                 |ICE AGE                 |1        |
+|Infantil                |INFANTIL                |1        |
+|Jarra                   |JARRA                   |11       |
+|Juizzy                  |JUIZZY                  |36       |
+|Kids                    |KIDS                    |10       |
+|KINDER                  |KINDER                  |144      |
+|Kung Fu Panda           |KUNG FU PANDA           |1        |
+|KUYEN KAAT              |KUYEN KAAT              |1        |
+|Lapicera                |LAPICERA                |1        |
+|LEVITE                  |LEVITE                  |344      |
+|Levite                  |LEVITE                  |19       |
+|libro navideño          |LIBRO NAVIDEÑO          |1        |
+|LICUAMIX                |LICUAMIX                |3        |
+|Metalico                |METALICO                |6        |
+|MILK POWDERS            |MILK POWDERS            |1        |
+|Mineralizada            |MINERALIZADA            |6        |
+|Mundial                 |MUNDIAL                 |3        |
+|Nano                    |NANO                    |1        |
+|NATURAL                 |NATURAL                 |3        |
+|Naturillas              |NATURILLAS              |1        |
+|OCEAN SPRAY             |OCEAN SPRAY             |29       |
+|OIKOS                   |OIKOS                   |134      |
+|OTHERS                  |OTHERS                  |233      |
+|Patrio                  |PATRIO                  |1        |
+|PLASTIC BOTTLE          |PLASTIC BOTTLE          |2        |
+|playera mundial         |PLAYERA MUNDIAL         |2        |
+|Polar                   |POLAR                   |2        |
+|portavasos              |PORTAVASOS              |2        |
+|Pouch                   |POUCH                   |4        |
+|Primavera               |PRIMAVERA               |1        |
+|PRIVADA                 |PRIVADA                 |46       |
+|Productos Descontinuados|PRODUCTOS DESCONTINUADOS|229      |
+|PROMO                   |PROMO                   |13       |
+|Promo                   |PROMO                   |1        |
+|PUREZA AGA              |PUREZA AGA              |14       |
+|Refractarios            |REFRACTARIOS            |2        |
+|Reto                    |RETO                    |2        |
+|SABOR FRESA             |SABOR FRESA             |1        |
+|SABOR HORCHATA          |SABOR HORCHATA          |1        |
+|SABOR JAMAICA           |SABOR JAMAICA           |1        |
+|SABOR LIMON             |SABOR LIMON             |1        |
+|SABOR NARANJA           |SABOR NARANJA           |1        |
+|Salmon Bonafont         |SALMON BONAFONT         |4        |
+|Ser Pura                |SER PURA                |4        |
+|SILK                    |SILK                    |417      |
+|SILK ORIG 946ML         |SILK                    |1        |
+|SILKCHOCO190ML          |SILK                    |2        |
+|Silk                    |SILK                    |1        |
+|SO DELICIOUS            |SO DELICIOUS            |1        |
+|Sport                   |SPORT                   |1        |
+|Star Wars               |STAR WARS               |5        |
+|STOK                    |STOK                    |4        |
+|Termo                   |TERMO                   |114      |
+|Ultrapura               |ULTRAPURA               |5        |
+|VITALINEA               |VITALINEA               |115      |
+|VOLVIC                  |VOLVIC                  |9        |
+|WATER BONAFONT          |WATER BONAFONT          |5        |
+|WATER INFINIT           |WATER INFINIT           |6        |
+|Wmw                     |WMW                     |1        |
+|YOPRO                   |YOPRO                   |15       |
+|Ceramica                |_MERCHANDISE            |1        |
+|Lonchera                |_MERCHANDISE            |6        |
+|Palas                   |_MERCHANDISE            |1        |
+|Tablas                  |_MERCHANDISE            |1        |
+|Tazas                   |_MERCHANDISE            |1        |
+|Toallas                 |_MERCHANDISE            |1        |
+|Tupper                  |_MERCHANDISE            |3        |
+|Utensilios              |_MERCHANDISE            |1        |
+|Vajilla                 |_MERCHANDISE            |7        |
+|Vasos                   |_MERCHANDISE            |12       |
++------------------------+------------------------+---------+
+[2026-06-22 20:24:28] V10B — IBP (MARCA → MARCA_STD)
+[2026-06-22 20:24:28] Running: V10B — IBP MARCA_STD spot check  [db=PRD_MDP]
+[2026-06-22 20:24:29]   → 29 rows returned
+[2026-06-22 20:24:29]   IBP MARCA_STD mapping:
++-------------+-------------+---------+
+|MARCA        |MARCA_STD    |ROW_COUNT|
++-------------+-------------+---------+
+|ACTIVIA      |ACTIVIA      |456084   |
+|AGUAS FRESCAS|AGUAS FRESCAS|173436   |
+|BENEGASTRO   |BENEGASTRO   |92016    |
+|BONAFONT     |BONAFONT     |162264   |
+|BONAFONT TÉ  |BONAFONT TÉ  |12576    |
+|CIRCULO K    |CIRCULO K    |144      |
+|DANETTE      |DANETTE      |365748   |
+|DAN MIX      |DANMIX       |86736    |
+|DANONE       |DANONE       |1393908  |
+|DANONE FREE  |DANONE       |13608    |
+|DANONE GRIEGO|DANONE       |178920   |
+|DANONINO     |DANONINO     |604884   |
+|DAN UP       |DANUP        |386448   |
+|DANY         |DANY         |516000   |
+|DELIGHT      |DELIGHT      |3900     |
+|EVIAN        |EVIAN        |16848    |
+|FERRAR       |FERRAR       |96       |
+|HERSHEY'S    |HERSHEYS     |5352     |
+|INFINIT      |INFINIT      |216      |
+|KIDS         |KIDS         |51492    |
+|LEVITE       |LEVITE       |77412    |
+|NETO         |NETO         |48       |
+|OCEAN SPRAY  |OCEAN SPRAY  |58368    |
+|OIKOS        |OIKOS        |691188   |
+|SILK         |SILK         |199140   |
+|STOK         |STOK         |240      |
+|SUEROX       |SUEROX       |888      |
+|VITALINEA    |VITALINEA    |2088     |
+|VOLVIC       |VOLVIC       |864      |
++-------------+-------------+---------+
+[2026-06-22 20:24:30] V11: Cross-source join test — SELL_OUT × IBP on MARCA_STD + FECHA
+[2026-06-22 20:24:30] Running: V11 — cross-source MARCA_STD join  [db=PRD_MDP]
+[2026-06-22 20:24:32]   → 534 rows returned
+[2026-06-22 20:24:32]   SELL_OUT × IBP join result:
++----------+----------------+-----------+------------+---------+------------+
+|FECHA     |MARCA_STD       |SO_VOL     |SO_AMT      |IBP_AMT  |JOIN_STATUS |
++----------+----------------+-----------+------------+---------+------------+
+|2025-01-01|ACTIVIA         |1097503.88 |65758579.00 |3853.91  |MATCHED     |
+|2025-01-01|AGUAS FRESCAS   |2778220.80 |23708888.52 |16135.32 |MATCHED     |
+|2025-01-01|BEC             |8111116.00 |23669580.81 |NULL     |NO_IBP_MATCH|
+|2025-01-01|BENEGASTRO      |190753.24  |11560757.88 |1173.16  |MATCHED     |
+|2025-01-01|BONAFONT        |25948910.50|157969733.41|116826.77|MATCHED     |
+|2025-01-01|BONAFONT KIDS   |1429107.30 |29119585.18 |NULL     |NO_IBP_MATCH|
+|2025-01-01|BONAFONT MINERAL|0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-01-01|BONAFONT SER    |6.60       |48.74       |NULL     |NO_IBP_MATCH|
+|2025-01-01|DANETTE         |1031888.81 |72522871.74 |3233.64  |MATCHED     |
+|2025-01-01|DANFRUT         |0.15       |5.90        |NULL     |NO_IBP_MATCH|
+|2025-01-01|DANMIX          |128642.95  |21980683.55 |611.63   |MATCHED     |
+|2025-01-01|DANONE          |3738991.39 |184942724.87|12737.61 |MATCHED     |
+|2025-01-01|DANONINO        |1034610.87 |112913426.60|4359.32  |MATCHED     |
+|2025-01-01|DANUP           |720368.89  |32583737.21 |5761.76  |MATCHED     |
+|2025-01-01|DANY            |1586743.39 |72909153.20 |5564.48  |MATCHED     |
+|2025-01-01|DELIGHT         |115702.63  |12859241.77 |197.52   |MATCHED     |
+|2025-01-01|EVIAN           |68495.70   |4999490.98  |1096.77  |MATCHED     |
+|2025-01-01|HERSHEYS        |160148.40  |9242252.06  |735.40   |MATCHED     |
+|2025-01-01|INFINIT WATER   |0.95       |18.16       |NULL     |NO_IBP_MATCH|
+|2025-01-01|JUIZZY          |1740.00    |0.00        |NULL     |NO_IBP_MATCH|
+|2025-01-01|LEVITE          |1125272.50 |8379317.40  |6909.77  |MATCHED     |
+|2025-01-01|LICUAMIX        |1.25       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-01-01|MEMBERS MARK    |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-01-01|OCEAN SPRAY     |672913.81  |17443620.14 |2493.74  |MATCHED     |
+|2025-01-01|OIKOS           |1786756.52 |176047887.00|4220.41  |MATCHED     |
+|2025-01-01|PUREZA AGA      |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-01-01|SILK            |1812137.26 |75614877.40 |4718.20  |MATCHED     |
+|2025-01-01|VITALINEA       |156470.44  |10148441.14 |388.62   |MATCHED     |
+|2025-01-01|YOPRO           |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-02-01|ACTIVIA         |999347.97  |60082344.53 |3640.94  |MATCHED     |
+|2025-02-01|AGUAS FRESCAS   |3195953.90 |22953585.18 |19709.10 |MATCHED     |
+|2025-02-01|BEC             |7915914.00 |23384908.20 |NULL     |NO_IBP_MATCH|
+|2025-02-01|BENEGASTRO      |180817.83  |10302181.35 |1032.73  |MATCHED     |
+|2025-02-01|BONAFONT        |26361398.97|163901715.71|129995.47|MATCHED     |
+|2025-02-01|BONAFONT KIDS   |1397516.70 |28133696.41 |NULL     |NO_IBP_MATCH|
+|2025-02-01|BONAFONT MINERAL|0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-02-01|BONAFONT SER    |4.60       |35.21       |NULL     |NO_IBP_MATCH|
+|2025-02-01|DANETTE         |985511.11  |66884755.62 |3230.68  |MATCHED     |
+|2025-02-01|DANFRUT         |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-02-01|DANMIX          |122777.94  |20319436.80 |567.70   |MATCHED     |
+|2025-02-01|DANONE          |3268879.34 |167512328.95|11795.51 |MATCHED     |
+|2025-02-01|DANONINO        |973366.61  |114714536.14|4441.07  |MATCHED     |
+|2025-02-01|DANUP           |688120.14  |30120809.61 |5033.71  |MATCHED     |
+|2025-02-01|DANY            |1467888.38 |70023756.48 |5285.46  |MATCHED     |
+|2025-02-01|DELIGHT         |112889.13  |12077838.04 |285.62   |MATCHED     |
+|2025-02-01|EVIAN           |65936.17   |5206920.30  |841.98   |MATCHED     |
+|2025-02-01|HERSHEYS        |113903.60  |6912811.14  |776.60   |MATCHED     |
+|2025-02-01|INFINIT WATER   |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-02-01|JUIZZY          |2821.50    |0.00        |NULL     |NO_IBP_MATCH|
+|2025-02-01|LEVITE          |1425740.90 |8734619.38  |9584.39  |MATCHED     |
+|2025-02-01|LICUAMIX        |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-02-01|MEMBERS MARK    |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-02-01|OCEAN SPRAY     |696077.43  |16094460.58 |2238.31  |MATCHED     |
+|2025-02-01|OIKOS           |1564991.07 |163739475.44|4308.28  |MATCHED     |
+|2025-02-01|PUREZA AGA      |1.00       |8.10        |NULL     |NO_IBP_MATCH|
+|2025-02-01|SILK            |1512148.58 |59155501.17 |4607.60  |MATCHED     |
+|2025-02-01|VITALINEA       |148359.41  |10097039.08 |371.07   |MATCHED     |
+|2025-02-01|YOPRO           |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-03-01|ACTIVIA         |1165923.18 |71923183.53 |3778.78  |MATCHED     |
+|2025-03-01|AGUAS FRESCAS   |4668460.24 |29975095.98 |28727.80 |MATCHED     |
+|2025-03-01|BEC             |9929857.00 |29377075.93 |NULL     |NO_IBP_MATCH|
+|2025-03-01|BENEGASTRO      |210926.28  |11711531.06 |1048.29  |MATCHED     |
+|2025-03-01|BONAFONT        |33668559.66|203506731.33|183708.54|MATCHED     |
+|2025-03-01|BONAFONT KIDS   |1569335.10 |31751605.40 |NULL     |NO_IBP_MATCH|
+|2025-03-01|BONAFONT MINERAL|0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-03-01|BONAFONT SER    |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-03-01|BONAFONT TE     |1901.50    |52454.87    |284.19   |MATCHED     |
+|2025-03-01|DANETTE         |1113151.48 |76786484.53 |3414.44  |MATCHED     |
+|2025-03-01|DANFRUT         |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-03-01|DANMIX          |145856.36  |23869638.38 |624.57   |MATCHED     |
+|2025-03-01|DANONE          |4262061.69 |210766775.14|13018.35 |MATCHED     |
+|2025-03-01|DANONINO        |1280232.75 |148280633.62|5152.71  |MATCHED     |
+|2025-03-01|DANUP           |816086.76  |34930225.59 |5717.36  |MATCHED     |
+|2025-03-01|DANY            |1810369.78 |86182907.04 |5948.11  |MATCHED     |
+|2025-03-01|DELIGHT         |111104.03  |13048926.36 |210.66   |MATCHED     |
+|2025-03-01|EVIAN           |84185.26   |6525671.67  |1252.63  |MATCHED     |
+|2025-03-01|HERSHEYS        |136359.40  |7733250.52  |929.00   |MATCHED     |
+|2025-03-01|INFINIT WATER   |0.95       |18.40       |NULL     |NO_IBP_MATCH|
+|2025-03-01|JUIZZY          |4048.00    |0.00        |NULL     |NO_IBP_MATCH|
+|2025-03-01|LEVITE          |2103191.85 |12008540.93 |13055.17 |MATCHED     |
+|2025-03-01|MEMBERS MARK    |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-03-01|OCEAN SPRAY     |829912.11  |18537696.36 |2493.22  |MATCHED     |
+|2025-03-01|OIKOS           |1886744.20 |198275506.75|4700.90  |MATCHED     |
+|2025-03-01|PUREZA AGA      |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-03-01|SILK            |1732496.27 |75417917.06 |4901.60  |MATCHED     |
+|2025-03-01|VITALINEA       |159054.67  |10699154.75 |236.44   |MATCHED     |
+|2025-03-01|YOPRO           |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-04-01|ACTIVIA         |1004861.85 |63273551.73 |3672.62  |MATCHED     |
+|2025-04-01|AGUAS FRESCAS   |4677167.69 |31285083.43 |30773.97 |MATCHED     |
+|2025-04-01|BEC             |9474759.00 |28473781.21 |NULL     |NO_IBP_MATCH|
+|2025-04-01|BENEGASTRO      |186325.32  |10750083.59 |1066.79  |MATCHED     |
+|2025-04-01|BONAFONT        |31954358.76|194895883.93|190614.28|MATCHED     |
+|2025-04-01|BONAFONT KIDS   |1208593.80 |23411653.45 |NULL     |NO_IBP_MATCH|
+|2025-04-01|BONAFONT MINERAL|0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-04-01|BONAFONT SER    |2.00       |13.36       |NULL     |NO_IBP_MATCH|
+|2025-04-01|BONAFONT TE     |31010.00   |889055.93   |488.33   |MATCHED     |
+|2025-04-01|DANETTE         |983755.08  |66788872.07 |3386.79  |MATCHED     |
+|2025-04-01|DANMIX          |125685.28  |20549933.04 |616.63   |MATCHED     |
+|2025-04-01|DANONE          |3920738.46 |190940914.87|14103.21 |MATCHED     |
+|2025-04-01|DANONINO        |1133540.89 |128801874.96|4918.87  |MATCHED     |
+|2025-04-01|DANUP           |708866.08  |30163442.73 |5444.20  |MATCHED     |
+|2025-04-01|DANY            |1723934.82 |80372887.22 |6242.89  |MATCHED     |
+|2025-04-01|DELIGHT         |81513.89   |9956052.64  |248.90   |MATCHED     |
+|2025-04-01|EVIAN           |72275.14   |5668631.09  |902.07   |MATCHED     |
+|2025-04-01|HERSHEYS        |81824.20   |4970071.34  |647.60   |MATCHED     |
+|2025-04-01|INFINIT WATER   |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-04-01|JUIZZY          |3247.00    |0.00        |NULL     |NO_IBP_MATCH|
+|2025-04-01|LEVITE          |2003914.35 |11877869.67 |15406.47 |MATCHED     |
+|2025-04-01|LICUAMIX        |0.25       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-04-01|MEMBERS MARK    |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-04-01|OCEAN SPRAY     |779502.36  |18896354.09 |2867.85  |MATCHED     |
+|2025-04-01|OIKOS           |1706090.02 |185205983.57|4698.42  |MATCHED     |
+|2025-04-01|PUREZA AGA      |6.00       |36.89       |NULL     |NO_IBP_MATCH|
+|2025-04-01|SILK            |1669405.44 |71913923.63 |5110.20  |MATCHED     |
+|2025-04-01|VITALINEA       |49614.03   |2991781.22  |79.49    |MATCHED     |
+|2025-04-01|YOPRO           |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-05-01|ACTIVIA         |1117214.17 |69052364.60 |4046.51  |MATCHED     |
+|2025-05-01|AGUAS FRESCAS   |5301542.88 |38137704.46 |35490.86 |MATCHED     |
+|2025-05-01|BEC             |10198196.00|31391166.33 |NULL     |NO_IBP_MATCH|
+|2025-05-01|BENEGASTRO      |207817.25  |11976991.68 |1172.25  |MATCHED     |
+|2025-05-01|BONAFONT        |38087799.07|217065496.98|203479.61|MATCHED     |
+|2025-05-01|BONAFONT KIDS   |1238130.90 |25051142.48 |NULL     |NO_IBP_MATCH|
+|2025-05-01|BONAFONT MINERAL|0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-05-01|BONAFONT SER    |10.60      |28.58       |NULL     |NO_IBP_MATCH|
+|2025-05-01|BONAFONT TE     |95720.50   |1775547.71  |2107.88  |MATCHED     |
+|2025-05-01|DANETTE         |1074812.59 |71526460.74 |3419.50  |MATCHED     |
+|2025-05-01|DANMIX          |132097.02  |22060005.10 |598.75   |MATCHED     |
+|2025-05-01|DANONE          |4402559.38 |211876894.05|14509.32 |MATCHED     |
+|2025-05-01|DANONINO        |1229720.29 |137196395.80|5149.83  |MATCHED     |
+|2025-05-01|DANUP           |794185.35  |34132708.03 |5913.20  |MATCHED     |
+|2025-05-01|DANY            |1907613.71 |87255818.04 |6421.52  |MATCHED     |
+|2025-05-01|DELIGHT         |121278.84  |13851506.47 |232.14   |MATCHED     |
+|2025-05-01|EVIAN           |77492.77   |6090559.79  |755.73   |MATCHED     |
+|2025-05-01|HERSHEYS        |89285.00   |5237654.53  |770.00   |MATCHED     |
+|2025-05-01|INFINIT WATER   |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-05-01|JUIZZY          |2464.50    |0.00        |NULL     |NO_IBP_MATCH|
+|2025-05-01|LEVITE          |2192395.40 |14130580.87 |16488.22 |MATCHED     |
+|2025-05-01|LICUAMIX        |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-05-01|MEMBERS MARK    |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-05-01|OCEAN SPRAY     |774994.50  |19815571.85 |2912.92  |MATCHED     |
+|2025-05-01|OIKOS           |1896795.91 |201064120.10|5111.94  |MATCHED     |
+|2025-05-01|PUREZA AGA      |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-05-01|SILK            |1668756.70 |70678945.95 |5048.20  |MATCHED     |
+|2025-05-01|VITALINEA       |41313.09   |2356641.28  |89.54    |MATCHED     |
+|2025-05-01|YOPRO           |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-06-01|ACTIVIA         |1103576.54 |66110740.28 |3752.46  |MATCHED     |
+|2025-06-01|AGUAS FRESCAS   |5199378.92 |27952493.40 |27028.03 |MATCHED     |
+|2025-06-01|BADOIT          |0.99       |95.43       |NULL     |NO_IBP_MATCH|
+|2025-06-01|BEC             |9011886.00 |27479328.76 |NULL     |NO_IBP_MATCH|
+|2025-06-01|BENEGASTRO      |199639.37  |12211507.73 |1177.86  |MATCHED     |
+|2025-06-01|BONAFONT        |42091408.29|172262414.08|157191.08|MATCHED     |
+|2025-06-01|BONAFONT KIDS   |947817.90  |22556734.49 |NULL     |NO_IBP_MATCH|
+|2025-06-01|BONAFONT MINERAL|0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-06-01|BONAFONT SER    |0.60       |8.49        |NULL     |NO_IBP_MATCH|
+|2025-06-01|BONAFONT TE     |178662.08  |2437798.02  |1622.39  |MATCHED     |
+|2025-06-01|DANETTE         |1068726.67 |72804764.81 |3335.40  |MATCHED     |
+|2025-06-01|DANFRUT         |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-06-01|DANMIX          |128843.27  |22121629.12 |583.91   |MATCHED     |
+|2025-06-01|DANONE          |4374512.20 |209716824.05|14332.64 |MATCHED     |
+|2025-06-01|DANONINO        |1175787.10 |130094239.63|4883.60  |MATCHED     |
+|2025-06-01|DANUP           |780323.21  |32698419.41 |5573.93  |MATCHED     |
+|2025-06-01|DANY            |1844173.93 |82497926.16 |6256.34  |MATCHED     |
+|2025-06-01|DELIGHT         |101866.61  |10345980.82 |213.29   |MATCHED     |
+|2025-06-01|EVIAN           |65946.23   |5078518.83  |853.06   |MATCHED     |
+|2025-06-01|HERSHEYS        |97463.20   |5656345.38  |728.60   |MATCHED     |
+|2025-06-01|INFINIT WATER   |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-06-01|JUIZZY          |2702.00    |0.00        |NULL     |NO_IBP_MATCH|
+|2025-06-01|LEVITE          |2387192.05 |10196304.64 |10366.15 |MATCHED     |
+|2025-06-01|MEMBERS MARK    |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-06-01|OCEAN SPRAY     |781305.00  |19755173.04 |2135.12  |MATCHED     |
+|2025-06-01|OIKOS           |1990610.58 |206031485.24|4754.77  |MATCHED     |
+|2025-06-01|PUREZA AGA      |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-06-01|SILK            |1709661.86 |72493182.63 |5383.60  |MATCHED     |
+|2025-06-01|VITALINEA       |41751.20   |2351163.60  |84.45    |MATCHED     |
+|2025-06-01|YOPRO           |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-07-01|ACTIVIA         |1116232.55 |66006765.15 |3718.86  |MATCHED     |
+|2025-07-01|AGUAS FRESCAS   |3933418.56 |27958795.95 |18297.36 |MATCHED     |
+|2025-07-01|BADOIT          |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-07-01|BEC             |8966146.00 |27556127.07 |NULL     |NO_IBP_MATCH|
+|2025-07-01|BENEGASTRO      |236339.63  |12754634.60 |1213.55  |MATCHED     |
+|2025-07-01|BONAFONT        |30730142.19|165875345.69|109139.57|MATCHED     |
+|2025-07-01|BONAFONT KIDS   |574445.40  |15029866.71 |NULL     |NO_IBP_MATCH|
+|2025-07-01|BONAFONT MINERAL|0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-07-01|BONAFONT SER    |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-07-01|BONAFONT TE     |156386.00  |2742833.43  |581.76   |MATCHED     |
+|2025-07-01|DANETTE         |1063568.15 |72508298.96 |3389.76  |MATCHED     |
+|2025-07-01|DANMIX          |124143.82  |20313242.73 |710.92   |MATCHED     |
+|2025-07-01|DANONE          |4262883.57 |202276871.64|13667.18 |MATCHED     |
+|2025-07-01|DANONINO        |1028690.01 |114896929.10|4313.48  |MATCHED     |
+|2025-07-01|DANUP           |686753.72  |28701939.15 |5251.83  |MATCHED     |
+|2025-07-01|DANY            |1790476.92 |79891609.58 |5782.57  |MATCHED     |
+|2025-07-01|DELIGHT         |105979.86  |12097427.75 |266.27   |MATCHED     |
+|2025-07-01|EVIAN           |64438.50   |4741906.79  |792.41   |MATCHED     |
+|2025-07-01|HERSHEYS        |67262.80   |4113074.53  |756.00   |MATCHED     |
+|2025-07-01|INFINIT WATER   |0.00       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-07-01|JUIZZY          |1197.00    |0.00        |NULL     |NO_IBP_MATCH|
+|2025-07-01|LEVITE          |1621449.90 |10065623.18 |6421.01  |MATCHED     |
+|2025-07-01|MEMBERS MARK    |NULL       |0.00        |NULL     |NO_IBP_MATCH|
+|2025-07-01|OCEAN SPRAY     |745445.08  |19404437.20 |2285.48  |MATCHED     |
+|2025-07-01|OIKOS           |2022743.41 |212481481.80|5580.39  |MATCHED     |
++----------+----------------+-----------+------------+---------+------------+
+only showing top 200 rows
+[2026-06-22 20:24:33] V11 — join status summary (run after V11 main if needed):
+[2026-06-22 20:24:33]   → Count rows where JOIN_STATUS = 'NO_IBP_MATCH' — those are SELL_OUT brands missing from IBP.
+[2026-06-22 20:24:33]   → Count rows where JOIN_STATUS = 'MATCHED' — those are joinable cross-source.
+[2026-06-22 20:24:33] ======================================================================
+[2026-06-22 20:24:33] PHASE C VALIDATION COMPLETE
+[2026-06-22 20:24:33] ======================================================================

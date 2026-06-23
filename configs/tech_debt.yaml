@@ -1,0 +1,205 @@
+# =============================================================================
+# Tech Debt Registry
+# =============================================================================
+# Tracks known technical debt items that need future resolution.
+# Each item has a severity, owner area, and recommended resolution timeline.
+#
+# Created: 2026-06-20
+# =============================================================================
+
+items:
+
+  - id: TD-001
+    title: "Hardcoded Nielsen period mappings in EDP_MARKET.txt and SCANTRACK_WATER.txt"
+    severity: MEDIUM
+    area: SEMANTIC_LAYOUTS
+    deadline: "2026-10-01"
+    description: >
+      Both EDP_MARKET.txt (CTE_PERIOD) and SCANTRACK_WATER.txt (CTE_PERIOD)
+      contain hardcoded date mappings through 2026-12. These will break in
+      January 2027 when new periods arrive that don't match the static mapping.
+    files:
+      - SEMANTIC_LAYOUTS/EDP_NIELSEN/EDP_MARKET.txt
+      - SEMANTIC_LAYOUTS/WATER_NEILSEN/SCANTRACK_WATER.txt
+    root_cause: >
+      Nielsen period-ending dates are mapped to calendar months via a static
+      CTE (VALUES clause) rather than a dynamic lookup table. This was
+      originally done because the period boundaries are irregular (4-weekly)
+      and a simple date conversion would assign periods incorrectly.
+    recommended_fix: >
+      1. Create a reference table in Snowflake:
+         PRD_MDP.MDP_REF.NIELSEN_PERIOD_CALENDAR
+         (PERIOD_ENDING_DATE DATE, MONTH_ID INT, YEAR_ID INT)
+      2. Populate it with Nielsen's published period calendar (available
+         from the Nielsen portal or market intelligence team).
+      3. Replace the CTE_PERIOD VALUES clause with a JOIN to this table.
+      4. Set up a yearly refresh process (add to January planning calendar).
+    impact_if_unresolved: >
+      Data ingestion for EDP and Water Nielsen sources will silently produce
+      NULL or incorrect month assignments for periods after 2026-12.
+      Models depending on FECHA will see data gaps or misalignment.
+    detection: >
+      schema_validator.py --drift-check will NOT catch this (it's data-level,
+      not schema-level). Add a DQ rule to dq_rules_catalog.yaml checking
+      that FECHA IS NOT NULL after the CTE_PERIOD join.
+    added: "2026-06-20"
+    status: OPEN
+
+  - id: TD-002
+    title: "RETAIL_WATER.txt uses non-triple-quoted SQL string"
+    severity: LOW
+    area: SEMANTIC_LAYOUTS
+    deadline: null
+    description: >
+      RETAIL_WATER.txt is the only layout file using a regular double-quoted
+      string (with embedded newlines and Snowflake-style column identifiers
+      like L."period_ending_datetime") instead of a triple-quoted string for
+      the SQL value.
+    files:
+      - SEMANTIC_LAYOUTS/WATER_NEILSEN/RETAIL_WATER.txt
+    root_cause: "Manual file creation with inconsistent quoting style."
+    recommended_fix: >
+      Convert the "sql": "..." to "sql": \"\"\"...\"\"\" format to match the
+      other 9 layout files. build_registry.py handles it via _fix_sql_quoting()
+      but normalizing the source is cleaner.
+    impact_if_unresolved: "None — the parser handles it. Cosmetic inconsistency only."
+    added: "2026-06-20"
+    status: OPEN
+
+  - id: TD-003
+    title: "WASTE/DATA_WASTE.txt and RETAIL_WATER.txt have trailing backtick artifacts"
+    severity: LOW
+    area: SEMANTIC_LAYOUTS
+    deadline: null
+    description: >
+      Both files end with stray backtick characters (`` `` ``) likely left
+      from copy-pasting from a markdown context.
+    files:
+      - SEMANTIC_LAYOUTS/WASTE/DATA_WASTE.txt
+      - SEMANTIC_LAYOUTS/WATER_NEILSEN/RETAIL_WATER.txt
+    recommended_fix: "Remove the trailing backticks manually."
+    impact_if_unresolved: "None — the parser strips them."
+    added: "2026-06-20"
+    status: OPEN
+
+  - id: TD-004
+    title: "dq_thresholds.yaml uses snake_case Silver-layer names"
+    severity: MEDIUM
+    area: configs
+    deadline: "2026-07-15"
+    description: >
+      dq_thresholds.yaml uses Silver/Gold-layer field names (sku_id,
+      store_id, units_sold, ship_date, net_revenue) while all other configs
+      use Bronze-layer/source UPPERCASE names (SKU, CHAIN, VOL_SELL_OUT,
+      FECHA, MONTO). This naming mismatch causes confusion and prevents
+      automated cross-config validation.
+    files:
+      - configs/dq_thresholds.yaml
+    recommended_fix: >
+      Phase 3e will update all field references to canonical UPPERCASE names
+      from column_name_mapping.yaml, with a mapping comment explaining the
+      Silver-layer equivalents.
+    added: "2026-06-20"
+    status: OPEN
+
+  - id: TD-004
+    title: "NEILSEN folder naming — typo should be NIELSEN (Phase C known convention)"
+    severity: LOW
+    area: SEMANTIC_LAYOUTS
+    deadline: "2027-Q1"
+    description: >
+      Two semantic layout folders contain a typo: NEILSEN instead of NIELSEN.
+        SEMANTIC_LAYOUTS/PB_NEILSEN/         (correct: PB_NIELSEN)
+        SEMANTIC_LAYOUTS/WATER_NEILSEN/      (correct: WATER_NIELSEN)
+      The folder EDP_NIELSEN is spelled correctly.
+      Renaming is deferred because it would require updating all path references
+      in: semantic_registry.yaml, column_name_mapping.yaml, FOLDER_STRUCTURE.txt,
+      and any Databricks notebook that uses %run or file paths.
+      Current state is documented as a known naming convention — do not introduce
+      additional files using the NEILSEN spelling.
+    files:
+      - SEMANTIC_LAYOUTS/PB_NEILSEN/PB_SCANTRACK.txt
+      - SEMANTIC_LAYOUTS/WATER_NEILSEN/RETAIL_WATER.txt
+      - SEMANTIC_LAYOUTS/WATER_NEILSEN/SCANTRACK_WATER.txt
+    recommended_fix: >
+      1. Create a dedicated cleanup branch.
+      2. Use git mv to rename both directories (preserves git history).
+      3. Update all references in: semantic_registry.yaml,
+         column_name_mapping.yaml, FOLDER_STRUCTURE.txt, CONNECTION_ISSUES.txt,
+         notebooks/validate_*.py (if they reference paths directly).
+      4. Run build_registry.py to confirm 100% coverage after rename.
+      5. Merge cleanup branch — single atomic commit.
+    added: "2026-06-23"
+    status: OPEN
+    phase_c_note: >
+      Identified during Phase C closure controls (2026-06-23).
+      Deliberately deferred to avoid breaking live validation infrastructure.
+
+  - id: TD-005
+    title: "Phase D — Cross-source join validation (SELL_OUT × MKT, SELL_IN × IBP)"
+    severity: MEDIUM
+    area: VALIDATION
+    deadline: "2026-Q3"
+    description: >
+      V12E validated EDP Nielsen × IBP join (11 matched Danone brands).
+      The following cross-source joins are NOT yet validated and are required
+      for Phase D analytics mart construction:
+        1. SELL_OUT × MKT_ON   — on MARCA_STD + FECHA (month)
+        2. SELL_OUT × MKT_OFF  — on MARCA_STD + FECHA (note: MKT_OFF includes competitors)
+        3. SELL_OUT × WASTE    — on MARCA_STD + FECHA (Danone brands only)
+        4. SELL_IN  × IBP      — on MARCA_STD + FECHA (volume vs plan)
+        5. SELL_OUT × NIELSEN  — on MARCA_STD + FECHA (value share validation)
+      Each join needs a validation query confirming: match rate, date grain
+      alignment, and MARCA_STD coverage percentage.
+    files:
+      - notebooks/validate_nielsen_marca_std_v12.py
+    recommended_fix: >
+      Create notebooks/validate_cross_source_joins_phase_d.py with:
+        V13A: SELL_OUT × MKT_ON join (MARCA_STD + FECHA)
+        V13B: SELL_OUT × MKT_OFF join (Danone brands only)
+        V13C: SELL_OUT × WASTE join
+        V13D: SELL_IN × IBP join
+        V13E: SELL_OUT × EDP Nielsen join (value vs share)
+      Threshold: each join should resolve ≥ 80% of Danone SELL_OUT MARCA_STD
+      values against the partner source.
+    added: "2026-06-23"
+    status: OPEN
+    phase_c_note: >
+      Captured during Phase C closure controls. V12E (EDP × IBP) is the only
+      cross-source join validated. All others are Phase D work.
+
+  - id: TD-006
+    title: "Git history contains expired PRD_MEX credentials — rotate password"
+    severity: HIGH
+    area: SECURITY
+    deadline: "2026-07-01"
+    description: >
+      Raw Snowflake credentials for PRD_OSM_DPH_READER (PRD_MEX_READER role)
+      were committed to git history in early Phase 1 assessment notebooks and
+      the Phase B validation notebook (commits prior to f61434c).
+      Files affected (historical, now fixed in HEAD):
+        notebooks/phase1_assessment/00_connection_test.py
+        notebooks/phase1_assessment/00b_snowflake_discovery.py (and others)
+        notebooks/validate_semantic_layer_phase_b.py
+        notebooks/validate_nielsen_marca_std_v12.py
+        configs/snowflake_connection_profiles.py
+      HEAD versions of all files now use Key Vault / env vars only.
+      However, git history is PUBLIC if this repo is ever made public,
+      and the credential may be exposed to anyone with repo access.
+    files:
+      - notebooks/validate_semantic_layer_phase_b.py
+      - notebooks/validate_nielsen_marca_std_v12.py
+      - configs/snowflake_connection_profiles.py
+    recommended_fix: >
+      IMMEDIATE: Request DBA to rotate the PRD_OSM_DPH_READER password and
+      update Key Vault scope DAN-AM-P-KVT800-R-MEX-DB with:
+        key: snowflake-mex-user     → PRD_OSM_DPH_READER
+        key: snowflake-mex-password → <new rotated password>
+      OPTIONAL (if repo will be made public): Use git filter-repo or BFG
+      Repo Cleaner to rewrite history and remove the credential from all commits.
+      This requires a force-push and all collaborators must re-clone.
+    added: "2026-06-23"
+    status: OPEN
+    phase_c_note: >
+      Identified and partially remediated during Phase C closure controls.
+      Code fixed in HEAD. Password rotation is a DBA action item.
