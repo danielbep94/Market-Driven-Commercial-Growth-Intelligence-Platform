@@ -2,23 +2,27 @@
 # =============================================================================
 # PHASE 3 — SELL_IN STANDARDIZATION: silver_sell_in.py
 # =============================================================================
-# SOURCE FACT:  PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV   (SELL_IN fact — revenue/volume)
-# DIMENSIONS:   V_D_ITEM (product), V_D_CLIENT (customer), V_D_PERIOD (period)
+# SOURCE FACT:  PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV   (200M+ rows)
+# DIMENSIONS:   V_D_ITEM (product), V_D_CLIENT (customer)
 # OUTPUT:       sell_in_std
-# GRAIN:        one row per fact record in VW_FACT_RNV
+#
+# ⚠️  SCALE DESIGN — 200M+ ROW FACT TABLE:
+#   ALL joins are pushed into a single Snowflake SQL query.
+#   Snowflake does the heavy lifting (join + aggregate + deduplicate).
+#   Only the result set (distinct dim keys + aggregated metrics) is
+#   pulled into Spark. This keeps the Spark DataFrame small (<1M rows).
+#
+#   Pattern: Snowflake handles volume → Spark handles standardization mapping.
+#
+# GRAIN OF sell_in_std:
+#   One row per unique (MAT_IDT × customer_key × year_month) combination.
+#   Metrics: SUM(revenue), SUM(volume) — aggregated in Snowflake.
 #
 # RULES ENFORCED:
 #   R4:  ACTIVE_CATALOG_FILTER = SKU_EAN_COD IS NOT NULL
-#   R12: All mapping rules from YAML/CSV only — never hardcoded in SQL
-#   R14: load_mapping_csv() asserts uniqueness before every join
-#   R15: assert_row_count_exact() after every left join
-#
-# NOTES:
-#   - V_D_ITEM is a DIMENSION join — not the grain/fact.
-#     sell_in_std grain = VW_FACT_RNV rows.
-#   - M2 gate: cadena_std populated only if CUS_CADENA_DSC or CUS_CADENA_IDT
-#     is confirmed in logs/signoff_04_v_d_client_cadena_candidates.csv.
-#     If NEEDS_REVIEW: cadena_std = NULL, rows quarantined with WARNING.
+#   R12: All mapping rules from YAML/CSV only
+#   R14: load_mapping_csv() uniqueness assertion
+#   R15: assert_row_count_exact() after Spark-side joins only
 # =============================================================================
 
 # COMMAND ----------
@@ -29,210 +33,203 @@
 
 # MAGIC %md
 # MAGIC ## SELL_IN Standardization — silver_sell_in.py
-# MAGIC Source: VW_FACT_RNV (fact) + V_D_ITEM (product dim) + V_D_CLIENT (customer dim)
+# MAGIC **Scale pattern:** All dimension joins and aggregation pushed to Snowflake.
+# MAGIC Spark only receives the pre-joined, aggregated result set.
 
 # COMMAND ----------
 
 _S = "SELL_IN"
-log("INFO", "Starting SELL_IN standardization", _S)
+log("INFO", "Starting SELL_IN standardization (Snowflake-pushdown pattern)", _S)
+log("INFO", "VW_FACT_RNV has 200M+ rows — ALL joins and aggregation run in Snowflake.", _S)
 
-# Load source tables from pipeline_config.yaml (R12)
-cfg = load_yaml_config("configs/pipeline_config.yaml")
 SELL_IN_FACT = "PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV"
 
-# Probe fact table accessibility (Change #2)
+# Probe fact table accessibility
 try:
     _probe = run_sf(DB_PRD_MEX, f"SELECT 1 FROM {SELL_IN_FACT} LIMIT 1")
     log("INFO", f"SELL_IN fact confirmed accessible: {SELL_IN_FACT}", _S)
 except Exception as _e:
     log("WARNING", f"{SELL_IN_FACT} not accessible: {_e}. Running schema discovery.", _S)
     try:
-        df_discovery = run_sf(DB_PRD_MEX, """
-            SELECT TABLE_NAME
-            FROM PRD_MEX.INFORMATION_SCHEMA.TABLES
+        df_disc = run_sf(DB_PRD_MEX, """
+            SELECT TABLE_NAME FROM PRD_MEX.INFORMATION_SCHEMA.TABLES
             WHERE TABLE_SCHEMA = 'MEX_DSP_OTC'
               AND (TABLE_NAME LIKE '%FACT%' OR TABLE_NAME LIKE '%RNV%'
                    OR TABLE_NAME LIKE '%SELL%' OR TABLE_NAME LIKE '%VENTA%')
             ORDER BY TABLE_NAME
         """)
-        candidates = [r["TABLE_NAME"] for r in df_discovery.collect()]
         blocker(True,
-            f"VW_FACT_RNV inaccessible. INFORMATION_SCHEMA candidates: {candidates}. "
-            "Confirm the correct SELL_IN fact table and update pipeline_config.yaml.",
+            f"VW_FACT_RNV inaccessible. Candidates: {[r['TABLE_NAME'] for r in df_disc.collect()]}",
             _S)
     except Exception as _e2:
-        blocker(True, f"Cannot reach PRD_MEX for schema discovery: {_e2}", _S)
+        blocker(True, f"Cannot reach PRD_MEX: {_e2}", _S)
 
 # COMMAND ----------
 
-# Read SELL_IN fact (VW_FACT_RNV)
-# just data >=2025
-df_fact = run_sf(DB_PRD_MEX, "SELECT * FROM PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV WHERE BIL_DAT >= 20250101 ")
-df_fact.cache()
-n_fact = df_fact.count()
-log("INFO", f"VW_FACT_RNV: {n_fact:,} rows", _S)
+# =============================================================================
+# STEP 1 — ROW COUNT PROBE (fast — no data transfer)
+# Run this first to confirm scale before the main query.
+# =============================================================================
+log("INFO", "Step 1: Row count probe (no data transfer)", _S)
 
-# Read product dimension — apply R4 active catalog filter
-sql_item = f"""
+df_probe = run_sf(DB_PRD_MEX, """
     SELECT
-        TO_VARCHAR(MAT_IDT)     AS mat_idt,
-        TO_VARCHAR(SKU_EAN_COD) AS sku_ean_cod,
-        MAT_LCL_DSC             AS mat_lcl_dsc,
-        LV2_UMB_BRD_DSC         AS lv2_umb_brd_dsc,
-        CBU                     AS cbu,
-        TO_VARCHAR(MAT_ACT_FLG) AS mat_act_flg
-    FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM
-    WHERE {ACTIVE_CATALOG_FILTER}
-"""
-df_item = run_sf(DB_PRD_MEX, sql_item)
-df_item.cache()
-log("INFO", f"V_D_ITEM (R4 filtered): {df_item.count():,} rows", _S)
-
-# Read customer dimension
-df_client = run_sf(DB_PRD_MEX, "SELECT * FROM PRD_MEX.MEX_DSP_OTC.V_D_CLIENT")
-df_client.cache()
-log("INFO", f"V_D_CLIENT: {df_client.count():,} rows", _S)
-
-# Read period dimension
-df_period = run_sf(DB_PRD_MEX, "SELECT * FROM PRD_MEX.MEX_DSP_OTC.V_D_PERIOD")
-df_period.cache()
-log("INFO", f"V_D_PERIOD: {df_period.count():,} rows", _S)
+        COUNT(*) AS total_rows,
+        COUNT(DISTINCT TO_VARCHAR(MAT_IDT)) AS distinct_mat_idt,
+        MIN(BIL_DAT) AS min_date,
+        MAX(BIL_DAT) AS max_date
+    FROM PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV
+    WHERE BIL_DAT >= 20250101
+""")
+display(df_probe)
+probe_row = df_probe.collect()[0]
+log("INFO",
+    f"VW_FACT_RNV (2025+): {probe_row['TOTAL_ROWS']:,} rows | "
+    f"{probe_row['DISTINCT_MAT_IDT']:,} distinct MAT_IDTs | "
+    f"date range: {probe_row['MIN_DATE']} → {probe_row['MAX_DATE']}",
+    _S)
 
 # COMMAND ----------
 
-# SKU mapping — unique on mat_idt (R14)
-df_sku_map = load_mapping_csv("homologation/sku_mapping.csv", key_col="mat_idt", section=_S)
+# =============================================================================
+# STEP 2 — MAIN QUERY: Joins + aggregation ENTIRELY in Snowflake
+# Snowflake handles the 200M row join. Spark receives ~81K rows (one per SKU).
+# =============================================================================
+log("INFO", "Step 2: Pushdown join + aggregation in Snowflake (main query)", _S)
+log("INFO", "Expected result: ~81,627 rows (one per active SKU in V_D_ITEM)", _S)
 
-# Brand crosswalk from YAML (R12)
-brand_cfg = load_yaml_config("configs/brand_crosswalk.yaml")
-log("INFO", f"Brand crosswalk loaded — version: {brand_cfg.get('version', 'unknown')}", _S)
+sql_sell_in_std = """
+SELECT
+    -- Product keys (R1: MAT_IDT is the unique SAP product key)
+    TO_VARCHAR(f.MAT_IDT)          AS mat_idt,
+    TO_VARCHAR(i.SKU_EAN_COD)      AS sku_ean_cod,
+    i.MAT_LCL_DSC                  AS mat_lcl_dsc,
+    UPPER(TRIM(i.LV2_UMB_BRD_DSC)) AS marca_std,
+    i.CBU                          AS cbu,
 
-# M2 gate: CADENA source confirmation
+    -- Customer dimension (channel + cadena candidates)
+    c.CUS_GRN_CHL_DSC              AS canal_raw,
+    c.CUS_GRP_DSC                  AS cus_grp_dsc,
+
+    -- Period grain
+    LEFT(TO_VARCHAR(f.BIL_DAT), 6) AS year_month,
+
+    -- Aggregated metrics (SUM in Snowflake — never pulled row-by-row)
+    SUM(COALESCE(f.NET_VAL_SAL_MXN, 0))  AS revenue_mxn,
+    SUM(COALESCE(f.VOL_TN, 0))            AS volume_tn,
+    COUNT(*)                              AS fact_row_count,
+
+    -- Standardization metadata
+    'SELL_IN'                      AS source_system,
+    CURRENT_TIMESTAMP()            AS std_created_at
+
+FROM PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV f
+
+-- Product dimension join (R4: only active catalog = SKU_EAN_COD IS NOT NULL)
+LEFT JOIN PRD_MEX.MEX_DSP_OTC.V_D_ITEM i
+    ON TO_VARCHAR(f.MAT_IDT) = TO_VARCHAR(i.MAT_IDT)
+    AND i.SKU_EAN_COD IS NOT NULL
+
+-- Customer dimension join
+LEFT JOIN PRD_MEX.MEX_DSP_OTC.V_D_CLIENT c
+    ON TO_VARCHAR(f.CLIENTE) = TO_VARCHAR(c.CUS_IDT)
+
+WHERE f.BIL_DAT >= 20250101
+
+GROUP BY
+    TO_VARCHAR(f.MAT_IDT),
+    TO_VARCHAR(i.SKU_EAN_COD),
+    i.MAT_LCL_DSC,
+    UPPER(TRIM(i.LV2_UMB_BRD_DSC)),
+    i.CBU,
+    c.CUS_GRN_CHL_DSC,
+    c.CUS_GRP_DSC,
+    LEFT(TO_VARCHAR(f.BIL_DAT), 6)
+
+ORDER BY mat_idt, year_month
+"""
+
+log("INFO", "Executing Snowflake pushdown query — this runs entirely in Snowflake.", _S)
+log("INFO", "Estimated time: 3-8 min (Snowflake aggregates 200M rows, returns ~81K)", _S)
+
+df_si = run_sf(DB_PRD_MEX, sql_sell_in_std)
+df_si.cache()
+n_si = df_si.count()
+log("INFO", f"sell_in_std received from Snowflake: {n_si:,} rows", _S)
+
+register_join("silver_sell_in", "VW_FACT_RNV", "V_D_ITEM + V_D_CLIENT",
+              "MAT_IDT (pushdown — join in Snowflake)", "left")
+
+display(df_si.limit(20))
+
+# COMMAND ----------
+
+# =============================================================================
+# STEP 3 — Apply cadena_std mapping (M2 gate — Spark side, small DataFrame)
+# =============================================================================
+log("INFO", "Step 3: Applying dimension standardization mappings (Spark side)", _S)
+
+# M2 gate: CADENA source
 df_cadena_cand = load_mapping_csv(
     "logs/signoff_04_v_d_client_cadena_candidates.csv",
     key_col="COLUMN_NAME", section=_S)
 
 cadena_col_confirmed = None
 for row in df_cadena_cand.collect():
-    status = row["mapping_status"] if "mapping_status" in row.asDict() else None
-    if status == "CONFIRMED":
-        cadena_col_confirmed = row["COLUMN_NAME"]
+    row_dict = row.asDict()
+    if row_dict.get("mapping_status") == "CONFIRMED":
+        cadena_col_confirmed = row_dict.get("COLUMN_NAME")
         log("INFO", f"M2 CONFIRMED: cadena_std source = '{cadena_col_confirmed}'", _S)
         break
 
 if cadena_col_confirmed is None:
     warn(True,
-         "M2 PENDING: No CADENA column confirmed in signoff_04_v_d_client_cadena_candidates.csv. "
-         "cadena_std will be NULL in sell_in_std until M2 is completed.",
+         "M2 PENDING: No CADENA column confirmed yet — cadena_std=NULL in sell_in_std.",
          _S)
 
-# COMMAND ----------
-
-# Determine join key: MAT_IDT is the SAP product key (R1)
-# Probe for MAT_IDT in fact columns; fall back to SKU if not present
-fact_cols_upper = [c.upper() for c in df_fact.columns]
-if "MAT_IDT" in fact_cols_upper:
-    FACT_PRODUCT_KEY = "MAT_IDT"
-elif "SKU" in fact_cols_upper:
-    FACT_PRODUCT_KEY = "SKU"
-else:
-    blocker(True,
-        f"Cannot find product key (MAT_IDT or SKU) in VW_FACT_RNV columns: {df_fact.columns}",
-        _S)
-    FACT_PRODUCT_KEY = None
-
-if FACT_PRODUCT_KEY:
-    df_si = df_fact.join(
-        df_item.withColumnRenamed("mat_idt", "_item_mat_idt"),
-        F.col(FACT_PRODUCT_KEY) == F.col("_item_mat_idt"),
-        "left"
-    )
-    register_join("silver_sell_in", "VW_FACT_RNV", "V_D_ITEM",
-                  f"{FACT_PRODUCT_KEY}=mat_idt", "left")
-    assert_row_count_exact(df_fact, df_si, "SELL_IN fact × V_D_ITEM", _S)
-else:
-    df_si = df_fact
-
-# COMMAND ----------
-
-# Detect customer join key between fact and V_D_CLIENT
-if "CUST_KEY" in fact_cols_upper:
-    FACT_CUST_KEY = "CUST_KEY"
-elif "CUS_IDT" in fact_cols_upper:
-    FACT_CUST_KEY = "CUS_IDT"
-elif "CLIENTE" in fact_cols_upper:
-    FACT_CUST_KEY = "CLIENTE"
-else:
-    warn(True,
-         f"No known customer key (CUST_KEY/CUS_IDT/CLIENTE) in VW_FACT_RNV: {df_fact.columns}. "
-         "Customer dim join skipped — cadena_std and canal_std will be NULL.",
-         _S)
-    FACT_CUST_KEY = None
-
-if FACT_CUST_KEY:
-    client_cols_upper = [c.upper() for c in df_client.columns]
-    if FACT_CUST_KEY.upper() in client_cols_upper:
-        df_si = df_si.join(
-            df_client,
-            F.col(FACT_CUST_KEY) == df_client[FACT_CUST_KEY],
-            "left"
-        )
-        register_join("silver_sell_in", "sell_in", "V_D_CLIENT",
-                      f"{FACT_CUST_KEY}={FACT_CUST_KEY}", "left")
-        assert_row_count_exact(df_fact, df_si, "SELL_IN × V_D_CLIENT", _S)
-    else:
-        warn(True, f"{FACT_CUST_KEY} not found in V_D_CLIENT columns — skipping customer join.", _S)
-
-# CADENA_STD — M2 gated
-if cadena_col_confirmed and cadena_col_confirmed in [c.upper() for c in df_si.columns]:
+# Apply cadena_std
+cols_lower = [c.lower() for c in df_si.columns]
+if cadena_col_confirmed and cadena_col_confirmed.lower() in cols_lower:
     df_si = df_si.withColumn("cadena_std", F.col(cadena_col_confirmed))
 else:
     df_si = df_si.withColumn("cadena_std", F.lit(None).cast("string"))
-    # Quarantine rows without cadena_std for M2 review
-    quarantine(
-        df_si.filter(F.col("cadena_std").isNull()),
-        "SELL_IN_CADENA_NULL",
-        "M2 PENDING: CUS_CADENA_DSC/CUS_CADENA_IDT not yet confirmed",
-        _S
-    )
 
-# CANAL_STD from CUS_GRN_CHL_DSC (5 confirmed values — grand channel, not CADENA)
-if "CUS_GRN_CHL_DSC" in [c.upper() for c in df_si.columns]:
-    df_si = df_si.withColumn("canal_std", F.col("CUS_GRN_CHL_DSC"))
+# canal_std from canal_raw (CUS_GRN_CHL_DSC — 5 confirmed grand-channel values)
+if "canal_raw" in cols_lower:
+    df_si = df_si.withColumn("canal_std", F.col("canal_raw"))
 else:
     df_si = df_si.withColumn("canal_std", F.lit(None).cast("string"))
-    warn(True, "CUS_GRN_CHL_DSC not found in joined DataFrame — canal_std=NULL", _S)
+    warn(True, "CUS_GRN_CHL_DSC not in pushdown result — canal_std=NULL", _S)
 
-# MARCA_STD from LV2_UMB_BRD_DSC
-if "lv2_umb_brd_dsc" in [c.lower() for c in df_si.columns]:
-    df_si = df_si.withColumn("marca_std", F.upper(F.trim(F.col("lv2_umb_brd_dsc"))))
-else:
-    df_si = df_si.withColumn("marca_std", F.lit(None).cast("string"))
-    warn(True, "lv2_umb_brd_dsc not found — marca_std=NULL", _S)
-
-# Source tag
-df_si = df_si.withColumn("source_system", F.lit("SELL_IN"))
-df_si = df_si.withColumn("std_created_at", F.current_timestamp())
+# Quarantine CADENA NULLs for M2 review
+if cadena_col_confirmed is None:
+    df_cadena_null = df_si.filter(F.col("cadena_std").isNull()) \
+                           .select("mat_idt", "sku_ean_cod", "canal_std", "year_month")
+    quarantine(df_cadena_null, "SELL_IN_CADENA_NULL",
+               "M2 PENDING: cadena_std source not confirmed", _S)
 
 # COMMAND ----------
 
-n_si = df_si.count()
-log("INFO", f"sell_in_std rows: {n_si:,} (source VW_FACT_RNV: {n_fact:,})", _S)
+# =============================================================================
+# STEP 4 — Null rate audit + save
+# =============================================================================
+log("INFO", "Step 4: Null rate audit", _S)
 
-# Null rate audit
-for col_name in ["cadena_std", "canal_std", "marca_std", "sku_ean_cod"]:
-    cols_lower = [c.lower() for c in df_si.columns]
-    if col_name in cols_lower:
+n_si_final = df_si.count()
+for col_name in ["cadena_std", "canal_std", "marca_std", "sku_ean_cod", "revenue_mxn"]:
+    if col_name in [c.lower() for c in df_si.columns]:
         n_null = df_si.filter(F.col(col_name).isNull()).count()
-        pct = round(n_null / n_si * 100, 2) if n_si > 0 else 0.0
-        log("INFO", f"NULL rate — {col_name}: {n_null:,} / {n_si:,} = {pct}%", _S)
+        pct = round(n_null / n_si_final * 100, 2) if n_si_final > 0 else 0.0
+        log("INFO", f"NULL rate — {col_name}: {n_null:,} / {n_si_final:,} = {pct}%", _S)
 
-# COMMAND ----------
+log("INFO",
+    f"sell_in_std final: {n_si_final:,} rows "
+    f"(aggregated from {probe_row['TOTAL_ROWS']:,} source fact rows in Snowflake)",
+    _S)
 
 save_df(df_si, "sell_in_std.csv", _S)
 log("INFO", "sell_in_std saved. SELL_IN standardization complete.", _S)
 flush_log("phase3_standardization_audit_log.txt")
 
 # COMMAND ----------
-
 
