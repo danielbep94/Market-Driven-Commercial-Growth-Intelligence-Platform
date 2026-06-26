@@ -1063,4 +1063,15 @@ print(f"  signoff_06_hard_blocker_check.csv")
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 31
+# Copy Phase 2 logs from DBFS to repo path so they can be committed
+import shutil, os
+DBFS_LOG = "/dbfs/mnt/mdp/mdm/phase2_signoff/signoff_audit_log.txt"
+REPO_LOG  = "/Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_audit_log.txt"
+os.makedirs(os.path.dirname(REPO_LOG), exist_ok=True)
+shutil.copy(DBFS_LOG, REPO_LOG)
+print(f"Copied → {REPO_LOG}")
+
+# COMMAND ----------
+
 
