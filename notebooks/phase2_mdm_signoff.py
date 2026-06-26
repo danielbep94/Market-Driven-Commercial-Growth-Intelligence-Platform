@@ -348,7 +348,9 @@ WHERE prod.INT_ID IS NOT NULL
   AND TRIM(TO_VARCHAR(prod.INT_ID)) <> ''
 """
 
-df_p1 = run_query(DB_PRD_MEX, SCH_OTC, SQL_P1)
+# Cross-DB query: PRD_MDP.VW_D_PRODUCT_RM INNER JOIN PRD_MEX.V_D_ITEM
+# Must use DB_PRD_MDP profile — PRD_MEX_READER cannot see PRD_MDP.
+df_p1 = run_query(DB_PRD_MDP, SCH_MDP_DSP, SQL_P1)
 p1_count = df_p1.count()
 log("INFO", f"Priority-1 matches (INT_ID exact): {p1_count:,}", SECTION)
 display(df_p1.limit(10))
@@ -387,7 +389,8 @@ WHERE prod.IMPORT_ID IS NOT NULL
   AND p1_matched.matched_key IS NULL
 """
 
-df_p2 = run_query(DB_PRD_MEX, SCH_OTC, SQL_P2)
+# Cross-DB query — must use DB_PRD_MDP profile (same reason as P1).
+df_p2 = run_query(DB_PRD_MDP, SCH_MDP_DSP, SQL_P2)
 p2_count = df_p2.count()
 log("INFO", f"Priority-2 matches (IMPORT_ID exact): {p2_count:,}", SECTION)
 display(df_p2.limit(10))
@@ -419,7 +422,8 @@ AND NOT EXISTS (
 ORDER BY prod.BRAND, prod.NAME
 """
 
-df_unmatched = run_query(DB_PRD_MEX, SCH_OTC, SQL_UNMATCHED)
+# Cross-DB query — must use DB_PRD_MDP profile (PRD_MDP can see PRD_MEX via cross-DB SQL).
+df_unmatched = run_query(DB_PRD_MDP, SCH_MDP_DSP, SQL_UNMATCHED)
 unmatched_count = df_unmatched.count()
 log("INFO", f"Unmatched SELL_OUT products:         {unmatched_count:,}", SECTION)
 display(df_unmatched.limit(20))
