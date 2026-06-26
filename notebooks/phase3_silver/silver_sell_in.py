@@ -66,7 +66,8 @@ except Exception as _e:
 # COMMAND ----------
 
 # Read SELL_IN fact (VW_FACT_RNV)
-df_fact = run_sf(DB_PRD_MEX, "SELECT * FROM PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV")
+# just data >=2025
+df_fact = run_sf(DB_PRD_MEX, "SELECT * FROM PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV WHERE BIL_DAT >= 20250101 ")
 df_fact.cache()
 n_fact = df_fact.count()
 log("INFO", f"VW_FACT_RNV: {n_fact:,} rows", _S)
@@ -231,3 +232,7 @@ for col_name in ["cadena_std", "canal_std", "marca_std", "sku_ean_cod"]:
 save_df(df_si, "sell_in_std.csv", _S)
 log("INFO", "sell_in_std saved. SELL_IN standardization complete.", _S)
 flush_log("phase3_standardization_audit_log.txt")
+
+# COMMAND ----------
+
+

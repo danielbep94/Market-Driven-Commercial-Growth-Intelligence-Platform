@@ -101,9 +101,9 @@ df_m1 = load_mapping_csv(
 df_nielsen_std = df_nielsen_dim.join(
     df_m1.select(
         F.col("mrkt_dsc_shrt").alias("m1_mrkt_dsc_shrt"),
-        F.col("canal_std"),
-        F.col("region_std"),
-        F.col("mapping_status")),
+        F.lit(None).cast("string").alias("canal_std"),   # M1 PENDING: not yet in signoff CSV
+        F.lit(None).cast("string").alias("region_std"),  # M1 PENDING: not yet in signoff CSV
+        F.col("REVIEW_STATUS").alias("mapping_status")),
     df_nielsen_dim["MRKT_DSC_SHRT"] == F.col("m1_mrkt_dsc_shrt"),
     "left"
 )
@@ -184,3 +184,7 @@ else:
 
 flush_log("phase3_standardization_audit_log.txt")
 log("INFO", "NIELSEN standardization complete.", _S)
+
+# COMMAND ----------
+
+

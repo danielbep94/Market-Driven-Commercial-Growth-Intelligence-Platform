@@ -37,7 +37,7 @@ from pyspark.sql.types import *
 
 _current_dir = os.getcwd()
 _creds_path  = os.path.normpath(
-    os.path.join(_current_dir, "..", "configs", "snowflake_creds.py"))
+    os.path.join(_current_dir, "../..", "configs", "snowflake_creds.py"))
 
 if not os.path.exists(_creds_path):
     raise FileNotFoundError(
@@ -93,7 +93,7 @@ def run_sf(database: str, sql: str):
 # 2. PATHS & DUAL-WRITE LOG INFRASTRUCTURE
 # =============================================================================
 
-REPO_ROOT     = pathlib.Path(_current_dir).parent
+REPO_ROOT     = pathlib.Path(_current_dir).parent.parent
 REPO_LOGS_DIR = str(REPO_ROOT / "logs")
 os.makedirs(REPO_LOGS_DIR, exist_ok=True)
 
@@ -184,7 +184,7 @@ def load_mapping_csv(path: str, key_col: str, section: str = "MAPPING_LOADER"):
     df = (spark.read
           .option("header", "true")
           .option("encoding", "UTF-8")
-          .csv(path))
+          .csv(f"file://{path}"))
 
     total_rows  = df.count()
     unique_rows = df.dropDuplicates([key_col]).count()

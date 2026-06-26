@@ -38,7 +38,8 @@
 _S = "SELL_OUT"
 log("INFO", "Starting SELL_OUT standardization", _S)
 
-df_fact_so = run_sf(DB_PRD_MDP, "SELECT * FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT")
+#filter just >= 2025-01-01 to avoid old data in the fact table
+df_fact_so = run_sf(DB_PRD_MDP, "SELECT * FROM PRD_MDP.MDP_DSP.VW_FACT_SELL_OUT where PER_ID >= 20250101 ")
 df_fact_so.cache()
 n_fact_so = df_fact_so.count()
 log("INFO", f"VW_FACT_SELL_OUT: {n_fact_so:,} rows", _S)
@@ -321,3 +322,7 @@ for col_name in ["mat_idt", "cadena_std", "canal_std"]:
 save_df(df_so, "sell_out_std.csv", _S)
 log("INFO", "sell_out_std saved. SELL_OUT standardization complete.", _S)
 flush_log("phase3_standardization_audit_log.txt")
+
+# COMMAND ----------
+
+

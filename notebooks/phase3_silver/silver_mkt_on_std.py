@@ -52,7 +52,7 @@ if not os.path.exists(nielsenSTD_path):
 else:
     df_nielsen_std = (spark.read
                       .option("header", "true")
-                      .csv(nielsenSTD_path))
+                      .csv(f"file://{nielsenSTD_path}"))
     # Assert uniqueness before any join (R14)
     dup_ns = df_nielsen_std.count() - df_nielsen_std.dropDuplicates(["MRKT_DSC_SHRT"]).count()
     blocker(dup_ns > 0,
@@ -131,3 +131,7 @@ assert_no_prohibited_join(
 
 flush_log("phase3_standardization_audit_log.txt")
 log("INFO", "MKT_ON standardization complete.", _S)
+
+# COMMAND ----------
+
+
