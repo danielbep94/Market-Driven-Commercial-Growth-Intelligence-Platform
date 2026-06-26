@@ -323,107 +323,182 @@ passed(f"Sign-off #1 data exported. Validate EAN cardinality result before marki
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 10
+from pyspark.sql import functions as F
+
 SECTION = "SIGN-OFF #2 — SELL_OUT UPC CASCADE"
 log("INFO", "=" * 60, SECTION)
 log("INFO", "Measuring SELL_OUT UPC bridge cascade distribution.", SECTION)
 
 # ── 2A: Priority-1 matches (INT_ID = SKU_EAN_COD) ────────────────────────────
-SQL_P1 = """
+# PRD_MDP role cannot access PRD_MEX in a single cross-DB Snowflake query.
+# Split into two separate reads (each within its authorized database) and join in Spark.
+SQL_PROD_P1 = """
 SELECT
-    TO_VARCHAR(prod.INT_ID)          AS sell_out_int_id,
-    TO_VARCHAR(item.SKU_EAN_COD)     AS sku_ean_cod,
-    TO_VARCHAR(item.MAT_IDT)         AS mat_idt,
-    item.MAT_LCL_DSC                 AS si_description,
-    prod.NAME                        AS so_name,
-    prod.BRAND                       AS so_brand,
-    prod.CBU_ID                      AS cbu_id,
-    1                                AS match_priority,
-    'EXACT_INT_ID'                   AS match_method,
-    1.0                              AS match_confidence,
-    'CONFIRMED'                      AS review_status
-FROM PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
-INNER JOIN PRD_MEX.MEX_DSP_OTC.V_D_ITEM item
-    ON TO_VARCHAR(prod.INT_ID) = TO_VARCHAR(item.SKU_EAN_COD)
-WHERE prod.INT_ID IS NOT NULL
-  AND TRIM(TO_VARCHAR(prod.INT_ID)) <> ''
+    TO_VARCHAR(INT_ID) AS sell_out_int_id,
+    NAME               AS so_name,
+    BRAND              AS so_brand,
+    CBU_ID             AS cbu_id
+FROM PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM
+WHERE INT_ID IS NOT NULL
+  AND TRIM(TO_VARCHAR(INT_ID)) <> ''
 """
 
-# Cross-DB query: PRD_MDP.VW_D_PRODUCT_RM INNER JOIN PRD_MEX.V_D_ITEM
-# Must use DB_PRD_MDP profile — PRD_MEX_READER cannot see PRD_MDP.
-df_p1 = run_query(DB_PRD_MDP, SCH_MDP_DSP, SQL_P1)
+SQL_ITEM_P1 = """
+SELECT
+    TO_VARCHAR(SKU_EAN_COD) AS sku_ean_cod,
+    TO_VARCHAR(MAT_IDT)     AS mat_idt,
+    MAT_LCL_DSC             AS si_description
+FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM
+"""
+
+df_prod_p1 = run_sf(DB_PRD_MDP, SQL_PROD_P1)
+df_item_p1 = run_sf(DB_PRD_MEX, SQL_ITEM_P1)
+
+df_p1 = (
+    df_prod_p1.join(
+        df_item_p1,
+        df_prod_p1["SELL_OUT_INT_ID"] == df_item_p1["SKU_EAN_COD"],
+        "inner",
+    )
+    .select(
+        df_prod_p1["SELL_OUT_INT_ID"].alias("sell_out_int_id"),
+        df_item_p1["SKU_EAN_COD"].alias("sku_ean_cod"),
+        df_item_p1["MAT_IDT"].alias("mat_idt"),
+        df_item_p1["SI_DESCRIPTION"].alias("si_description"),
+        df_prod_p1["SO_NAME"].alias("so_name"),
+        df_prod_p1["SO_BRAND"].alias("so_brand"),
+        df_prod_p1["CBU_ID"].alias("cbu_id"),
+        F.lit(1).alias("match_priority"),
+        F.lit("EXACT_INT_ID").alias("match_method"),
+        F.lit(1.0).alias("match_confidence"),
+        F.lit("CONFIRMED").alias("review_status"),
+    )
+)
 p1_count = df_p1.count()
 log("INFO", f"Priority-1 matches (INT_ID exact): {p1_count:,}", SECTION)
 display(df_p1.limit(10))
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 11
 # ── 2B: Priority-2 matches (IMPORT_ID = SKU_EAN_COD, not already matched by P1) ──
-SQL_P2 = """
-WITH p1_matched AS (
-    SELECT DISTINCT TO_VARCHAR(prod.INT_ID) AS matched_key
-    FROM PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
-    INNER JOIN PRD_MEX.MEX_DSP_OTC.V_D_ITEM item
-        ON TO_VARCHAR(prod.INT_ID) = TO_VARCHAR(item.SKU_EAN_COD)
-    WHERE prod.INT_ID IS NOT NULL
-)
+# PRD_MDP role cannot access PRD_MEX in a single cross-DB Snowflake query.
+# Same pattern as P1: split into two reads + Spark joins.
+# Reuses df_p1 from Cell 10. Reads V_D_ITEM fresh to avoid Spark self-join ambiguity.
+SQL_PROD_P2 = """
 SELECT
-    TO_VARCHAR(prod.IMPORT_ID)       AS sell_out_import_id,
-    TO_VARCHAR(prod.INT_ID)          AS sell_out_int_id,
-    TO_VARCHAR(item.SKU_EAN_COD)     AS sku_ean_cod,
-    TO_VARCHAR(item.MAT_IDT)         AS mat_idt,
-    item.MAT_LCL_DSC                 AS si_description,
-    prod.NAME                        AS so_name,
-    prod.BRAND                       AS so_brand,
-    prod.CBU_ID                      AS cbu_id,
-    2                                AS match_priority,
-    'EXACT_IMPORT_ID'                AS match_method,
-    1.0                              AS match_confidence,
-    'CONFIRMED'                      AS review_status
-FROM PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
-INNER JOIN PRD_MEX.MEX_DSP_OTC.V_D_ITEM item
-    ON TO_VARCHAR(prod.IMPORT_ID) = TO_VARCHAR(item.SKU_EAN_COD)
-LEFT JOIN p1_matched
-    ON TO_VARCHAR(prod.INT_ID) = p1_matched.matched_key
-WHERE prod.IMPORT_ID IS NOT NULL
-  AND TRIM(TO_VARCHAR(prod.IMPORT_ID)) <> ''
-  AND p1_matched.matched_key IS NULL
+    TO_VARCHAR(IMPORT_ID) AS sell_out_import_id,
+    TO_VARCHAR(INT_ID)    AS sell_out_int_id,
+    NAME                  AS so_name,
+    BRAND                 AS so_brand,
+    CBU_ID                AS cbu_id
+FROM PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM
+WHERE IMPORT_ID IS NOT NULL
+  AND TRIM(TO_VARCHAR(IMPORT_ID)) <> ''
 """
 
-# Cross-DB query — must use DB_PRD_MDP profile (same reason as P1).
-df_p2 = run_query(DB_PRD_MDP, SCH_MDP_DSP, SQL_P2)
+SQL_ITEM_P2 = """
+SELECT
+    TO_VARCHAR(SKU_EAN_COD) AS sku_ean_cod,
+    TO_VARCHAR(MAT_IDT)     AS mat_idt,
+    MAT_LCL_DSC             AS si_description
+FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM
+"""
+
+df_prod_p2 = run_sf(DB_PRD_MDP, SQL_PROD_P2)
+df_item_p2 = run_sf(DB_PRD_MEX, SQL_ITEM_P2)
+
+# p1_matched_keys: INT_IDs already matched via P1 — replaces the CTE anti-filter
+p1_matched_keys = df_p1.select(F.col("sell_out_int_id").alias("p1_int_id")).distinct()
+
+# Anti-join: exclude PROD rows whose INT_ID had a P1 match
+df_prod_p2_excl = df_prod_p2.join(
+    p1_matched_keys,
+    df_prod_p2["SELL_OUT_INT_ID"] == p1_matched_keys["p1_int_id"],
+    "left_anti",
+)
+
+# Inner join: IMPORT_ID = SKU_EAN_COD
+df_p2 = (
+    df_prod_p2_excl
+    .join(df_item_p2, F.col("SELL_OUT_IMPORT_ID") == df_item_p2["SKU_EAN_COD"], "inner")
+    .select(
+        F.col("SELL_OUT_IMPORT_ID").alias("sell_out_import_id"),
+        F.col("SELL_OUT_INT_ID").alias("sell_out_int_id"),
+        df_item_p2["SKU_EAN_COD"].alias("sku_ean_cod"),
+        df_item_p2["MAT_IDT"].alias("mat_idt"),
+        df_item_p2["SI_DESCRIPTION"].alias("si_description"),
+        F.col("SO_NAME").alias("so_name"),
+        F.col("SO_BRAND").alias("so_brand"),
+        F.col("CBU_ID").alias("cbu_id"),
+        F.lit(2).alias("match_priority"),
+        F.lit("EXACT_IMPORT_ID").alias("match_method"),
+        F.lit(1.0).alias("match_confidence"),
+        F.lit("CONFIRMED").alias("review_status"),
+    )
+)
 p2_count = df_p2.count()
 log("INFO", f"Priority-2 matches (IMPORT_ID exact): {p2_count:,}", SECTION)
 display(df_p2.limit(10))
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 12
 # ── 2C: Unmatched SELL_OUT products (no P1 or P2 match) ─────────────────────
-SQL_UNMATCHED = """
+# PRD_MDP role cannot access PRD_MEX in a single cross-DB Snowflake query.
+# Replace NOT EXISTS subqueries with two sequential Spark left-anti joins.
+# V_D_ITEM EAN keys are read twice as separate plan nodes to avoid self-join ambiguity.
+SQL_PROD_ALL = """
 SELECT
-    TO_VARCHAR(prod.INT_ID)          AS int_id,
-    TO_VARCHAR(prod.IMPORT_ID)       AS import_id,
-    prod.NAME                        AS so_name,
-    prod.BRAND                       AS so_brand,
-    prod.CBU_ID                      AS cbu_id,
-    3                                AS match_priority,
-    'UNMATCHED'                      AS match_method,
-    0.0                              AS match_confidence,
-    'NEEDS_REVIEW'                   AS review_status,
-    'No exact match in V_D_ITEM via INT_ID or IMPORT_ID'  AS notes
-FROM PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM prod
-WHERE NOT EXISTS (
-    SELECT 1 FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM item
-    WHERE TO_VARCHAR(prod.INT_ID) = TO_VARCHAR(item.SKU_EAN_COD)
-)
-AND NOT EXISTS (
-    SELECT 1 FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM item
-    WHERE TO_VARCHAR(prod.IMPORT_ID) = TO_VARCHAR(item.SKU_EAN_COD)
-)
-ORDER BY prod.BRAND, prod.NAME
+    TO_VARCHAR(INT_ID)    AS int_id,
+    TO_VARCHAR(IMPORT_ID) AS import_id,
+    NAME                  AS so_name,
+    BRAND                 AS so_brand,
+    CBU_ID                AS cbu_id
+FROM PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM
 """
 
-# Cross-DB query — must use DB_PRD_MDP profile (PRD_MDP can see PRD_MEX via cross-DB SQL).
-df_unmatched = run_query(DB_PRD_MDP, SCH_MDP_DSP, SQL_UNMATCHED)
+SQL_EAN_KEYS = """
+SELECT DISTINCT TO_VARCHAR(SKU_EAN_COD) AS sku_ean_cod
+FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM
+WHERE SKU_EAN_COD IS NOT NULL
+"""
+
+df_prod_all    = run_sf(DB_PRD_MDP, SQL_PROD_ALL)
+df_ean_for_int = run_sf(DB_PRD_MEX, SQL_EAN_KEYS)   # separate reads = distinct plan nodes
+df_ean_for_imp = run_sf(DB_PRD_MEX, SQL_EAN_KEYS)   # avoids Spark self-join ambiguity
+
+# NOT EXISTS (INT_ID match) -> left-anti on INT_ID = SKU_EAN_COD
+df_no_int = df_prod_all.join(
+    df_ean_for_int,
+    df_prod_all["INT_ID"] == df_ean_for_int["SKU_EAN_COD"],
+    "left_anti",
+)
+
+# NOT EXISTS (IMPORT_ID match) -> left-anti on IMPORT_ID = SKU_EAN_COD
+df_unmatched = (
+    df_no_int
+    .join(
+        df_ean_for_imp,
+        df_no_int["IMPORT_ID"] == df_ean_for_imp["SKU_EAN_COD"],
+        "left_anti",
+    )
+    .select(
+        F.col("INT_ID").alias("int_id"),
+        F.col("IMPORT_ID").alias("import_id"),
+        F.col("SO_NAME").alias("so_name"),
+        F.col("SO_BRAND").alias("so_brand"),
+        F.col("CBU_ID").alias("cbu_id"),
+        F.lit(3).alias("match_priority"),
+        F.lit("UNMATCHED").alias("match_method"),
+        F.lit(0.0).alias("match_confidence"),
+        F.lit("NEEDS_REVIEW").alias("review_status"),
+        F.lit("No exact match in V_D_ITEM via INT_ID or IMPORT_ID").alias("notes"),
+    )
+    .orderBy("so_brand", "so_name")
+)
+
 unmatched_count = df_unmatched.count()
 log("INFO", f"Unmatched SELL_OUT products:         {unmatched_count:,}", SECTION)
 display(df_unmatched.limit(20))
@@ -887,7 +962,7 @@ if dfs:
 # COMMAND ----------
 
 # ── 6B: Compile assertion results ─────────────────────────────────────────────
-df_assertions = spark.createDataFrame(blocker_results)
+df_assertions = spark.createDataFrame([{k: float(v) if isinstance(v, (int, float)) else v for k, v in r.items()} for r in blocker_results])
 display(df_assertions)
 save_df(df_assertions, "signoff_06_hard_blocker_check.csv", SECTION)
 
