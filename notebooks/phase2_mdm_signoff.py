@@ -77,13 +77,22 @@ print(f"   MDP user attr : {'SF_MDP_USER (file)' if getattr(_m, 'SF_MDP_USER', N
 # =============================================================================
 # CELL 3 — OUTPUT PATHS + HELPERS
 # =============================================================================
+import os, pathlib
+
 DBFS_ROOT = "dbfs:/mnt/mdp/mdm/phase2_signoff"
 LOCAL_ROOT = "/dbfs/mnt/mdp/mdm/phase2_signoff"
 dbutils.fs.mkdirs(DBFS_ROOT)
 
-_LOG_LINES = []
+# ── Repo-tracked logs directory (written directly so git can see the files) ──
+# _current_dir is set in CELL 2 when loading credentials.
+# Navigate up one level (notebooks/ -> repo root) then into logs/
+_REPO_ROOT = str(pathlib.Path(_current_dir).parent)
+REPO_LOGS_DIR = os.path.join(_REPO_ROOT, "logs")
+os.makedirs(REPO_LOGS_DIR, exist_ok=True)
+
+_LOG_LINES     = []
 _HARD_BLOCKERS = []
-_WARNINGS = []
+_WARNINGS      = []
 
 def ts():
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -97,12 +106,34 @@ def log(level, msg, section=""):
     print(line)
 
 def flush_log():
-    dbutils.fs.put(f"{DBFS_ROOT}/signoff_audit_log.txt", "\n".join(_LOG_LINES), overwrite=True)
+    """Write signoff_audit_log.txt to BOTH DBFS and the repo logs/ folder."""
+    content = "\n".join(_LOG_LINES)
+    # 1. DBFS copy (standard path, unchanged)
+    dbutils.fs.put(f"{DBFS_ROOT}/signoff_audit_log.txt", content, overwrite=True)
+    # 2. Repo-tracked copy — git will see this and it can be committed
+    _repo_log = os.path.join(REPO_LOGS_DIR, "signoff_audit_log.txt")
+    with open(_repo_log, "w", encoding="utf-8") as f:
+        f.write(content)
+    print(f"📄 Audit log → DBFS: {DBFS_ROOT}/signoff_audit_log.txt")
+    print(f"📄 Audit log → REPO: {_repo_log}")
 
 def save_df(df, name, section=""):
-    path = f"{DBFS_ROOT}/{name}"
-    df.coalesce(1).write.mode("overwrite").option("header", "true").csv(path)
-    log("INFO", f"Saved → {path}", section)
+    """Save DataFrame to BOTH DBFS (partitioned CSV) and repo logs/ (single flat CSV)."""
+    # 1. DBFS partitioned CSV (unchanged)
+    dbfs_path = f"{DBFS_ROOT}/{name}"
+    df.coalesce(1).write.mode("overwrite").option("header", "true").csv(dbfs_path)
+    # 2. Repo-tracked flat CSV — use pandas so git sees a single clean file
+    _base = name if not name.endswith("/") else name.rstrip("/")
+    _fname = os.path.basename(_base)
+    if not _fname.endswith(".csv"):
+        _fname = _fname + ".csv"
+    _repo_csv = os.path.join(REPO_LOGS_DIR, _fname)
+    try:
+        _pdf = df.limit(50000).toPandas()  # cap at 50k rows to avoid repo bloat
+        _pdf.to_csv(_repo_csv, index=False, encoding="utf-8")
+        log("INFO", f"Saved → DBFS: {dbfs_path}  |  REPO: {_repo_csv}", section)
+    except Exception as _e:
+        log("⚠️  WARNING", f"Repo CSV write failed for {_fname}: {_e} (DBFS copy still written)", section)
 
 def blocker(cond, msg, section=""):
     if cond:
@@ -119,9 +150,10 @@ def warn(cond, msg, section=""):
 def passed(msg, section=""):
     log("✅ PASS", msg, section)
 
-print(f"✅ Output helpers initialised.")
+print(f"✅ Output helpers initialised (dual-write mode).")
 print(f"   DBFS root : {DBFS_ROOT}")
 print(f"   Local root: {LOCAL_ROOT}")
+print(f"   Repo logs : {REPO_LOGS_DIR}")
 
 # COMMAND ----------
 

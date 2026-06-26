@@ -72,9 +72,15 @@ print(f"✅ Credentials loaded — PRD_MEX: {_m.SF_MEX_USER} | PRD_MDP: {'<Key V
 # COMMAND ----------
 
 # ── CELL 2: Output paths + helpers ────────────────────────────────────────────
-DBFS_ROOT  = "dbfs:/mnt/mdp/mdm/notebook_a"
+DBFS_ROOT = "dbfs:/mnt/mdp/mdm/notebook_a"
 LOCAL_ROOT = "/dbfs/mnt/mdp/mdm/notebook_a"
 dbutils.fs.mkdirs(DBFS_ROOT)
+
+# ── Repo-tracked logs directory ──
+import pathlib
+_REPO_ROOT    = str(pathlib.Path(_current_dir).parent)
+REPO_LOGS_DIR = os.path.join(_REPO_ROOT, "logs")
+os.makedirs(REPO_LOGS_DIR, exist_ok=True)
 
 _LOG_LINES:    list[str] = []
 _HARD_BLOCKERS: list[str] = []
@@ -90,13 +96,25 @@ def log(level: str, msg: str, section: str = ""):
     _LOG_LINES.append(line); print(line)
 
 def flush_log():
-    dbutils.fs.put(f"{DBFS_ROOT}/validation_results_mdm_catalogs.txt", "\n".join(_LOG_LINES), overwrite=True)
-    print(f"📄 Log → {DBFS_ROOT}/validation_results_mdm_catalogs.txt")
+    content = "\n".join(_LOG_LINES)
+    dbutils.fs.put(f"{DBFS_ROOT}/validation_results_mdm_catalogs.txt", content, overwrite=True)
+    _repo_log = os.path.join(REPO_LOGS_DIR, "validation_results_mdm_catalogs.txt")
+    with open(_repo_log, "w", encoding="utf-8") as f:
+        f.write(content)
+    print(f"📄 Log → DBFS: {DBFS_ROOT}/validation_results_mdm_catalogs.txt")
+    print(f"📄 Log → REPO: {_repo_log}")
 
 def save_df(df, filename: str, section: str = ""):
-    path = f"{DBFS_ROOT}/{filename}"
-    df.coalesce(1).write.mode("overwrite").option("header", "true").csv(path)
-    log("INFO", f"Saved → {path}", section)
+    dbfs_path = f"{DBFS_ROOT}/{filename}"
+    df.coalesce(1).write.mode("overwrite").option("header", "true").csv(dbfs_path)
+    _fname = os.path.basename(filename)
+    if not _fname.endswith(".csv"): _fname += ".csv"
+    _repo_csv = os.path.join(REPO_LOGS_DIR, _fname)
+    try:
+        df.limit(50000).toPandas().to_csv(_repo_csv, index=False, encoding="utf-8")
+        log("INFO", f"Saved → DBFS: {dbfs_path}  |  REPO: {_repo_csv}", section)
+    except Exception as _e:
+        log("⚠️  WARNING", f"Repo CSV write failed for {_fname}: {_e}", section)
 
 def blocker(condition: bool, msg: str, section: str = ""):
     if condition: log("🚨 BLOCKER", msg, section); _HARD_BLOCKERS.append(msg)
@@ -112,7 +130,7 @@ def passed(msg: str, section: str = ""):
 _HOMO_PATH = os.path.normpath(os.path.join(_current_dir, "..", "homologation"))
 
 import pandas as pd
-print(f"✅ CELL 2 ready. Output root: {DBFS_ROOT}")
+print(f"✅ CELL 2 ready (dual-write). DBFS: {DBFS_ROOT} | REPO: {REPO_LOGS_DIR}")
 
 # COMMAND ----------
 
