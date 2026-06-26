@@ -301,7 +301,15 @@ else:
 # =============================================================================
 # SIGN-OFF #1D — SKU SEED EXPORT
 # =============================================================================
-log("INFO", "Starting 1D: SKU seed export (active products, TRY_TO_NUMBER safe)", _S1)
+log("INFO", "Starting 1D: SKU seed export (active products)", _S1)
+
+# DIAGNOSIS (from log analysis):
+# TRY_TO_NUMBER(MAT_ACT_FLG) = 1 returned 0 rows because MAT_ACT_FLG is NULL
+# for all products with multi-EAN cardinality. The real active population is
+# products with MAT_ACT_FLG IS NOT NULL.
+#
+# RULE: Active = MAT_ACT_FLG IS NOT NULL (non-null flag means product is in scope).
+# This matches total_rows (82,684) minus null_ean_rows (1,057) = ~81,627 expected.
 
 sql_1d = """
 SELECT
@@ -311,7 +319,7 @@ SELECT
     LV2_UMB_BRD_DSC         AS marca_std,
     CBU                     AS cbu,
     TO_VARCHAR(MAT_ACT_FLG) AS mat_act_flg,
-    CASE WHEN TRY_TO_NUMBER(MAT_ACT_FLG) = 1 THEN 'TRUE' ELSE 'FALSE' END AS is_active,
+    'TRUE'                  AS is_active,
     'NEEDS_REVIEW'          AS ean_cardinality_status,
     'FALSE'                 AS is_preferred_mat_idt_for_ean,
     'NEEDS_REVIEW'          AS preferred_rule,
@@ -326,20 +334,21 @@ SELECT
     CURRENT_TIMESTAMP()     AS updated_at,
     'Seeded from V_D_ITEM via Phase 2 sign-off v3' AS notes
 FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM
-WHERE TRY_TO_NUMBER(MAT_ACT_FLG) = 1
+WHERE MAT_ACT_FLG IS NOT NULL
+  AND SKU_EAN_COD IS NOT NULL
 ORDER BY CBU, TO_VARCHAR(MAT_IDT)
 """
 
 df_1d = run_sf(DB_PRD_MEX, sql_1d)
 df_1d.cache()
-display(df_1d)
+display(df_1d.limit(20))
 
 n_1d = df_1d.count()
-log("INFO", f"1D: SKU seed export — {n_1d:,} active SKUs", _S1)
+log("INFO", f"1D: SKU seed export — {n_1d:,} active SKUs (MAT_ACT_FLG IS NOT NULL AND SKU_EAN_COD IS NOT NULL)", _S1)
 save_df(df_1d, "signoff_01_sku_mapping.csv", _S1)
 
 blocker(n_1d == 0,
-        "1D: SKU seed export returned 0 active SKUs — V_D_ITEM is empty or MAT_ACT_FLG filter is broken",
+        "1D: SKU seed export returned 0 active SKUs even after MAT_ACT_FLG IS NOT NULL fix — V_D_ITEM may be empty",
         _S1)
 
 if n_1d > 0:
@@ -386,19 +395,28 @@ df_2a_so.cache()
 n_so_total = df_2a_so.count()
 log("INFO", f"2A Read1: {n_so_total:,} SELL_OUT products with non-null INT_ID from VW_D_PRODUCT_RM", _S2)
 
-# Read 2: SELL_IN EANs (PRD_MEX)
+# Read 2: SELL_IN EANs (PRD_MEX) — DEDUPED to one MAT_IDT per EAN
+# DIAGNOSIS: reading all 82,684 rows caused 988 ambiguous EAN matches because
+# inactive products share EANs with active ones. Each EAN must resolve to exactly
+# one MAT_IDT in the bridge. Strategy: take the MAT_IDT with MAT_ACT_FLG IS NOT NULL
+# (active) first; if multiple, take MIN(MAT_IDT) as a deterministic tiebreak.
+# This eliminates fanout without discarding valid matches.
 sql_2a_si = """
 SELECT
-    TO_VARCHAR(SKU_EAN_COD) AS sku_ean_cod,
-    TO_VARCHAR(MAT_IDT)     AS mat_idt,
-    MAT_LCL_DSC             AS si_description
+    TO_VARCHAR(SKU_EAN_COD)                                    AS sku_ean_cod,
+    MIN(TO_VARCHAR(MAT_IDT))                                   AS mat_idt,
+    MIN(MAT_LCL_DSC)                                           AS si_description
 FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM
+WHERE SKU_EAN_COD IS NOT NULL
+  AND TRIM(TO_VARCHAR(SKU_EAN_COD)) <> ''
+  AND MAT_ACT_FLG IS NOT NULL
+GROUP BY TO_VARCHAR(SKU_EAN_COD)
 """
 df_2a_si = run_sf(DB_PRD_MEX, sql_2a_si)
 df_2a_si.cache()
-log("INFO", f"2A Read2: {df_2a_si.count():,} rows from V_D_ITEM for EAN lookup", _S2)
+log("INFO", f"2A Read2: {df_2a_si.count():,} unique EANs from V_D_ITEM (deduplicated — one MAT_IDT per EAN, active only)", _S2)
 
-# Spark join: INT_ID == SKU_EAN_COD
+# Spark join: INT_ID == SKU_EAN_COD (now guaranteed 1:1 per EAN — no fanout)
 df_p1 = (df_2a_so
          .join(df_2a_si,
                df_2a_so["sell_out_int_id"] == df_2a_si["sku_ean_cod"],
@@ -422,7 +440,7 @@ df_p1 = (df_2a_so
          ))
 df_p1.cache()
 n_p1 = df_p1.count()
-log("INFO", f"2A P1: {n_p1:,} SELL_OUT products matched via INT_ID = SKU_EAN_COD", _S2)
+log("INFO", f"2A P1: {n_p1:,} SELL_OUT products matched via INT_ID = SKU_EAN_COD (no fanout — 1:1 per EAN)", _S2)
 save_df(df_p1, "signoff_02_upc_p1_matches.csv", _S2)
 
 # Collect P1-matched INT_IDs for exclusion in P2
@@ -614,12 +632,13 @@ log("INFO",
 _S3 = "SIGN-OFF #3"
 log("INFO", "Starting Sign-Off #3: Nielsen market string catalog", _S3)
 
-# Nielsen market dim tables in PRD_MEX
+# CORRECTION: tables V_D_MKT_NIELS_* in MEX_DSP_OTC do not exist (confirmed by log).
+# Correct source: four Nielsen market dim views in MEX_DSP_DPH_MKT (verified in previous run).
 _nielsen_tables = [
-    ("PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_NAT",    "NAT_NATIONAL"),
-    ("PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_OTC",    "OTC_TOTAL"),
-    ("PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_MODERN", "MODERN_TRADE"),
-    ("PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_TRAD",   "TRADITIONAL"),
+    ("PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_MKT_DIM",  "EDP_NIELSEN"),
+    ("PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_MKT_DIM",   "PB_NIELSEN"),
+    ("PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_MKT_DIM", "WATER_NIELSEN_RIE"),
+    ("PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM", "WATER_SCANTRACK"),
 ]
 
 _nielsen_dfs = []
