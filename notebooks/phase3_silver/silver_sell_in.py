@@ -98,41 +98,61 @@ log("INFO",
 log("INFO", "Step 2: Pushdown join + aggregation in Snowflake (main query)", _S)
 log("INFO", "Expected result: ~81,627 rows (one per active SKU in V_D_ITEM)", _S)
 
+# CONFIRMED COLUMN NAMES (from configs/column_types_snapshot.yaml + SELL_IN_DICT.txt):
+# VW_FACT_RNV: BIL_DAT, MAT_IDT, SHP_CUS_IDT, BIL_INV, BIL_NET_KGR, LITER, CASES, DIS_CHL_COD, CBU
+# V_D_ITEM:    MAT_IDT, SKU_EAN_COD, MAT_LCL_DSC, LV2_UMB_BRD_DSC, CBU
+# V_D_CLIENT:  CUS_IDT, CUS_GRN_CHL_DSC, CUS_GRP_DSC
+# Customer join: SHP_CUS_IDT → VW_D_CUSTOMER_DICTONARY.OLD_CUS_IDT → NEW_CUS_IDT → V_D_CLIENT.CUS_IDT
+
 sql_sell_in_std = """
+WITH customer_map AS (
+    -- Harmonize customer IDs via VW_D_CUSTOMER_DICTONARY (pattern from SELL_IN_DICT.txt)
+    SELECT DISTINCT
+        OLD_CUS_IDT,
+        COALESCE(NEW_CUS_IDT, OLD_CUS_IDT) AS harmonized_cus_idt
+    FROM PRD_MEX.MEX_DSP_OTC.VW_D_CUSTOMER_DICTONARY
+)
 SELECT
-    -- Product keys (R1: MAT_IDT is the unique SAP product key)
-    TO_VARCHAR(f.MAT_IDT)          AS mat_idt,
-    TO_VARCHAR(i.SKU_EAN_COD)      AS sku_ean_cod,
-    i.MAT_LCL_DSC                  AS mat_lcl_dsc,
+    -- Product keys
+    TO_VARCHAR(f.MAT_IDT)           AS mat_idt,
+    TO_VARCHAR(i.SKU_EAN_COD)       AS sku_ean_cod,
+    i.MAT_LCL_DSC                   AS mat_lcl_dsc,
     UPPER(TRIM(i.LV2_UMB_BRD_DSC)) AS marca_std,
-    i.CBU                          AS cbu,
+    COALESCE(f.CBU, i.CBU)          AS cbu,
 
-    -- Customer dimension (channel + cadena candidates)
-    c.CUS_GRN_CHL_DSC              AS canal_raw,
-    c.CUS_GRP_DSC                  AS cus_grp_dsc,
+    -- Customer / channel
+    c.CUS_GRN_CHL_DSC               AS canal_raw,
+    c.CUS_GRP_DSC                   AS cus_grp_dsc,
+    f.DIS_CHL_COD                   AS dis_chl_cod,
 
-    -- Period grain
-    LEFT(TO_VARCHAR(f.BIL_DAT), 6) AS year_month,
+    -- Period grain (YYYYMM)
+    LEFT(TO_VARCHAR(f.BIL_DAT), 6)  AS year_month,
 
-    -- Aggregated metrics (SUM in Snowflake — never pulled row-by-row)
-    SUM(COALESCE(f.NET_VAL_SAL_MXN, 0))  AS revenue_mxn,
-    SUM(COALESCE(f.VOL_TN, 0))            AS volume_tn,
-    COUNT(*)                              AS fact_row_count,
+    -- Confirmed metric columns (column_types_snapshot.yaml)
+    SUM(COALESCE(f.BIL_INV, 0))     AS revenue_mxn,
+    SUM(COALESCE(f.BIL_NET_KGR, 0)) AS volume_kgr,
+    SUM(COALESCE(f.LITER, 0))       AS volume_liter,
+    SUM(COALESCE(f.CASES, 0))       AS cases,
+    SUM(COALESCE(f.BIL_SKU_QTY, 0)) AS sku_qty,
+    COUNT(*)                         AS fact_row_count,
 
-    -- Standardization metadata
-    'SELL_IN'                      AS source_system,
-    CURRENT_TIMESTAMP()            AS std_created_at
+    'SELL_IN'                        AS source_system,
+    CURRENT_TIMESTAMP()              AS std_created_at
 
 FROM PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV f
 
--- Product dimension join (R4: only active catalog = SKU_EAN_COD IS NOT NULL)
+-- Product dim join (R4: active catalog = SKU_EAN_COD IS NOT NULL)
 LEFT JOIN PRD_MEX.MEX_DSP_OTC.V_D_ITEM i
     ON TO_VARCHAR(f.MAT_IDT) = TO_VARCHAR(i.MAT_IDT)
     AND i.SKU_EAN_COD IS NOT NULL
 
--- Customer dimension join
+-- Customer harmonization (SHP_CUS_IDT → OLD_CUS_IDT → harmonized_cus_idt)
+LEFT JOIN customer_map cm
+    ON TO_VARCHAR(f.SHP_CUS_IDT) = cm.OLD_CUS_IDT
+
+-- Customer dim join (harmonized ID → V_D_CLIENT.CUS_IDT)
 LEFT JOIN PRD_MEX.MEX_DSP_OTC.V_D_CLIENT c
-    ON TO_VARCHAR(f.CLIENTE) = TO_VARCHAR(c.CUS_IDT)
+    ON COALESCE(cm.harmonized_cus_idt, TO_VARCHAR(f.SHP_CUS_IDT)) = TO_VARCHAR(c.CUS_IDT)
 
 WHERE f.BIL_DAT >= 20250101
 
@@ -141,12 +161,11 @@ GROUP BY
     TO_VARCHAR(i.SKU_EAN_COD),
     i.MAT_LCL_DSC,
     UPPER(TRIM(i.LV2_UMB_BRD_DSC)),
-    i.CBU,
+    COALESCE(f.CBU, i.CBU),
     c.CUS_GRN_CHL_DSC,
     c.CUS_GRP_DSC,
+    f.DIS_CHL_COD,
     LEFT(TO_VARCHAR(f.BIL_DAT), 6)
-
-ORDER BY mat_idt, year_month
 """
 
 log("INFO", "Executing Snowflake pushdown query — this runs entirely in Snowflake.", _S)
@@ -216,7 +235,7 @@ if cadena_col_confirmed is None:
 log("INFO", "Step 4: Null rate audit", _S)
 
 n_si_final = df_si.count()
-for col_name in ["cadena_std", "canal_std", "marca_std", "sku_ean_cod", "revenue_mxn"]:
+for col_name in ["cadena_std", "canal_std", "marca_std", "sku_ean_cod", "revenue_mxn", "volume_kgr"]:
     if col_name in [c.lower() for c in df_si.columns]:
         n_null = df_si.filter(F.col(col_name).isNull()).count()
         pct = round(n_null / n_si_final * 100, 2) if n_si_final > 0 else 0.0
