@@ -1,5 +1,4 @@
 # Databricks notebook source
-
 # MAGIC %md
 # MAGIC # MDM Phase 2 — Sign-Off Validation Notebook
 # MAGIC
@@ -42,10 +41,12 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 2
 # ── CELL 1: Load credentials (same pattern as validate_credentials.py) ────────
 import os, importlib.util, datetime
 
-_current_dir = os.getcwd()
+_notebook_ws = dbutils.notebook.entry_point.getDbutils().notebook().getContext().notebookPath().get()
+_current_dir  = "/Workspace" + os.path.dirname(_notebook_ws)
 _creds_path  = os.path.normpath(
     os.path.join(_current_dir, "..", "configs", "snowflake_creds.py")
 )
@@ -980,3 +981,7 @@ print(f"  signoff_04_v_d_client.csv")
 print(f"  signoff_05_store_schema.csv")
 print(f"  signoff_05_store_chain.csv")
 print(f"  signoff_06_hard_blocker_check.csv")
+
+# COMMAND ----------
+
+
