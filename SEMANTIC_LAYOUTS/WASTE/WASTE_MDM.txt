@@ -1,0 +1,59 @@
+{
+  "DATA_WASTE_TOPLINE": {
+    "db": "PRD_MDP",
+    "schema": "MDP_STG",
+    "source_type": "Capa de Staging / Operaciones de Merma",
+    "business_domain": "Waste",
+    "description": "Dataset para medir la merma (waste) tanto en valor monetario como en kilogramos por cliente/cadena, formato, canal y producto, con una periodicidad mensual.",
+    "data_structure": "Tabla plana desnormalizada (Single wide fact table).",
+    "raw_grain": "Mensual + Cadena + Formato + Canal + SKU + Proyecto + Fuente",
+    "reporting_grain": "FECHA + CADENA + FORMATO + CANAL + SKU + FUENTE",
+    "fact_table": {
+      "name": "FACT_TOPLINE",
+      "description": "Tabla de hechos de merma en esquema de staging. Nota: Al estar en MDP_STG, validar procesos de limpieza si existen cargas duplicadas.",
+      "technical_keys_expected": [
+        {"column": "ANIO", "data_type": "INTEGER"},
+        {"column": "MES", "data_type": "STRING", "note": "Representación de texto del mes (ej. ENE, FEB)"},
+        {"column": "FECHA", "data_type": "DATE", "note": "Representa el primer día del mes analizado (ej. 2025-01-01)"},
+        {"column": "SKU", "data_type": "STRING"},
+        {"column": "CADENA", "data_type": "STRING"},
+        {"column": "FORMATO", "data_type": "STRING", "note": "Nivel de granularidad comercial más profundo que CADENA"},
+        {"column": "CANAL", "data_type": "STRING"},
+        {"column": "PROYECTO", "data_type": "STRING"},
+        {"column": "FUENTE", "data_type": "STRING", "note": "Flag de origen (ej. 'TOPLINE', 'BOTTOMLINE')"}
+      ],
+      "value_fields_expected": [
+        {"column": "[COLUMNA_WASTE_VALOR]", "data_type": "FLOAT", "business_name": "Waste ($)", "description": "Valor monetario de la merma", "aggregation": "SUM"},
+        {"column": "[COLUMNA_WASTE_KGS]", "data_type": "FLOAT", "business_name": "Waste (KG)", "description": "Peso o volumen de la merma en kilogramos", "aggregation": "SUM"}
+      ]
+    },
+    "dimensions_embedded": {
+      "product_attributes": ["SKU", "DESCRIPCION", "TIPO_PRODUCTO", "MARCA"],
+      "commercial_attributes": ["CADENA", "FORMATO", "CANAL"],
+      "context_attributes": ["PROYECTO", "FUENTE"]
+    },
+    "relations": {
+      "join_type": "NONE",
+      "note": "Todos los atributos descriptivos están embebidos en FACT_TOPLINE. No se requieren JOINs adicionales para consultas básicas."
+    },
+    "business_logic": {
+      "source_filtering_logic": [
+        {
+          "rule": "Filtrado Obligatorio por Fuente",
+          "condition": "WHERE UPPER(TRIM(FUENTE)) = 'TOPLINE'",
+          "description": "Dado que la columna FUENTE permite distinguir entre TOPLINE y BOTTOMLINE, cualquier métrica calculada para este modelo debe restringirse explícitamente a 'TOPLINE' para evitar duplicar el volumen de merma corporativa."
+        }
+      ],
+      "zero_value_treatment": {
+        "rule": "Conservar registros en cero",
+        "instruction": "Los registros con métricas en cero NO deben excluirse de los análisis ni de los promedios a menos que una regla de negocio posterior lo solicite de forma explícita, ya que representan la ausencia de merma activa en ese formato/SKU para el mes."
+      },
+      "time_handling": "El campo FECHA debe ser truncado o tomado directamente como el identificador mensual principal, utilizando siempre el formato estándar 'YYYY-MM-01'."
+    },
+    "quality_and_modeling_notes": [
+      "CRÍTICO: El grano (grain) no estaba definido originalmente; se determinó como compuesto por las llaves de tiempo, cliente, producto y el flag de fuente.",
+      "Advertencia de Arquitectura: La tabla se encuentra en el esquema 'MDP_STG'. Si este esquema se limpia o sobrescribe de manera efímera durante los procesos de ETL, se debe advertir al usuario o redirigir el agente hacia la tabla equivalente en el Data Warehouse definitivo (ej. MDP_DWH o MDP_DSP) cuando esté disponible.",
+      "El campo FORMATO es jerárquicamente inferior a CADENA; evitar agrupaciones innecesarias por ambas columnas si solo se busca una visualización ejecutiva."
+    ]
+  }
+}

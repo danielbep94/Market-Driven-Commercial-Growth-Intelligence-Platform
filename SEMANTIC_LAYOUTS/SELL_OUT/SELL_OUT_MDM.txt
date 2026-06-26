@@ -1,0 +1,98 @@
+{
+  "DATA_SELL_OUT_INVENTORY": {
+    "db": "PRD_MDP",
+    "schema": "MDP_DSP / MDP_DWH",
+    "source_type": "Capa Semántica Sell Out / Inventario",
+    "business_domain": "Sell Out",
+    "description": "Capa semántica consolidada de Sell Out e Inventario a nivel diario Tienda-SKU, construida a partir de la tabla de hechos de sell-out más las dimensiones de período, tienda y producto. Diseñada para analítica a nivel retail/tienda con estandarización de marcas y lógica de normalización de cadenas de texto.",
+    "raw_grain": "PER_ID + STORE + UPC + CBU_ID",
+    "reporting_grain": "Diario + Tienda + SKU",
+    "fact_table": {
+      "name": "FACT_SELL_OUT_INVENTORY",
+      "source_table": "VW_FACT_SELL_OUT",
+      "description": "Tabla principal de hechos de sell-out e inventario para analítica a nivel retail/tienda.",
+      "technical_keys_expected": [
+        {"column": "PER_ID", "data_type": "STRING"},
+        {"column": "STORE", "data_type": "STRING"},
+        {"column": "UPC", "data_type": "STRING"},
+        {"column": "CBU_ID", "data_type": "STRING"}
+      ],
+      "value_fields_expected": [
+        {"column": "VOL_SELL_OUT", "data_type": "FLOAT"},
+        {"column": "PCS_SELL_OUT", "data_type": "FLOAT"},
+        {"column": "AMOUNT_SELL_OUT", "data_type": "FLOAT"},
+        {"column": "VOL_INV", "data_type": "FLOAT"},
+        {"column": "PCS_INV", "data_type": "FLOAT"}
+      ]
+    },
+    "dimensions": {
+      "period": {
+        "name": "DIM_PERIODO_SELL_OUT",
+        "source_table": "V_D_PERIOD",
+        "description": "Dimensión de período utilizada para resolver el PER_ID en el contexto del día / período de reporte.",
+        "recommended_business_keys": ["PER_ID"],
+        "business_role": "Proporciona el contexto de fecha / período para el reporte diario de sell-out e inventario."
+      },
+      "store": {
+        "name": "DIM_TIENDA_SELL_OUT",
+        "source_table": "VW_D_STORE_RM",
+        "description": "Dimensión de tienda utilizada para identificar el punto de venta minorista y sus atributos comerciales.",
+        "recommended_business_keys": ["INT_ID", "CBU_ID"],
+        "standardized_columns_highlighted": {
+          "CHAIN": "CADENA",
+          "FORMAT": "FORMATO"
+        },
+        "business_role": "Proporciona atributos descriptivos a nivel de tienda y la estructura del canal/tienda."
+      },
+      "product": {
+        "name": "DIM_PRODUCTO_SELL_OUT",
+        "source_table": "VW_D_PRODUCT_RM",
+        "description": "Dimensión de producto de sell-out utilizada para identificar códigos de productos retail y sus atributos descriptivos.",
+        "recommended_business_keys": ["INT_ID", "IMPORT_ID", "CBU_ID"],
+        "standardized_columns_highlighted": {
+          "UPC": "ID_INTERNO_PRODUCTO_SELL_OUT",
+          "INT_ID": "CODIGO_BARRAS_PRINCIPAL_POTENCIAL",
+          "IMPORT_ID": "CODIGO_BARRAS_ALTERNO_POTENCIAL",
+          "NAME": "PRODUCTO",
+          "BRAND": "MARCA"
+        },
+        "business_role": "Proporciona la identidad del producto en el punto de venta minorista y el etiquetado de marca utilizado en sell-out."
+      }
+    },
+    "relations": {
+      "join_type": "LEFT JOIN",
+      "base_table": "VW_FACT_SELL_OUT",
+      "conditions": [
+        "VW_FACT_SELL_OUT.PER_ID = V_D_PERIOD.PER_ID",
+        "VW_FACT_SELL_OUT.STORE = VW_D_STORE_RM.INT_ID AND VW_FACT_SELL_OUT.CBU_ID = VW_D_STORE_RM.CBU_ID",
+        "CAST(VW_FACT_SELL_OUT.UPC AS VARCHAR) = VW_D_PRODUCT_RM.INT_ID AND VW_FACT_SELL_OUT.CBU_ID = VW_D_PRODUCT_RM.CBU_ID"
+      ]
+    },
+    "metrics": [
+      "VOL_SELL_OUT", "PCS_SELL_OUT", "AMOUNT_SELL_OUT", "VOL_INV", "PCS_INV"
+    ],
+    "business_logic": {
+      "core_logic": [
+        "Estandarización de marca (MARCA_STD)",
+        "Normalización de cadenas de texto obligatoria usando TRIM(UPPER(columna))"
+      ],
+      "store_logic": [
+        {"rule": "Utilizar CHAIN como CADENA"},
+        {"rule": "Utilizar FORMAT como descriptor del formato de la tienda"},
+        {"special_condition_walmart": "CASE WHEN UPPER(TRIM(CHAIN)) = 'WALMART' THEN FORMAT ELSE CHAIN END", "note": "Obligatorio porque Walmart contiene múltiples sub-cadenas"}
+      ],
+      "product_matching_to_sell_in_priority": [
+        {"priority": 1, "logic": "VW_D_PRODUCT_RM.INT_ID = DIM_PRODUCTO_SELL_IN.SKU_EAN_COD"},
+        {"priority": 2, "logic": "VW_D_PRODUCT_RM.IMPORT_ID = DIM_PRODUCTO_SELL_IN.SKU_EAN_COD"},
+        {"priority": 3, "logic": "VW_D_PRODUCT_RM.NAME = DIM_PRODUCTO_SELL_IN.MAT_LCL_DSC AND VW_D_PRODUCT_RM.BRAND = DIM_PRODUCTO_SELL_IN.MARCA"}
+      ]
+    },
+    "known_issues_and_modeling_notes": [
+      "Riesgo de rendimiento: El JOIN de UPC requiere un CAST a VARCHAR. Esto debe aplicarse explícitamente en las consultas.",
+      "Las uniones de tienda y producto dependen estrictamente de la alineación del CBU_ID además de los IDs técnicos.",
+      "El mapeo de marcas está actualmente hardcodeado y debería idealmente moverse a una tabla de referencia.",
+      "Este dataset es un modelo a nivel tienda/retail y debe mantenerse separado de Sell-In a nivel de modelo de origen.",
+      "Si en el futuro se crea un puente de productos a nivel empresarial (Enterprise Product Bridge), las reglas de emparejamiento de productos deben moverse de esta lógica hardcodeada a una tabla de mapeo gobernada."
+    ]
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "DATA_EDP_MARKET_NIELSEN": {
+    "db": "PRD_MEX",
+    "schema": "MEX_DSP_DPH_MKT",
+    "source_type": "Nielsen EDP Market / Market Track",
+    "business_domain": "EDP",
+    "description": "Capa semántica para Nielsen EDP Market en México. Combina datos de hechos agregados de Nielsen con catálogos de producto, mercado, período y métricas, más mapeos de negocio de Danone para subsegmento, segmento, fabricante y marca. La salida final es de periodicidad mensual.",
+    "raw_grain": "market_id + product_id + period_id + FACT_COLUMN",
+    "reporting_grain": "MONTH + ITM_UNIF_SUBSEG_DAN + SEGMENTACION_2025 + ITM_SUBSEG_UNIF + ITM_UNIF_MANUF + ITM_UNIF_BRND + MKT_SHORT_DSC",
+    "fact_table": {
+      "name": "FACT_NIELSEN_EDP_MARKET",
+      "source_table": "VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT",
+      "description": "Tabla de hechos de Nielsen EDP Market que contiene valores por mercado, producto, período y código de métrica.",
+      "technical_keys": [
+        {"column": "market_id", "data_type": "STRING"},
+        {"column": "product_id", "data_type": "STRING"},
+        {"column": "period_id", "data_type": "STRING"},
+        {"column": "FACT_COLUMN", "data_type": "STRING"}
+      ],
+      "value_field": {"column": "FACT_VALUE", "data_type": "FLOAT"}
+    },
+    "dimensions": {
+      "product": {
+        "name": "DIM_PRODUCTO_NIELSEN_EDP",
+        "source_table": "VW_IR_YOG_GEL_MT_NLSN_PROD_DIM",
+        "description": "Catálogo de productos de Nielsen EDP utilizado para derivar la categoría, marca, fabricante, subsegmento y múltiples mapeos de negocio específicos de Danone.",
+        "recommended_business_keys": ["ID_PRODUCTO_NIELSEN", "CODIGO_PRODUCTO_NIELSEN"],
+        "standardized_columns": {
+          "product_id": "ID_PRODUCTO_NIELSEN",
+          "CSTM_10000000000000667636": "CATEGORIA_MACRO",
+          "CSTM_310594": "CATEGORIA",
+          "INP_56982": "FABRICANTE",
+          "INP_56985": "MARCA",
+          "CSTM_978840": "SUBMARCA_SEGMENTO",
+          "CSTM_401828": "TIPO_PRODUCTO_RANGO_TAMANO",
+          "INP_57006": "SABOR",
+          "INP_57063": "TIPO_PACK",
+          "INP_57051": "CONTENIDO_UNIDAD",
+          "PRDC_LNG_DSC": "DESCRIPCION_LARGA_PRODUCTO",
+          "PRDC_CD": "CODIGO_PRODUCTO_NIELSEN",
+          "hierarchy_level": "NIVEL_JERARQUIA"
+        },
+        "important_fields_used_in_semantic_logic": [
+          "CSTM_310594", "INP_56982", "INP_56985", "CSTM_978840",
+          "CSTM_401828", "INP_57006", "INP_57063", "INP_57051",
+          "PRDC_LNG_DSC", "PRDC_CD", "hierarchy_level"
+        ],
+        "notes": [
+          "El catálogo de productos se utiliza de forma intensiva para la lógica de segmentación de Danone, como ITM_UNIF_SUBSEG_DAN y SEGMENTACION_2025.",
+          "Este modelo semántico filtra por 'hierarchy_level' como parte de la lógica de negocio en el patrón de consulta."
+        ]
+      },
+      "market": {
+        "name": "DIM_MERCADO_NIELSEN_EDP",
+        "source_table": "VW_IR_YOG_GEL_MT_NLSN_MKT_DIM",
+        "description": "Catálogo de mercados de Nielsen EDP que combina familia de mercado, tipo de lectura, surtido y geografía en la columna MRKT_DSC_SHRT.",
+        "recommended_business_keys": ["ID_MERCADO_NIELSEN"],
+        "standardized_columns": {
+          "market_id": "ID_MERCADO_NIELSEN",
+          "MRKT_DSC_SHRT": "DESCRIPCION_CORTA_MERCADO"
+        },
+        "recommended_semantic_fields": [
+          "FAMILIA_MERCADO_NIELSEN", "TIPO_LECTURA_NIELSEN", "TIPO_SURTIDO_NIELSEN",
+          "NIVEL_GEOGRAFICO_NIELSEN", "AREA_NIELSEN", "SUBAREA_NIELSEN",
+          "ES_TOTAL_NIELSEN", "ES_SCANNING_NIELSEN"
+        ],
+        "notes": [
+          "Este catálogo no es solo a nivel ciudad; mezcla el canal comercial, tipo de lectura, surtido, cobertura y geografía.",
+          "Se recomienda una vista estandarizada del mercado antes de su reutilización semántica generalizada."
+        ]
+      },
+      "period": {
+        "name": "DIM_PERIODO_NIELSEN_EDP",
+        "source_table": "VW_IR_YOG_GEL_MT_NLSN_PER_DIM",
+        "description": "Catálogo de períodos de Nielsen EDP con períodos de origen semanales y fechas de fin de semana, convertidos a mensuales en la capa semántica.",
+        "recommended_business_keys": ["ID_PERIODO_NIELSEN"],
+        "standardized_columns": {
+          "period_id": "ID_PERIODO_NIELSEN",
+          "period_short_description": "DESCRIPCION_CORTA_PERIODO",
+          "period_long_description": "DESCRIPCION_LARGA_PERIODO",
+          "period_ending_datetime": "FECHA_FIN_PERIODO",
+          "niq_calendar": "CALENDARIO_NIELSEN",
+          "niq_periodicity": "PERIODICIDAD_NIELSEN"
+        },
+        "notes": [
+          "El grano de período de origen es semanal (fin de semana).",
+          "La capa semántica utiliza un puente manual (CTE_PERIOD) y luego agrega a nivel mes."
+        ]
+      },
+      "metric": {
+        "name": "DIM_METRICA_NIELSEN_EDP",
+        "source_table": "VW_IR_YOG_GEL_MT_NLSN_FACT_REF",
+        "description": "Catálogo de métricas de Nielsen EDP que traduce los códigos de métricas de Nielsen a descripciones legibles y mapeos de orden de visualización.",
+        "recommended_business_keys": ["CODIGO_METRICA_NIELSEN"],
+        "standardized_columns": {
+          "fact_column": "CODIGO_METRICA_NIELSEN",
+          "fact_description": "DESCRIPCION_METRICA"
+        },
+        "recommended_metric_groups": {
+          "VALUE": ["DOL", "AP_DOL"],
+          "UNITS": ["U", "AP_U"],
+          "VOLUME_KGS": ["E", "AP_E"],
+          "ROS": ["U_ROS", "E_ROS"],
+          "DISTRIBUTION": ["NUM_DIST", "AP_NUM_DIST", "TDP_NUM_DIST", "DOL_CCV_NON_REACH_CONTEXT", "AP_DOL_SGV_NON_REACH_CONTEXT", "DOL_CCV_TDP_NON_REACH_CONTEXT"],
+          "PRICE": ["AVG_E_PRC", "AP_E_PRC", "AVG_U_PRC", "AP_U_PRC"]
+        }
+      }
+    },
+    "relations": {
+      "join_type": "LEFT JOIN",
+      "base_table": "VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT",
+      "conditions": [
+        "VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT.product_id = VW_IR_YOG_GEL_MT_NLSN_PROD_DIM.product_id",
+        "VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT.market_id = VW_IR_YOG_GEL_MT_NLSN_MKT_DIM.market_id",
+        "VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT.period_id = VW_IR_YOG_GEL_MT_NLSN_PER_DIM.period_id",
+        "VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT.FACT_COLUMN = VW_IR_YOG_GEL_MT_NLSN_FACT_REF.fact_column"
+      ]
+    },
+    "time_logic": {
+      "source_periodicity": "Semanal",
+      "intermediate_logic": ["CTE_FECHA", "CTE_FECHA_FIN", "CTE_PERIOD"],
+      "semantic_date_field": "FECHA",
+      "semantic_date_rule": "FECHA = DATE_TRUNC('MONTH', PER_DATE)",
+      "reporting_note": "La salida semántica final es mensual, utilizando un puente manual de fin de semana validado por negocio (CTE_PERIOD)."
+    },
+    "business_logic": {
+      "data_sources_and_filters": {
+        "main_branch": {
+          "description": "Flujo principal de datos EDP SCANTRACK / RETAIL",
+          "sql_conditions": [
+            "VW_IR_YOG_GEL_MT_NLSN_PROD_DIM.hierarchy_level = 11",
+            "CSTM_310594 IS NOT NULL",
+            "EXTRACT(YEAR FROM TO_DATE(period_ending_datetime)) >= 2024"
+          ]
+        },
+        "controlled_label_branch": {
+          "description": "Flujo para Marcas Genéricas (Requiere un UNION ALL con el flujo principal)",
+          "sql_conditions": [
+            "CSTM_310594 = 'CONTROLLED LABEL'",
+            "VW_IR_YOG_GEL_MT_NLSN_PROD_DIM.hierarchy_level = 2",
+            "EXTRACT(YEAR FROM TO_DATE(period_ending_datetime)) >= 2024"
+          ],
+          "brand_override_logic": [
+            "ITM_UNIF_SUBSEG_DAN = 'MARCAS GENERICAS'",
+            "SEGMENTACION_2025 = 'MARCAS GENERICAS'"
+          ]
+        }
+      },
+      "metric_aggregation_rules": {
+        "sales_and_ratios": {
+          "metrics": ["VTAS_VALOR", "VTAS_UNDS", "VTAS_KGS", "RATIO_VTAS_VALOR", "RATIO_VTAS_UNDS", "RATIO_VTAS_KGS", "PRECIO_UNDS_PROM", "PRECIO_KGS_PROM"],
+          "function": "SUM"
+        },
+        "distribution": {
+          "metrics": ["DIST_POND_REACH", "DIST_NUM", "DIST_POND_SIN_VTAS", "DIST_POND_TDP_REACH"],
+          "function": "MAX",
+          "note": "Las métricas de distribución NO DEBEN sumarse entre filas agregadas; usar MAX de acuerdo a la regla validada."
+        }
+      },
+      "derived_fields": [
+        "ITM_UNIF_SUBSEG_DAN", "SEGMENTACION_2025", "ITM_SUBSEG_UNIF",
+        "ITM_UNIF_MANUF", "ITM_UNIF_BRND", "FACT_DISPLAY_ORDER"
+      ],
+      "segment_logic_summary": [
+        "ITM_UNIF_SUBSEG_DAN se deriva de la categoría, fabricante, marca, rangos de tamaño, patrones de texto y códigos de producto seleccionados.",
+        "SEGMENTACION_2025 es una segunda capa de segmentación de negocio que clasifica los productos en: BASE BUSINESS DRINKABLE, BASE BUSINESS SPOONABLES, SALUD ACTIVA, POSTRES, INDULGENT YOGHURT, PB YOGHURT, KIDS, GELATINAS, FERMENTED DAIRY, GREEKS, CONTROLLED LABEL y OTHERS."
+      ]
+    },
+    "output_metrics": [
+      "VTAS_VALOR", "PRECIO_UNDS_PROM", "RATIO_VTAS_VALOR", "RATIO_VTAS_UNDS",
+      "VTAS_UNDS", "PRECIO_KGS_PROM", "VTAS_KGS", "RATIO_VTAS_KGS",
+      "DIST_POND_REACH", "DIST_NUM", "DIST_POND_SIN_VTAS", "DIST_POND_TDP_REACH"
+    ],
+    "output_metric_mapping_by_fact_logic": {
+      "DOL": "VTAS_VALOR",
+      "AVG_U_PRC": "PRECIO_UNDS_PROM",
+      "AP_DOL": "RATIO_VTAS_VALOR",
+      "AP_U": "RATIO_VTAS_UNDS",
+      "U": "VTAS_UNDS",
+      "AVG_E_PRC": "PRECIO_KGS_PROM",
+      "E": "VTAS_KGS",
+      "AP_E": "RATIO_VTAS_KGS",
+      "DOL_CCV_REACH_CONTEXT": "DIST_POND_REACH",
+      "NUM_DIST": "DIST_NUM",
+      "DOL_CCV_NON_REACH_CONTEXT": "DIST_POND_SIN_VTAS",
+      "DOL_CCV_TDP_NON_REACH_CONTEXT or TDP_NUM_DIST": "DIST_POND_TDP_REACH"
+    },
+    "quality_and_modeling_notes": [
+      "El período de origen es semanal, pero la capa semántica final es mensual.",
+      "El modelo depende de un puente de fechas manual (CTE_PERIOD) para alinear las fechas de fin de semana de Nielsen con las fechas de reporte mensual del negocio.",
+      "El catálogo de mercados debe estandarizarse antes de una reutilización semántica amplia porque MRKT_DSC_SHRT mezcla canal, tipo de lectura, surtido y geografía.",
+      "Este dataset debe mantenerse separado de otros modelos de Nielsen como Water Scantrack, Water RIE o Plant Based Scantrack a nivel de modelo de origen."
+    ]
+  }
+}

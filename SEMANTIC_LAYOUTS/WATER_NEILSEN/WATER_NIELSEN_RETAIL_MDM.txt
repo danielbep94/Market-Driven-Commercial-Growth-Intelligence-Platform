@@ -1,0 +1,197 @@
+{
+  "DATA_WATER_NIELSEN_RIE": {
+    "db": "PRD_MEX",
+    "schema": "MEX_DSP_DPH_MKT",
+    "source_type": "Nielsen Retail Index (RIE)",
+    "business_domain": "Aguas",
+    "description": "Capa semántica para Nielsen Waters Retail Index (RIE), que combina datos de hechos de retail de Nielsen con catálogos de producto, mercado, período y métricas, enriquecida con reglas de mapeo de negocio de Danone para segmento, presentación, fabricante y marca.",
+    "raw_grain": "market_id + product_id + period_id + FACT_COLUMN",
+    "reporting_grain": "FECHA + SOURCE + ITM_UNIF_BRAND + ITM_SEGMENT_2 + MKT_SHORT_DSC + ITM_UNIF_SUBSEG_DAN_1 + SEGMENTO_LOCAL + ITM_UNIF_MANUF_DAN + ITM_UNIF_BRAND_DAN + SUBSEGMENTO_LOCAL",
+    "fact_table": {
+      "name": "FACT_NIELSEN_WATER_RIE",
+      "source_table": "VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT",
+      "description": "Tabla de hechos de Nielsen Water Retail Index que contiene medidas por mercado, producto, período y código de métrica.",
+      "technical_keys": [
+        {"column": "market_id", "data_type": "STRING"},
+        {"column": "product_id", "data_type": "STRING"},
+        {"column": "period_id", "data_type": "STRING"},
+        {"column": "FACT_COLUMN", "data_type": "STRING"}
+      ],
+      "value_field": {"column": "FACT_VALUE", "data_type": "FLOAT"}
+    },
+    "dimensions": {
+      "product": {
+        "name": "DIM_PRODUCTO_NIELSEN_WATER_RIE",
+        "source_table": "VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM",
+        "description": "Catálogo de productos de Nielsen Water Retail utilizado en la capa semántica RIE. El nivel más bajo disponible actualmente en la extracción es hierarchy_level = 9 (PRESENTACION UNIF. - ENVASE UNIF.).",
+        "recommended_business_keys": ["ID_PRODUCTO_NIELSEN"],
+        "current_lowest_level_available": {
+          "hierarchy_level": 9,
+          "hierarchy_level_name": "PRESENTACION UNIF. - ENVASE UNIF."
+        },
+        "standardized_columns": {
+          "product_id": "ID_PRODUCTO_NIELSEN",
+          "CSTM_10000000000000673935": "CATEGORIA_MACRO",
+          "CSTM_321331": "FABRICANTE",
+          "CSTM_421268": "SEGMENTO",
+          "CSTM_310589": "MARCA",
+          "CSTM_972397": "SUBMARCA",
+          "CSTM_940056": "RANGO_TAMANO",
+          "INP_57051": "CONTENIDO_UNIDAD",
+          "CSTM_942012": "TIPO_PACK",
+          "CSTM_384949": "FORMATO_PRESENTACION",
+          "hierarchy_number": "NUMERO_JERARQUIA",
+          "hierarchy_level": "NIVEL_JERARQUIA",
+          "hierarchy_level_name": "NOMBRE_NIVEL_JERARQUIA"
+        },
+        "important_fields_used_in_semantic_logic": [
+          "CSTM_321331", "INP_57051", "CSTM_940056", "CSTM_384949",
+          "CSTM_310589", "CSTM_972397", "CSTM_421268"
+        ],
+        "business_interpretation": [
+          "Esta extracción aún no llega a la granularidad atómica de artículo/SKU.",
+          "El nodo disponible más bajo utilizado actualmente representa la configuración de presentación/empaque."
+        ]
+      },
+      "market": {
+        "name": "DIM_MERCADO_NIELSEN_WATER_RIE",
+        "source_table": "VW_IND_AGUA_BNF_RT_NLSN_MKT_DIM",
+        "description": "Catálogo de mercados de Nielsen Water Retail que combina familias de canales, variantes de surtido, alcances de total-México, áreas, zonas y ciudades.",
+        "recommended_business_keys": ["ID_MERCADO_NIELSEN"],
+        "standardized_columns": {
+          "market_id": "ID_MERCADO_NIELSEN",
+          "MRKT_DSC_SHRT": "DESCRIPCION_CORTA_MERCADO"
+        },
+        "recommended_semantic_fields": [
+          "FAMILIA_MERCADO_NIELSEN", "TIPO_SURTIDO_NIELSEN", "NIVEL_GEOGRAFICO_NIELSEN",
+          "AREA_NIELSEN", "ZONA_NIELSEN", "CIUDAD_NIELSEN", "ES_MT"
+        ],
+        "notes": [
+          "MRKT_DSC_SHRT mezcla la familia de canal, geografía y los alcances de total/área/ciudad.",
+          "Se recomienda una vista estandarizada del mercado antes del consumo semántico final."
+        ]
+      },
+      "period": {
+        "name": "DIM_PERIODO_NIELSEN_WATER_RIE",
+        "source_table": "VW_IND_AGUA_BNF_RT_NLSN_PER_DIM",
+        "description": "Catálogo de períodos de Nielsen Water Retail utilizado por la capa semántica RIE.",
+        "recommended_business_keys": ["ID_PERIODO_NIELSEN"],
+        "standardized_columns": {
+          "period_id": "ID_PERIODO_NIELSEN",
+          "period_short_description": "DESCRIPCION_CORTA_PERIODO",
+          "period_long_description": "DESCRIPCION_LARGA_PERIODO",
+          "period_ending_datetime": "FECHA_FIN_PERIODO",
+          "niq_calendar": "CALENDARIO_NIQ",
+          "niq_periodicity": "PERIODICIDAD_NIQ"
+        },
+        "notes": [
+          "El archivo semántico actual usa FECHA = TO_DATE(period_ending_datetime), es decir, fecha de fin de período y no truncamiento mensual.",
+          "Ciertas guías históricas para extracciones RIE mencionaban usar PER_SHORT_DSC para derivar fechas mensuales; mantén esto como una regla de extracción externa, no como la verdad semántica base de este dataset."
+        ]
+      },
+      "metric": {
+        "name": "DIM_METRICA_NIELSEN_WATER_RIE",
+        "source_table": "VW_IND_AGUA_BNF_RT_NLSN_FACT_REF",
+        "description": "Catálogo de métricas de Nielsen Water Retail que traduce los códigos de hechos a descripciones de métricas legibles para negocio.",
+        "recommended_business_keys": ["CODIGO_METRICA_NIELSEN"],
+        "standardized_columns": {
+          "fact_column": "CODIGO_METRICA_NIELSEN",
+          "fact_description": "DESCRIPCION_METRICA"
+        },
+        "join_transformation_warning": "CRÍTICO: El modelo une FACT_COLUMN a REPLACE(fact_column, '.', '_') en el catálogo de métricas. Las consultas SQL generadas deben aplicar este reemplazo obligatoriamente."
+      }
+    },
+    "relations": {
+      "join_type": "LEFT JOIN",
+      "base_table": "VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT",
+      "conditions": [
+        "VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT.market_id = VW_IND_AGUA_BNF_RT_NLSN_MKT_DIM.market_id",
+        "VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT.period_id = VW_IND_AGUA_BNF_RT_NLSN_PER_DIM.period_id",
+        "VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT.FACT_COLUMN = REPLACE(VW_IND_AGUA_BNF_RT_NLSN_FACT_REF.fact_column, '.', '_')",
+        "VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT.product_id = VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM.product_id"
+      ]
+    },
+    "time_logic": {
+      "source_period_field": "period_ending_datetime",
+      "semantic_date_field": "FECHA",
+      "semantic_date_rule": "FECHA = TO_DATE(period_ending_datetime)",
+      "aggregation_note": "Este dataset semántico no se trunca mensualmente en el modelo actual (a diferencia de Scantrack)."
+    },
+    "data_sources_and_filters": {
+      "WATERS_RIE": {
+        "description": "Flujo principal de datos RIE",
+        "sql_conditions": [
+          "hierarchy_level = 9",
+          "CSTM_310589 <> 'GLACEAU'",
+          "CSTM_421268 NOT IN ('JUGOS', 'AGUA VITAMINADA')",
+          "period_ending_datetime >= '2024-01-01'"
+        ]
+      },
+      "WATERS_RIE_GEN": {
+        "description": "Flujo de marcas genéricas RIE",
+        "sql_conditions": [
+          "CSTM_321331 = 'CONTROLLED LABEL'",
+          "period_ending_datetime >= '2024-01-01'"
+        ]
+      }
+    },
+    "business_logic": {
+      "constant_fields": {
+        "ITM_UNIF_SUBSEG_DAN_1": "TOTAL WATERS"
+      },
+      "derived_fields": [
+        "SEGMENTO_LOCAL", "PRESENTACION_LOCAL", "ITM_UNIF_MANUF_DAN",
+        "ITM_UNIF_BRAND_DAN", "SUBSEGMENTO_LOCAL"
+      ],
+      "segment_logic_summary": [
+        {"condition": "AGUA NATURAL", "result": "NATURAL"},
+        {"condition": "AGUA SABORIZADA / BEBIDAS REFRESCANTES", "result": "SABOR"}
+      ],
+      "presentation_logic_summary": [
+        {"condition": "CSTM_421268 IN ('JUIZZY', 'AGUAS FRESCAS', 'JUIZZY + AGUAS FRESCAS')", "result": "ADULTO"},
+        {"condition": "SEGMENTO_LOCAL = 'NATURAL' AND [COLUMNA_RANGO_ESPECIFICA] = [VALOR_KIDS]", "result": "KIDS"},
+        {"condition": "SEGMENTO_LOCAL = 'NATURAL' AND INP_57051 >= 5", "result": "GARRAFON"},
+        {"condition": "ELSE", "result": "Regresa a la lógica de segmento"}
+      ],
+      "manufacturer_harmonization_examples": [
+        "IND. REFRESQUERA PENINSULAR / COCA-COLA COMPANY -> COCA-COLA",
+        "GRUPO GEPP / PEPSICO -> PEPSI",
+        "O.FAB. -> OTHERS",
+        "SOURCE = 'WATERS RIE_GEN' -> MARCAS GENERICAS"
+      ],
+      "brand_harmonization_examples": [
+        {"condition": "CSTM_310589 = 'OTHERS MARCA'", "result": "OTHER BRANDS"},
+        {"condition": "CSTM_310589 IN ('LEVITE CLASICA', 'INFUSIONES', 'CERO', 'BALANCE')", "result": "LEVITE"},
+        {"condition": "CSTM_310589 LIKE '%BONAFONT%' AND CSTM_310589 LIKE '%KIDS%'", "result": "BONAFONT KIDS"},
+        {"condition": "CSTM_321331 = 'QUALAMEX' AND INP_57051 = 0.320", "result": "VITALOE"},
+        {"condition": "CSTM_321331 = 'QUALAMEX' AND INP_57051 = 0.500", "result": "ALOEYA"}
+      ],
+      "subsegment_logic_summary": [
+        {"segment": "NATURAL", "presentation": "ADULTO", "result": "NATURAL CORE"},
+        {"segment": "NATURAL", "presentation": "KIDS", "result": "NATURAL KIDS"},
+        {"segment": "NATURAL", "presentation": "GARRAFON", "result": "JUGS"},
+        {"segment": "SABOR", "presentation": "ADULTO", "result": "AQUADRINKS CORE"},
+        {"segment": "SABOR", "presentation": "KIDS", "result": "SABOR KIDS"}
+      ]
+    },
+    "output_metrics": [
+      "VTAS_VALOR", "DIST_NUM_TIENDAS_VENDEDORAS", "DIST_POND_REACH",
+      "PRECIO_LITROS_PROM", "VTAS_UNDS", "VTAS_LITROS", "PRECIO_UNDS_PROM"
+    ],
+    "output_metric_mapping_by_fact_description": {
+      "Vtas Valor": "VTAS_VALOR",
+      "Dist. Num. Tiendas Vendedoras (C)": "DIST_NUM_TIENDAS_VENDEDORAS",
+      "Dist. Pond. Reach": "DIST_POND_REACH",
+      "Precio (LITROS) Prom.": "PRECIO_LITROS_PROM",
+      "Vtas Unds": "VTAS_UNDS",
+      "Vtas (LITROS)": "VTAS_LITROS",
+      "Precio Unds Prom.": "PRECIO_UNDS_PROM"
+    },
+    "quality_and_modeling_notes": [
+      "Este dataset debe mantenerse separado de Water Scantrack a nivel de modelo de origen.",
+      "El extracto de producto de retail actual solo está disponible hasta hierarchy_level = 9, no a nivel de grano UPC/artículo.",
+      "El catálogo de mercados debe estandarizarse antes del consumo semántico final porque MRKT_DSC_SHRT mezcla canal, geografía y alcances total/área/ciudad.",
+      "Si posteriormente se construye una vista mensual de Retail, documentar como una capa derivada separada de este dataset semántico base."
+    ]
+  }
+}

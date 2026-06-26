@@ -1,0 +1,82 @@
+{
+  "DATA_IBP_PLANNING_ACTUALS": {
+    "db": "PRD_MDP",
+    "schema": "MDP_DSP",
+    "source_type": "Capa Semántica IBP / Planning & Actuals",
+    "business_domain": "IBP",
+    "description": "Dataset semántico ancho (desnormalizado) de IBP que contiene escenarios reales (actuals) y de planeación (forecast) estructurados por dimensiones de tiempo, producto, canal, geografía y mercado. La medida cuantitativa principal es VALOR.",
+    "data_structure": "Tabla plana desnormalizada (Single wide fact-style table) con atributos dimensionales integrados. NO requiere JOINs para atributos descriptivos base.",
+    "raw_grain_observed": "Mensual + Producto + Canal + Geografía + Escenario",
+    "reporting_grain_recommended": "FECHA + CATEGORIA + NOMBRE_ETIQUETA + CONCEPTO + FU + PV + SKU + GRAN_CANAL + CANAL + GRUPO + CADENA + FM + MERCADO + SEGMENTO_SOM_FCST",
+    "fact_table": {
+      "name": "VW_FACT_DANONE_IBP",
+      "description": "Vista transaccional principal que contiene tanto dimensiones descriptivas como la métrica financiera.",
+      "primary_measure": {
+        "column": "VALOR",
+        "data_type": "FLOAT",
+        "aggregation": "SUM"
+      }
+    },
+    "logical_dimensions_embedded": {
+      "time_attributes": {
+        "description": "Atributos temporales a nivel mensual.",
+        "columns": ["FECHA", "ID_FECHA", "ID_MES", "AÑO", "MES", "DIAS_HABILES"],
+        "sample_values": {
+          "MES": ["ENE", "FEB", "MAR"],
+          "AÑO": [2025]
+        }
+      },
+      "scenario_and_versioning_attributes": {
+        "description": "CRÍTICO: Atributos utilizados para filtrar y separar los diferentes escenarios de negocio (Real vs Forecast). NUNCA sumar VALOR sin agrupar o filtrar por estos campos.",
+        "columns": ["ETIQUETA", "NOMBRE_ETIQUETA", "FCST_TYPE", "FOLIO", "SOURCE", "CONCEPTO", "F_NAME"],
+        "sample_values": {
+          "ETIQUETA": ["REAL 2025"],
+          "NOMBRE_ETIQUETA": ["REAL"],
+          "FCST_TYPE": ["REAL"],
+          "CONCEPTO": ["VENTAS"]
+        }
+      },
+      "product_attributes": {
+        "description": "Jerarquía de producto y descriptores físicos integrados en la tabla.",
+        "columns": ["SKU", "DESCRIPCION", "MARCA", "FORMATO", "SABOR", "PACK", "FAMILIA", "PN", "CATEGORIA", "GRAMAJE", "PLANTA", "TAPA", "PRESENTACION", "PRODUCTO_ATRIBUTO"],
+        "sample_values": {
+          "CATEGORIA": ["WATERS", "EDP"],
+          "MARCA": ["AGUAS FRESCAS"],
+          "FORMATO": ["1 LT"],
+          "SABOR": ["GUAYABA"]
+        }
+      },
+      "commercial_and_geography_attributes": {
+        "description": "Atributos de comercialización, segmentación de mercado y agrupación de canales.",
+        "columns": ["GRAN_CANAL", "CANAL", "GRUPO", "CADENA", "FM", "MERCADO", "SEGMENTO_SOM_FCST", "AREA_GEO_RUSH", "SEGMENTO", "SOM"],
+        "sample_values": {
+          "GRAN_CANAL": ["DTT"],
+          "CANAL": ["PROXIMITY"],
+          "CADENA": ["REGION VI"],
+          "SEGMENTO_SOM_FCST": ["AQUADRINKS"]
+        }
+      },
+      "organizational_attributes": {
+        "description": "Atributos de responsabilidad y unidad operativa.",
+        "columns": ["RESPONSABLE", "ACCOUNTABLE", "FU", "PV"]
+      }
+    },
+    "relations": {
+      "join_type": "NONE",
+      "note": "A diferencia de otros modelos (Sell In, Scantrack), este dataset es una tabla ancha. No intentes hacer JOINs hacia dimensiones externas de producto o cliente a menos que sea estrictamente necesario para un cruce cruzado (cross-domain)."
+    },
+    "business_logic": {
+      "scenario_filtering_logic": [
+        "Para obtener ventas reales históricas: Filtrar explícitamente donde NOMBRE_ETIQUETA = 'REAL' o FCST_TYPE = 'REAL'.",
+        "Para obtener el presupuesto o proyecciones: Filtrar por la etiqueta de Forecast correspondiente (ej. FCST_TYPE != 'REAL').",
+        "Peligro de agregación: Nunca ejecutar un SUM(VALOR) general sin incluir NOMBRE_ETIQUETA o FCST_TYPE en el GROUP BY, ya que duplicará o triplicará el valor al sumar distintos escenarios (Real + Presupuesto + Ajustes)."
+      ],
+      "metric_aggregation": "VALOR es la medida cuantitativa que representa el monto financiero/volumen según el contexto. Siempre debe agregarse con SUM()."
+    },
+    "quality_and_modeling_notes": [
+      "El modelo es granular a nivel mensual, producto, geografía y escenario.",
+      "Asegurar que cualquier consulta generada siempre especifique explícitamente el escenario deseado a través de los campos ETIQUETA o NOMBRE_ETIQUETA.",
+      "Contiene columnas de auditoría técnica (F_NAME, F_UPDATE, CICLO) que generalmente deben excluirse de los reportes analíticos de negocio."
+    ]
+  }
+}
