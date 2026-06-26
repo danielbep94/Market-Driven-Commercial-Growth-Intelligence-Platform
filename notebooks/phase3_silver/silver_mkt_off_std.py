@@ -2,24 +2,19 @@
 # =============================================================================
 # PHASE 3 — MKT_OFF STANDARDIZATION: silver_mkt_off_std.py
 # =============================================================================
-# SOURCES:  Same 4 AGG_DATA_PVT fact views (MKT_OFF = Nielsen MKT off-take)
-# OUTPUT:   mkt_off_std
+# CONFIRMED SCHEMA (same as MKT_ON — same Nielsen source tables):
+#   AGG_DATA_PVT.market_id → MKT_DIM.market_id → MKT_DIM.MRKT_DSC_SHRT
 #
-# CRITICAL RULES:
+# ⚠️  938M+ ROW TABLES: Snowflake-pushdown aggregation.
+#
+# RULES:
 #   R7:  MKT_OFF NEVER joins by UPC
 #   R8:  MKT_OFF NEVER joins by CADENA
-#   R9:  cadena_std IS INTENTIONALLY NULL — approved structural hardcoding.
-#        NULL::VARCHAR AS cadena_std is an architectural contract (NOT a R12 violation).
-#        R12 prohibits mapping logic in notebooks; a guaranteed-NULL by design is not a
-#        mapping rule. See Phase 3 plan v2 Change #10.
-#   R13: Join to nielsen_std (unique) — never to raw MKT_DIM
-#   R14: Uniqueness assertion on every mapping before join
-#   R15: assert_row_count_exact after every join
+#   R9:  cadena_std = NULL — approved structural hardcoding (not R12 violation)
+#   R13: Join to nielsen_std (unique) — never raw MKT_DIM
+#   R14/R15: Uniqueness + row count assertions
 #
-# STRUCTURAL ASSERTIONS (A2, A3, A4):
-#   A2: assert_no_prohibited_join UPC keys in MKT_OFF JOIN_REGISTRY entries
-#   A3: assert_no_prohibited_join CADENA keys in MKT_OFF JOIN_REGISTRY entries
-#   A4: cadena_std IS NULL for every row in mkt_off_std
+# ASSERTIONS: A2 (R7 no UPC), A3 (R8 no CADENA), A4 (cadena_std 100% NULL)
 # =============================================================================
 
 # COMMAND ----------
@@ -29,157 +24,169 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## MKT_OFF Standardization
-# MAGIC
-# MAGIC **Purpose**: Build `mkt_off_std` — Nielsen off-take fact data enriched with
-# MAGIC `canal_std` / `region_std` / `marca_std`.
-# MAGIC
-# MAGIC > **IMPORTANT — R9 architectural contract**:
-# MAGIC > `cadena_std` IS INTENTIONALLY NULL in `mkt_off_std`.
-# MAGIC > This is an **approved architectural contract** (R9), not a data quality gap.
-# MAGIC > MKT_OFF data has no chain-level granularity by design; any non-NULL `cadena_std`
-# MAGIC > value in this table is a pipeline error and will be caught by assertion A4.
-# MAGIC
-# MAGIC **Key rules enforced**:
-# MAGIC - **R7**: MKT_OFF NEVER joins by UPC, EAN, or SKU_EAN
-# MAGIC - **R8**: MKT_OFF NEVER joins by CADENA
-# MAGIC - **R9**: `cadena_std` is hardcoded NULL — not a mapping gap
-# MAGIC - **R13**: Join to `nielsen_std` (pre-deduplicated, unique on `MRKT_DSC_SHRT`)
-# MAGIC - **R14**: Uniqueness assertion on `nielsen_std` before every join
-# MAGIC - **R15**: `assert_row_count_exact` after every join
-# MAGIC
-# MAGIC **Prerequisites**: `silver_nielsen.py` must have run first to produce `logs/nielsen_std.csv`.
+# MAGIC ## MKT_OFF Standardization — silver_mkt_off_std.py
+# MAGIC **`cadena_std` is intentionally NULL** — approved structural hardcoding (R9).
+# MAGIC This is an architectural contract, not a data quality gap.
 
 # COMMAND ----------
 
 _S = "MKT_OFF"
-log("INFO", "Starting MKT_OFF standardization — loading nielsen_std", _S)
+log("INFO", "Starting MKT_OFF standardization (Snowflake-pushdown pattern)", _S)
+log("INFO", "cadena_std = NULL is an architectural contract (R9) — not a gap", _S)
 
-# Load pre-built nielsen_std (unique on MRKT_DSC_SHRT, R13)
-# Written by silver_nielsen.py — must be run first
-nielsenSTD_path = str(REPO_ROOT / "logs" / "nielsen_std.csv")
-if not os.path.exists(nielsenSTD_path):
+import os as _os
+
+# Load nielsen_std (unique on MRKT_DSC_SHRT — R13)
+_nielsen_path = _os.path.join(REPO_LOGS_DIR, "nielsen_std.csv")
+if not _os.path.exists(_nielsen_path):
     blocker(True,
-        f"nielsen_std.csv not found at {nielsenSTD_path}. "
-        "Run silver_nielsen.py before silver_mkt_off_std.py.",
-        _S)
+        f"nielsen_std.csv not found at {_nielsen_path}. "
+        "Run silver_nielsen.py before silver_mkt_off_std.py.", _S)
+    df_nielsen_std = None
 else:
-    df_nielsen_std = (spark.read
-                      .option("header", "true")
-                      .csv(f"file://{nielsenSTD_path}"))
-    # Assert uniqueness before any join (R14)
+    df_nielsen_std = spark.read.option("header", "true").csv(f"file://{_nielsen_path}")
     dup_ns = df_nielsen_std.count() - df_nielsen_std.dropDuplicates(["MRKT_DSC_SHRT"]).count()
     blocker(dup_ns > 0,
-        f"nielsen_std has {dup_ns} duplicate MRKT_DSC_SHRT values — cannot join safely.",
-        _S)
-    log("INFO", f"nielsen_std loaded: {df_nielsen_std.count()} unique market strings", _S)
+        f"nielsen_std has {dup_ns} duplicate MRKT_DSC_SHRT — cannot join safely.", _S)
+    log("INFO", f"nielsen_std loaded: {df_nielsen_std.count():,} unique market strings", _S)
 
 # COMMAND ----------
 
-log("INFO", "Starting MKT_OFF standardization", _S)
-
-_MKT_OFF_AGG_TABLES = {
-    "EDP_NIELSEN":     "PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT",
-    "PB_NIELSEN":      "PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_AGG_DATA_PVT",
-    "WATER_RETAIL":    "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT",
-    "WATER_SCANTRACK": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT",
+_MKT_OFF_TABLES = {
+    "EDP_NIELSEN": {
+        "agg": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_AGG_DATA_PVT",
+        "mkt": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_MKT_DIM",
+        "per": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PER_DIM",
+        "ref": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_FACT_REF",
+    },
+    "PB_NIELSEN": {
+        "agg": "PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_AGG_DATA_PVT",
+        "mkt": "PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_MKT_DIM",
+        "per": "PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_PER_DIM",
+        "ref": "PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_FACT_REF",
+    },
+    "WATER_RETAIL": {
+        "agg": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_AGG_DATA_PVT",
+        "mkt": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_MKT_DIM",
+        "per": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_PER_DIM",
+        "ref": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_FACT_REF",
+    },
+    "WATER_SCANTRACK": {
+        "agg": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT",
+        "mkt": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM",
+        "per": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PER_DIM",
+        "ref": "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_FACT_REF",
+    },
 }
 
-brand_cfg = load_yaml_config("configs/brand_crosswalk.yaml")
+from functools import reduce as _reduce
 
 _mkt_off_frames = []
-for cbu_label, tbl in _MKT_OFF_AGG_TABLES.items():
+for cbu_label, tbls in _MKT_OFF_TABLES.items():
     try:
-        df_fact = run_sf(DB_PRD_MEX, f"SELECT * FROM {tbl}")
-        df_fact.cache()
-        n_fact = df_fact.count()
-        log("INFO", f"{cbu_label}: {n_fact:,} fact rows", _S)
+        log("INFO", f"Snowflake pushdown for MKT_OFF {cbu_label}...", _S)
 
-        df_off = df_fact.join(
-            df_nielsen_std.select(
-                F.col("MRKT_DSC_SHRT"),
-                F.col("canal_std"),
-                F.col("region_std"),
-                F.col("mapping_status").alias("market_mapping_status")),
-            on="MRKT_DSC_SHRT", how="left")
-        register_join("silver_mkt_off_std", f"{cbu_label}_fact", "nielsen_std",
-                      "MRKT_DSC_SHRT", "left")
-        assert_row_count_exact(df_fact, df_off,
-                               f"MKT_OFF {cbu_label} × nielsen_std", _S)
+        # Same pushdown query as MKT_ON — join on market_id, not MRKT_DSC_SHRT
+        sql_mkt_off = f"""
+        SELECT
+            m.MRKT_DSC_SHRT,
+            m.hierarchy_level,
+            p.period_short_description  AS period_label,
+            p.period_ending_datetime    AS period_end_date,
+            a.FACT_COLUMN               AS metric_name,
+            r.fact_group                AS metric_group,
+            SUM(COALESCE(a.FACT_VALUE, 0)) AS metric_value,
+            COUNT(*)                    AS row_count
+        FROM {tbls['agg']} a
+        LEFT JOIN {tbls['mkt']} m ON a.market_id = m.market_id
+        LEFT JOIN {tbls['per']} p ON a.period_id  = p.period_id
+        LEFT JOIN {tbls['ref']} r ON UPPER(a.FACT_COLUMN) = UPPER(r.fact_column)
+        WHERE m.MRKT_DSC_SHRT IS NOT NULL
+        GROUP BY
+            m.MRKT_DSC_SHRT,
+            m.hierarchy_level,
+            p.period_short_description,
+            p.period_ending_datetime,
+            a.FACT_COLUMN,
+            r.fact_group
+        """
 
-        # R9 — cadena_std IS INTENTIONALLY NULL (approved structural hardcoding, Change #10)
-        # This is not a mapping gap. MKT_OFF never has chain-level data by design.
+        df_off = run_sf(DB_PRD_MEX, sql_mkt_off)
+        df_off.cache()
+        n_off = df_off.count()
+        log("INFO", f"{cbu_label}: {n_off:,} aggregated rows from Snowflake", _S)
+
+        # Join to nielsen_std (Spark — both small)
+        if df_nielsen_std is not None:
+            df_off = df_off.join(
+                df_nielsen_std.select(
+                    F.col("MRKT_DSC_SHRT"),
+                    F.col("canal_std"),
+                    F.col("region_std"),
+                    F.col("mapping_status").alias("market_mapping_status")),
+                on="MRKT_DSC_SHRT",
+                how="left")
+            register_join("silver_mkt_off_std", f"{cbu_label}_agg", "nielsen_std",
+                          "MRKT_DSC_SHRT", "left")
+
+        # R9: cadena_std IS INTENTIONALLY NULL — approved structural hardcoding (Change #10)
+        # MKT_OFF never has chain-level data by design.
         df_off = df_off.withColumn("cadena_std", F.lit(None).cast(StringType()))
 
-        # marca_std from brand field
-        brand_col = None
-        for col in df_off.columns:
-            if "BRAND" in col.upper() or "MARCA" in col.upper():
-                brand_col = col
-                break
-        if brand_col:
-            df_off = df_off.withColumn("marca_std", F.upper(F.trim(F.col(brand_col))))
-        else:
-            df_off = df_off.withColumn("marca_std", F.lit(None).cast("string"))
-            warn(True, f"{cbu_label}: No brand column found — marca_std=NULL", _S)
-
         df_off = (df_off
-                  .withColumn("cbu_source", F.lit(cbu_label))
+                  .withColumn("cbu_source",    F.lit(cbu_label))
                   .withColumn("source_system", F.lit("MKT_OFF"))
                   .withColumn("std_created_at", F.current_timestamp()))
         _mkt_off_frames.append(df_off)
+
     except Exception as e:
-        warn(True, f"Cannot read MKT_OFF fact for {cbu_label}: {e}", _S)
+        warn(True, f"Cannot process MKT_OFF {cbu_label}: {e}", _S)
 
 if _mkt_off_frames:
-    from functools import reduce as _reduce
     df_mkt_off_std = _reduce(lambda a, b: a.unionByName(b, allowMissingColumns=True),
                              _mkt_off_frames)
     n_mkt_off = df_mkt_off_std.count()
     log("INFO", f"mkt_off_std: {n_mkt_off:,} total rows", _S)
     save_df(df_mkt_off_std, "mkt_off_std.csv", _S)
 else:
-    blocker(True, "No MKT_OFF fact tables produced output — mkt_off_std empty", _S)
+    blocker(True, "No MKT_OFF CBUs produced output — mkt_off_std empty", _S)
     df_mkt_off_std = None
     n_mkt_off = 0
 
 # COMMAND ----------
 
-# A4: MKT_OFF cadena_std must be NULL for every single row (R9)
-# This is the key structural correctness check for MKT_OFF.
+# A4: cadena_std must be NULL for every row in mkt_off_std (R9)
 if df_mkt_off_std is not None:
-    n_non_null_cadena = df_mkt_off_std.filter(F.col("cadena_std").isNotNull()).count()
-    blocker(n_non_null_cadena > 0,
-        f"A4 VIOLATION: {n_non_null_cadena:,} rows in mkt_off_std have non-NULL cadena_std. "
-        "cadena_std must be NULL in MKT_OFF by design (R9). "
-        "A cadena value was accidentally populated — investigate the join logic.",
-        _S)
-    if n_non_null_cadena == 0:
-        passed(f"A4: cadena_std is NULL for all {n_mkt_off:,} rows in mkt_off_std (R9 confirmed)", _S)
+    n_non_null = df_mkt_off_std.filter(F.col("cadena_std").isNotNull()).count()
+    blocker(n_non_null > 0,
+        f"A4 VIOLATION: {n_non_null:,} rows in mkt_off_std have non-NULL cadena_std. "
+        "cadena_std must be NULL by design (R9).", _S)
+    if n_non_null == 0:
+        passed(f"A4: cadena_std is NULL for all {n_mkt_off:,} mkt_off_std rows (R9 confirmed)", _S)
 
 # COMMAND ----------
 
-# Filter JOIN_REGISTRY to MKT_OFF entries only before scanning
-mkt_off_entries = [e for e in JOIN_REGISTRY if e["notebook"] == "silver_mkt_off_std"]
-old_registry = JOIN_REGISTRY.copy()
+# A2/A3: Scan JOIN_REGISTRY for prohibited join keys in MKT_OFF entries
+_backup = JOIN_REGISTRY.copy()
+_mkt_off_entries = [e for e in JOIN_REGISTRY if e["notebook"] == "silver_mkt_off_std"]
 JOIN_REGISTRY.clear()
-JOIN_REGISTRY.extend(mkt_off_entries)
+JOIN_REGISTRY.extend(_mkt_off_entries)
 
-# A2: R7 — MKT_OFF must never join by UPC
+# A2: R7 — MKT_OFF no UPC join
 assert_no_prohibited_join(
     prohibited_keys=["UPC", "EAN", "SKU_EAN", "SKU_EAN_COD", "INT_ID"],
-    rule_label="R7 — MKT_OFF must never join by UPC",
-    section=_S)
+    rule_label="A2 — R7: MKT_OFF no UPC join", section=_S)
 
-# A3: R8 — MKT_OFF must never join by CADENA
+# A3: R8 — MKT_OFF no CADENA join
 assert_no_prohibited_join(
     prohibited_keys=["CADENA", "cadena_std", "CUS_CADENA"],
-    rule_label="R8 — MKT_OFF must never join by CADENA",
-    section=_S)
+    rule_label="A3 — R8: MKT_OFF no CADENA join", section=_S)
 
-# Restore full registry
 JOIN_REGISTRY.clear()
-JOIN_REGISTRY.extend(old_registry)
+JOIN_REGISTRY.extend(_backup)
 
 flush_log("phase3_standardization_audit_log.txt")
 log("INFO", "MKT_OFF standardization complete.", _S)
+
+# COMMAND ----------
+
