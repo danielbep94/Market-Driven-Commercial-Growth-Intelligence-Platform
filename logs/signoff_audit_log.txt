@@ -1,81 +1,46 @@
-[2026-06-26 04:40:26] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] ============================================================
-[2026-06-26 04:40:26] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] Starting V_D_ITEM EAN profile and SKU catalog seed export.
-[2026-06-26 04:40:57] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] Saved → dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_01_sku_quality.csv
-[2026-06-26 04:40:58] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] V_D_ITEM total rows:          82,684
-[2026-06-26 04:40:58] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] NULL SKU_EAN_COD (all):       1,057
-[2026-06-26 04:40:58] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] NULL SKU_EAN_COD (active):    0
-[2026-06-26 04:40:58] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] Blank SKU_EAN_COD:            0
-[2026-06-26 04:40:58] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] Distinct EAN values:          2,940
-[2026-06-26 04:40:58] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] Distinct MAT_IDT:             82,684
-[2026-06-26 04:40:58] [⚠️  WARNING] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] 1057 total rows have NULL EAN (including inactive). Investigate before full population.
-[2026-06-26 04:40:58] [✅ PASS] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] No active products have NULL SKU_EAN_COD.
-[2026-06-26 04:41:07] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] Saved → dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_01_ean_cardinality.csv
-[2026-06-26 04:41:07] [🚨 BLOCKER] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] 1115 EAN codes map to multiple MAT_IDTs. Resolve before using SKU_EAN_COD as a golden join key.
-[2026-06-26 04:41:15] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] Saved → dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_01_sku_mapping.csv
-[2026-06-26 04:41:15] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] Exported 0 active SKUs to signoff_01_sku_mapping.csv
-[2026-06-26 04:41:15] [INFO] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] ACTION REQUIRED: Copy signoff_01_sku_mapping.csv to homologation/sku_mapping.csv and change review_status to CONFIRMED for validated records.
-[2026-06-26 04:41:15] [✅ PASS] [SIGN-OFF #1 — V_D_ITEM EAN QUALITY] Sign-off #1 data exported. Validate EAN cardinality result before marking complete.
-[2026-06-26 04:41:16] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] ============================================================
-[2026-06-26 04:41:16] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Measuring SELL_OUT UPC bridge cascade distribution.
-[2026-06-26 04:45:01] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] ============================================================
-[2026-06-26 04:45:01] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Measuring SELL_OUT UPC bridge cascade distribution.
-[2026-06-26 04:45:48] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] ============================================================
-[2026-06-26 04:45:48] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Measuring SELL_OUT UPC bridge cascade distribution.
-[2026-06-26 04:46:01] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Priority-1 matches (INT_ID exact): 5,515
-[2026-06-26 04:50:33] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Priority-2 matches (IMPORT_ID exact): 2
-[2026-06-26 04:52:57] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Unmatched SELL_OUT products:         721
-[2026-06-26 04:53:08] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Saved → dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_02_upc_unmatched.csv
-[2026-06-26 04:54:01] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Saved → dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_02_upc_cascade.csv
-[2026-06-26 04:54:01] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Total SELL_OUT products:               6,238
-[2026-06-26 04:54:01] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Priority-1 (INT_ID):    5,515  (88.4%)
-[2026-06-26 04:54:01] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Priority-2 (IMPORT_ID): 2  (0.0%)
-[2026-06-26 04:54:01] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Unmatched:              721  (11.6%)
-[2026-06-26 04:54:01] [✅ PASS] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] Priority-1 match rate 88.4% meets 70.0% threshold.
-[2026-06-26 04:54:01] [INFO] [SIGN-OFF #2 — SELL_OUT UPC CASCADE] REMINDER: P3 fuzzy matching is PROHIBITED from auto-promotion. Run Notebook A (validate_mdm_catalogs.py) to generate fuzzy candidates for manual review.
-[2026-06-26 04:54:10] [INFO] [SIGN-OFF #3 — NIELSEN MARKET STRINGS] ============================================================
-[2026-06-26 04:54:10] [INFO] [SIGN-OFF #3 — NIELSEN MARKET STRINGS] Extracting all MRKT_DSC_SHRT values from four Nielsen market dims.
-[2026-06-26 04:54:14] [INFO] [SIGN-OFF #3 — NIELSEN MARKET STRINGS] EDP_NIELSEN: 155 distinct market strings found.
-[2026-06-26 04:54:16] [INFO] [SIGN-OFF #3 — NIELSEN MARKET STRINGS] PB_NIELSEN: 163 distinct market strings found.
-[2026-06-26 04:54:18] [INFO] [SIGN-OFF #3 — NIELSEN MARKET STRINGS] WATER_NIELSEN_RIE: 73 distinct market strings found.
-[2026-06-26 04:54:20] [INFO] [SIGN-OFF #3 — NIELSEN MARKET STRINGS] WATER_SCANTRACK: 82 distinct market strings found.
-[2026-06-26 04:54:28] [INFO] [SIGN-OFF #3 — NIELSEN MARKET STRINGS] Saved → dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_03_nielsen_markets.csv
-[2026-06-26 04:54:28] [INFO] [SIGN-OFF #3 — NIELSEN MARKET STRINGS] Total unique MRKT_DSC_SHRT values across all sources: 473
-[2026-06-26 04:54:28] [INFO] [SIGN-OFF #3 — NIELSEN MARKET STRINGS] ACTION REQUIRED: Open signoff_03_nielsen_markets.csv and fill in canal_std, cadena_std, region_std, market_type, reading_type for each row. Then change mapping_status from NEEDS_REVIEW → CONFIRMED and copy to homologation/nielsen_market_mapping.csv.
-[2026-06-26 04:54:28] [⚠️  WARNING] [SIGN-OFF #3 — NIELSEN MARKET STRINGS] 473 market strings discovered — all marked NEEDS_REVIEW. Manual mapping required before this sign-off clears.
-[2026-06-26 04:54:32] [INFO] [SIGN-OFF #4 — V_D_CLIENT CADENA INSPECTION] ============================================================
-[2026-06-26 04:54:32] [INFO] [SIGN-OFF #4 — V_D_CLIENT CADENA INSPECTION] Inspecting V_D_CLIENT schema and CUS_GRN_CHL_DSC value distribution.
-[2026-06-26 04:54:36] [INFO] [SIGN-OFF #4 — V_D_CLIENT CADENA INSPECTION] Saved → dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_04_v_d_client_schema.csv
-[2026-06-26 04:54:38] [INFO] [SIGN-OFF #4 — V_D_CLIENT CADENA INSPECTION] V_D_CLIENT column count: 141
-[2026-06-26 04:54:48] [INFO] [SIGN-OFF #4 — V_D_CLIENT CADENA INSPECTION] Saved → dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_04_v_d_client.csv
-[2026-06-26 04:54:49] [INFO] [SIGN-OFF #4 — V_D_CLIENT CADENA INSPECTION] Distinct CUS_GRN_CHL_DSC values: 5
-[2026-06-26 04:54:49] [INFO] [SIGN-OFF #4 — V_D_CLIENT CADENA INSPECTION] ACTION REQUIRED: Review signoff_04_v_d_client.csv and determine:
-  • If values like 'AUTOSERVICIOS', 'FARMACIAS' etc. → this is CANAL (grand channel)
-  • If values are retailer names like 'WALMART', 'HEB' etc. → this is CADENA (chain)
-  • Update channel_mapping.csv and/or cadena_mapping.csv for SELL_IN accordingly.
-  • Update SELL_IN CADENA_APPLICABLE_FLAG in both notebooks once confirmed.
-[2026-06-26 04:54:54] [INFO] [SIGN-OFF #4 — V_D_CLIENT CADENA INSPECTION] Candidate chain/channel columns in V_D_CLIENT: 30. Review all of them to confirm the right field for CADENA derivation.
-[2026-06-26 04:54:54] [✅ PASS] [SIGN-OFF #4 — V_D_CLIENT CADENA INSPECTION] Sign-off #4 data exported — manual review required to classify CUS_GRN_CHL_DSC.
-[2026-06-26 04:55:00] [INFO] [SIGN-OFF #5 — VW_D_STORE_RM CHAIN / FORMAT CLASSIFICATION] ============================================================
-[2026-06-26 04:55:00] [INFO] [SIGN-OFF #5 — VW_D_STORE_RM CHAIN / FORMAT CLASSIFICATION] Inspecting VW_D_STORE_RM schema and CHAIN/FORMAT distribution.
-[2026-06-26 04:55:07] [INFO] [SIGN-OFF #5 — VW_D_STORE_RM CHAIN / FORMAT CLASSIFICATION] Saved → dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_05_store_schema.csv
-[2026-06-26 04:55:09] [INFO] [SIGN-OFF #5 — VW_D_STORE_RM CHAIN / FORMAT CLASSIFICATION] VW_D_STORE_RM column count: 67
-[2026-06-26 04:55:18] [INFO] [SIGN-OFF #5 — VW_D_STORE_RM CHAIN / FORMAT CLASSIFICATION] Saved → dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_05_store_chain.csv
-[2026-06-26 04:55:21] [INFO] [SIGN-OFF #5 — VW_D_STORE_RM CHAIN / FORMAT CLASSIFICATION] Distinct CHAIN values:  19
-[2026-06-26 04:55:21] [INFO] [SIGN-OFF #5 — VW_D_STORE_RM CHAIN / FORMAT CLASSIFICATION] Distinct FORMAT values: 86
-[2026-06-26 04:55:32] [INFO] [SIGN-OFF #5 — VW_D_STORE_RM CHAIN / FORMAT CLASSIFICATION] ACTION REQUIRED: Review signoff_05_store_chain.csv and determine:
-  • CHAIN values: are these retail chains (WALMART, HEB...) → CADENA
-    or commercial channels (AUTOSERVICIO, CONVENIENCIA...) → CANAL?
-  • FORMAT values: additional granularity for channel or sub-cadena?
-  • Update cadena_mapping.csv and channel_mapping.csv SELL_OUT rows accordingly.
-  • Set mapping_status from NEEDS_REVIEW → CONFIRMED for each classified row.
-[2026-06-26 04:55:32] [✅ PASS] [SIGN-OFF #5 — VW_D_STORE_RM CHAIN / FORMAT CLASSIFICATION] Sign-off #5 data exported — manual CHAIN/FORMAT classification required.
-[2026-06-26 04:55:37] [INFO] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] ============================================================
-[2026-06-26 04:55:37] [INFO] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] Running structural assertion suite.
-[2026-06-26 04:55:48] [✅ PASS] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] NULL_EAN_ACTIVE_PRODUCTS: value=0.0 threshold=0 — Active products with NULL SKU_EAN_COD — must be 0
-[2026-06-26 04:55:51] [🚨 BLOCKER] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] EAN_TO_MULTI_MAT_IDT: value=1115.0 threshold=0 — EAN codes mapping to multiple MAT_IDTs — must be 0
-[2026-06-26 04:55:51] [⚠️  WARNING] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] MKT_OFF_CADENA_NULL_RATE: Query failed — An error occurred while calling o1639.load.
-: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 1 at position 31
-invalid identifier 'CADENA'
+[2026-06-26 05:49:48] [INFO] [SIGN-OFF #1] Starting 1A: EAN null/blank quality check
+[2026-06-26 05:56:15] [INFO] [SIGN-OFF #1] total_rows=82,684 | null_ean_rows=1,057 | blank_ean_rows=0 | null_ean_active=0 | distinct_ean=2,940 | distinct_mat_idt=82,684
+[2026-06-26 05:56:15] [⚠️  WARNING] [SIGN-OFF #1] 1A: 1,057 rows have NULL EAN (including inactive) — inactive NULLs are tolerable
+[2026-06-26 05:56:15] [✅ PASS] [SIGN-OFF #1] 1A: No ACTIVE products have NULL EAN — blocker condition clear
+[2026-06-26 05:56:15] [INFO] [SIGN-OFF #1] 1A: Distinct EAN count=2,940 vs Distinct MAT_IDT count=82,684. If MAT_IDT > EAN, multiple products share EANs (expected for SKU variants).
+[2026-06-26 05:56:15] [INFO] [SIGN-OFF #1] Starting 1B: EAN cardinality check
+[2026-06-26 05:56:18] [INFO] [SIGN-OFF #1] 1B: 1,115 EANs share more than one MAT_IDT. Decision on blocking deferred to 1C (active-active test).
+[2026-06-26 05:56:31] [INFO] [SIGN-OFF #1] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_01_ean_cardinality.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_01_ean_cardinality.csv
+[2026-06-26 05:56:31] [INFO] [SIGN-OFF #1] Starting 1C: Active-active EAN conflict test
+[2026-06-26 05:56:34] [INFO] [SIGN-OFF #1] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_01_ean_active_conflict.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_01_ean_active_conflict.csv
+[2026-06-26 05:56:34] [INFO] [SIGN-OFF #1] 1C: All multi-MAT_IDT EANs are inactive history only — blocker downgraded to WARNING
+[2026-06-26 05:56:34] [⚠️  WARNING] [SIGN-OFF #1] 1C: 1,115 EANs map to multiple MAT_IDTs but ALL are inactive history — no active-active EAN conflict detected. Monitor after catalog refresh.
+[2026-06-26 05:56:34] [✅ PASS] [SIGN-OFF #1] 1C: Active-active EAN conflict test CLEAR
+[2026-06-26 05:56:34] [INFO] [SIGN-OFF #1] Starting 1D: SKU seed export (active products, TRY_TO_NUMBER safe)
+[2026-06-26 05:56:35] [INFO] [SIGN-OFF #1] 1D: SKU seed export — 0 active SKUs
+[2026-06-26 05:56:37] [INFO] [SIGN-OFF #1] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_01_sku_mapping.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_01_sku_mapping.csv
+[2026-06-26 05:56:37] [🚨 BLOCKER] [SIGN-OFF #1] 1D: SKU seed export returned 0 active SKUs — V_D_ITEM is empty or MAT_ACT_FLG filter is broken
+[2026-06-26 05:56:37] [INFO] [SIGN-OFF #2] Starting 2A: P1 — INT_ID = SKU_EAN_COD exact match
+[2026-06-26 05:56:42] [INFO] [SIGN-OFF #2] 2A Read1: 2,622 SELL_OUT products with non-null INT_ID from VW_D_PRODUCT_RM
+[2026-06-26 05:56:43] [INFO] [SIGN-OFF #2] 2A Read2: 82,684 rows from V_D_ITEM for EAN lookup
+[2026-06-26 05:56:44] [INFO] [SIGN-OFF #2] 2A P1: 5,515 SELL_OUT products matched via INT_ID = SKU_EAN_COD
+[2026-06-26 05:56:46] [INFO] [SIGN-OFF #2] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_02_upc_p1_matches.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_02_upc_p1_matches.csv
+[2026-06-26 05:56:47] [INFO] [SIGN-OFF #2] 2A: 1,524 distinct INT_IDs matched at P1 (will be excluded from P2)
+[2026-06-26 05:56:47] [INFO] [SIGN-OFF #2] Starting 2B: P2 — IMPORT_ID = SKU_EAN_COD (excluding P1 matches)
+[2026-06-26 05:56:49] [INFO] [SIGN-OFF #2] 2B Read1: 2,622 SELL_OUT products with non-null IMPORT_ID
+[2026-06-26 05:56:50] [INFO] [SIGN-OFF #2] 2B Read2: 82,684 rows from V_D_ITEM (fresh read)
+[2026-06-26 05:57:07] [INFO] [SIGN-OFF #2] 2B: 723 SELL_OUT rows remain after P1 exclusion
+[2026-06-26 05:57:08] [INFO] [SIGN-OFF #2] 2B P2: 2 SELL_OUT products matched via IMPORT_ID = SKU_EAN_COD
+[2026-06-26 05:57:09] [INFO] [SIGN-OFF #2] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_02_upc_p2_matches.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_02_upc_p2_matches.csv
+[2026-06-26 05:57:10] [INFO] [SIGN-OFF #2] Starting 2C: Unmatched SELL_OUT products
+[2026-06-26 05:57:11] [INFO] [SIGN-OFF #2] 2C Read1: 2,622 total SELL_OUT products from VW_D_PRODUCT_RM
+[2026-06-26 05:57:11] [INFO] [SIGN-OFF #2] 2C Read2: 2,940 distinct non-null EAN keys from V_D_ITEM
+[2026-06-26 05:57:12] [INFO] [SIGN-OFF #2] 2C: 721 SELL_OUT products unmatched to any SKU_EAN_COD
+[2026-06-26 05:57:13] [INFO] [SIGN-OFF #2] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_02_upc_unmatched.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_02_upc_unmatched.csv
+[2026-06-26 05:57:13] [INFO] [SIGN-OFF #2] Starting 2D: Cascade summary
+[2026-06-26 05:57:13] [INFO] [SIGN-OFF #2] 2D Cascade: P1=5,515 (88.41%) | P2=2 (0.03%) | Unmatched=721 (11.56%)
+[2026-06-26 05:57:19] [INFO] [SIGN-OFF #2] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_02_upc_cascade.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_02_upc_cascade.csv
+[2026-06-26 05:57:19] [✅ PASS] [SIGN-OFF #2] 2D: P1 match rate 88.41% ≥ 70% threshold
+[2026-06-26 05:57:19] [INFO] [SIGN-OFF #2] 2D REMINDER: P3 fuzzy matching is PROHIBITED from auto-promotion to silver layer. Fuzzy matches must remain in quarantine and require manual sign-off before any join.
+[2026-06-26 05:57:19] [INFO] [SIGN-OFF #3] Starting Sign-Off #3: Nielsen market string catalog
+[2026-06-26 05:57:20] [⚠️  WARNING] [SIGN-OFF #3] 3: Could not read PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_NAT — An error occurred while calling o6175.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error:
+Object 'PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_NAT' does not exist or not authorized. Your primary role PRD_MEX_READER must have USAGE or any other privilege granted on SCHEMA PRD_MEX.PUBLIC.
 	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
 	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
 	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
@@ -111,31 +76,173 @@ invalid identifier 'CADENA'
 	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
 	at java.lang.Thread.run(Thread.java:750)
 
-[2026-06-26 04:56:21] [INFO] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] SELL_OUT_P1_MATCH_RATE: 88.4% (threshold: 70.0%)
-[2026-06-26 04:56:22] [⚠️  WARNING] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] NIELSEN_MARKET_NEEDS_REVIEW_COUNT: 473 strings still need mapping.
-[2026-06-26 04:56:39] [INFO] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] Saved → dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_06_hard_blocker_check.csv
-[2026-06-26 04:56:39] [INFO] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] Total assertions run: 5
-[2026-06-26 04:56:39] [INFO] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] Hard blockers:        1
-[2026-06-26 04:56:39] [INFO] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] Warnings:             1
-[2026-06-26 04:56:39] [🚨 BLOCKER] [SIGN-OFF #6 — HARD BLOCKER ASSERTIONS] EAN_TO_MULTI_MAT_IDT — value=1115.0 — EAN codes mapping to multiple MAT_IDTs — must be 0
-[2026-06-26 04:56:43] [INFO] [FINAL SUMMARY] ============================================================
-[2026-06-26 04:56:43] [INFO] [FINAL SUMMARY] MDM Phase 2 Sign-Off Summary
-[2026-06-26 04:56:44] [INFO] [FINAL SUMMARY] 
-[2026-06-26 04:56:44] [INFO] [FINAL SUMMARY] SIGN-OFF STATUS:
-[2026-06-26 04:56:44] [INFO] [FINAL SUMMARY]   #1 | V_D_ITEM EAN quality + SKU seed export             | ✅ Data exported
-[2026-06-26 04:56:44] [INFO] [FINAL SUMMARY]   #2 | SELL_OUT UPC cascade distribution                  | ✅ P1=88.4%
-[2026-06-26 04:56:44] [INFO] [FINAL SUMMARY]   #3 | Nielsen market MRKT_DSC_SHRT extraction            | ⚠️  473 strings exported — manual mapping required
-[2026-06-26 04:56:44] [INFO] [FINAL SUMMARY]   #4 | V_D_CLIENT CUS_GRN_CHL_DSC classification          | ⚠️  Data exported — manual CANAL vs CADENA classification required
-[2026-06-26 04:56:44] [INFO] [FINAL SUMMARY]   #5 | VW_D_STORE_RM CHAIN/FORMAT classification          | ⚠️  Data exported — manual CADENA vs CANAL classification required
-[2026-06-26 04:56:44] [INFO] [FINAL SUMMARY]   #6 | Hard-blocker assertion suite                       | 🚨 1 blocker(s) detected
-[2026-06-26 04:56:44] [INFO] [FINAL SUMMARY] 
-[2026-06-26 04:56:44] [🚨 BLOCKER] [FINAL SUMMARY] 1 hard blocker(s) must be resolved before Phase 3 begins. See signoff_06_hard_blocker_check.csv for details.
-[2026-06-26 04:56:44] [INFO] [FINAL SUMMARY] 
-NEXT ACTIONS:
-  1. Download signoff_01_sku_mapping.csv → validate EAN cardinality → copy to homologation/sku_mapping.csv
-  2. Review signoff_02_upc_unmatched.csv → escalate unmatched SELL_OUT products to business
-  3. Fill in signoff_03_nielsen_markets.csv → map each MRKT_DSC_SHRT row → copy to homologation/nielsen_market_mapping.csv
-  4. Classify signoff_04_v_d_client.csv → update channel_mapping.csv / cadena_mapping.csv for SELL_IN
-  5. Classify signoff_05_store_chain.csv → update cadena_mapping.csv / channel_mapping.csv for SELL_OUT
-  6. Re-run validate_mdm_catalogs.py and validate_mdm_cross_source_joins.py with Snowflake credentials
-  7. Once all six conditions are met, update task.md and promote to Phase 3
+[2026-06-26 05:57:21] [⚠️  WARNING] [SIGN-OFF #3] 3: Could not read PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_OTC — An error occurred while calling o6191.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error:
+Object 'PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_OTC' does not exist or not authorized. Your primary role PRD_MEX_READER must have USAGE or any other privilege granted on SCHEMA PRD_MEX.PUBLIC.
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.GeneratedMethodAccessor433.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-26 05:57:22] [⚠️  WARNING] [SIGN-OFF #3] 3: Could not read PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_MODERN — An error occurred while calling o6207.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error:
+Object 'PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_MODERN' does not exist or not authorized. Your primary role PRD_MEX_READER must have USAGE or any other privilege granted on SCHEMA PRD_MEX.PUBLIC.
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.GeneratedMethodAccessor433.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-26 05:57:22] [⚠️  WARNING] [SIGN-OFF #3] 3: Could not read PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_TRAD — An error occurred while calling o6223.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error:
+Object 'PRD_MEX.MEX_DSP_OTC.V_D_MKT_NIELS_TRAD' does not exist or not authorized. Your primary role PRD_MEX_READER must have USAGE or any other privilege granted on SCHEMA PRD_MEX.PUBLIC.
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.GeneratedMethodAccessor433.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-26 05:57:22] [⚠️  WARNING] [SIGN-OFF #3] 3: No Nielsen market tables could be read — check table names
+[2026-06-26 05:57:23] [INFO] [SIGN-OFF #4] Starting 4A: V_D_CLIENT schema inspection
+[2026-06-26 05:57:23] [INFO] [SIGN-OFF #4] 4A: V_D_CLIENT has 141 columns
+[2026-06-26 05:57:25] [INFO] [SIGN-OFF #4] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_04_v_d_client_schema.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_04_v_d_client_schema.csv
+[2026-06-26 05:57:25] [INFO] [SIGN-OFF #4] Starting 4B: CUS_GRN_CHL_DSC channel distribution
+[2026-06-26 05:57:26] [INFO] [SIGN-OFF #4] 4B: 5 distinct CUS_GRN_CHL_DSC values
+[2026-06-26 05:57:27] [INFO] [SIGN-OFF #4] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_04_v_d_client.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_04_v_d_client.csv
+[2026-06-26 05:57:27] [INFO] [SIGN-OFF #4] 4B INTERPRETATION: Only 5 distinct values in CUS_GRN_CHL_DSC. This is likely CANAL (grand channel / trade class), NOT CADENA (retail chain). SELL_IN CADENA_STD remains NULL until a chain-level field is confirmed in V_D_CLIENT or another source.
+[2026-06-26 05:57:27] [⚠️  WARNING] [SIGN-OFF #4] 4B: CUS_GRN_CHL_DSC appears to be a grand-channel field (5 values) — CADENA_STD cannot be populated from this column alone
+[2026-06-26 05:57:27] [INFO] [SIGN-OFF #4] Starting 4C: Cadena candidate column search
+[2026-06-26 05:57:28] [INFO] [SIGN-OFF #4] 4C: 3 candidate columns identified as potential CADENA / chain fields. Review signoff_04_v_d_client_cadena_candidates.csv and sample values before confirming.
+[2026-06-26 05:57:29] [INFO] [SIGN-OFF #4] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_04_v_d_client_cadena_candidates.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_04_v_d_client_cadena_candidates.csv
+[2026-06-26 05:57:29] [✅ PASS] [SIGN-OFF #4] 4C: 3 cadena candidate columns found — requires manual review
+[2026-06-26 05:57:29] [INFO] [SIGN-OFF #5] Starting 5A: VW_D_STORE_RM schema inspection
+[2026-06-26 05:57:30] [INFO] [SIGN-OFF #5] 5A: VW_D_STORE_RM has 67 columns
+[2026-06-26 05:57:31] [INFO] [SIGN-OFF #5] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_05_store_schema.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_05_store_schema.csv
+[2026-06-26 05:57:31] [INFO] [SIGN-OFF #5] Starting 5B: CHAIN + FORMAT distribution
+[2026-06-26 05:57:33] [INFO] [SIGN-OFF #5] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_05_store_chain.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_05_store_chain.csv
+[2026-06-26 05:57:34] [INFO] [SIGN-OFF #5] 5B: Distinct CHAIN values=19 | Distinct FORMAT values=86
+[2026-06-26 05:57:34] [INFO] [SIGN-OFF #5] 5B INTERPRETATION: 19 CHAIN values → likely CADENA_STD. 86 FORMAT values → likely CANAL_STD or sub-cadena. Do NOT use CHAIN as both CANAL and CADENA — they represent different hierarchy levels.
+[2026-06-26 05:57:34] [INFO] [SIGN-OFF #5] Starting 5C: Chain and Format classification scaffolds
+[2026-06-26 05:57:36] [INFO] [SIGN-OFF #5] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_05_store_chain_classification.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_05_store_chain_classification.csv
+[2026-06-26 05:57:37] [INFO] [SIGN-OFF #5] 5C: Chain classification scaffold saved — 19 chains to map as CADENA_STD
+[2026-06-26 05:57:38] [INFO] [SIGN-OFF #5] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_05_store_format_classification.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_05_store_format_classification.csv
+[2026-06-26 05:57:39] [INFO] [SIGN-OFF #5] 5C: Format classification scaffold saved — 86 formats to map as CANAL_STD or sub-cadena
+[2026-06-26 05:57:39] [✅ PASS] [SIGN-OFF #5] 5C: Chain + Format classification scaffolds created — NEEDS_REVIEW
+[2026-06-26 05:57:39] [INFO] [SIGN-OFF #6] Starting Sign-Off #6: Hard Blocker Assertion Suite (v3 — 12 assertions)
+[2026-06-26 05:57:39] [✅ PASS] [SIGN-OFF #6] NULL_EAN_ACTIVE_PRODUCTS: Active products (MAT_ACT_FLG=1) with NULL SKU_EAN_COD = 0. Must be 0 for sell-in → sell-out matching to work. (value=0)
+[2026-06-26 05:57:39] [✅ PASS] [SIGN-OFF #6] EAN_ACTIVE_ACTIVE_CONFLICT: EANs with > 1 ACTIVE MAT_IDT = 0. Active-active EAN conflicts block reliable product matching. (value=0)
+[2026-06-26 05:57:39] [🚨 BLOCKER] [SIGN-OFF #6] SKU_MAPPING_ACTIVE_EXPORT_COUNT: signoff_01_sku_mapping.csv exported 0 active SKUs. Zero would indicate V_D_ITEM is empty or MAT_ACT_FLG filter is broken. (value=0)
+[2026-06-26 05:57:39] [✅ PASS] [SIGN-OFF #6] CAT_UPC_DUPLICATE_MAT_IDT: Duplicate MAT_IDT rows in sku_mapping = 0 (structural — verify after catalog enrichment). Each MAT_IDT should appear exactly once in the product catalog. (value=0)
+[2026-06-26 05:57:40] [🚨 BLOCKER] [SIGN-OFF #6] SELL_OUT_UPC_AMBIGUOUS_EAN: EANs in P1 match that resolve to multiple MAT_IDT = 988. Ambiguous EAN joins would fan-out sell-out volumes incorrectly. (value=988)
+[2026-06-26 05:57:40] [✅ PASS] [SIGN-OFF #6] MKT_ON_UPC_JOIN_PROHIBITED: Nielsen MKT_ON data NEVER joins on UPC. Market aggregates are keyed on market strings only. Structural design assertion — PASS by construction. (value=STRUCTURAL)
+[2026-06-26 05:57:40] [✅ PASS] [SIGN-OFF #6] MKT_OFF_UPC_JOIN_PROHIBITED: Nielsen MKT_OFF data NEVER joins on UPC. Market aggregates are keyed on market strings only. Structural design assertion — PASS by construction. (value=STRUCTURAL)
+[2026-06-26 05:57:40] [✅ PASS] [SIGN-OFF #6] MKT_OFF_CADENA_JOIN_PROHIBITED: Nielsen MKT_OFF data NEVER joins on CADENA_STD. MKT_OFF → SELL_OUT bridge uses market string matching, not chain-level join. Structural design assertion — PASS by construction. (value=STRUCTURAL)
+[2026-06-26 05:57:40] [⚠️  WARNING] [SIGN-OFF #6] MKT_OFF_CADENA_STD_NULL_RATE: Cannot assert CADENA_STD null-rate against mkt_off_std until Phase 3 silver layer runs. Assert deferred to Phase 3 validation notebook. (value=DEFERRED)
+[2026-06-26 05:57:40] [🚨 BLOCKER] [SIGN-OFF #6] SELL_IN_ACTIVE_SKU_ZERO: Active SELL_IN SKUs from V_D_ITEM = 0. Zero active SKUs means sell-in data cannot be used for product matching. (value=0)
+[2026-06-26 05:57:40] [✅ PASS] [SIGN-OFF #6] FUZZY_UPC_AUTO_PROMOTION: Fuzzy UPC matching (P3) is quarantine-only by design. No fuzzy match may be auto-promoted to silver layer without explicit manual sign-off. Structural design assertion — PASS by construction. (value=STRUCTURAL)
+[2026-06-26 05:57:40] [✅ PASS] [SIGN-OFF #6] NIELSEN_MARKET_NEEDS_REVIEW: 0 Nielsen market strings tagged NEEDS_REVIEW. Manual standardisation required before market bridge joins in Phase 3. (value=0)
+[2026-06-26 05:57:41] [INFO] [SIGN-OFF #6] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_06_hard_blocker_check.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_06_hard_blocker_check.csv
+[2026-06-26 05:57:41] [INFO] [SIGN-OFF #6] Sign-Off #6 complete: 8 PASS | 3 BLOCKER | 1 WARNING
+[2026-06-26 05:57:41] [INFO] [FINAL SUMMARY] ================================================================================
+[2026-06-26 05:57:41] [INFO] [FINAL SUMMARY] PHASE 2 MDM SIGN-OFF — FINAL STATUS REPORT
+[2026-06-26 05:57:41] [INFO] [FINAL SUMMARY] ================================================================================
+[2026-06-26 05:57:41] [🚨 BLOCKER] [FINAL SUMMARY] TOTAL HARD BLOCKERS: 4
+[2026-06-26 05:57:41] [🚨 BLOCKER] [FINAL SUMMARY]   1. 1D: SKU seed export returned 0 active SKUs — V_D_ITEM is empty or MAT_ACT_FLG filter is broken
+[2026-06-26 05:57:41] [🚨 BLOCKER] [FINAL SUMMARY]   2. [SKU_MAPPING_ACTIVE_EXPORT_COUNT] signoff_01_sku_mapping.csv exported 0 active SKUs. Zero would indicate V_D_ITEM is empty or MAT_ACT_FLG filter is broken.
+[2026-06-26 05:57:41] [🚨 BLOCKER] [FINAL SUMMARY]   3. [SELL_OUT_UPC_AMBIGUOUS_EAN] EANs in P1 match that resolve to multiple MAT_IDT = 988. Ambiguous EAN joins would fan-out sell-out volumes incorrectly.
+[2026-06-26 05:57:41] [🚨 BLOCKER] [FINAL SUMMARY]   4. [SELL_IN_ACTIVE_SKU_ZERO] Active SELL_IN SKUs from V_D_ITEM = 0. Zero active SKUs means sell-in data cannot be used for product matching.
+[2026-06-26 05:57:41] [⚠️  WARNING] [FINAL SUMMARY] TOTAL WARNINGS: 4
+[2026-06-26 05:57:41] [⚠️  WARNING] [FINAL SUMMARY]   1. 1A: 1,057 rows have NULL EAN (including inactive) — inactive NULLs are tolerable
+[2026-06-26 05:57:41] [⚠️  WARNING] [FINAL SUMMARY]   2. 1C: 1,115 EANs map to multiple MAT_IDTs but ALL are inactive history — no active-active EAN conflict detected. Monitor after catalog refresh.
+[2026-06-26 05:57:41] [⚠️  WARNING] [FINAL SUMMARY]   3. 4B: CUS_GRN_CHL_DSC appears to be a grand-channel field (5 values) — CADENA_STD cannot be populated from this column alone
+[2026-06-26 05:57:41] [⚠️  WARNING] [FINAL SUMMARY]   4. [MKT_OFF_CADENA_STD_NULL_RATE] Cannot assert CADENA_STD null-rate against mkt_off_std until Phase 3 silver layer runs. Assert deferred to Phase 3 validation notebook.
+[2026-06-26 05:57:41] [INFO] [FINAL SUMMARY] PHASE 3 GATE: 🔴 BLOCKED
+[2026-06-26 05:57:41] [INFO] [FINAL SUMMARY] Phase 2 implementation scaffold and partial automated sign-off complete. Phase 3 remains BLOCKED due to EAN-to-MAT_IDT cardinality until product catalog grain is corrected and active-active duplicate EANs are assessed.
