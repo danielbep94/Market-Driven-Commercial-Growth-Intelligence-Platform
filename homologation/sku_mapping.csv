@@ -1,2 +1,2 @@
-raw_sku_id,source_system,clean_sku_id,product_key,brand_key,description,format,size,is_active,notes
-[TO BE POPULATED IN PHASE 1],[],[],[],[],[],[],[],TRUE,
+mat_idt,sku_ean_cod,mat_lcl_dsc,marca_std,cbu,is_active,sell_out_int_id,sell_out_import_id,match_priority,match_method,match_confidence,review_status,source_system,created_at,updated_at,notes
+[PENDING_SNOWFLAKE_QUERY],[PENDING_SNOWFLAKE_QUERY],[PENDING_SNOWFLAKE_QUERY],[PENDING_SNOWFLAKE_QUERY],[PENDING_SNOWFLAKE_QUERY],TRUE,,,,,0.0,NEEDS_REVIEW,SELL_IN,[TO_BE_POPULATED],[TO_BE_POPULATED],PLACEHOLDER — populate by running: SELECT MAT_IDT (as VARCHAR) | SKU_EAN_COD (as VARCHAR) | MAT_LCL_DSC | LV2_UMB_BRD_DSC | CBU | MAT_ACT_FLG FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM WHERE MAT_ACT_FLG = 1
