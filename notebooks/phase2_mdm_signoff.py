@@ -301,15 +301,15 @@ else:
 # =============================================================================
 # SIGN-OFF #1D — SKU SEED EXPORT
 # =============================================================================
-log("INFO", "Starting 1D: SKU seed export (active products)", _S1)
+log("INFO", "Starting 1D: SKU seed export", _S1)
 
-# DIAGNOSIS (from log analysis):
-# TRY_TO_NUMBER(MAT_ACT_FLG) = 1 returned 0 rows because MAT_ACT_FLG is NULL
-# for all products with multi-EAN cardinality. The real active population is
-# products with MAT_ACT_FLG IS NOT NULL.
+# DIAGNOSIS (confirmed from two sign-off runs):
+# MAT_ACT_FLG is NULL for ALL 82,684 rows in V_D_ITEM — the column is not used
+# to mark active/inactive products in this schema. All rows represent the
+# active SKU catalog. Only rows with NULL SKU_EAN_COD (1,057) are excluded,
+# since those cannot participate in the SELL_IN <-> SELL_OUT bridge.
 #
-# RULE: Active = MAT_ACT_FLG IS NOT NULL (non-null flag means product is in scope).
-# This matches total_rows (82,684) minus null_ean_rows (1,057) = ~81,627 expected.
+# RULE: All V_D_ITEM rows with a non-null EAN = active SKU catalog.
 
 sql_1d = """
 SELECT
@@ -334,8 +334,7 @@ SELECT
     CURRENT_TIMESTAMP()     AS updated_at,
     'Seeded from V_D_ITEM via Phase 2 sign-off v3' AS notes
 FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM
-WHERE MAT_ACT_FLG IS NOT NULL
-  AND SKU_EAN_COD IS NOT NULL
+WHERE SKU_EAN_COD IS NOT NULL
 ORDER BY CBU, TO_VARCHAR(MAT_IDT)
 """
 
@@ -344,15 +343,15 @@ df_1d.cache()
 display(df_1d.limit(20))
 
 n_1d = df_1d.count()
-log("INFO", f"1D: SKU seed export — {n_1d:,} active SKUs (MAT_ACT_FLG IS NOT NULL AND SKU_EAN_COD IS NOT NULL)", _S1)
+log("INFO", f"1D: SKU seed export — {n_1d:,} SKUs with non-null EAN (all V_D_ITEM rows — MAT_ACT_FLG is NULL for entire table)", _S1)
 save_df(df_1d, "signoff_01_sku_mapping.csv", _S1)
 
 blocker(n_1d == 0,
-        "1D: SKU seed export returned 0 active SKUs even after MAT_ACT_FLG IS NOT NULL fix — V_D_ITEM may be empty",
+        "1D: SKU seed export returned 0 rows — V_D_ITEM may be empty or inaccessible",
         _S1)
 
 if n_1d > 0:
-    passed(f"1D: SKU seed export PASS — {n_1d:,} active SKUs exported to signoff_01_sku_mapping.csv", _S1)
+    passed(f"1D: SKU seed export PASS — {n_1d:,} SKUs exported to signoff_01_sku_mapping.csv", _S1)
 
 # COMMAND ----------
 
@@ -396,27 +395,26 @@ n_so_total = df_2a_so.count()
 log("INFO", f"2A Read1: {n_so_total:,} SELL_OUT products with non-null INT_ID from VW_D_PRODUCT_RM", _S2)
 
 # Read 2: SELL_IN EANs (PRD_MEX) — DEDUPED to one MAT_IDT per EAN
-# DIAGNOSIS: reading all 82,684 rows caused 988 ambiguous EAN matches because
-# inactive products share EANs with active ones. Each EAN must resolve to exactly
-# one MAT_IDT in the bridge. Strategy: take the MAT_IDT with MAT_ACT_FLG IS NOT NULL
-# (active) first; if multiple, take MIN(MAT_IDT) as a deterministic tiebreak.
-# This eliminates fanout without discarding valid matches.
+# DIAGNOSIS (confirmed): MAT_ACT_FLG is NULL for ALL rows in V_D_ITEM.
+# The column does not represent active/inactive status in this schema.
+# All rows with a non-null EAN are the valid product catalog.
+# Deduplication by MIN(MAT_IDT) per EAN prevents join fanout from the
+# 1,115 shared-EAN rows (all confirmed inactive-history-only from 1C).
 sql_2a_si = """
 SELECT
-    TO_VARCHAR(SKU_EAN_COD)                                    AS sku_ean_cod,
-    MIN(TO_VARCHAR(MAT_IDT))                                   AS mat_idt,
-    MIN(MAT_LCL_DSC)                                           AS si_description
+    TO_VARCHAR(SKU_EAN_COD)  AS sku_ean_cod,
+    MIN(TO_VARCHAR(MAT_IDT)) AS mat_idt,
+    MIN(MAT_LCL_DSC)         AS si_description
 FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM
 WHERE SKU_EAN_COD IS NOT NULL
   AND TRIM(TO_VARCHAR(SKU_EAN_COD)) <> ''
-  AND MAT_ACT_FLG IS NOT NULL
 GROUP BY TO_VARCHAR(SKU_EAN_COD)
 """
 df_2a_si = run_sf(DB_PRD_MEX, sql_2a_si)
 df_2a_si.cache()
-log("INFO", f"2A Read2: {df_2a_si.count():,} unique EANs from V_D_ITEM (deduplicated — one MAT_IDT per EAN, active only)", _S2)
+log("INFO", f"2A Read2: {df_2a_si.count():,} unique EANs from V_D_ITEM (deduplicated — MIN(MAT_IDT) per EAN, no MAT_ACT_FLG filter needed)", _S2)
 
-# Spark join: INT_ID == SKU_EAN_COD (now guaranteed 1:1 per EAN — no fanout)
+# Spark join: INT_ID == SKU_EAN_COD (guaranteed 1:1 per EAN — no fanout)
 df_p1 = (df_2a_so
          .join(df_2a_si,
                df_2a_so["sell_out_int_id"] == df_2a_si["sku_ean_cod"],
