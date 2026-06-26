@@ -1015,10 +1015,17 @@ add_assertion(
 # ------------------------------------------------------------------
 # ASSERTION 5: SELL_OUT_UPC_AMBIGUOUS_EAN
 # ------------------------------------------------------------------
-# Check if any P1/P2 match produced an ambiguous (multi-row) EAN join
+# Check if any EAN in the P1 match resolves to more than 1 DISTINCT MAT_IDT.
+# IMPORTANT: df_p1 can have multiple rows per sku_ean_cod because multiple
+# SELL_OUT products (different sell_out_int_id) may share the same EAN —
+# that is expected and NOT a problem. What we must prevent is a single EAN
+# mapping to multiple MAT_IDTs (volume fanout). The 2A dedup via
+# MIN(MAT_IDT) GROUP BY EAN already guarantees 1 MAT_IDT per EAN,
+# so this count must always be 0.
 try:
-    df_ambiguous = (df_p1.groupBy("sku_ean_cod").agg(F.count("mat_idt").alias("mat_cnt"))
-                    .filter(F.col("mat_cnt") > 1))
+    df_ambiguous = (df_p1.groupBy("sku_ean_cod")
+                    .agg(F.countDistinct("mat_idt").alias("distinct_mat_idt_count"))
+                    .filter(F.col("distinct_mat_idt_count") > 1))
     n_ambiguous = df_ambiguous.count()
 except Exception:
     n_ambiguous = 0
