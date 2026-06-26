@@ -15,109 +15,165 @@
 # MAGIC | 🚨 BLOCKER | Hard blocker — must be resolved before Phase 3 |
 # MAGIC | ⏭ SKIPPED | Query returned no data (table absent or empty) |
 # MAGIC
+# MAGIC **Credential resolution (matches `validate_credentials.py`):**
+# MAGIC - `PRD_MEX` — `configs/snowflake_creds.py` → `SF_MEX_*` (hardcoded analyst account)
+# MAGIC - `PRD_MDP` — `configs/snowflake_creds.py` → `SF_MDP_*` or Key Vault fallback
+# MAGIC
+# MAGIC **Run first:** `notebooks/validate_credentials.py` — all 6 cells must pass.
+# MAGIC
 # MAGIC **Output paths (DBFS):**
 # MAGIC ```
 # MAGIC dbfs:/mnt/mdp/mdm/phase2_signoff/
-# MAGIC   signoff_audit_log.txt          ← master human-readable log
-# MAGIC   signoff_01_sku_quality.csv      ← Sign-off #1: V_D_ITEM EAN profile
-# MAGIC   signoff_01_ean_cardinality.csv  ← Sign-off #1: EAN→MAT_IDT cardinality check
-# MAGIC   signoff_01_sku_mapping.csv      ← Sign-off #1: populated sku_mapping seed
-# MAGIC   signoff_02_upc_cascade.csv      ← Sign-off #2: P1/P2/fuzzy/unmatched rates
-# MAGIC   signoff_02_upc_unmatched.csv    ← Sign-off #2: unmatched SELL_OUT products
-# MAGIC   signoff_03_nielsen_markets.csv  ← Sign-off #3: all MRKT_DSC_SHRT values
-# MAGIC   signoff_04_v_d_client.csv       ← Sign-off #4: CUS_GRN_CHL_DSC profile
-# MAGIC   signoff_04_v_d_client_schema.csv← Sign-off #4: V_D_CLIENT schema
-# MAGIC   signoff_05_store_chain.csv      ← Sign-off #5: CHAIN/FORMAT distribution
-# MAGIC   signoff_05_store_schema.csv     ← Sign-off #5: VW_D_STORE_RM schema
-# MAGIC   signoff_06_hard_blocker_check.csv ← Sign-off #6: all hard-blocker assertions
+# MAGIC   signoff_audit_log.txt
+# MAGIC   signoff_01_sku_quality.csv
+# MAGIC   signoff_01_ean_cardinality.csv
+# MAGIC   signoff_01_sku_mapping.csv
+# MAGIC   signoff_02_upc_cascade.csv
+# MAGIC   signoff_02_upc_unmatched.csv
+# MAGIC   signoff_03_nielsen_markets.csv
+# MAGIC   signoff_04_v_d_client_schema.csv
+# MAGIC   signoff_04_v_d_client.csv
+# MAGIC   signoff_05_store_schema.csv
+# MAGIC   signoff_05_store_chain.csv
+# MAGIC   signoff_06_hard_blocker_check.csv
 # MAGIC ```
 # MAGIC
 # MAGIC > ⚠️ **Do not promote to Phase 3 if `signoff_audit_log.txt` contains any 🚨 BLOCKER lines.**
 
 # COMMAND ----------
 
-# ── 0. Bootstrap ─────────────────────────────────────────────────────────────
-# %run ../utils/snowflake_connection
-# ↑ Uncomment the line above when running inside Databricks.
-#   It provides: get_sf_options(), read_sf_query(), SF_URL, SF_WAREHOUSE, SF_ROLE
-#   and loads credentials from Azure Key Vault scope 'DAN-AM-P-KVT800-R-MDP-DB'.
+# ── CELL 1: Load credentials (same pattern as validate_credentials.py) ────────
+import os, importlib.util, datetime
+
+_current_dir = os.getcwd()
+_creds_path  = os.path.normpath(
+    os.path.join(_current_dir, "..", "configs", "snowflake_creds.py")
+)
+
+if not os.path.exists(_creds_path):
+    raise FileNotFoundError(
+        "❌ configs/snowflake_creds.py NOT FOUND.\n"
+        "   Copy configs/snowflake_creds.example.py → configs/snowflake_creds.py\n"
+        "   and fill in your credentials."
+    )
+
+_spec = importlib.util.spec_from_file_location("snowflake_creds", _creds_path)
+_m    = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_m)
+
+SF_URL = "danonenam.east-us-2.azure.snowflakecomputing.com"
+
+def get_sf_options(database: str) -> dict:
+    """Credential profiles — mirrors validate_credentials.py exactly."""
+    _mdp_user = getattr(_m, "SF_MDP_USER", None)
+    _mdp_pwd  = getattr(_m, "SF_MDP_PASSWORD", None)
+    profiles = {
+        "PRD_MEX": {
+            "sfURL":       SF_URL,
+            "sfUser":      _m.SF_MEX_USER,
+            "sfPassword":  _m.SF_MEX_PASSWORD,
+            "sfWarehouse": getattr(_m, "SF_MEX_WH",   "PRD_MEX_ANL_WH"),
+            "sfRole":      getattr(_m, "SF_MEX_ROLE",  "PRD_MEX_READER"),
+        },
+        "PRD_MDP": {
+            "sfURL":       SF_URL,
+            "sfUser":      _mdp_user or dbutils.secrets.get("DAN-AM-P-KVT800-R-MDP-DB", "snowflake-user"),
+            "sfPassword":  _mdp_pwd  or dbutils.secrets.get("DAN-AM-P-KVT800-R-MDP-DB", "snowflake-password"),
+            "sfWarehouse": getattr(_m, "SF_MDP_WH",   "PRD_MDP_ANL_WH"),
+            "sfRole":      getattr(_m, "SF_MDP_ROLE",  "PRD_MDP"),
+        },
+    }
+    if database not in profiles:
+        raise ValueError(f"No profile for '{database}'. Available: {list(profiles.keys())}")
+    return dict(profiles[database])
+
+print(f"✅ Credentials loaded from: {_creds_path}")
+print(f"   PRD_MEX user      : {_m.SF_MEX_USER}")
+print(f"   PRD_MEX warehouse : {getattr(_m, 'SF_MEX_WH', 'PRD_MEX_ANL_WH')}")
+print(f"   PRD_MEX role      : {getattr(_m, 'SF_MEX_ROLE', 'PRD_MEX_READER')}")
+print(f"   PRD_MDP user      : {'<from Key Vault>' if not getattr(_m,'SF_MDP_USER',None) else _m.SF_MDP_USER}")
+print(f"   PRD_MDP warehouse : {getattr(_m, 'SF_MDP_WH', 'PRD_MDP_ANL_WH')}")
 
 # COMMAND ----------
 
-import datetime
-import re
-
-# ── Output paths ──────────────────────────────────────────────────────────────
+# ── CELL 2: Output paths + helpers ────────────────────────────────────────────
 DBFS_ROOT   = "dbfs:/mnt/mdp/mdm/phase2_signoff"
-LOCAL_ROOT  = "/dbfs/mnt/mdp/mdm/phase2_signoff"   # DBFS FUSE mount for Python I/O
+LOCAL_ROOT  = "/dbfs/mnt/mdp/mdm/phase2_signoff"
 LOG_PATH    = f"{LOCAL_ROOT}/signoff_audit_log.txt"
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
-UPC_P1_RATE_WARN    = 70.0   # % — warn if SELL_OUT P1 match below this
-MARCA_NULL_WARN     = 1.0    # % — warn if MARCA_STD null above this
-EAN_NULL_BLOCKER    = 0      # absolute — any NULL EAN in V_D_ITEM is a blocker
-
-# ── Database / schema constants ───────────────────────────────────────────────
-DB_PRD_MEX = "PRD_MEX"
-DB_PRD_MDP = "PRD_MDP"
-SCH_OTC    = "MEX_DSP_OTC"
-SCH_MDP_DSP= "MDP_DSP"
-SCH_MDP_STG= "MDP_STG"
-SCH_DPH_MKT= "MEX_DSP_DPH_MKT"
+UPC_P1_RATE_WARN  = 70.0
+EAN_NULL_BLOCKER  = 0
 
 dbutils.fs.mkdirs(DBFS_ROOT)
-print(f"Output directory: {DBFS_ROOT}")
 
-# COMMAND ----------
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
+_LOG_LINES: list[str] = []
 
 def ts() -> str:
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-_LOG_LINES: list[str] = []
-
 def log(level: str, msg: str, section: str = ""):
-    """Accumulate log lines and print to notebook output."""
     prefix = f"[{ts()}] [{level}]"
-    if section:
-        prefix += f" [{section}]"
+    if section: prefix += f" [{section}]"
     line = f"{prefix} {msg}"
     _LOG_LINES.append(line)
     print(line)
 
 def flush_log():
-    """Write accumulated log lines to DBFS."""
     content = "\n".join(_LOG_LINES)
     dbutils.fs.put(f"{DBFS_ROOT}/signoff_audit_log.txt", content, overwrite=True)
     print(f"\n📄 Log saved → {DBFS_ROOT}/signoff_audit_log.txt")
 
-def save_df(df, name: str, section: str):
-    """Save a Spark DataFrame as a single CSV to DBFS."""
+def save_df(df, name: str, section: str = ""):
     path = f"{DBFS_ROOT}/{name}"
-    (df.coalesce(1)
-       .write.mode("overwrite")
-       .option("header", "true")
-       .csv(path))
+    df.coalesce(1).write.mode("overwrite").option("header", "true").csv(path)
     log("INFO", f"Saved → {path}", section)
     return path
 
-def run_query(db: str, schema: str, sql: str) -> "DataFrame":
-    """Execute a Snowflake query via the Spark connector."""
-    return read_sf_query(db, schema, sql)
+def run_sf(database: str, sql: str):
+    """Execute a Snowflake query using the correct credential profile."""
+    opts = get_sf_options(database)
+    return (spark.read
+                 .format("net.snowflake.spark.snowflake")
+                 .options(**opts)
+                 .option("sfDatabase", database)
+                 .option("query", sql)
+                 .load())
 
-def blocker(condition: bool, msg: str, section: str):
+def blocker(condition: bool, msg: str, section: str = ""):
     if condition:
         log("🚨 BLOCKER", msg, section)
     return condition
 
-def warn(condition: bool, msg: str, section: str):
+def warn(condition: bool, msg: str, section: str = ""):
     if condition:
         log("⚠️  WARNING", msg, section)
     return condition
 
-def passed(msg: str, section: str):
+def passed(msg: str, section: str = ""):
     log("✅ PASS", msg, section)
+
+print(f"✅ CELL 2 — Helpers ready. Output root: {DBFS_ROOT}")
+
+# COMMAND ----------
+
+# ── Backward-compatible aliases (all SQL uses fully-qualified names, schema arg unused) ──
+DB_PRD_MEX  = "PRD_MEX"
+DB_PRD_MDP  = "PRD_MDP"
+SCH_OTC     = "MEX_DSP_OTC"       # unused by run_sf but kept so call sites don't fail
+SCH_MDP_DSP = "MDP_DSP"
+SCH_MDP_STG = "MDP_STG"
+SCH_DPH_MKT = "MEX_DSP_DPH_MKT"
+
+def run_query(database: str, schema: str, sql: str):
+    """Compat wrapper — routes to run_sf() using the correct credential profile.
+    `schema` is kept for call-site compatibility but is not used:
+    all SQL in this notebook uses fully-qualified 3-part names (DB.SCHEMA.TABLE).
+    """
+    return run_sf(database, sql)
+
+print("✅ Compat aliases ready — run_query(), DB_PRD_MEX, DB_PRD_MDP, SCH_* defined.")
+
 
 # COMMAND ----------
 
