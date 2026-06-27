@@ -133,21 +133,22 @@ log("INFO", "ASSERTIONS A5-A6: SELL_OUT bridge integrity", _S)
 if df_sell_out_std is not None:
     cols = [c.lower() for c in df_sell_out_std.columns]
 
-    # A5: countDistinct(mat_idt) per sell_out_int_id <= 1
-    if "mat_idt" in cols and "sell_out_int_id" in cols:
+    # A5: mat_idt uniqueness per sku_ean_cod — confirms 1:1 EAN bridge (sell_out_int_id is
+    # an intermediate join column, not persisted in the final sell_out_std.csv output)
+    if "mat_idt" in cols and "sku_ean_cod" in cols:
         df_a5 = (df_sell_out_std
-                 .groupBy("sell_out_int_id")
+                 .groupBy("sku_ean_cod")
                  .agg(F.countDistinct("mat_idt").alias("distinct_mat_idt"))
                  .filter(F.col("distinct_mat_idt") > 1))
         n_a5 = df_a5.count()
         blocker(n_a5 > 0,
-            f"A5 VIOLATION: {n_a5:,} sell_out_int_ids map to >1 distinct mat_idt. "
+            f"A5 VIOLATION: {n_a5:,} EANs map to >1 distinct mat_idt. "
             "Bridge is not 1:1 — P1 dedup failed.",
             _S)
         if n_a5 == 0:
-            passed("A5: SELL_OUT bridge is 1:1 per sell_out_int_id (no fanout)", _S)
+            passed("A5: sell_out_std bridge is 1:1 per sku_ean_cod (no fanout)", _S)
     else:
-        warn(True, "A5: mat_idt or sell_out_int_id column not found in sell_out_std", _S)
+        warn(True, "A5: mat_idt or sku_ean_cod column not found in sell_out_std", _S)
 
     # A6: countDistinct(mat_idt) per sku_ean_cod <= 1
     if "mat_idt" in cols and "sku_ean_cod" in cols:

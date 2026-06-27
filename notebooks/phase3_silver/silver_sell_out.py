@@ -276,8 +276,14 @@ quarantine(df_so.filter(F.col("canal_std").isNull()),
            "SELL_OUT_CANAL_NEEDS_REVIEW",
            "M4 PENDING: FORMAT not yet mapped to canal_std", _S)
 
+# marca_std = normalized brand from VW_D_PRODUCT_RM.BRAND (so_brand)
+# Upper+trim for consistency with sell_in_std.marca_std and other sources
+df_so = df_so.withColumn("marca_std", F.upper(F.trim(F.col("so_brand"))))
+log("INFO", "marca_std derived from so_brand (UPPER TRIM)", _S)
+
 df_so = df_so.withColumn("source_system", F.lit("SELL_OUT")) \
              .withColumn("std_created_at", F.current_timestamp())
+
 
 # COMMAND ----------
 

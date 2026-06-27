@@ -164,8 +164,8 @@ has_region = "region_std" in m1_cols_lower
 has_status = any(c in m1_cols_lower for c in ["mapping_status", "review_status"])
 
 m1_select = [F.upper(F.trim(F.col("mrkt_dsc_shrt"))).alias("m1_key")]  # fix W6: normalize to UPPER TRIM
-m1_select.append(F.col("canal_std")  if has_canal  else F.lit(None).cast("string").alias("canal_std"))
-m1_select.append(F.col("region_std") if has_region else F.lit(None).cast("string").alias("region_std"))
+m1_select.append(F.col("canal_std").alias("canal_std_m1")   if has_canal  else F.lit(None).cast("string").alias("canal_std_m1"))   # fix: alias to avoid ambiguity
+m1_select.append(F.col("region_std").alias("region_std_m1") if has_region else F.lit(None).cast("string").alias("region_std_m1")) # fix: alias to avoid ambiguity
 if has_status:
     sc = "mapping_status" if "mapping_status" in m1_cols_lower else "review_status"
     m1_select.append(F.col(sc).alias("mapping_status"))
@@ -187,6 +187,11 @@ register_join("silver_nielsen", "nielsen_market_dim", "signoff_03_nielsen_market
               "MRKT_DSC_SHRT=mrkt_dsc_shrt", "left")
 assert_row_count_exact(df_nielsen_dim, df_nielsen_std,
                        "nielsen_std x M1 market mapping", _S)
+
+# Resolve _m1 aliases back to canonical column names (avoids ambiguity with dim frame columns)
+df_nielsen_std = df_nielsen_std \
+    .withColumn("canal_std",  F.col("canal_std_m1")) \
+    .withColumn("region_std", F.col("region_std_m1"))
 
 df_nr = df_nielsen_std.filter(
     F.col("mapping_status").isNull() | (F.col("mapping_status") == "NEEDS_REVIEW"))
