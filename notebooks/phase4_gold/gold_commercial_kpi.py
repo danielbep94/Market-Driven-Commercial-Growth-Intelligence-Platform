@@ -98,36 +98,42 @@ assert_unique_keys(df_nls, NLS_JOIN_KEYS, "gold_nielsen_kpi_master")
 
 # COMMAND ----------
 
-# Prefix right-side columns to prevent ambiguity (Phase 3 lesson)
-def prefix_cols(df, prefix, exclude):
-    return df.select(
-        [F.col(c).alias(f"{prefix}{c}") if c not in exclude else F.col(c)
-         for c in df.columns]
-    )
+# All KPI columns in right-side tables are already source-prefixed:
+#   sell_in_kpi_master  → si_revenue_mxn, si_vol_litros, ...
+#   investment_kpi      → inv_mkt_on_mxn, inv_total_mxn, ...
+#   nielsen_kpi_master  → nls_value_share, nls_volume_share, ...
+# DO NOT apply prefix_cols — it would create si_si_revenue_mxn, nls_nls_value_share etc.
+#
+# To avoid Spark ambiguous column reference after join, drop duplicate join keys
+# from right-side frames before joining (keep only KPI payload columns + join key once).
 
-df_si_prefixed  = prefix_cols(df_si,  "si_",  SI_JOIN_KEYS)
-df_inv_prefixed = prefix_cols(df_inv_danone.drop("brand_owner_type"), "inv_", INV_JOIN_KEYS)
-df_nls_prefixed = prefix_cols(df_nls, "nls_", NLS_JOIN_KEYS)
+def drop_dup_keys(df, join_keys):
+    """Drop join key columns from right-side df to avoid ambiguity after join."""
+    return df.drop(*join_keys)
 
-# Rename join key aliases back to canonical form in right frames
-# (prefix_cols preserves join keys, so they're clean for ON clause)
-
-# JOIN 1: SELL_OUT (base) LEFT JOIN SELL_IN master
+# JOIN 1: SELL_OUT (base) LEFT JOIN SELL_IN master on (fecha_month, marca_std, canal_std)
 log_gold("INFO", "JOIN 1: sell_out LEFT JOIN sell_in_master on (fecha_month, marca_std, canal_std)", SECTION)
-df_j1 = df_so.join(df_si_prefixed, SI_JOIN_KEYS, "left")
+df_j1 = df_so.join(
+    df_si.select(*SI_JOIN_KEYS + [c for c in df_si.columns if c not in SI_JOIN_KEYS]),
+    SI_JOIN_KEYS, "left"
+)
 assert_no_join_fanout(base_count, df_j1, "SI_MASTER_JOIN")
 
-# JOIN 2: + LEFT JOIN Investment (Danone)
+# JOIN 2: + LEFT JOIN Investment (Danone only, brand_owner_type dropped)
 log_gold("INFO", "JOIN 2: + LEFT JOIN investment_danone on (fecha_month, marca_std, canal_std)", SECTION)
-df_j2 = df_j1.join(df_inv_prefixed, INV_JOIN_KEYS, "left")
+df_inv_payload = df_inv_danone.drop("brand_owner_type")
+df_inv_payload = df_inv_payload.select(*INV_JOIN_KEYS + [c for c in df_inv_payload.columns if c not in INV_JOIN_KEYS])
+df_j2 = df_j1.join(df_inv_payload, INV_JOIN_KEYS, "left")
 assert_no_join_fanout(base_count, df_j2, "INV_DANONE_JOIN")
 
 # JOIN 3: + LEFT JOIN Nielsen master on (fecha_month, canal_std)
 log_gold("INFO", "JOIN 3: + LEFT JOIN nielsen_master on (fecha_month, canal_std)", SECTION)
-df_j3 = df_j2.join(df_nls_prefixed, NLS_JOIN_KEYS, "left")
+df_nls_payload = df_nls.select(*NLS_JOIN_KEYS + [c for c in df_nls.columns if c not in NLS_JOIN_KEYS])
+df_j3 = df_j2.join(df_nls_payload, NLS_JOIN_KEYS, "left")
 assert_no_join_fanout(base_count, df_j3, "NIELSEN_MASTER_JOIN")
 
 log_gold("INFO", f"All 3 joins complete — final row count: {df_j3.count():,}", SECTION)
+
 
 # COMMAND ----------
 # MAGIC %md ## Step 4 — Derive master KPI columns

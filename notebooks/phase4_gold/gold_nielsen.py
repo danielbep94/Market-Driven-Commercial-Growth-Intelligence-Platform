@@ -54,6 +54,7 @@ log_gold("INFO", f"Loading facts: {FACTS_PATH}", SECTION)
 df_facts = (
     spark.read.option("header", "true")
          .option("inferSchema", "true")
+         .option("escape", '"')          # nielsen_facts_std has """quoted""" headers
          .csv(FACTS_PATH)
 )
 
@@ -61,6 +62,7 @@ log_gold("INFO", f"Loading market dim: {MARKET_PATH}", SECTION)
 df_market = (
     spark.read.option("header", "true")
          .option("inferSchema", "true")
+         .option("escape", '"')          # nielsen_std also has """quoted""" headers
          .csv(MARKET_PATH)
 )
 

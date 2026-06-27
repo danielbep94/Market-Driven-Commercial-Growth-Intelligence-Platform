@@ -41,7 +41,7 @@ RUN_MODE = "FULL"   # SET THIS BEFORE EVERY RUN
 
 # ── Date range ────────────────────────────────────────────────────────────────
 # Hard-block rows outside this range (B11)
-GOLD_START_MONTH = "2025-01-01"
+GOLD_START_MONTH = "2022-01-01"   # Nielsen facts start 2022-10-09; SELL_IN has rows from 202602
 GOLD_END_MONTH   = None   # None = auto-detect from Silver max(fecha_month)
 
 # ── Output paths ─────────────────────────────────────────────────────────────
