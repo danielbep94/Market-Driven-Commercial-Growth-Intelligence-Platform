@@ -9,4 +9,4 @@ mkt_on_std.marca_std: 7,282/7,282 = 100.0% (threshold=90%) — PASS
 mkt_off_std.canal_std: 100,000/100,000 = 100.0% (threshold=50%) — PASS
 mkt_off_std.marca_std: 100,000/100,000 = 100.0% (threshold=90%) — PASS
 nielsen_std.canal_std: 362/362 = 100.0% (threshold=50%) — PASS
-nielsen_std.region_std: 0/362 = 0.0% (threshold=50%) — BELOW_THRESHOLD
+nielsen_std.region_std: 362/362 = 100.0% (threshold=50%) — PASS
