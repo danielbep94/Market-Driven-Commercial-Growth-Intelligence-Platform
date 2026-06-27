@@ -1,0 +1,73 @@
+[2026-06-27 21:57:05] [INFO] [INIT] ========================================================================
+[2026-06-27 21:57:05] [INFO] [INIT] PHASE 4 GOLD KPI UTILS — INITIALISED
+[2026-06-27 21:57:05] [INFO] [INIT] RUN_MODE         = FULL
+[2026-06-27 21:57:05] [INFO] [INIT] GOLD_START_MONTH = 2022-01-01
+[2026-06-27 21:57:05] [INFO] [INIT] GOLD_END_MONTH   = None
+[2026-06-27 21:57:05] [INFO] [INIT] DBFS_GOLD_ROOT   = dbfs:/mnt/mdp/mdm/phase4_gold/data
+[2026-06-27 21:57:05] [INFO] [INIT] LOGS_DIR         = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-27 21:57:05] [INFO] [SECURITY] B14 PRE-CONFIRMED: zero Snowflake write operations in Phase 4 notebooks
+[2026-06-27 21:57:05] [INFO] [SECURITY] B15 PRE-CONFIRMED: zero production Snowflake mutation statements
+[2026-06-27 21:57:05] [INFO] [INIT] ========================================================================
+[2026-06-27 21:57:05] [WARNING] [CONFIG] brand_crosswalk.yaml not found — DANONE_BRANDS_SET empty
+[2026-06-27 21:57:06] [INFO] [SELL_IN] ========================================================================
+[2026-06-27 21:57:06] [INFO] [SELL_IN] GOLD_SELL_IN — START
+[2026-06-27 21:57:06] [INFO] [RUN_MODE] RUN_MODE = FULL — Gold output enabled
+[2026-06-27 21:57:06] [INFO] [SELL_IN] Loading Silver input: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/sell_in_std.csv
+[2026-06-27 21:57:07] [INFO] [SELL_IN] Silver sell_in_std loaded: 49,815 rows
+[2026-06-27 21:57:08] [INFO] [SELL_IN] fecha_month column created (month-truncated from YEAR_MONTH)
+[2026-06-27 21:57:08] [⚠️  WARNING W_MARCA] [SELL_IN] B3 QUARANTINE: 1402 rows have NULL MARCA_STD (unmatched product LEFT JOIN). Excluding from Gold aggregation. Matches Phase 3 architectural decision R9.
+[2026-06-27 21:57:09] [INFO] [SELL_IN] After NULL MARCA_STD quarantine: 48,413 valid rows remain
+[2026-06-27 21:57:09] [✅ PASS B3] [SELL_IN] B3 cleared after quarantine: 48,413 valid rows
+[2026-06-27 21:57:09] [✅ PASS B2] [SELL_IN] fecha_month has zero NULLs
+[2026-06-27 21:57:10] [✅ PASS B13] [sell_in_std] [sell_in_std] All fecha_month values are 1st of month
+[2026-06-27 21:57:11] [✅ PASS B11] [sell_in_std] [sell_in_std] All fecha_month within configured range
+[2026-06-27 21:57:12] [INFO] [SELL_IN] Detailed gold_sell_in_kpi: 1,045 rows at grain ['fecha_month', 'MARCA_STD', 'canal_std', 'CBU']
+[2026-06-27 21:57:13] [✅ PASS B4] [gold_sell_in_kpi] [gold_sell_in_kpi] No Inf/NaN in 'si_avg_price_mxn_per_litre'
+[2026-06-27 21:57:14] [✅ PASS B4] [gold_sell_in_kpi] [gold_sell_in_kpi] No Inf/NaN in 'si_avg_price_mxn_per_kg'
+[2026-06-27 21:57:15] [INFO] [SELL_IN] Master gold_sell_in_kpi_master: 1,045 rows at grain ['fecha_month', 'marca_std', 'canal_std']
+[2026-06-27 21:57:17] [✅ PASS B10] [gold_sell_in_kpi_master] [gold_sell_in_kpi_master] Unique on ['fecha_month', 'marca_std', 'canal_std'] (1045 rows)
+[2026-06-27 21:57:18] [✅ PASS B4] [gold_sell_in_kpi_master] [gold_sell_in_kpi_master] No Inf/NaN in 'si_avg_price_mxn_per_litre'
+[2026-06-27 21:57:19] [✅ PASS B4] [gold_sell_in_kpi_master] [gold_sell_in_kpi_master] No Inf/NaN in 'si_avg_price_mxn_per_kg'
+[2026-06-27 21:57:21] [INFO] [SELL_IN] fecha_month range: 2025-01-01 → 2026-06-01
+[2026-06-27 21:57:21] [INFO] [SELL_IN] distinct months: 18, distinct brands: 30
+[2026-06-27 21:57:24] [INFO] [SELL_IN] Saved → dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_sell_in_kpi (1045 rows)
+[2026-06-27 21:57:26] [INFO] [SELL_IN] Saved → dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_sell_in_kpi_master (1045 rows)
+[2026-06-27 21:57:26] [INFO] [SELL_IN] Registered 7 SELL_IN KPI metrics
+[2026-06-27 21:57:26] [INFO] [SELL_IN] GOLD_SELL_IN — COMPLETE ✅
+[2026-06-27 21:59:54] [INFO] [INIT] ========================================================================
+[2026-06-27 21:59:54] [INFO] [INIT] PHASE 4 GOLD KPI UTILS — INITIALISED
+[2026-06-27 21:59:54] [INFO] [INIT] RUN_MODE         = FULL
+[2026-06-27 21:59:54] [INFO] [INIT] GOLD_START_MONTH = 2022-01-01
+[2026-06-27 21:59:54] [INFO] [INIT] GOLD_END_MONTH   = None
+[2026-06-27 21:59:54] [INFO] [INIT] DBFS_GOLD_ROOT   = dbfs:/mnt/mdp/mdm/phase4_gold/data
+[2026-06-27 21:59:54] [INFO] [INIT] LOGS_DIR         = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-27 21:59:54] [INFO] [SECURITY] B14 PRE-CONFIRMED: zero Snowflake write operations in Phase 4 notebooks
+[2026-06-27 21:59:54] [INFO] [SECURITY] B15 PRE-CONFIRMED: zero production Snowflake mutation statements
+[2026-06-27 21:59:54] [INFO] [INIT] ========================================================================
+[2026-06-27 21:59:54] [WARNING] [CONFIG] brand_crosswalk.yaml not found — DANONE_BRANDS_SET empty
+[2026-06-27 21:59:54] [INFO] [SELL_IN] ========================================================================
+[2026-06-27 21:59:54] [INFO] [SELL_IN] GOLD_SELL_IN — START
+[2026-06-27 21:59:54] [INFO] [RUN_MODE] RUN_MODE = FULL — Gold output enabled
+[2026-06-27 21:59:55] [INFO] [SELL_IN] Loading Silver input: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/sell_in_std.csv
+[2026-06-27 21:59:55] [INFO] [IO] Reading Silver CSV via pandas bridge (Workspace path): /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/sell_in_std.csv
+[2026-06-27 21:59:57] [INFO] [SELL_IN] Silver sell_in_std loaded: 49,815 rows
+[2026-06-27 21:59:57] [INFO] [SELL_IN] fecha_month column created (month-truncated from YEAR_MONTH)
+[2026-06-27 21:59:58] [⚠️  WARNING W_MARCA] [SELL_IN] B3 QUARANTINE: 1402 rows have NULL MARCA_STD (unmatched product LEFT JOIN). Excluding from Gold aggregation. Matches Phase 3 architectural decision R9.
+[2026-06-27 21:59:59] [INFO] [SELL_IN] After NULL MARCA_STD quarantine: 48,413 valid rows remain
+[2026-06-27 21:59:59] [✅ PASS B3] [SELL_IN] B3 cleared after quarantine: 48,413 valid rows
+[2026-06-27 22:00:00] [✅ PASS B2] [SELL_IN] fecha_month has zero NULLs
+[2026-06-27 22:00:01] [✅ PASS B13] [sell_in_std] [sell_in_std] All fecha_month values are 1st of month
+[2026-06-27 22:00:02] [✅ PASS B11] [sell_in_std] [sell_in_std] All fecha_month within configured range
+[2026-06-27 22:00:04] [INFO] [SELL_IN] Detailed gold_sell_in_kpi: 1,045 rows at grain ['fecha_month', 'MARCA_STD', 'canal_std', 'CBU']
+[2026-06-27 22:00:06] [✅ PASS B4] [gold_sell_in_kpi] [gold_sell_in_kpi] No Inf/NaN in 'si_avg_price_mxn_per_litre'
+[2026-06-27 22:00:07] [✅ PASS B4] [gold_sell_in_kpi] [gold_sell_in_kpi] No Inf/NaN in 'si_avg_price_mxn_per_kg'
+[2026-06-27 22:00:09] [INFO] [SELL_IN] Master gold_sell_in_kpi_master: 1,045 rows at grain ['fecha_month', 'marca_std', 'canal_std']
+[2026-06-27 22:00:12] [✅ PASS B10] [gold_sell_in_kpi_master] [gold_sell_in_kpi_master] Unique on ['fecha_month', 'marca_std', 'canal_std'] (1045 rows)
+[2026-06-27 22:00:14] [✅ PASS B4] [gold_sell_in_kpi_master] [gold_sell_in_kpi_master] No Inf/NaN in 'si_avg_price_mxn_per_litre'
+[2026-06-27 22:00:16] [✅ PASS B4] [gold_sell_in_kpi_master] [gold_sell_in_kpi_master] No Inf/NaN in 'si_avg_price_mxn_per_kg'
+[2026-06-27 22:00:18] [INFO] [SELL_IN] fecha_month range: 2025-01-01 → 2026-06-01
+[2026-06-27 22:00:18] [INFO] [SELL_IN] distinct months: 18, distinct brands: 30
+[2026-06-27 22:00:22] [INFO] [SELL_IN] Saved → dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_sell_in_kpi (1045 rows)
+[2026-06-27 22:00:26] [INFO] [SELL_IN] Saved → dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_sell_in_kpi_master (1045 rows)
+[2026-06-27 22:00:26] [INFO] [SELL_IN] Registered 7 SELL_IN KPI metrics
+[2026-06-27 22:00:26] [INFO] [SELL_IN] GOLD_SELL_IN — COMPLETE ✅

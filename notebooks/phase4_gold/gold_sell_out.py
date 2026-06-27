@@ -18,7 +18,8 @@
 
 # COMMAND ----------
 
-# MAGIC %run ./gold_kpi_utils
+# Ensure gold_kpi_utils is imported for utility functions
+%run ./gold_kpi_utils
 
 # COMMAND ----------
 
@@ -32,6 +33,7 @@ log_gold("INFO", "GOLD_SELL_OUT — START", SECTION)
 check_run_mode()
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 1 — Load Silver sell_out_std.csv
 
 # COMMAND ----------
@@ -65,6 +67,7 @@ if silver_count <= 100_000:
 gold_blocker("B1", silver_count == 0, "sell_out_std.csv is empty", SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 2 — Month-Truncate (B13)
 
 # COMMAND ----------
@@ -107,6 +110,7 @@ else:
 check_fecha_month_range(df, "sell_out_std")
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 3 — Load coverage thresholds from dq_thresholds.yaml
 
 # COMMAND ----------
@@ -117,6 +121,7 @@ MED_T = cfg.get("sell_out_coverage_medium_threshold", 0.85)
 log_gold("INFO", f"Coverage thresholds loaded — LOW: {LOW_T}, MED: {MED_T}", SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 4 — Aggregate KPIs (Grain: fecha_month x marca_std x canal_std x cadena_std)
 
 # COMMAND ----------
@@ -179,6 +184,7 @@ gold_warn("W2", neg_rev > 0,
           f"gold_sell_out_kpi has {neg_rev} rows with negative so_revenue_mxn", SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 5 — Coverage Summary
 
 # COMMAND ----------
@@ -202,6 +208,7 @@ for row in coverage_dist:
     log_gold("INFO", f"coverage_level = {row['coverage_level']}: {row['count']:,} combinations", SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 6 — Save Output
 
 # COMMAND ----------
@@ -209,6 +216,7 @@ for row in coverage_dist:
 save_gold_df(df_agg, "gold_sell_out_kpi", SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 7 — Register KPIs
 
 # COMMAND ----------
