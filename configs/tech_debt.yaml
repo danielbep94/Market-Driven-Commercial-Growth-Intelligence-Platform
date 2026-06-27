@@ -43,7 +43,21 @@ items:
       not schema-level). Add a DQ rule to dq_rules_catalog.yaml checking
       that FECHA IS NOT NULL after the CTE_PERIOD join.
     added: "2026-06-20"
-    status: OPEN
+    status: DEFERRED
+    decision_date: "2026-06-27"
+    decision: >
+      Deferred by project owner (Victor Hernandez) on 2026-06-27.
+      Will be reviewed and resolved at end of project before production Gold promotion.
+      The hardcoded period CTEs will continue to function correctly through 2026-12.
+      Earliest failure date: January 2027 (when new Nielsen periods arrive).
+    review_trigger: >
+      MANDATORY REVIEW before project sign-off or before December 2026 planning,
+      whichever comes first. Action: create PRD_MDP.MDP_REF.NIELSEN_PERIOD_CALENDAR
+      and replace CTE_PERIOD VALUES clause in all affected files (see recommended_fix).
+    phase3_note: >
+      Also affects notebooks/phase3_silver/silver_nielsen.py — the Step C
+      Snowflake pushdown uses a period CTE identical to the semantic layouts.
+      When TD-001 is resolved, silver_nielsen.py must also be updated.
 
   - id: TD-002
     title: "RETAIL_WATER.txt uses non-triple-quoted SQL string"
@@ -199,7 +213,14 @@ items:
       Repo Cleaner to rewrite history and remove the credential from all commits.
       This requires a force-push and all collaborators must re-clone.
     added: "2026-06-23"
-    status: OPEN
-    phase_c_note: >
-      Identified and partially remediated during Phase C closure controls.
-      Code fixed in HEAD. Password rotation is a DBA action item.
+    status: DEFERRED
+    decision_date: "2026-06-27"
+    decision: >
+      Deferred by project owner (Victor Hernandez) on 2026-06-27.
+      Password rotation will be performed after the project is complete.
+      Repo remains private — exposure risk is limited to current collaborators only.
+      Code in HEAD is clean (no credentials). Only git history is affected.
+    review_trigger: >
+      MANDATORY ACTION at project completion before any public release or handover.
+      Action: request DBA to rotate PRD_OSM_DPH_READER password and update
+      Key Vault scope DAN-AM-P-KVT800-R-MEX-DB. See recommended_fix above.
