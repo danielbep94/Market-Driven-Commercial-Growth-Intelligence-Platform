@@ -35,14 +35,26 @@ from pyspark.sql.types import *
 # 1. SNOWFLAKE CREDENTIALS
 # =============================================================================
 
-_current_dir = os.getcwd()
-_creds_path  = os.path.normpath(
-    os.path.join(_current_dir, "../..", "configs", "snowflake_creds.py"))
+# Databricks Repos: os.getcwd() may return repo root OR a subdirectory
+# depending on which notebook triggered the %run. Search upward through
+# 4 candidates to find configs/snowflake_creds.py wherever the repo is.
+_creds_path = None
+_cwd = os.getcwd()
+for _candidate in [
+    os.path.join(_cwd,               "configs", "snowflake_creds.py"),   # cwd IS repo root
+    os.path.normpath(os.path.join(_cwd, "..",   "configs", "snowflake_creds.py")),  # cwd = notebooks/
+    os.path.normpath(os.path.join(_cwd, "..", "..", "configs", "snowflake_creds.py")),  # cwd = notebooks/phase3_silver/
+    os.path.normpath(os.path.join(_cwd, "..", "..", "..", "configs", "snowflake_creds.py")),  # deeper
+]:
+    if os.path.exists(_candidate):
+        _creds_path = _candidate
+        break
 
-if not os.path.exists(_creds_path):
+if _creds_path is None:
     raise FileNotFoundError(
-        f"configs/snowflake_creds.py NOT FOUND at {_creds_path}. "
-        "Ensure the repo is checked out and the file exists.")
+        f"configs/snowflake_creds.py NOT FOUND. Searched from os.getcwd()={_cwd}:\n"
+        f"  [{_cwd}/configs/], [{_cwd}/../configs/], [{_cwd}/../../configs/]\n"
+        "Ensure the repo is checked out at the correct path.")
 
 _spec = importlib.util.spec_from_file_location("snowflake_creds", _creds_path)
 _m    = importlib.util.module_from_spec(_spec)
@@ -93,7 +105,10 @@ def run_sf(database: str, sql: str):
 # 2. PATHS & DUAL-WRITE LOG INFRASTRUCTURE
 # =============================================================================
 
-REPO_ROOT     = pathlib.Path(_current_dir).parent.parent
+# REPO_ROOT is derived from the confirmed _creds_path location:
+# configs/snowflake_creds.py is at <REPO_ROOT>/configs/snowflake_creds.py
+# So REPO_ROOT = _creds_path's grandparent directory.
+REPO_ROOT     = pathlib.Path(_creds_path).parent.parent
 REPO_LOGS_DIR = str(REPO_ROOT / "logs")
 os.makedirs(REPO_LOGS_DIR, exist_ok=True)
 
