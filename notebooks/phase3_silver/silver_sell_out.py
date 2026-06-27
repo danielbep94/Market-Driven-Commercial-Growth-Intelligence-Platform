@@ -139,6 +139,7 @@ SELECT
     TO_VARCHAR(f.STORE)           AS store_id,
     s.CHAIN                       AS chain,
     s.FORMAT                      AS format,
+    
     s.REGION                      AS region,
     LEFT(TO_VARCHAR(f.PER_ID), 6) AS year_month,
 
@@ -294,4 +295,5 @@ log("INFO", "sell_out_std saved. SELL_OUT standardization complete.", _S)
 flush_log("phase3_standardization_audit_log.txt")
 
 # COMMAND ----------
+
 

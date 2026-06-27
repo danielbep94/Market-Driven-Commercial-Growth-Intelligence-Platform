@@ -1,34 +1,25 @@
-[2026-06-26 22:32:24] [INFO] [INIT] ======================================================================
-[2026-06-26 22:32:24] [INFO] [INIT] Phase 3 shared utilities — silver_homologation_apply.py loaded
-[2026-06-26 22:32:24] [INFO] [INIT] REPO_ROOT     : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform
-[2026-06-26 22:32:24] [INFO] [INIT] REPO_LOGS_DIR : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
-[2026-06-26 22:32:24] [INFO] [INIT] DBFS_ROOT     : dbfs:/mnt/mdp/mdm/phase3_std
-[2026-06-26 22:32:24] [INFO] [INIT] ACTIVE_CATALOG_FILTER (R4, locked): 'SKU_EAN_COD IS NOT NULL'
-[2026-06-26 22:32:24] [INFO] [INIT] Credentials: PRD_MEX and PRD_MDP profiles ready.
-[2026-06-26 22:32:24] [INFO] [INIT] JOIN_REGISTRY initialized (call register_join() after every join).
-[2026-06-26 22:32:24] [INFO] [INIT] ======================================================================
-[2026-06-26 22:32:24] [INFO] [SELL_IN] Starting SELL_IN standardization (Snowflake-pushdown pattern)
-[2026-06-26 22:32:24] [INFO] [SELL_IN] VW_FACT_RNV has 200M+ rows — ALL joins and aggregation run in Snowflake.
-[2026-06-26 22:32:25] [INFO] [SELL_IN] SELL_IN fact confirmed accessible: PRD_MEX.MEX_DSP_OTC.VW_FACT_RNV
-[2026-06-26 22:32:25] [INFO] [SELL_IN] Step 1: Row count probe (no data transfer)
-[2026-06-26 22:32:28] [INFO] [SELL_IN] VW_FACT_RNV (2025+): 315,933,707 rows | 1,076 distinct MAT_IDTs | date range: 20250101 → 20260628
-[2026-06-26 22:32:28] [INFO] [SELL_IN] Step 2: Pushdown join + aggregation in Snowflake (main query)
-[2026-06-26 22:32:28] [INFO] [SELL_IN] Expected result: ~81,627 rows (one per active SKU in V_D_ITEM)
-[2026-06-26 22:32:28] [INFO] [SELL_IN] Executing Snowflake pushdown query — this runs entirely in Snowflake.
-[2026-06-26 22:32:28] [INFO] [SELL_IN] Estimated time: 3-8 min (Snowflake aggregates 200M rows, returns ~81K)
-[2026-06-26 22:33:18] [INFO] [SELL_IN] sell_in_std received from Snowflake: 49,815 rows
-[2026-06-26 22:33:18] [INFO] [JOIN_REGISTRY] JOIN: silver_sell_in | VW_FACT_RNV ↔ V_D_ITEM + V_D_CLIENT ON [MAT_IDT (pushdown — join in Snowflake)] (left)
-[2026-06-26 22:33:18] [INFO] [SELL_IN] Step 3: Applying dimension standardization mappings (Spark side)
-[2026-06-26 22:33:22] [INFO] [SELL_IN] Mapping loaded: signoff_04_v_d_client_cadena_candidates.csv — 3 rows, all unique on 'COLUMN_NAME'
-[2026-06-26 22:33:22] [⚠️  WARNING] [SELL_IN] M2 PENDING: No CADENA column confirmed yet — cadena_std=NULL in sell_in_std.
-[2026-06-26 22:33:22] [⚠️  WARNING] [SELL_IN] 49,815 rows quarantined from 'SELL_IN_CADENA_NULL': M2 PENDING: cadena_std source not confirmed
-[2026-06-26 22:33:22] [INFO] [SELL_IN] Step 4: Null rate audit
-[2026-06-26 22:33:23] [INFO] [SELL_IN] NULL rate — cadena_std: 49,815 / 49,815 = 100.0%
-[2026-06-26 22:33:23] [INFO] [SELL_IN] NULL rate — canal_std: 1,402 / 49,815 = 2.81%
-[2026-06-26 22:33:24] [INFO] [SELL_IN] NULL rate — marca_std: 1,402 / 49,815 = 2.81%
-[2026-06-26 22:33:24] [INFO] [SELL_IN] NULL rate — sku_ean_cod: 1,402 / 49,815 = 2.81%
-[2026-06-26 22:33:24] [INFO] [SELL_IN] NULL rate — revenue_mxn: 0 / 49,815 = 0.0%
-[2026-06-26 22:33:25] [INFO] [SELL_IN] NULL rate — volume_kgr: 0 / 49,815 = 0.0%
-[2026-06-26 22:33:25] [INFO] [SELL_IN] sell_in_std final: 49,815 rows (aggregated from 315,933,707 source fact rows in Snowflake)
-[2026-06-26 22:33:37] [INFO] [SELL_IN] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/sell_in_std.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/sell_in_std.csv
-[2026-06-26 22:33:37] [INFO] [SELL_IN] sell_in_std saved. SELL_IN standardization complete.
+[2026-06-27 02:31:28] [INFO] [INIT] ======================================================================
+[2026-06-27 02:31:28] [INFO] [INIT] Phase 3 shared utilities — silver_homologation_apply.py loaded
+[2026-06-27 02:31:28] [INFO] [INIT] REPO_ROOT     : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform
+[2026-06-27 02:31:28] [INFO] [INIT] REPO_LOGS_DIR : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-27 02:31:28] [INFO] [INIT] DBFS_ROOT     : dbfs:/mnt/mdp/mdm/phase3_std
+[2026-06-27 02:31:28] [INFO] [INIT] ACTIVE_CATALOG_FILTER (R4, locked): 'SKU_EAN_COD IS NOT NULL'
+[2026-06-27 02:31:28] [INFO] [INIT] Credentials: PRD_MEX and PRD_MDP profiles ready.
+[2026-06-27 02:31:28] [INFO] [INIT] JOIN_REGISTRY initialized (call register_join() after every join).
+[2026-06-27 02:31:28] [INFO] [INIT] ======================================================================
+[2026-06-27 02:31:28] [INFO] [MKT_OFF] Starting MKT_OFF standardization
+[2026-06-27 02:31:28] [INFO] [MKT_OFF] Source: PRD_MDP.MDP_STG.FACT_MEDIA_OFF (offline media spend)
+[2026-06-27 02:31:28] [INFO] [MKT_OFF] cadena_std = NULL: FACT_MEDIA_OFF has no CADENA column (R9 — structural)
+[2026-06-27 02:31:29] [INFO] [MKT_OFF] Step 1: Row count probe
+[2026-06-27 02:31:32] [INFO] [MKT_OFF] FACT_MEDIA_OFF (2024+): 522,003 rows | 101 brands | date: 2024-01-01 → 2026-12-01
+[2026-06-27 02:31:33] [INFO] [MKT_OFF] Step 2: Snowflake pushdown — MARCA_STD + aggregate
+[2026-06-27 02:31:43] [INFO] [MKT_OFF] mkt_off_std: 121,892 rows from Snowflake
+[2026-06-27 02:31:43] [INFO] [JOIN_REGISTRY] JOIN: silver_mkt_off_std | FACT_MEDIA_OFF ↔ none ON [no join — single table + GROUP BY (R7/R8 compliant)] (none)
+[2026-06-27 02:31:44] [INFO] [MKT_OFF] NULL rate — marca_std: 0 / 121,892 = 0.0%
+[2026-06-27 02:31:45] [INFO] [MKT_OFF] NULL rate — cadena_std: 121,892 / 121,892 = 100.0%
+[2026-06-27 02:31:45] [INFO] [MKT_OFF] NULL rate — inversion_real: 0 / 121,892 = 0.0%
+[2026-06-27 02:32:01] [INFO] [MKT_OFF] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/mkt_off_std.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/mkt_off_std.csv
+[2026-06-27 02:32:01] [INFO] [MKT_OFF] mkt_off_std saved: 121,892 rows
+[2026-06-27 02:32:02] [✅ PASS] [MKT_OFF] A4: cadena_std is NULL for all 121,892 mkt_off_std rows (R9 confirmed)
+[2026-06-27 02:32:02] [✅ PASS] [MKT_OFF] A2 — R7: MKT_OFF no UPC join: No prohibited join found. (1 joins in registry scanned.)
+[2026-06-27 02:32:02] [✅ PASS] [MKT_OFF] A3 — R8: MKT_OFF no CADENA join: No prohibited join found. (1 joins in registry scanned.)

@@ -77,6 +77,7 @@ _CBU_TABLES = {
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 5
 # =============================================================================
 # STEP A — Build unique market dimension (small — hundreds of rows)
 # Pull from MKT_DIM tables which are tiny. Join key is market_id.
@@ -105,6 +106,7 @@ for cbu_label, tbls in _CBU_TABLES.items():
 
 if not _mkt_frames:
     blocker(True, "All 4 MKT_DIM tables failed — cannot build nielsen_std", _S)
+    raise RuntimeError("All 4 MKT_DIM tables failed — cannot build nielsen_std")
 
 from functools import reduce as _reduce
 df_mkt_raw = _reduce(lambda a, b: a.unionByName(b, allowMissingColumns=True), _mkt_frames)
@@ -283,4 +285,5 @@ flush_log("phase3_standardization_audit_log.txt")
 log("INFO", "NIELSEN standardization complete.", _S)
 
 # COMMAND ----------
+
 
