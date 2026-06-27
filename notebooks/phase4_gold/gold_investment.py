@@ -50,18 +50,11 @@ MKT_ON_PATH  = os.path.join(LOGS_DIR, "mkt_on_std.csv")
 MKT_OFF_PATH = os.path.join(LOGS_DIR, "mkt_off_std.csv")
 
 log_gold("INFO", f"Loading: {MKT_ON_PATH}", SECTION)
-df_on_raw = (
-    spark.read.option("header", "true")
-         .option("inferSchema", "true")
-         .csv(MKT_ON_PATH)
-)
+df_on_raw = read_silver_csv(MKT_ON_PATH)
 
 log_gold("INFO", f"Loading: {MKT_OFF_PATH}", SECTION)
-df_off_raw = (
-    spark.read.option("header", "true")
-         .option("inferSchema", "true")
-         .csv(MKT_OFF_PATH)
-)
+df_off_raw = read_silver_csv(MKT_OFF_PATH)
+
 
 on_count  = df_on_raw.count()
 off_count = df_off_raw.count()

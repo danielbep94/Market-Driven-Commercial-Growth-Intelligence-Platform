@@ -51,20 +51,12 @@ gold_blocker("B17", not os.path.exists(FACTS_PATH),
              f"nielsen_facts_std.csv not found at {FACTS_PATH}", SECTION)
 
 log_gold("INFO", f"Loading facts: {FACTS_PATH}", SECTION)
-df_facts = (
-    spark.read.option("header", "true")
-         .option("inferSchema", "true")
-         .option("escape", '"')          # nielsen_facts_std has """quoted""" headers
-         .csv(FACTS_PATH)
-)
+# escape_char='"' handles """hierarchy_level""" triple-quoted headers in nielsen_facts_std
+df_facts = read_silver_csv(FACTS_PATH, escape_char='"')
 
 log_gold("INFO", f"Loading market dim: {MARKET_PATH}", SECTION)
-df_market = (
-    spark.read.option("header", "true")
-         .option("inferSchema", "true")
-         .option("escape", '"')          # nielsen_std also has """quoted""" headers
-         .csv(MARKET_PATH)
-)
+df_market = read_silver_csv(MARKET_PATH, escape_char='"')
+
 
 facts_count  = df_facts.count()
 market_count = df_market.count()

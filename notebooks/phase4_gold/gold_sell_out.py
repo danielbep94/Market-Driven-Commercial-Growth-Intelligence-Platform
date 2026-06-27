@@ -47,11 +47,9 @@ check_run_mode()
 SELL_OUT_PATH = os.path.join(LOGS_DIR, "sell_out_std.csv")
 log_gold("INFO", f"Loading Silver input: {SELL_OUT_PATH}", SECTION)
 
-df_raw = (
-    spark.read.option("header", "true")
-         .option("inferSchema", "true")
-         .csv(SELL_OUT_PATH)
-)
+# read_silver_csv() routes Workspace paths through pandas on driver.
+df_raw = read_silver_csv(SELL_OUT_PATH)
+
 
 silver_count = df_raw.count()
 log_gold("INFO", f"Silver sell_out_std loaded: {silver_count:,} rows", SECTION)

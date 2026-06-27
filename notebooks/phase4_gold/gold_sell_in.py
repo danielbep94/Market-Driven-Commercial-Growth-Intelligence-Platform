@@ -50,14 +50,12 @@ check_run_mode()
 # DIS_CHL_COD, YEAR_MONTH, REVENUE_MXN, VOLUME_KGR, VOLUME_LITER, CASES, SKU_QTY,
 # FACT_ROW_COUNT, SOURCE_SYSTEM, STD_CREATED_AT, cadena_std, canal_std
 
-SELL_IN_PATH = os.path.normpath(os.path.join(LOGS_DIR, "..", "..", "logs", "sell_in_std.csv"))
+SELL_IN_PATH = os.path.join(LOGS_DIR, "sell_in_std.csv")
 log_gold("INFO", f"Loading Silver input: {SELL_IN_PATH}", SECTION)
 
-df_raw = (
-    spark.read.option("header", "true")
-         .option("inferSchema", "true")
-         .csv("file://" + SELL_IN_PATH)
-)
+# read_silver_csv() handles Workspace paths via pandas bridge (Spark cannot
+# read /Workspace/ paths on distributed executors — driver-only access).
+df_raw = read_silver_csv(SELL_IN_PATH)
 
 silver_count = df_raw.count()
 log_gold("INFO", f"Silver sell_in_std loaded: {silver_count:,} rows", SECTION)

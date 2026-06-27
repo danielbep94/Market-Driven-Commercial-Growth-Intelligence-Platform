@@ -50,37 +50,86 @@ GOLD_END_MONTH   = None   # None = auto-detect from Silver max(fecha_month)
 DBFS_GOLD_ROOT   = "dbfs:/mnt/mdp/mdm/phase4_gold/data"
 LOCAL_GOLD_ROOT  = "/dbfs/mnt/mdp/mdm/phase4_gold/data"
 
+# ── Silver CSV sentinel file — used to validate LOGS_DIR candidates ───────────
+_SILVER_SENTINEL = "sell_in_std.csv"   # must exist in the correct logs/ dir
+
 def _resolve_logs_dir():
     """Locate the project-root logs/ directory from any notebook CWD.
 
-    CWD when %run from Databricks is the notebook's own directory.
-    For notebooks/phase4_gold/gold_*.py the CWD is notebooks/phase4_gold/,
-    so we must climb two levels to reach {project_root}/logs/.
+    Problem in Databricks:
+      CWD = /Workspace/Users/<user>/notebooks/phase4_gold/
+      The Databricks workspace root (/Workspace/Users/<user>/) also has a
+      logs/ subdirectory that can contain unrelated CSV files, causing the
+      generic CSV-presence guard to resolve to the WRONG directory.
 
-    Candidates are checked in order; the first that exists AND contains
-    at least one CSV file is returned (guards against empty sibling logs/).
+    Fix: use a specific Silver sentinel file (sell_in_std.csv) as the guard.
+    Only a candidate that contains this exact file is accepted as valid.
+
+    Candidates searched (two extra levels to handle nested repo structures):
+      {cwd}/logs
+      {cwd}/../logs        (one up from phase4_gold/)
+      {cwd}/../../logs     (two up — repo root for standard structure)
+      {cwd}/../../../logs  (three up — for deeply nested Databricks Repos)
     """
     cwd = os.getcwd()
     candidates = [
-        os.path.join(cwd, "logs"),            # {cwd}/logs/
-        os.path.join(cwd, "..", "logs"),       # {cwd}/../logs/   (one up)
-        os.path.join(cwd, "..", "..", "logs"), # {cwd}/../../logs/ (two up — phase4_gold/ case)
+        os.path.join(cwd, "logs"),
+        os.path.join(cwd, "..", "logs"),
+        os.path.join(cwd, "..", "..", "logs"),
+        os.path.join(cwd, "..", "..", "..", "logs"),
     ]
     for c in candidates:
         norm = os.path.normpath(c)
-        if os.path.isdir(norm):
-            # Confirm it actually contains Silver CSVs (guard against empty siblings)
-            csv_files = [f for f in os.listdir(norm) if f.endswith(".csv")]
-            if csv_files:
-                return norm
-    # Last resort: create two levels up (correct for phase4_gold/ CWD)
-    p = os.path.normpath(os.path.join(cwd, "..", "..", "logs"))
-    os.makedirs(p, exist_ok=True)
-    return p
+        if os.path.isdir(norm) and os.path.isfile(os.path.join(norm, _SILVER_SENTINEL)):
+            log_gold("INFO", f"LOGS_DIR resolved → {norm}  (sentinel: {_SILVER_SENTINEL})", "CONFIG")
+            return norm
+    # Hard-coded absolute fallback — update this if your Databricks repo path differs
+    # Check /Workspace Databricks paths explicitly before giving up
+    import re
+    for segment in [cwd] + [os.path.normpath(os.path.join(cwd, *[".."] * i)) for i in range(1, 6)]:
+        candidate_logs = os.path.join(segment, "logs")
+        if os.path.isfile(os.path.join(candidate_logs, _SILVER_SENTINEL)):
+            log_gold("INFO", f"LOGS_DIR resolved (deep scan) → {candidate_logs}", "CONFIG")
+            return candidate_logs
+    raise FileNotFoundError(
+        f"Cannot find logs/{_SILVER_SENTINEL} from CWD={cwd}. "
+        "Ensure Phase 3 Silver outputs are present in the repo logs/ directory "
+        "and the notebook is run from within the correct Databricks Repo."
+    )
+
+
+def read_silver_csv(path: str, escape_char: str = None):
+    """Read a Silver CSV into a Spark DataFrame.
+
+    Why this helper exists:
+      spark.read.csv('/Workspace/Users/.../...csv') FAILS on distributed
+      Databricks clusters because executors cannot access Workspace paths —
+      only the driver can. The fix is to read via pandas on the driver
+      (which has full filesystem access) then hand off to Spark.
+
+    For DBFS paths (dbfs:/ or /dbfs/) Spark reads directly — no pandas needed.
+    """
+    if path.startswith("/Workspace") or path.startswith("file:/Workspace"):
+        log_gold("INFO", f"Reading Silver CSV via pandas bridge (Workspace path): {path}", "IO")
+        import pandas as pd
+        read_kwargs = {"low_memory": False}
+        if escape_char:
+            read_kwargs["escapechar"] = escape_char
+        pdf = pd.read_csv(path, **read_kwargs)
+        return spark.createDataFrame(pdf)
+    else:
+        # DBFS path — Spark reads natively
+        log_gold("INFO", f"Reading Silver CSV via Spark (DBFS path): {path}", "IO")
+        reader = spark.read.option("header", "true").option("inferSchema", "true")
+        if escape_char:
+            reader = reader.option("escape", escape_char)
+        return reader.csv(path)
 
 
 LOGS_DIR = _resolve_logs_dir()
 AUDIT_LOG_PATH = os.path.join(LOGS_DIR, "phase4_standardization_audit_log.txt")
+
+
 
 # ── Brand owner classification ────────────────────────────────────────────────
 # Source: configs/brand_crosswalk.yaml — danone_brands keys
