@@ -154,44 +154,46 @@ blocker(dup_mkt > 0,
 # =============================================================================
 log("INFO", "Step B: Applying M1 market mapping (signoff_03_nielsen_markets.csv)", _S)
 
-df_m1 = load_mapping_csv(
-    "logs/signoff_03_nielsen_markets.csv",
-    key_col="mrkt_dsc_shrt", section=_S)
+# ── DEFINITIVE FIX for region_std ambiguity ─────────────────────────────────
+# signoff_03 CSV has two region columns at different positions:
+#   col[7]  REGION_STD  — uppercase, empty (original Snowflake signoff output)
+#   col[10] region_std  — lowercase, M1-populated values (AREA_1, ACAPULCO…)
+# Spark's case-insensitive resolution always picks the FIRST match (col7=empty).
+# df.drop("REGION_STD") is also case-insensitive and drops BOTH columns.
+# Solution: load via pandas (case-sensitive), select cols by exact name, convert to Spark.
+import pandas as pd
+_m1_repo_path = os.path.join(REPO_ROOT, "logs", "signoff_03_nielsen_markets.csv")
+_pdf_m1 = pd.read_csv(_m1_repo_path, dtype=str).fillna("")
 
-m1_cols_lower = [c.lower() for c in df_m1.columns]
+# Select only the columns we need by their exact lowercase/uppercase name
+_keep_cols = {
+    "mrkt_key":      _pdf_m1["MRKT_DSC_SHRT"].str.strip().str.upper(),
+    "canal_std_m1":  _pdf_m1["canal_std"].str.strip(),
+    "region_std_m1": _pdf_m1["region_std"].str.strip(),   # col[10] — explicit, unambiguous
+    "mapping_status": _pdf_m1["REVIEW_STATUS"].str.strip(),
+}
+_pdf_m1_sel = pd.DataFrame(_keep_cols)
 
-# signoff_03 CSV has TWO region columns: REGION_STD (col7, uppercase, empty — from original
-# Snowflake signoff) and region_std (col10, lowercase, M1-populated values).
-# Spark case-insensitive resolution picks REGION_STD (col7) for F.col("region_std") calls.
-# Fix: drop the ambiguous uppercase column so only the lowercase col10 remains.
-if "REGION_STD" in df_m1.columns and "region_std" in df_m1.columns:
-    df_m1 = df_m1.drop("REGION_STD")
-    log("INFO", "Dropped ambiguous REGION_STD (col7) from M1 mapping — using region_std (col10, M1 values)", _S)
+# Convert to Spark — small table (362 rows), safe to collect
+df_m1_sel = spark.createDataFrame(_pdf_m1_sel)
 
-m1_cols_lower = [c.lower() for c in df_m1.columns]  # recompute after drop
-has_canal  = "canal_std"  in m1_cols_lower
-has_region = "region_std" in m1_cols_lower
-has_status = any(c in m1_cols_lower for c in ["mapping_status", "review_status"])
+n_m1 = df_m1_sel.count()
+log("INFO", f"M1 mapping loaded via pandas: {n_m1} rows (bypasses Spark case-insensitive col resolution)", _S)
 
-m1_select = [F.upper(F.trim(F.col("mrkt_dsc_shrt"))).alias("m1_key")]  # fix W6: normalize to UPPER TRIM
-m1_select.append(F.col("canal_std").alias("canal_std_m1")   if has_canal  else F.lit(None).cast("string").alias("canal_std_m1"))   # fix: alias to avoid ambiguity
-m1_select.append(F.col("region_std").alias("region_std_m1") if has_region else F.lit(None).cast("string").alias("region_std_m1")) # fix: alias to avoid ambiguity
-if has_status:
-    sc = "mapping_status" if "mapping_status" in m1_cols_lower else "review_status"
-    m1_select.append(F.col(sc).alias("mapping_status"))
-else:
-    m1_select.append(F.lit("NEEDS_REVIEW").alias("mapping_status"))
+# Sanity check — region_std_m1 should be non-empty for most rows
+n_region_filled = df_m1_sel.filter(F.col("region_std_m1") != "").count()
+log("INFO", f"M1 region_std_m1 non-empty: {n_region_filled}/{n_m1}", _S)
+warn(n_region_filled == 0, "M1 PENDING: region_std_m1 is empty for all rows — check signoff_03 CSV col[10]", _S)
 
-if not has_canal:
-    warn(True, "M1 PENDING: canal_std not yet in signoff_03 CSV", _S)
-if not has_region:
-    warn(True, "M1 PENDING: region_std not yet in signoff_03 CSV", _S)
+# canal_std_m1 sanity check
+n_canal_filled = df_m1_sel.filter(F.col("canal_std_m1") != "").count()
+log("INFO", f"M1 canal_std_m1 non-empty: {n_canal_filled}/{n_m1}", _S)
 
-df_m1_sel = df_m1.select(m1_select)
+
 
 df_nielsen_std = df_nielsen_dim.join(
     df_m1_sel,
-    F.upper(F.trim(df_nielsen_dim["MRKT_DSC_SHRT"])) == df_m1_sel["m1_key"],  # fix W6: normalize left side
+    F.upper(F.trim(df_nielsen_dim["MRKT_DSC_SHRT"])) == df_m1_sel["mrkt_key"],  # mrkt_key = UPPER TRIM from pandas load
     "left")
 register_join("silver_nielsen", "nielsen_market_dim", "signoff_03_nielsen_markets",
               "MRKT_DSC_SHRT=mrkt_dsc_shrt", "left")
