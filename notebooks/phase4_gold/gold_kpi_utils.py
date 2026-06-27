@@ -51,18 +51,33 @@ DBFS_GOLD_ROOT   = "dbfs:/mnt/mdp/mdm/phase4_gold/data"
 LOCAL_GOLD_ROOT  = "/dbfs/mnt/mdp/mdm/phase4_gold/data"
 
 def _resolve_logs_dir():
-    """Locate logs/ relative to notebook CWD, falling back to repo root."""
+    """Locate the project-root logs/ directory from any notebook CWD.
+
+    CWD when %run from Databricks is the notebook's own directory.
+    For notebooks/phase4_gold/gold_*.py the CWD is notebooks/phase4_gold/,
+    so we must climb two levels to reach {project_root}/logs/.
+
+    Candidates are checked in order; the first that exists AND contains
+    at least one CSV file is returned (guards against empty sibling logs/).
+    """
+    cwd = os.getcwd()
     candidates = [
-        os.path.join(os.getcwd(), "logs"),
-        os.path.join(os.getcwd(), "..", "logs"),
+        os.path.join(cwd, "logs"),            # {cwd}/logs/
+        os.path.join(cwd, "..", "logs"),       # {cwd}/../logs/   (one up)
+        os.path.join(cwd, "..", "..", "logs"), # {cwd}/../../logs/ (two up — phase4_gold/ case)
     ]
     for c in candidates:
-        if os.path.isdir(c):
-            return os.path.normpath(c)
-    # last resort: create next to CWD
-    p = os.path.normpath(os.path.join(os.getcwd(), "..", "logs"))
+        norm = os.path.normpath(c)
+        if os.path.isdir(norm):
+            # Confirm it actually contains Silver CSVs (guard against empty siblings)
+            csv_files = [f for f in os.listdir(norm) if f.endswith(".csv")]
+            if csv_files:
+                return norm
+    # Last resort: create two levels up (correct for phase4_gold/ CWD)
+    p = os.path.normpath(os.path.join(cwd, "..", "..", "logs"))
     os.makedirs(p, exist_ok=True)
     return p
+
 
 LOGS_DIR = _resolve_logs_dir()
 AUDIT_LOG_PATH = os.path.join(LOGS_DIR, "phase4_standardization_audit_log.txt")

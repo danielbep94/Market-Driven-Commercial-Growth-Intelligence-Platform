@@ -84,12 +84,21 @@ df = (
 
 log_gold("INFO", "fecha_month column created (month-truncated from YEAR_MONTH)", SECTION)
 
-# B3 — marca_std must not be NULL
+# B3 — NULL MARCA_STD: Phase 3 Silver LEFT JOIN to V_D_ITEM produces structural NULLs
+# for fact rows whose MAT_IDT has no product match. Quarantine them; do not block.
 null_marca = df.filter(F.col("MARCA_STD").isNull()).count()
-gold_blocker("B3", null_marca > 0,
-             f"sell_in_std has {null_marca} NULL MARCA_STD rows", SECTION)
-if null_marca == 0:
+if null_marca > 0:
+    gold_warn("W_MARCA", True,
+              f"B3 QUARANTINE: {null_marca} rows have NULL MARCA_STD (unmatched product LEFT JOIN). "
+              f"Excluding from Gold aggregation. Matches Phase 3 architectural decision R9.",
+              SECTION)
+    df = df.filter(F.col("MARCA_STD").isNotNull())
+    valid_count = df.count()
+    log_gold("INFO", f"After NULL MARCA_STD quarantine: {valid_count:,} valid rows remain", SECTION)
+    gold_passed("B3", f"B3 cleared after quarantine: {valid_count:,} valid rows", SECTION)
+else:
     gold_passed("B3", "MARCA_STD has zero NULLs", SECTION)
+
 
 # B2 — fecha_month must not be NULL
 null_fecha = df.filter(F.col("fecha_month").isNull()).count()

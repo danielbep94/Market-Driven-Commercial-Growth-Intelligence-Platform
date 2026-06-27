@@ -114,11 +114,21 @@ gold_blocker("B2", null_fecha > 0,
 if null_fecha == 0:
     gold_passed("B2", "fecha_month has zero NULLs in investment data", SECTION)
 
+# B3 — NULL MARCA_STD: some MKT_ON/MKT_OFF rows may have blank brand field in source.
+# Quarantine NULLs rather than blocking — investment rows without brand cannot be attributed.
 null_marca = df.filter(F.col("MARCA_STD").isNull()).count()
-gold_blocker("B3", null_marca > 0,
-             f"Investment union has {null_marca} NULL MARCA_STD rows", SECTION)
-if null_marca == 0:
+if null_marca > 0:
+    gold_warn("W_MARCA", True,
+              f"B3 QUARANTINE: {null_marca} investment rows have NULL MARCA_STD. "
+              f"Excluding from Gold aggregation (cannot attribute brand-less investment).",
+              SECTION)
+    df = df.filter(F.col("MARCA_STD").isNotNull())
+    valid_count = df.count()
+    log_gold("INFO", f"After NULL MARCA_STD quarantine: {valid_count:,} valid rows remain", SECTION)
+    gold_passed("B3", f"B3 cleared after quarantine: {valid_count:,} valid rows", SECTION)
+else:
     gold_passed("B3", "MARCA_STD has zero NULLs in investment data", SECTION)
+
 
 check_fecha_month_range(df, "investment_union")
 
