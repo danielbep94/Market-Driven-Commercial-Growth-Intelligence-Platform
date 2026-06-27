@@ -18,8 +18,7 @@
 
 # COMMAND ----------
 
-# Ensure gold_kpi_utils is imported for utility functions
-%run ./gold_kpi_utils
+# MAGIC %run ./gold_kpi_utils
 
 # COMMAND ----------
 
