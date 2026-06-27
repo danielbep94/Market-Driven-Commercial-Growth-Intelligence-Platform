@@ -39,22 +39,24 @@ log_gold("INFO", "GOLD_SELL_IN — START", SECTION)
 check_run_mode()
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 1 — Load Silver sell_in_std.csv
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 5
 # Actual column names from Silver header:
 # MAT_IDT, SKU_EAN_COD, MAT_LCL_DSC, MARCA_STD, CBU, CANAL_RAW, CUS_GRP_DSC,
 # DIS_CHL_COD, YEAR_MONTH, REVENUE_MXN, VOLUME_KGR, VOLUME_LITER, CASES, SKU_QTY,
 # FACT_ROW_COUNT, SOURCE_SYSTEM, STD_CREATED_AT, cadena_std, canal_std
 
-SELL_IN_PATH = os.path.join(LOGS_DIR, "sell_in_std.csv")
+SELL_IN_PATH = os.path.normpath(os.path.join(LOGS_DIR, "..", "..", "logs", "sell_in_std.csv"))
 log_gold("INFO", f"Loading Silver input: {SELL_IN_PATH}", SECTION)
 
 df_raw = (
     spark.read.option("header", "true")
          .option("inferSchema", "true")
-         .csv(SELL_IN_PATH)
+         .csv("file://" + SELL_IN_PATH)
 )
 
 silver_count = df_raw.count()
@@ -64,6 +66,7 @@ log_gold("INFO", f"Silver sell_in_std loaded: {silver_count:,} rows", SECTION)
 gold_blocker("B1", silver_count == 0, "sell_in_std.csv is empty", SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 2 — Month-Truncate (B13)
 
 # COMMAND ----------
@@ -99,6 +102,7 @@ if null_fecha == 0:
 check_fecha_month_range(df, "sell_in_std")
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 3 — Detailed KPI Aggregation (Grain: fecha_month x marca_std x canal_std x CBU)
 
 # COMMAND ----------
@@ -140,6 +144,7 @@ gold_blocker("B8", detail_count > silver_count,
 check_no_inf_nan(df_detail, ["si_avg_price_mxn_per_litre", "si_avg_price_mxn_per_kg"], "gold_sell_in_kpi")
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 4 — Master-Safe Aggregation (Grain: fecha_month x marca_std x canal_std)
 
 # COMMAND ----------
@@ -176,6 +181,7 @@ check_no_inf_nan(df_master, ["si_avg_price_mxn_per_litre", "si_avg_price_mxn_per
                  "gold_sell_in_kpi_master")
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 5 — Coverage log
 
 # COMMAND ----------
@@ -192,6 +198,7 @@ log_gold("INFO", f"fecha_month range: {month_stats['min_month']} → {month_stat
 log_gold("INFO", f"distinct months: {month_stats['distinct_months']}, distinct brands: {month_stats['distinct_brands']}", SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 6 — Save Outputs
 
 # COMMAND ----------
@@ -200,6 +207,7 @@ save_gold_df(df_detail, "gold_sell_in_kpi", SECTION)
 save_gold_df(df_master, "gold_sell_in_kpi_master", SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 7 — Register KPIs
 
 # COMMAND ----------
@@ -219,3 +227,7 @@ for m in _METRICS:
 log_gold("INFO", f"Registered {len(_METRICS)} SELL_IN KPI metrics", SECTION)
 log_gold("INFO", "GOLD_SELL_IN — COMPLETE ✅", SECTION)
 write_audit_log()
+
+# COMMAND ----------
+
+
