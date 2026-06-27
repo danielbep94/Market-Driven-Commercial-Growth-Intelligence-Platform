@@ -186,7 +186,23 @@ gold_blocker("B8", detail_count > facts_count,
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 13
 MASTER_KEYS = ["fecha_month", "canal_std"]
+
+# Deduplicate columns: two METRIC_MAP aliases may produce the same canonical name
+# after renaming (e.g. NUMERIC_DISTRIBUTION and NUM_DIST → nls_numeric_dist).
+# Use positional rename via toDF to disambiguate, then drop the trailing copies.
+if len(df_pivot.columns) != len(set(df_pivot.columns)):
+    seen, new_names = {}, []
+    for c in df_pivot.columns:
+        if c in seen:
+            seen[c] += 1
+            new_names.append(f"{c}__dup{seen[c]}")
+        else:
+            seen[c] = 0
+            new_names.append(c)
+    df_pivot = df_pivot.toDF(*new_names)
+    df_pivot = df_pivot.drop(*[c for c in df_pivot.columns if "__dup" in c])
 
 # For master: SUM numeric KPIs, collapse region_std
 numeric_kpi_cols = [c for c in df_pivot.columns if c not in DETAIL_KEYS]
