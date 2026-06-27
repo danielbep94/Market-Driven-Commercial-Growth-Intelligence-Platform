@@ -83,16 +83,38 @@ gold_passed("B17", f"METRIC_NAME discovery complete — {len(metric_names_sorted
 # Known metric mappings (map discovered names to canonical KPI names)
 # Will be extended as actual metric names are discovered
 METRIC_MAP = {
-    # Common Nielsen metric codes — update if actual names differ
-    "U":            "nls_units",
-    "AVG_U_PRC":    "nls_avg_unit_price",
-    "AVG_E_PRC":    "nls_avg_equiv_price",
-    "VALUE_SHARE":  "nls_value_share",
-    "VOLUME_SHARE": "nls_volume_share",
-    "NUMERIC_DISTRIBUTION": "nls_numeric_dist",
-    "CATEGORY_VALUE": "nls_category_value_mxn",
-    # If actual names differ, they'll appear in discovery log above
+    # ── Core volume / value metrics ───────────────────────────────────────────
+    "U":               "nls_units",              # unit sales
+    "E":               "nls_equiv_units",         # equivalent units (volume normalised)
+    "DOL":             "nls_dollar_sales",        # dollar/peso sales value
+
+    # ── Price metrics ─────────────────────────────────────────────────────────
+    "AVG_U_PRC":       "nls_avg_unit_price",      # average price per unit
+    "AVG_E_PRC":       "nls_avg_equiv_price",     # average price per equivalent unit
+
+    # ── Rate-of-sale metrics ─────────────────────────────────────────────────
+    "U_ROS":           "nls_units_ros",           # units rate of sale per store per week
+    "E_ROS":           "nls_equiv_ros",           # equivalent units rate of sale
+    "DOL_ROS":         "nls_dollar_ros",          # dollar rate of sale
+
+    # ── Share metrics ─────────────────────────────────────────────────────────
+    "VALUE_SHARE":     "nls_value_share",         # value market share %
+    "VOLUME_SHARE":    "nls_volume_share",        # volume market share %
+
+    # ── Distribution metrics ─────────────────────────────────────────────────
+    "NUMERIC_DISTRIBUTION": "nls_numeric_dist",  # numeric distribution %
+    "NUM_DIST":             "nls_numeric_dist",  # alias used in some Nielsen extracts
+
+    # ── Category metrics ─────────────────────────────────────────────────────
+    "CATEGORY_VALUE":  "nls_category_value_mxn", # total category value
+
+    # ── Out-of-stock / context metrics (W4-discovered 2026-06-27) ────────────
+    "NUMERIC_DIST_OOSLS":              "nls_numeric_dist_oos",       # numeric dist excl OOS
+    "DOL_CCV_REACH_CONTEXT":           "nls_dollar_ccv_reach",       # $ with reach context
+    "DOL_CCV_NON_REACH_CONTEXT_OOSLS": "nls_dollar_ccv_oos_no_reach",# $ excl OOS, no reach
+    "DOL_CCV_TDP_REACH_CONTEXT":       "nls_dollar_ccv_tdp_reach",   # $ TDP with reach
 }
+
 
 mapped  = [m for m in metric_names_sorted if m in METRIC_MAP]
 unmapped = [m for m in metric_names_sorted if m not in METRIC_MAP]
@@ -224,21 +246,36 @@ save_gold_df(df_master, "gold_nielsen_kpi_master",  SECTION)
 # COMMAND ----------
 
 _METRICS = [
-    ("nls_units",               "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='U'",              "Units",   "fecha_month x canal_std x region_std"),
-    ("nls_avg_unit_price",      "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='AVG_U_PRC'",      "MXN/U",   "fecha_month x canal_std x region_std"),
-    ("nls_avg_equiv_price",     "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='AVG_E_PRC'",      "MXN/KG",  "fecha_month x canal_std x region_std"),
-    ("nls_value_share",         "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='VALUE_SHARE'",    "%",       "fecha_month x canal_std"),
-    ("nls_volume_share",        "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='VOLUME_SHARE'",   "%",       "fecha_month x canal_std"),
-    ("nls_numeric_dist",        "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='NUMERIC_DISTRIBUTION'","%" ,"fecha_month x canal_std"),
-    ("nls_category_value_mxn",  "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='CATEGORY_VALUE'", "MXN",    "fecha_month x canal_std"),
+    # Core
+    ("nls_units",               "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='U'",              "Units",    "fecha_month x canal_std x region_std"),
+    ("nls_equiv_units",         "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='E'",              "Eq.Units", "fecha_month x canal_std x region_std"),
+    ("nls_dollar_sales",        "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='DOL'",            "MXN",      "fecha_month x canal_std x region_std"),
+    # Price
+    ("nls_avg_unit_price",      "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='AVG_U_PRC'",      "MXN/U",    "fecha_month x canal_std x region_std"),
+    ("nls_avg_equiv_price",     "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='AVG_E_PRC'",      "MXN/Eq",   "fecha_month x canal_std x region_std"),
+    # Rate of sale
+    ("nls_units_ros",           "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='U_ROS'",          "U/store/wk","fecha_month x canal_std x region_std"),
+    ("nls_equiv_ros",           "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='E_ROS'",          "Eq/store/wk","fecha_month x canal_std x region_std"),
+    ("nls_dollar_ros",          "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='DOL_ROS'",        "MXN/store/wk","fecha_month x canal_std x region_std"),
+    # Share
+    ("nls_value_share",         "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='VALUE_SHARE'",    "%",        "fecha_month x canal_std"),
+    ("nls_volume_share",        "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='VOLUME_SHARE'",   "%",        "fecha_month x canal_std"),
+    # Distribution
+    ("nls_numeric_dist",        "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='NUMERIC_DISTRIBUTION|NUM_DIST'", "%", "fecha_month x canal_std"),
+    ("nls_numeric_dist_oos",    "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='NUMERIC_DIST_OOSLS'","%",     "fecha_month x canal_std"),
+    # Category
+    ("nls_category_value_mxn",  "NIELSEN_FACTS", "SUM(METRIC_VALUE) WHERE METRIC='CATEGORY_VALUE'", "MXN",     "fecha_month x canal_std"),
+    # OOS / context (W4-discovered 2026-06-27)
+    ("nls_dollar_ccv_reach",      "NIELSEN_FACTS", "SUM WHERE METRIC='DOL_CCV_REACH_CONTEXT'",           "MXN",  "fecha_month x canal_std"),
+    ("nls_dollar_ccv_oos_no_reach","NIELSEN_FACTS","SUM WHERE METRIC='DOL_CCV_NON_REACH_CONTEXT_OOSLS'", "MXN",  "fecha_month x canal_std"),
+    ("nls_dollar_ccv_tdp_reach",   "NIELSEN_FACTS","SUM WHERE METRIC='DOL_CCV_TDP_REACH_CONTEXT'",       "MXN",  "fecha_month x canal_std"),
 ]
 for m in _METRICS:
     register_gold_metric(*m)
 
+
 log_gold("INFO", f"Registered {len(_METRICS)} Nielsen KPI metrics", SECTION)
 log_gold("INFO", "GOLD_NIELSEN — COMPLETE ✅", SECTION)
 write_audit_log()
-
-# COMMAND ----------
 
 

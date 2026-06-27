@@ -138,20 +138,45 @@ AUDIT_LOG_PATH = os.path.join(LOGS_DIR, "phase4_standardization_audit_log.txt")
 _DANONE_BRANDS_SET = set()
 
 def _load_danone_brands():
-    """Load Danone brand list from brand_crosswalk.yaml."""
+    """Load Danone brand list from brand_crosswalk.yaml.
+
+    Same path resolution strategy as _resolve_logs_dir():
+    CWD = notebooks/phase4_gold/ → configs/ is two levels up.
+    """
     global _DANONE_BRANDS_SET
+    cwd = os.getcwd()
     candidates = [
-        os.path.join(os.getcwd(), "configs", "brand_crosswalk.yaml"),
-        os.path.join(os.getcwd(), "..", "configs", "brand_crosswalk.yaml"),
+        os.path.join(cwd, "configs", "brand_crosswalk.yaml"),
+        os.path.join(cwd, "..", "configs", "brand_crosswalk.yaml"),
+        os.path.join(cwd, "..", "..", "configs", "brand_crosswalk.yaml"),       # ← phase4_gold CWD
+        os.path.join(cwd, "..", "..", "..", "configs", "brand_crosswalk.yaml"), # ← deeper nesting
     ]
+    # Deep scan fallback — walk up to 5 levels
+    for i in range(1, 6):
+        candidates.append(
+            os.path.join(os.path.normpath(os.path.join(cwd, *[".."] * i)),
+                         "configs", "brand_crosswalk.yaml")
+        )
+    seen = set()
     for c in candidates:
-        if os.path.exists(c):
-            with open(c) as f:
+        norm = os.path.normpath(c)
+        if norm in seen:
+            continue
+        seen.add(norm)
+        if os.path.exists(norm):
+            with open(norm) as f:
                 bx = yaml.safe_load(f)
             _DANONE_BRANDS_SET = {b.upper().strip() for b in bx.get("danone_brands", {}).keys()}
-            log_gold("INFO", f"Loaded {len(_DANONE_BRANDS_SET)} Danone brands from brand_crosswalk.yaml", "CONFIG")
+            log_gold("INFO",
+                     f"Loaded {len(_DANONE_BRANDS_SET)} Danone brands from {norm}",
+                     "CONFIG")
             return
-    log_gold("WARNING", "brand_crosswalk.yaml not found — DANONE_BRANDS_SET empty", "CONFIG")
+    log_gold("🚨 WARNING",
+             f"brand_crosswalk.yaml NOT FOUND in any candidate path from CWD={cwd}. "
+             "All investment rows will be classified UNKNOWN and excluded from master. "
+             "Check that configs/brand_crosswalk.yaml exists in the repo root.",
+             "CONFIG")
+
 
 # ── KPI registry ─────────────────────────────────────────────────────────────
 _KPI_REGISTRY = []
