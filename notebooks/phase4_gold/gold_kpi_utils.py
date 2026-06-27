@@ -78,21 +78,22 @@ def _resolve_logs_dir():
         os.path.join(cwd, "..", "..", "logs"),
         os.path.join(cwd, "..", "..", "..", "logs"),
     ]
+    # NOTE: use print() here — log_gold() is not yet defined when this runs at module load
     for c in candidates:
         norm = os.path.normpath(c)
         if os.path.isdir(norm) and os.path.isfile(os.path.join(norm, _SILVER_SENTINEL)):
-            log_gold("INFO", f"LOGS_DIR resolved → {norm}  (sentinel: {_SILVER_SENTINEL})", "CONFIG")
+            print(f"[INIT] LOGS_DIR resolved → {norm}  (sentinel: {_SILVER_SENTINEL})")
             return norm
-    # Hard-coded absolute fallback — update this if your Databricks repo path differs
-    # Check /Workspace Databricks paths explicitly before giving up
-    import re
-    for segment in [cwd] + [os.path.normpath(os.path.join(cwd, *[".."] * i)) for i in range(1, 6)]:
+    # Deep scan: walk up to 5 levels above CWD looking for the sentinel
+    for i in range(1, 6):
+        segment = os.path.normpath(os.path.join(cwd, *[".."] * i))
         candidate_logs = os.path.join(segment, "logs")
         if os.path.isfile(os.path.join(candidate_logs, _SILVER_SENTINEL)):
-            log_gold("INFO", f"LOGS_DIR resolved (deep scan) → {candidate_logs}", "CONFIG")
+            print(f"[INIT] LOGS_DIR resolved (deep scan, {i} levels up) → {candidate_logs}")
             return candidate_logs
     raise FileNotFoundError(
         f"Cannot find logs/{_SILVER_SENTINEL} from CWD={cwd}. "
+        "Searched: " + str([os.path.normpath(c) for c in candidates]) + ". "
         "Ensure Phase 3 Silver outputs are present in the repo logs/ directory "
         "and the notebook is run from within the correct Databricks Repo."
     )
@@ -109,9 +110,9 @@ def read_silver_csv(path: str, escape_char: str = None):
 
     For DBFS paths (dbfs:/ or /dbfs/) Spark reads directly — no pandas needed.
     """
+    # NOTE: use print() here — log_gold() may not yet be defined if called before LOGS_DIR init
     if path.startswith("/Workspace") or path.startswith("file:/Workspace"):
-        log_gold("INFO", f"Reading Silver CSV via pandas bridge (Workspace path): {path}", "IO")
-        import pandas as pd
+        print(f"[IO] Reading Silver CSV via pandas bridge (Workspace path): {path}")
         read_kwargs = {"low_memory": False}
         if escape_char:
             read_kwargs["escapechar"] = escape_char
@@ -119,7 +120,7 @@ def read_silver_csv(path: str, escape_char: str = None):
         return spark.createDataFrame(pdf)
     else:
         # DBFS path — Spark reads natively
-        log_gold("INFO", f"Reading Silver CSV via Spark (DBFS path): {path}", "IO")
+        print(f"[IO] Reading Silver CSV via Spark (DBFS path): {path}")
         reader = spark.read.option("header", "true").option("inferSchema", "true")
         if escape_char:
             reader = reader.option("escape", escape_char)
@@ -198,6 +199,12 @@ def write_audit_log():
     with open(AUDIT_LOG_PATH, "a") as f:
         f.write("\n".join(_LOG_LINES) + "\n")
     log_gold("INFO", f"Audit log flushed → {AUDIT_LOG_PATH}", "AUDIT")
+
+# ── Post-init: echo path resolution into structured log (log_gold now available) ─
+log_gold("INFO", f"LOGS_DIR = {LOGS_DIR}", "INIT")
+log_gold("INFO", f"AUDIT_LOG = {AUDIT_LOG_PATH}", "INIT")
+log_gold("INFO", f"RUN_MODE  = {RUN_MODE}", "INIT")
+log_gold("INFO", f"GOLD_START_MONTH = {GOLD_START_MONTH}", "INIT")
 
 # COMMAND ----------
 # MAGIC %md ## 3. KPI Utilities
