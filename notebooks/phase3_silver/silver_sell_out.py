@@ -216,11 +216,15 @@ else:
     passed("All SELL_OUT UPCs matched to V_D_ITEM EAN catalog", _S)
 
 # Join product dim (VW_D_PRODUCT_RM) for brand/name enrichment
+# IMPORTANT: VW_FACT_SELL_OUT.UPC = internal product code = VW_D_PRODUCT_RM.INT_ID
+# VW_D_PRODUCT_RM.UPC is the EAN barcode — joining upc=upc produces 0 matches
 df_so = df_so.join(
-    df_product.select("upc", "so_name", "so_brand", "so_category", "CBU_ID"),
-    on="upc", how="left")
+    df_product.select(
+        F.col("sell_out_int_id").alias("upc_key"),  # INT_ID matches FACT.UPC
+        F.col("so_name"), F.col("so_brand"), F.col("so_category"), F.col("CBU_ID")),
+    df_so["upc"] == F.col("upc_key"), "left")
 register_join("silver_sell_out", "sell_out", "VW_D_PRODUCT_RM",
-              "upc=upc", "left")
+              "upc=sell_out_int_id (FACT.UPC=PRODUCT.INT_ID)", "left")
 assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × VW_D_PRODUCT_RM", _S)
 
 # COMMAND ----------

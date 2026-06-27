@@ -159,6 +159,16 @@ df_m1 = load_mapping_csv(
     key_col="mrkt_dsc_shrt", section=_S)
 
 m1_cols_lower = [c.lower() for c in df_m1.columns]
+
+# signoff_03 CSV has TWO region columns: REGION_STD (col7, uppercase, empty — from original
+# Snowflake signoff) and region_std (col10, lowercase, M1-populated values).
+# Spark case-insensitive resolution picks REGION_STD (col7) for F.col("region_std") calls.
+# Fix: drop the ambiguous uppercase column so only the lowercase col10 remains.
+if "REGION_STD" in df_m1.columns and "region_std" in df_m1.columns:
+    df_m1 = df_m1.drop("REGION_STD")
+    log("INFO", "Dropped ambiguous REGION_STD (col7) from M1 mapping — using region_std (col10, M1 values)", _S)
+
+m1_cols_lower = [c.lower() for c in df_m1.columns]  # recompute after drop
 has_canal  = "canal_std"  in m1_cols_lower
 has_region = "region_std" in m1_cols_lower
 has_status = any(c in m1_cols_lower for c in ["mapping_status", "review_status"])
