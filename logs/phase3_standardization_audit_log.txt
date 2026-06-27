@@ -1,27 +1,67 @@
-[2026-06-27 02:56:20] [INFO] [INIT] ======================================================================
-[2026-06-27 02:56:20] [INFO] [INIT] Phase 3 shared utilities — silver_homologation_apply.py loaded
-[2026-06-27 02:56:20] [INFO] [INIT] REPO_ROOT     : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform
-[2026-06-27 02:56:20] [INFO] [INIT] REPO_LOGS_DIR : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
-[2026-06-27 02:56:20] [INFO] [INIT] DBFS_ROOT     : dbfs:/mnt/mdp/mdm/phase3_std
-[2026-06-27 02:56:20] [INFO] [INIT] ACTIVE_CATALOG_FILTER (R4, locked): 'SKU_EAN_COD IS NOT NULL'
-[2026-06-27 02:56:20] [INFO] [INIT] Credentials: PRD_MEX and PRD_MDP profiles ready.
-[2026-06-27 02:56:20] [INFO] [INIT] JOIN_REGISTRY initialized (call register_join() after every join).
-[2026-06-27 02:56:20] [INFO] [INIT] ======================================================================
-[2026-06-27 02:56:21] [INFO] [MKT_ON] Starting MKT_ON standardization
-[2026-06-27 02:56:21] [INFO] [MKT_ON] Source: PRD_MDP.MDP_DSP.VW_MKT_ECOMM (digital media spend)
-[2026-06-27 02:56:21] [INFO] [MKT_ON] NOTE: MKT_ON is media investment data — NOT Nielsen market share.
-[2026-06-27 02:56:21] [INFO] [MKT_ON] Step 1: Row count probe
-[2026-06-27 02:56:23] [INFO] [MKT_ON] VW_MKT_ECOMM (2024+): 46,642 rows | 32 brands | date: 2024-01-01 → 2026-03-31
-[2026-06-27 02:56:23] [INFO] [MKT_ON] Step 2: Snowflake pushdown — apply MARCA_STD + aggregate
-[2026-06-27 02:56:24] [INFO] [MKT_ON] mkt_on_std: 7,282 rows from Snowflake
-[2026-06-27 02:56:24] [INFO] [JOIN_REGISTRY] JOIN: silver_mkt_on_std | VW_MKT_ECOMM ↔ none ON [no join — single table + GROUP BY (R6 compliant)] (none)
-[2026-06-27 02:56:24] [INFO] [MKT_ON] Step 3: Apply canal_std from CADENA (digital channel label)
-[2026-06-27 02:56:25] [⚠️  WARNING] [MKT_ON] 6,327 rows quarantined from 'MKT_ON_CADENA_BLANK': CADENA is blank in VW_MKT_ECOMM — cadena_std=NULL
-[2026-06-27 02:56:25] [⚠️  WARNING] [MKT_ON] MKT_ON: 6,327 rows with blank CADENA
-[2026-06-27 02:56:25] [INFO] [MKT_ON] NULL rate — marca_std: 0 / 7,282 = 0.0%
-[2026-06-27 02:56:25] [INFO] [MKT_ON] NULL rate — cadena_std: 6,327 / 7,282 = 86.89%
-[2026-06-27 02:56:26] [INFO] [MKT_ON] NULL rate — canal_std: 0 / 7,282 = 0.0%
-[2026-06-27 02:56:26] [INFO] [MKT_ON] NULL rate — inversion_real: 0 / 7,282 = 0.0%
-[2026-06-27 02:56:27] [INFO] [MKT_ON] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/mkt_on_std.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/mkt_on_std.csv
-[2026-06-27 02:56:27] [INFO] [MKT_ON] mkt_on_std saved: 7,282 rows
-[2026-06-27 02:56:28] [✅ PASS] [MKT_ON] A1 — R6: MKT_ON no UPC join: No prohibited join found. (1 joins in registry scanned.)
+[2026-06-27 03:22:10] [INFO] [INIT] ======================================================================
+[2026-06-27 03:22:10] [INFO] [INIT] Phase 3 shared utilities — silver_homologation_apply.py loaded
+[2026-06-27 03:22:10] [INFO] [INIT] REPO_ROOT     : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform
+[2026-06-27 03:22:10] [INFO] [INIT] REPO_LOGS_DIR : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-27 03:22:10] [INFO] [INIT] DBFS_ROOT     : dbfs:/mnt/mdp/mdm/phase3_std
+[2026-06-27 03:22:10] [INFO] [INIT] ACTIVE_CATALOG_FILTER (R4, locked): 'SKU_EAN_COD IS NOT NULL'
+[2026-06-27 03:22:10] [INFO] [INIT] Credentials: PRD_MEX and PRD_MDP profiles ready.
+[2026-06-27 03:22:10] [INFO] [INIT] JOIN_REGISTRY initialized (call register_join() after every join).
+[2026-06-27 03:22:10] [INFO] [INIT] ======================================================================
+[2026-06-27 03:22:10] [INFO] [VALIDATION] Phase 3 Master Validation starting
+[2026-06-27 03:22:10] [INFO] [VALIDATION] Loading *_std outputs from /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-27 03:22:12] [INFO] [VALIDATION] Loaded sell_in_std: 49,815 rows
+[2026-06-27 03:22:13] [INFO] [VALIDATION] Loaded sell_out_std: 100,000 rows
+[2026-06-27 03:22:13] [INFO] [VALIDATION] Loaded nielsen_std: 362 rows
+[2026-06-27 03:22:14] [INFO] [VALIDATION] Loaded mkt_on_std: 7,282 rows
+[2026-06-27 03:22:15] [INFO] [VALIDATION] Loaded mkt_off_std: 100,000 rows
+[2026-06-27 03:22:15] [⚠️  WARNING] [VALIDATION] phase3_quarantine_report.csv not found in logs/ — this source will be skipped in validation
+[2026-06-27 03:22:15] [INFO] [VALIDATION] ============================================================
+[2026-06-27 03:22:15] [INFO] [VALIDATION] ASSERTIONS A1-A3: JOIN_REGISTRY structural safety scan
+[2026-06-27 03:22:15] [INFO] [VALIDATION] Total joins registered: 0
+[2026-06-27 03:22:15] [✅ PASS] [VALIDATION] A1 — R6: MKT_ON no UPC join: No prohibited join found. (0 joins in registry scanned.)
+[2026-06-27 03:22:15] [✅ PASS] [VALIDATION] A2 — R7: MKT_OFF no UPC join: No prohibited join found. (0 joins in registry scanned.)
+[2026-06-27 03:22:15] [✅ PASS] [VALIDATION] A3 — R8: MKT_OFF no CADENA join: No prohibited join found. (0 joins in registry scanned.)
+[2026-06-27 03:22:17] [INFO] [VALIDATION] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/phase3_join_safety_assertions.txt  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/phase3_join_safety_assertions.txt
+[2026-06-27 03:22:17] [INFO] [VALIDATION] ASSERTION A4: MKT_OFF cadena_std null check (R9)
+[2026-06-27 03:22:18] [✅ PASS] [VALIDATION] A4: cadena_std is NULL for all 100,000 mkt_off_std rows (R9 confirmed)
+[2026-06-27 03:22:18] [INFO] [VALIDATION] ASSERTIONS A5-A6: SELL_OUT bridge integrity
+[2026-06-27 03:22:18] [⚠️  WARNING] [VALIDATION] A5: mat_idt or sell_out_int_id column not found in sell_out_std
+[2026-06-27 03:22:19] [✅ PASS] [VALIDATION] A6: Zero EAN fanout in sell_out_std — 1:1 EAN→MAT_IDT confirmed
+[2026-06-27 03:22:19] [INFO] [VALIDATION] ASSERTION A7: Fuzzy match quarantine check (R11)
+[2026-06-27 03:22:19] [INFO] [VALIDATION] ASSERTION A8: Row count reconciliation (R15)
+[2026-06-27 03:22:20] [INFO] [VALIDATION] A8: sell_in_std — 49,815 rows
+[2026-06-27 03:22:20] [INFO] [VALIDATION] A8: sell_out_std — 100,000 rows
+[2026-06-27 03:22:21] [INFO] [VALIDATION] A8: mkt_on_std — 7,282 rows
+[2026-06-27 03:22:21] [INFO] [VALIDATION] A8: mkt_off_std — 100,000 rows
+[2026-06-27 03:22:21] [⚠️  WARNING] [VALIDATION] A8 WARNING: nielsen_std has 362 rows, expected 2,940. If intentional, document the filter.
+[2026-06-27 03:22:23] [INFO] [VALIDATION] phase3_row_count_reconciliation.txt written
+[2026-06-27 03:22:23] [INFO] [VALIDATION] ASSERTION A9: Mapping miss accountability (all NULLs must be in quarantine)
+[2026-06-27 03:22:30] [INFO] [VALIDATION] phase3_null_rate_validation.txt written
+[2026-06-27 03:22:30] [INFO] [VALIDATION] Writing mapping coverage report (Change #9 — dimension-specific thresholds)
+[2026-06-27 03:22:31] [✅ PASS] [VALIDATION] sell_in_std.marca_std: 48,413/49,815 = 97.2% (threshold=90%) — PASS
+[2026-06-27 03:22:32] [✅ PASS] [VALIDATION] sell_in_std.canal_std: 48,413/49,815 = 97.2% (threshold=95%) — PASS
+[2026-06-27 03:22:32] [⚠️  WARNING] [VALIDATION] Coverage below threshold: sell_in_std.cadena_std = 0.0% < 60%
+[2026-06-27 03:22:33] [⚠️  WARNING] [VALIDATION] Coverage below threshold: sell_out_std.canal_std = 0.0% < 70%
+[2026-06-27 03:22:34] [⚠️  WARNING] [VALIDATION] Coverage below threshold: sell_out_std.cadena_std = 0.0% < 70%
+[2026-06-27 03:22:35] [✅ PASS] [VALIDATION] mkt_on_std.canal_std: 7,282/7,282 = 100.0% (threshold=50%) — PASS
+[2026-06-27 03:22:35] [✅ PASS] [VALIDATION] mkt_on_std.marca_std: 7,282/7,282 = 100.0% (threshold=90%) — PASS
+[2026-06-27 03:22:36] [✅ PASS] [VALIDATION] mkt_off_std.marca_std: 100,000/100,000 = 100.0% (threshold=90%) — PASS
+[2026-06-27 03:22:36] [⚠️  WARNING] [VALIDATION] Coverage below threshold: nielsen_std.canal_std = 0.0% < 50%
+[2026-06-27 03:22:37] [⚠️  WARNING] [VALIDATION] Coverage below threshold: nielsen_std.region_std = 0.0% < 50%
+[2026-06-27 03:22:37] [INFO] [VALIDATION] phase3_mapping_coverage_report.txt written
+[2026-06-27 03:22:37] [INFO] [QUARANTINE] Quarantine is EMPTY — all rows mapped cleanly.
+[2026-06-27 03:22:37] [INFO] [FINAL SUMMARY] ================================================================================
+[2026-06-27 03:22:37] [INFO] [FINAL SUMMARY] PHASE 3 MDM STANDARDIZATION — FINAL STATUS REPORT
+[2026-06-27 03:22:37] [INFO] [FINAL SUMMARY] ================================================================================
+[2026-06-27 03:22:37] [✅ PASS] [FINAL SUMMARY] NO HARD BLOCKERS — all structural assertions passed.
+[2026-06-27 03:22:37] [⚠️  WARNING] [FINAL SUMMARY] TOTAL WARNINGS: 8
+[2026-06-27 03:22:37] [⚠️  WARNING] [FINAL SUMMARY]   1. phase3_quarantine_report.csv not found in logs/ — this source will be skipped in validation
+[2026-06-27 03:22:37] [⚠️  WARNING] [FINAL SUMMARY]   2. A5: mat_idt or sell_out_int_id column not found in sell_out_std
+[2026-06-27 03:22:37] [⚠️  WARNING] [FINAL SUMMARY]   3. A8 WARNING: nielsen_std has 362 rows, expected 2,940. If intentional, document the filter.
+[2026-06-27 03:22:37] [⚠️  WARNING] [FINAL SUMMARY]   4. Coverage below threshold: sell_in_std.cadena_std = 0.0% < 60%
+[2026-06-27 03:22:37] [⚠️  WARNING] [FINAL SUMMARY]   5. Coverage below threshold: sell_out_std.canal_std = 0.0% < 70%
+[2026-06-27 03:22:37] [⚠️  WARNING] [FINAL SUMMARY]   6. Coverage below threshold: sell_out_std.cadena_std = 0.0% < 70%
+[2026-06-27 03:22:37] [⚠️  WARNING] [FINAL SUMMARY]   7. Coverage below threshold: nielsen_std.canal_std = 0.0% < 50%
+[2026-06-27 03:22:37] [⚠️  WARNING] [FINAL SUMMARY]   8. Coverage below threshold: nielsen_std.region_std = 0.0% < 50%
+[2026-06-27 03:22:37] [INFO] [FINAL SUMMARY] PHASE 3 GATE: 🟡 CLEAR WITH WARNINGS
+[2026-06-27 03:22:37] [INFO] [FINAL SUMMARY] Phase 3 COMPLETE WITH WARNINGS. Complete M1-M4 manual mappings and rerun before production gold promotion.

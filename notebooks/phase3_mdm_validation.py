@@ -36,14 +36,18 @@
 # =============================================================================
 
 # COMMAND ----------
+
 # MAGIC %run ./phase3_silver/silver_homologation_apply
 
 # COMMAND ----------
+
 # MAGIC %md
 # MAGIC # Phase 3 — Master Validation
 # MAGIC Runs all 9 hard assertions, writes 6 log files, and outputs the Phase 3 gate recommendation.
 
 # COMMAND ----------
+
+# DBTITLE 1,Cell 4
 # Cell 3 — Load all *_std outputs from logs/ CSVs
 _S = "VALIDATION"
 log("INFO", "Phase 3 Master Validation starting", _S)
@@ -54,7 +58,7 @@ def _load_std(name):
     if not os.path.exists(path):
         warn(True, f"{name}.csv not found in logs/ — this source will be skipped in validation", _S)
         return None
-    df = spark.read.option("header", "true").csv(path)
+    df = spark.read.option("header", "true").csv(f"file:{path}")
     n = df.count()
     log("INFO", f"Loaded {name}: {n:,} rows", _S)
     return df
@@ -67,6 +71,7 @@ df_mkt_off_std   = _load_std("mkt_off_std")
 df_quarantine    = _load_std("phase3_quarantine_report")
 
 # COMMAND ----------
+
 # Cell 4 — A1, A2, A3: JOIN_REGISTRY structural assertions
 log("INFO", "=" * 60, _S)
 log("INFO", "ASSERTIONS A1-A3: JOIN_REGISTRY structural safety scan", _S)
@@ -102,6 +107,7 @@ df_jreg = get_join_registry_df()
 save_df(df_jreg, "phase3_join_safety_assertions.txt", _S)
 
 # COMMAND ----------
+
 # Cell 5 — A4: MKT_OFF cadena_std must be NULL
 log("INFO", "ASSERTION A4: MKT_OFF cadena_std null check (R9)", _S)
 if df_mkt_off_std is not None:
@@ -121,6 +127,7 @@ else:
     warn(True, "A4: mkt_off_std not loaded — A4 skipped", _S)
 
 # COMMAND ----------
+
 # Cell 6 — A5, A6: SELL_OUT bridge 1:1 and fanout check
 log("INFO", "ASSERTIONS A5-A6: SELL_OUT bridge integrity", _S)
 if df_sell_out_std is not None:
@@ -161,6 +168,7 @@ else:
     warn(True, "A5/A6: sell_out_std not loaded — skipped", _S)
 
 # COMMAND ----------
+
 # Cell 7 — A7: Fuzzy matches quarantine-only (R11)
 log("INFO", "ASSERTION A7: Fuzzy match quarantine check (R11)", _S)
 _all_stds = {
@@ -185,6 +193,7 @@ for std_name, df_std in _all_stds.items():
             passed(f"A7: No fuzzy matches in {std_name} (R11 confirmed)", _S)
 
 # COMMAND ----------
+
 # Cell 8 — A8: Row count reconciliation
 log("INFO", "ASSERTION A8: Row count reconciliation (R15)", _S)
 
@@ -220,6 +229,7 @@ dbutils.fs.put(f"{DBFS_ROOT}/phase3_row_count_reconciliation.txt", recon_content
 log("INFO", "phase3_row_count_reconciliation.txt written", _S)
 
 # COMMAND ----------
+
 # Cell 9 — A9: Mapping miss logged (null key dims in quarantine)
 log("INFO", "ASSERTION A9: Mapping miss accountability (all NULLs must be in quarantine)", _S)
 
@@ -270,6 +280,7 @@ dbutils.fs.put(f"{DBFS_ROOT}/phase3_null_rate_validation.txt", null_content, ove
 log("INFO", "phase3_null_rate_validation.txt written", _S)
 
 # COMMAND ----------
+
 # Cell 10 — Mapping coverage report
 log("INFO", "Writing mapping coverage report (Change #9 — dimension-specific thresholds)", _S)
 
@@ -321,6 +332,7 @@ dbutils.fs.put(f"{DBFS_ROOT}/phase3_mapping_coverage_report.txt", cov_content, o
 log("INFO", "phase3_mapping_coverage_report.txt written", _S)
 
 # COMMAND ----------
+
 # Cell 11 — Flush quarantine + final gate
 flush_quarantine()
 gate = phase3_final_summary()
