@@ -222,21 +222,21 @@ for cbu_label, tbls in _CBU_TABLES.items():
         SELECT
             K.MRKT_DSC_SHRT,
             K."hierarchy_level",
-            L.period_short_description  AS period_label,
-            L."period_ending_datetime"  AS period_end_date,
-            J.FACT_COLUMN               AS metric_name,
-            D.fact_description          AS metric_description,
-            D.fact_group                AS metric_group,
+            L."period_short_description"  AS period_label,
+            L."period_ending_datetime"    AS period_end_date,
+            J.FACT_COLUMN                 AS metric_name,
+            D."fact_description"          AS metric_description,
+            D."fact_group"                AS metric_group,
             SUM(COALESCE(J.FACT_VALUE, 0)) AS metric_value,
-            COUNT(*)                    AS row_count
+            COUNT(*)                       AS row_count
 
         FROM {tbls['agg']} AS J
 
-        -- market join: double-quoted "market_id" (case-sensitive lowercase)
+        -- market join: "market_id" double-quoted (case-sensitive lowercase)
         LEFT JOIN {tbls['mkt']} AS K
             ON J."market_id" = K."market_id"
 
-        -- period join: double-quoted "period_id"
+        -- period join: "period_id" double-quoted (case-sensitive lowercase)
         LEFT JOIN {tbls['per']} AS L
             ON L."period_id" = J."period_id"
 
@@ -249,11 +249,11 @@ for cbu_label, tbls in _CBU_TABLES.items():
         GROUP BY
             K.MRKT_DSC_SHRT,
             K."hierarchy_level",
-            L.period_short_description,
+            L."period_short_description",
             L."period_ending_datetime",
             J.FACT_COLUMN,
-            D.fact_description,
-            D.fact_group
+            D."fact_description",
+            D."fact_group"
         """
 
         df_cbu = run_sf(DB_PRD_MEX, sql_cbu)
