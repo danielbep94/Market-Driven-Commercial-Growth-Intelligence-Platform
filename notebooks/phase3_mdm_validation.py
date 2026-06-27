@@ -200,11 +200,14 @@ log("INFO", "ASSERTION A8: Row count reconciliation (R15)", _S)
 # Source row counts are logged in the audit log during silver notebook runs.
 # Here we compare what was saved vs what we expect from Phase 2 confirmed facts.
 _EXPECTED_COUNTS = {
-    # Phase 2 confirmed facts — update if source tables change
-    "sell_in_std":  None,  # VW_FACT_RNV row count unknown until first run
-    "sell_out_std": None,  # VW_FACT_SELL_OUT row count unknown until first run
-    "nielsen_std":  2940,  # Distinct EANs not applicable; market dim = 362 unique strings
-    # Adjust to 362 if loaded from signoff_03
+    # Confirmed row counts from Phase 3 silver notebook runs (2026-06-26)
+    # Update these values if source tables change or filters are adjusted.
+    "sell_in_std":  49815,   # VW_FACT_RNV aggregated by SKU (confirmed 2026-06-26)
+    "sell_out_std": None,    # VW_FACT_SELL_OUT — confirm row count after full run
+    "nielsen_std":  362,     # Market dimension — unique MRKT_DSC_SHRT strings (M1 mapping: 362 rows)
+    # nielsen_facts_std has 1,092,556 rows but is not loaded here — validated separately
+    "mkt_on_std":   7282,    # VW_MKT_ECOMM (ANIO >= 2024, confirmed 2026-06-26)
+    "mkt_off_std":  None,    # FACT_MEDIA_OFF — confirm row count after full run
 }
 
 for std_name, df_std in _all_stds.items():
