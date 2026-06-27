@@ -39,6 +39,7 @@ log_gold("INFO", "GOLD_NIELSEN — START", SECTION)
 check_run_mode()
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 1 — Load Silver Nielsen inputs
 
 # COMMAND ----------
@@ -51,11 +52,11 @@ gold_blocker("B17", not os.path.exists(FACTS_PATH),
              f"nielsen_facts_std.csv not found at {FACTS_PATH}", SECTION)
 
 log_gold("INFO", f"Loading facts: {FACTS_PATH}", SECTION)
-# escape_char='"' handles """hierarchy_level""" triple-quoted headers in nielsen_facts_std
-df_facts = read_silver_csv(FACTS_PATH, escape_char='"')
+# pandas default quoting handles the """hierarchy_level""" doubled-quote header correctly
+df_facts = read_silver_csv(FACTS_PATH)
 
 log_gold("INFO", f"Loading market dim: {MARKET_PATH}", SECTION)
-df_market = read_silver_csv(MARKET_PATH, escape_char='"')
+df_market = read_silver_csv(MARKET_PATH)
 
 
 facts_count  = df_facts.count()
@@ -65,6 +66,7 @@ log_gold("INFO", f"nielsen_facts_std: {facts_count:,} rows | nielsen_std: {marke
 gold_blocker("B1", facts_count == 0, "nielsen_facts_std.csv is empty", SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 2 — Discovery: Log all unique METRIC_NAME values (B17)
 
 # COMMAND ----------
@@ -102,6 +104,7 @@ if unmapped:
               f"They will be retained with metric name as column name.", SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 3 — Month-Truncate from PERIOD_END_DATE (B13)
 
 # COMMAND ----------
@@ -120,6 +123,7 @@ if null_fecha == 0:
 check_fecha_month_range(df_facts, "nielsen_facts_std")
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 4 — Pivot METRIC_NAME → columns (Detailed Grain)
 
 # COMMAND ----------
@@ -155,6 +159,7 @@ gold_blocker("B8", detail_count > facts_count,
              SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 5 — Master-Safe Aggregation (Grain: fecha_month x canal_std)
 
 # COMMAND ----------
@@ -179,6 +184,7 @@ log_gold("INFO", f"gold_nielsen_kpi_master: {master_count:,} rows at grain {MAST
 assert_unique_keys(df_master, MASTER_KEYS, "gold_nielsen_kpi_master")
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 6 — Coverage Summary
 
 # COMMAND ----------
@@ -203,6 +209,7 @@ for expected_kpi in ["nls_value_share", "nls_volume_share", "nls_numeric_dist", 
         df_master = df_master.withColumn(expected_kpi, F.lit(None).cast("double"))
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 7 — Save Outputs
 
 # COMMAND ----------
@@ -211,6 +218,7 @@ save_gold_df(df_pivot,  "gold_nielsen_kpi",        SECTION)
 save_gold_df(df_master, "gold_nielsen_kpi_master",  SECTION)
 
 # COMMAND ----------
+
 # MAGIC %md ## Step 8 — Register KPIs
 
 # COMMAND ----------
@@ -230,3 +238,7 @@ for m in _METRICS:
 log_gold("INFO", f"Registered {len(_METRICS)} Nielsen KPI metrics", SECTION)
 log_gold("INFO", "GOLD_NIELSEN — COMPLETE ✅", SECTION)
 write_audit_log()
+
+# COMMAND ----------
+
+
