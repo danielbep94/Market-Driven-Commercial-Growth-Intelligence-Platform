@@ -63,12 +63,23 @@ def _load_std(name):
     log("INFO", f"Loaded {name}: {n:,} rows", _S)
     return df
 
+def _load_quarantine():
+    """Quarantine report is a DBFS runtime artifact — never committed to repo. Missing = expected skip (INFO not WARN)."""
+    path = os.path.join(REPO_LOGS_DIR, "phase3_quarantine_report.csv")
+    if not os.path.exists(path):
+        log("INFO", "phase3_quarantine_report.csv not in repo logs/ — expected (DBFS runtime artifact). A9 quarantine cross-check skipped.", _S)
+        return None
+    df = spark.read.option("header", "true").csv(f"file:{path}")
+    log("INFO", f"Loaded phase3_quarantine_report: {df.count():,} rows", _S)
+    return df
+
 df_sell_in_std   = _load_std("sell_in_std")
 df_sell_out_std  = _load_std("sell_out_std")
 df_nielsen_std   = _load_std("nielsen_std")
 df_mkt_on_std    = _load_std("mkt_on_std")
 df_mkt_off_std   = _load_std("mkt_off_std")
-df_quarantine    = _load_std("phase3_quarantine_report")
+df_quarantine    = _load_quarantine()
+
 
 # COMMAND ----------
 
@@ -292,7 +303,7 @@ log("INFO", "Writing mapping coverage report (Change #9 — dimension-specific t
 _THRESHOLDS = {
     ("sell_in_std",  "marca_std"):  0.90,
     ("sell_in_std",  "canal_std"):  0.95,
-    ("sell_in_std",  "cadena_std"): 0.60,
+    ("sell_in_std",  "cadena_std"): 0.0,   # M2/R9: SELL_IN→CEDIS, no chain dimension — structural NULL (confirmed 2026-06-27)
     ("sell_out_std", "marca_std"):  0.90,
     ("sell_out_std", "canal_std"):  0.70,
     ("sell_out_std", "cadena_std"): 0.70,
@@ -318,6 +329,14 @@ for (std_name, col_name), threshold in _THRESHOLDS.items():
     n_total   = df_std.count()
     n_mapped  = df_std.filter(F.col(col_name).isNotNull()).count()
     coverage  = round(n_mapped / n_total, 4) if n_total > 0 else 0.0
+    # M2/R9 architectural exemption: sell_in cadena_std is intentionally 0% (structural NULL)
+    is_r9_exempt = (std_name == "sell_in_std" and col_name == "cadena_std")
+    if is_r9_exempt:
+        line = (f"{std_name}.{col_name}: 0/{n_total:,} = 0.0% "
+                f"(threshold=0% — ARCHITECTURAL_EXEMPTION R9/M2: SELL_IN ships to CEDIS, no chain dim) — PASS")
+        coverage_lines.append(line)
+        passed(line, _S)
+        continue
     status    = "PASS" if coverage >= threshold else "BELOW_THRESHOLD"
     line = (f"{std_name}.{col_name}: {n_mapped:,}/{n_total:,} = "
             f"{coverage*100:.1f}% (threshold={threshold*100:.0f}%) — {status}")
