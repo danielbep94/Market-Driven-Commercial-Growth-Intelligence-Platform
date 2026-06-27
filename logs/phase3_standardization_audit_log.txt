@@ -1,181 +1,66 @@
-[2026-06-27 05:14:10] [INFO] [INIT] ======================================================================
-[2026-06-27 05:14:10] [INFO] [INIT] Phase 3 shared utilities — silver_homologation_apply.py loaded
-[2026-06-27 05:14:10] [INFO] [INIT] REPO_ROOT     : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform
-[2026-06-27 05:14:10] [INFO] [INIT] REPO_LOGS_DIR : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
-[2026-06-27 05:14:10] [INFO] [INIT] DBFS_ROOT     : dbfs:/mnt/mdp/mdm/phase3_std
-[2026-06-27 05:14:10] [INFO] [INIT] ACTIVE_CATALOG_FILTER (R4, locked): 'SKU_EAN_COD IS NOT NULL'
-[2026-06-27 05:14:10] [INFO] [INIT] Credentials: PRD_MEX and PRD_MDP profiles ready.
-[2026-06-27 05:14:10] [INFO] [INIT] JOIN_REGISTRY initialized (call register_join() after every join).
-[2026-06-27 05:14:10] [INFO] [INIT] ======================================================================
-[2026-06-27 05:14:11] [INFO] [M2_CADENA_DISCOVERY] Starting M2 SELL_IN cadena discovery
-[2026-06-27 05:14:11] [INFO] [M2_CADENA_DISCOVERY] READ-ONLY: no Snowflake tables will be modified
-[2026-06-27 05:14:11] [INFO] [M2_CADENA_DISCOVERY] Section 1: V_D_CLIENT — all columns and cardinality
-[2026-06-27 05:14:50] [INFO] [M2_CADENA_DISCOVERY] V_D_CLIENT has 141 columns
-[2026-06-27 05:15:06] [INFO] [M2_CADENA_DISCOVERY] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/m2_v_d_client_schema.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/m2_v_d_client_schema.csv
-[2026-06-27 05:15:06] [INFO] [M2_CADENA_DISCOVERY] V_D_CLIENT TEXT columns to cardinalize: 135
-[2026-06-27 05:15:09] [INFO] [M2_CADENA_DISCOVERY]   CBU: 3 distinct → skip
-[2026-06-27 05:15:12] [INFO] [M2_CADENA_DISCOVERY]   SAL_ORG_COD: 5 distinct → skip
-[2026-06-27 05:15:15] [INFO] [M2_CADENA_DISCOVERY]   CUS_ACC_GRP_COD: 16 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:15:20] [INFO] [M2_CADENA_DISCOVERY]   CUS_IDT: 5110767 distinct → skip
-[2026-06-27 05:15:24] [INFO] [M2_CADENA_DISCOVERY]   CUS_NAM_DSC: 2132384 distinct → skip
-[2026-06-27 05:15:26] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRN_CHL_DSC: 4 distinct → skip
-[2026-06-27 05:15:29] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRN_CHL_ANT_DSC: 4 distinct → skip
-[2026-06-27 05:15:31] [INFO] [M2_CADENA_DISCOVERY]   CUS_CHL_DSC: 16 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:15:33] [INFO] [M2_CADENA_DISCOVERY]   CUS_CHL_ANT_DSC: 15 distinct → skip
-[2026-06-27 05:15:36] [INFO] [M2_CADENA_DISCOVERY]   CBU_DIS_GRP_COD: 3 distinct → skip
-[2026-06-27 05:15:38] [INFO] [M2_CADENA_DISCOVERY]   CUS_IND_COD: 58 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:15:40] [INFO] [M2_CADENA_DISCOVERY]   CUS_IND_DSC: 27 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:15:42] [INFO] [M2_CADENA_DISCOVERY]   CUS_1ST_IND_COD: 119 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:15:44] [INFO] [M2_CADENA_DISCOVERY]   CUS_1ST_IND_DSC: 118 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:15:47] [INFO] [M2_CADENA_DISCOVERY]   CUS_2ND_IND_COD: 115 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:15:49] [INFO] [M2_CADENA_DISCOVERY]   CUS_2ND_IND_DSC: 114 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:15:51] [INFO] [M2_CADENA_DISCOVERY]   CUS_3RD_IND_COD: 122 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:15:54] [INFO] [M2_CADENA_DISCOVERY]   CUS_3RD_IND_DSC: 122 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:15:56] [INFO] [M2_CADENA_DISCOVERY]   CUS_4TH_IND_COD: 118 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:15:58] [INFO] [M2_CADENA_DISCOVERY]   CUS_4TH_IND_DSC: 116 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:16:01] [INFO] [M2_CADENA_DISCOVERY]   CUS_5TH_IND_COD: 850 distinct → skip
-[2026-06-27 05:16:03] [INFO] [M2_CADENA_DISCOVERY]   CUS_5TH_IND_DSC: 833 distinct → skip
-[2026-06-27 05:16:05] [INFO] [M2_CADENA_DISCOVERY]   DIS_CHL_COD: 22 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:16:08] [INFO] [M2_CADENA_DISCOVERY]   DIS_CHL_DSC: 21 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:16:10] [INFO] [M2_CADENA_DISCOVERY]   CUS_CHL_ARE_DSC: 35 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:16:12] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_RGN_DSC: 13 distinct → skip
-[2026-06-27 05:16:14] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_PLT_COD: 213 distinct → skip
-[2026-06-27 05:16:17] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_PLT_DSC: 203 distinct → skip
-[2026-06-27 05:16:19] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_PLT_PLAZA: 283 distinct → skip
-[2026-06-27 05:16:20] [INFO] [M2_CADENA_DISCOVERY]   PLT_TYP_COD: 3 distinct → skip
-[2026-06-27 05:16:23] [INFO] [M2_CADENA_DISCOVERY]   CUS_PRC_LIS_TYP_COD: 59 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:16:25] [INFO] [M2_CADENA_DISCOVERY]   PXY_CAT_1ST_COD: 37 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:16:26] [INFO] [M2_CADENA_DISCOVERY]   PXY_CAT_1ST_DSC: 32 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:16:28] [INFO] [M2_CADENA_DISCOVERY]   PXY_CAT_2ND_COD: 212 distinct → skip
-[2026-06-27 05:16:31] [INFO] [M2_CADENA_DISCOVERY]   PXY_CAT_2ND_DSC: 211 distinct → skip
-[2026-06-27 05:16:33] [INFO] [M2_CADENA_DISCOVERY]   CLU_SHT_DSC: 32 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:16:35] [INFO] [M2_CADENA_DISCOVERY]   CUS_ABC_CLS_COD: 102 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:16:38] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_OFI_COD: 215 distinct → skip
-[2026-06-27 05:16:40] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_OFI_DSC: 213 distinct → skip
-[2026-06-27 05:16:42] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_GRP_COD: 648 distinct → skip
-[2026-06-27 05:16:44] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_GRP_DSC: 648 distinct → skip
-[2026-06-27 05:16:46] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_RGN_COD: 9 distinct → skip
-[2026-06-27 05:16:48] [INFO] [M2_CADENA_DISCOVERY]   CUS_NIE_COD: 12 distinct → skip
-[2026-06-27 05:16:50] [INFO] [M2_CADENA_DISCOVERY]   CUS_IND_KEY_COD: 44 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:16:53] [INFO] [M2_CADENA_DISCOVERY]   CUS_IND_KEY_DSC: 16 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:16:55] [INFO] [M2_CADENA_DISCOVERY]   CUS_1ST_TAX_COD: 110988 distinct → skip
-[2026-06-27 05:16:58] [INFO] [M2_CADENA_DISCOVERY]   CTECAD_RAZONSOCIAL: 2003940 distinct → skip
-[2026-06-27 05:17:00] [INFO] [M2_CADENA_DISCOVERY]   ITM_PRP_COD: 870 distinct → skip
-[2026-06-27 05:17:03] [INFO] [M2_CADENA_DISCOVERY]   PRV_CUS_COD: 2926070 distinct → skip
-[2026-06-27 05:17:06] [INFO] [M2_CADENA_DISCOVERY]   CUS_ADR_CTY_DSC: 26301 distinct → skip
-[2026-06-27 05:17:08] [INFO] [M2_CADENA_DISCOVERY]   CUS_ADR_CTY_PST_COD: 35952 distinct → skip
-[2026-06-27 05:17:11] [INFO] [M2_CADENA_DISCOVERY]   CUS_ADR_RGN_COD: 78 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:17:13] [INFO] [M2_CADENA_DISCOVERY]   CUS_ADR_RGN_DSC: 181515 distinct → skip
-[2026-06-27 05:17:16] [INFO] [M2_CADENA_DISCOVERY]   CUS_ADR_STR_DSC: 1228212 distinct → skip
-[2026-06-27 05:17:21] [INFO] [M2_CADENA_DISCOVERY]   CUS_ADR_STR_TOP_1ST_DSC: 526358 distinct → skip
-[2026-06-27 05:17:23] [INFO] [M2_CADENA_DISCOVERY]   CUS_ADR_STR_TOP_2ND_DSC: 449367 distinct → skip
-[2026-06-27 05:17:25] [INFO] [M2_CADENA_DISCOVERY]   CUS_BIL_BLK_COD: 4 distinct → skip
-[2026-06-27 05:17:27] [INFO] [M2_CADENA_DISCOVERY]   CUS_DEL_BLK_COD: 5 distinct → skip
-[2026-06-27 05:17:29] [INFO] [M2_CADENA_DISCOVERY]   CUS_ORD_BLK_COD: 6 distinct → skip
-[2026-06-27 05:17:31] [INFO] [M2_CADENA_DISCOVERY]   CUS_DLT_FLG: 2 distinct → skip
-[2026-06-27 05:17:33] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_BIL_BLK_COD: 7 distinct → skip
-[2026-06-27 05:17:36] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_DEL_BLK_COD: 6 distinct → skip
-[2026-06-27 05:17:38] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_DLT_FLG: 2 distinct → skip
-[2026-06-27 05:17:40] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_ORD_BLK_COD: 6 distinct → skip
-[2026-06-27 05:17:42] [INFO] [M2_CADENA_DISCOVERY]   LV4_HIE_CUS_IDT: 300 distinct → skip
-[2026-06-27 05:17:43] [INFO] [M2_CADENA_DISCOVERY]   LV4_HIE_CUS_DSC: 255 distinct → skip
-[2026-06-27 05:17:46] [INFO] [M2_CADENA_DISCOVERY]   LV5_HIE_CUS_IDT: 24031 distinct → skip
-[2026-06-27 05:17:50] [INFO] [M2_CADENA_DISCOVERY]   LV5_HIE_CUS_DSC: 16299 distinct → skip
-[2026-06-27 05:17:52] [INFO] [M2_CADENA_DISCOVERY]   LV6_HIE_CUS_IDT: 31898 distinct → skip
-[2026-06-27 05:17:54] [INFO] [M2_CADENA_DISCOVERY]   LV6_HIE_CUS_DSC: 23532 distinct → skip
-[2026-06-27 05:17:58] [INFO] [M2_CADENA_DISCOVERY]   PTR_1ST_CUS_IDT: 2886287 distinct → skip
-[2026-06-27 05:18:01] [INFO] [M2_CADENA_DISCOVERY]   PTR_1ST_CUS_DSC: 855867 distinct → skip
-[2026-06-27 05:18:04] [INFO] [M2_CADENA_DISCOVERY]   PTR_2ND_CUS_IDT: 2891743 distinct → skip
-[2026-06-27 05:18:06] [INFO] [M2_CADENA_DISCOVERY]   PTR_3RD_CUS_IDT: 766 distinct → skip
-[2026-06-27 05:18:10] [INFO] [M2_CADENA_DISCOVERY]   PTR_4TH_CUS_IDT: 914 distinct → skip
-[2026-06-27 05:18:13] [INFO] [M2_CADENA_DISCOVERY]   PTR_4TH_CUS_DSC: 837 distinct → skip
-[2026-06-27 05:18:15] [INFO] [M2_CADENA_DISCOVERY]   PTR_5TH_CUS_IDT: 21017 distinct → skip
-[2026-06-27 05:18:17] [INFO] [M2_CADENA_DISCOVERY]   PTR_5TH_CUS_DSC_SAP: 13326 distinct → skip
-[2026-06-27 05:18:20] [INFO] [M2_CADENA_DISCOVERY]   PTR_5TH_CUS_DSC: 899 distinct → skip
-[2026-06-27 05:18:22] [INFO] [M2_CADENA_DISCOVERY]   PTR_6TH_CUS_IDT: 21015 distinct → skip
-[2026-06-27 05:18:25] [INFO] [M2_CADENA_DISCOVERY]   PTR_6TH_CUS_DSC_SAP: 13324 distinct → skip
-[2026-06-27 05:18:27] [INFO] [M2_CADENA_DISCOVERY]   PTR_6TH_CUS_DSC: 899 distinct → skip
-[2026-06-27 05:18:29] [INFO] [M2_CADENA_DISCOVERY]   PTR_7TH_CUS_IDT: 21014 distinct → skip
-[2026-06-27 05:18:31] [INFO] [M2_CADENA_DISCOVERY]   PTR_7TH_CUS_DSC_SAP: 13323 distinct → skip
-[2026-06-27 05:18:33] [INFO] [M2_CADENA_DISCOVERY]   PTR_7TH_CUS_DSC: 899 distinct → skip
-[2026-06-27 05:18:36] [INFO] [M2_CADENA_DISCOVERY]   PTR_8TH_CUS_IDT: 1021 distinct → skip
-[2026-06-27 05:18:38] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_1ST_COD: 9 distinct → skip
-[2026-06-27 05:18:40] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_1ST_DSC: 9 distinct → skip
-[2026-06-27 05:18:42] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_2ND_COD: 7 distinct → skip
-[2026-06-27 05:18:46] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_2ND_DSC: 6 distinct → skip
-[2026-06-27 05:18:48] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_3RD_COD: 10 distinct → skip
-[2026-06-27 05:18:51] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_3RD_DSC: 10 distinct → skip
-[2026-06-27 05:18:53] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_4TH_COD: 7 distinct → skip
-[2026-06-27 05:18:56] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_4TH_DSC: 7 distinct → skip
-[2026-06-27 05:19:00] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_5TH_COD: 5 distinct → skip
-[2026-06-27 05:19:02] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_5TH_DSC: 5 distinct → skip
-[2026-06-27 05:19:04] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_COD: 109 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:19:07] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRP_DSC: 106 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:19:09] [INFO] [M2_CADENA_DISCOVERY]   CUS_GROUP_PROMO: 0 distinct → skip
-[2026-06-27 05:19:11] [INFO] [M2_CADENA_DISCOVERY]   CUS_PROCE_DSC: 12 distinct → skip
-[2026-06-27 05:19:13] [INFO] [M2_CADENA_DISCOVERY]   CUS_TYP_DSC: 38 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:19:16] [INFO] [M2_CADENA_DISCOVERY]   CHL_CSL_DSC: 4 distinct → skip
-[2026-06-27 05:19:18] [INFO] [M2_CADENA_DISCOVERY]   CHN_CSL_DSC: 739 distinct → skip
-[2026-06-27 05:19:20] [INFO] [M2_CADENA_DISCOVERY]   CHN_FMT_DSL_DSC: 130 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:19:23] [INFO] [M2_CADENA_DISCOVERY]   CUS_CHN_ID: 359 distinct → skip
-[2026-06-27 05:19:25] [INFO] [M2_CADENA_DISCOVERY]   CUS_CHN_DSC: 370 distinct → skip
-[2026-06-27 05:19:27] [INFO] [M2_CADENA_DISCOVERY]   CUS_SLS_MNG_DSC: 0 distinct → skip
-[2026-06-27 05:19:29] [INFO] [M2_CADENA_DISCOVERY]   CUS_SLS_TEAM_LDR_DSC: 0 distinct → skip
-[2026-06-27 05:19:31] [INFO] [M2_CADENA_DISCOVERY]   CUS_X_DOC_FINAL: 0 distinct → skip
-[2026-06-27 05:19:33] [INFO] [M2_CADENA_DISCOVERY]   CUS_PLT_DEL_EXT: 0 distinct → skip
-[2026-06-27 05:19:35] [INFO] [M2_CADENA_DISCOVERY]   CUS_TYP_DEL_PNT: 0 distinct → skip
-[2026-06-27 05:19:37] [INFO] [M2_CADENA_DISCOVERY]   CUS_DIS_EXT: 0 distinct → skip
-[2026-06-27 05:19:39] [INFO] [M2_CADENA_DISCOVERY]   ADR_STR_NUM: 144692 distinct → skip
-[2026-06-27 05:19:41] [INFO] [M2_CADENA_DISCOVERY]   ADR_STR_ADD_NUM: 96233 distinct → skip
-[2026-06-27 05:19:44] [INFO] [M2_CADENA_DISCOVERY]   ADR_RGN_DSC: 332463 distinct → skip
-[2026-06-27 05:19:46] [INFO] [M2_CADENA_DISCOVERY]   TEL_NUM: 1214873 distinct → skip
-[2026-06-27 05:19:48] [INFO] [M2_CADENA_DISCOVERY]   TEL_NUM2: 12382 distinct → skip
-[2026-06-27 05:19:50] [INFO] [M2_CADENA_DISCOVERY]   CUS_DFT_PAY_MET_COD: 13 distinct → skip
-[2026-06-27 05:19:52] [INFO] [M2_CADENA_DISCOVERY]   EML_COD: 417486 distinct → skip
-[2026-06-27 05:19:55] [INFO] [M2_CADENA_DISCOVERY]   CUS_FIS_ADR: 2888280 distinct → skip
-[2026-06-27 05:19:58] [INFO] [M2_CADENA_DISCOVERY]   CUS_CRE_DAT: 6801 distinct → skip
-[2026-06-27 05:20:00] [INFO] [M2_CADENA_DISCOVERY]   CUS_END_DAT: 0 distinct → skip
-[2026-06-27 05:20:02] [INFO] [M2_CADENA_DISCOVERY]   STAT_COD: 6 distinct → skip
-[2026-06-27 05:20:05] [INFO] [M2_CADENA_DISCOVERY]   CUS_CSL_GRP: 9 distinct → skip
-[2026-06-27 05:20:06] [INFO] [M2_CADENA_DISCOVERY]   CUS_CHL_DSC_EXT: 17 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:20:08] [INFO] [M2_CADENA_DISCOVERY]   CUS_GRN_CHL_DSC_EXT: 3 distinct → skip
-[2026-06-27 05:20:11] [INFO] [M2_CADENA_DISCOVERY]   CUS_CHN_UNI_DSC_EXT: 16049 distinct → skip
-[2026-06-27 05:20:13] [INFO] [M2_CADENA_DISCOVERY]   CUS_CHL_ARE_DSC_EXT: 36 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:20:16] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_RGN_DSC_EXT: 18 distinct → ⭐ CADENA_CANDIDATE
-[2026-06-27 05:20:20] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_BLK_COD: 3 distinct → skip
-[2026-06-27 05:20:22] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_ORD_BLK_FLG: 6 distinct → skip
-[2026-06-27 05:20:24] [INFO] [M2_CADENA_DISCOVERY]   CUS_ATT_8TH_COD: 4 distinct → skip
-[2026-06-27 05:20:27] [INFO] [M2_CADENA_DISCOVERY]   CUS_CADENA_IDT: 24416 distinct → skip
-[2026-06-27 05:20:30] [INFO] [M2_CADENA_DISCOVERY]   CUS_CADENA_DSC: 16563 distinct → skip
-[2026-06-27 05:20:33] [INFO] [M2_CADENA_DISCOVERY]   CUS_PRC_PRO_COD: 10 distinct → skip
-[2026-06-27 05:20:41] [INFO] [M2_CADENA_DISCOVERY] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/m2_v_d_client_columns.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/m2_v_d_client_columns.csv
-[2026-06-27 05:20:41] [INFO] [M2_CADENA_DISCOVERY] Section 2: Sample top-20 values for CADENA_CANDIDATE columns
-[2026-06-27 05:20:41] [INFO] [M2_CADENA_DISCOVERY] Cadena candidates: ['CUS_ACC_GRP_COD', 'CUS_CHL_DSC', 'CUS_IND_COD', 'CUS_IND_DSC', 'CUS_1ST_IND_COD', 'CUS_1ST_IND_DSC', 'CUS_2ND_IND_COD', 'CUS_2ND_IND_DSC', 'CUS_3RD_IND_COD', 'CUS_3RD_IND_DSC', 'CUS_4TH_IND_COD', 'CUS_4TH_IND_DSC', 'DIS_CHL_COD', 'DIS_CHL_DSC', 'CUS_CHL_ARE_DSC', 'CUS_PRC_LIS_TYP_COD', 'PXY_CAT_1ST_COD', 'PXY_CAT_1ST_DSC', 'CLU_SHT_DSC', 'CUS_ABC_CLS_COD', 'CUS_IND_KEY_COD', 'CUS_IND_KEY_DSC', 'CUS_ADR_RGN_COD', 'CUS_GRP_COD', 'CUS_GRP_DSC', 'CUS_TYP_DSC', 'CHN_FMT_DSL_DSC', 'CUS_CHL_DSC_EXT', 'CUS_CHL_ARE_DSC_EXT', 'CUS_SAL_RGN_DSC_EXT']
-[2026-06-27 05:22:11] [INFO] [M2_CADENA_DISCOVERY] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/m2_v_d_client_samples.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/m2_v_d_client_samples.csv
-[2026-06-27 05:22:11] [INFO] [M2_CADENA_DISCOVERY] Saved 587 sample rows for 30 candidates
-[2026-06-27 05:22:11] [INFO] [M2_CADENA_DISCOVERY] Section 3: VW_D_CUSTOMER_DICTONARY column cardinality
-[2026-06-27 05:22:14] [INFO] [M2_CADENA_DISCOVERY] VW_D_CUSTOMER_DICTONARY TEXT columns: ['SAL_ORG_COD', 'NEW_CUS_IDT', 'NEW_CUS_NAM_DSC', 'OLD_CUS_IDT', 'OLD_CUS_NAM_DSC', 'NEW_CUS_CHL_ARE_DSC', 'OLD_CUS_CHL_ARE_DSC', 'NEW_CUS_ADR_CTY_DSC', 'OLD_CUS_ADR_CTY_DSC', 'NEW_CUS_SAL_RGN_COD', 'OLD_CUS_SAL_RGN_COD', 'NEW_CUS_CHL_DSC', 'OLD_CUS_CHL_DSC', 'NEW_PLT_COD', 'OLD_PLT_COD']
-[2026-06-27 05:22:31] [INFO] [M2_CADENA_DISCOVERY]   ⭐ NEW_CUS_CHL_ARE_DSC: 22 distinct → CADENA_CANDIDATE
-[2026-06-27 05:22:33] [INFO] [M2_CADENA_DISCOVERY]   ⭐ OLD_CUS_CHL_ARE_DSC: 23 distinct → CADENA_CANDIDATE
-[2026-06-27 05:22:47] [INFO] [M2_CADENA_DISCOVERY]   ⭐ NEW_PLT_COD: 84 distinct → CADENA_CANDIDATE
-[2026-06-27 05:22:49] [INFO] [M2_CADENA_DISCOVERY]   ⭐ OLD_PLT_COD: 95 distinct → CADENA_CANDIDATE
-[2026-06-27 05:22:51] [INFO] [M2_CADENA_DISCOVERY] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/m2_customer_dict_columns.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/m2_customer_dict_columns.csv
-[2026-06-27 05:22:52] [INFO] [M2_CADENA_DISCOVERY] Section 4: VW_FACT_RNV — customer key columns and cardinality
-[2026-06-27 05:23:09] [INFO] [M2_CADENA_DISCOVERY]   SHP_CUS_IDT: 2013320 distinct
-[2026-06-27 05:23:25] [INFO] [M2_CADENA_DISCOVERY]   PAY_CUS_IDT: 56031 distinct
-[2026-06-27 05:23:41] [INFO] [M2_CADENA_DISCOVERY]   DIS_CHL_COD: 4 distinct
-[2026-06-27 05:23:51] [INFO] [M2_CADENA_DISCOVERY]   SAL_ORG_COD: 3 distinct
-[2026-06-27 05:24:07] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_RGN_COD: 25 distinct
-[2026-06-27 05:24:23] [INFO] [M2_CADENA_DISCOVERY]   CUS_1ST_IND_COD: 102 distinct
-[2026-06-27 05:24:34] [INFO] [M2_CADENA_DISCOVERY]   CUS_IND_KEY_COD: 32 distinct
-[2026-06-27 05:24:50] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_GRP_COD: 482 distinct
-[2026-06-27 05:25:02] [INFO] [M2_CADENA_DISCOVERY]   CUS_SAL_OFI_COD: 178 distinct
-[2026-06-27 05:25:13] [INFO] [M2_CADENA_DISCOVERY]   CUS_ABC_CLS_COD: 59 distinct
-[2026-06-27 05:25:24] [INFO] [M2_CADENA_DISCOVERY]   CUS_PRC_LIS_TYP_COD: 53 distinct
-[2026-06-27 05:25:27] [INFO] [M2_CADENA_DISCOVERY] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/m2_fact_rnv_customer_columns.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/m2_fact_rnv_customer_columns.csv
-[2026-06-27 05:25:27] [INFO] [M2_CADENA_DISCOVERY] Section 5: Join probe — fact.SHP_CUS_IDT → V_D_CLIENT
-[2026-06-27 05:26:15] [INFO] [M2_CADENA_DISCOVERY] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/m2_join_probe_shpcus_to_client.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/m2_join_probe_shpcus_to_client.csv
-[2026-06-27 05:27:06] [INFO] [M2_CADENA_DISCOVERY] Join probe: 200/200 (100.0%) SHP_CUS_IDT → V_D_CLIENT matched
-[2026-06-27 05:27:06] [INFO] [M2_CADENA_DISCOVERY] Section 6: Writing cadena recommendation
-[2026-06-27 05:28:38] [INFO] [M2_CADENA_DISCOVERY] Section 6: Writing cadena recommendation
-[2026-06-27 05:28:38] [INFO] [M2_CADENA_DISCOVERY] Recommendation written to /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/m2_cadena_recommendation.txt
+[2026-06-27 15:57:55] [INFO] [INIT] ======================================================================
+[2026-06-27 15:57:55] [INFO] [INIT] Phase 3 shared utilities — silver_homologation_apply.py loaded
+[2026-06-27 15:57:55] [INFO] [INIT] REPO_ROOT     : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform
+[2026-06-27 15:57:55] [INFO] [INIT] REPO_LOGS_DIR : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-27 15:57:55] [INFO] [INIT] DBFS_ROOT     : dbfs:/mnt/mdp/mdm/phase3_std
+[2026-06-27 15:57:55] [INFO] [INIT] ACTIVE_CATALOG_FILTER (R4, locked): 'SKU_EAN_COD IS NOT NULL'
+[2026-06-27 15:57:55] [INFO] [INIT] Credentials: PRD_MEX and PRD_MDP profiles ready.
+[2026-06-27 15:57:55] [INFO] [INIT] JOIN_REGISTRY initialized (call register_join() after every join).
+[2026-06-27 15:57:55] [INFO] [INIT] ======================================================================
+[2026-06-27 15:57:59] [INFO] [VALIDATION] Phase 3 Master Validation starting
+[2026-06-27 15:57:59] [INFO] [VALIDATION] Loading *_std outputs from /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-27 15:58:45] [INFO] [VALIDATION] Loaded sell_in_std: 49,815 rows
+[2026-06-27 15:58:48] [INFO] [VALIDATION] Loaded sell_out_std: 100,000 rows
+[2026-06-27 15:58:51] [INFO] [VALIDATION] Loaded nielsen_std: 362 rows
+[2026-06-27 15:58:55] [INFO] [VALIDATION] Loaded mkt_on_std: 7,282 rows
+[2026-06-27 15:58:57] [INFO] [VALIDATION] Loaded mkt_off_std: 100,000 rows
+[2026-06-27 15:58:57] [⚠️  WARNING] [VALIDATION] phase3_quarantine_report.csv not found in logs/ — this source will be skipped in validation
+[2026-06-27 15:58:59] [INFO] [VALIDATION] ============================================================
+[2026-06-27 15:58:59] [INFO] [VALIDATION] ASSERTIONS A1-A3: JOIN_REGISTRY structural safety scan
+[2026-06-27 15:58:59] [INFO] [VALIDATION] Total joins registered: 0
+[2026-06-27 15:58:59] [✅ PASS] [VALIDATION] A1 — R6: MKT_ON no UPC join: No prohibited join found. (0 joins in registry scanned.)
+[2026-06-27 15:58:59] [✅ PASS] [VALIDATION] A2 — R7: MKT_OFF no UPC join: No prohibited join found. (0 joins in registry scanned.)
+[2026-06-27 15:58:59] [✅ PASS] [VALIDATION] A3 — R8: MKT_OFF no CADENA join: No prohibited join found. (0 joins in registry scanned.)
+[2026-06-27 15:59:22] [INFO] [VALIDATION] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/phase3_join_safety_assertions.txt  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/phase3_join_safety_assertions.txt
+[2026-06-27 15:59:23] [INFO] [VALIDATION] ASSERTION A4: MKT_OFF cadena_std null check (R9)
+[2026-06-27 15:59:28] [✅ PASS] [VALIDATION] A4: cadena_std is NULL for all 100,000 mkt_off_std rows (R9 confirmed)
+[2026-06-27 15:59:28] [INFO] [VALIDATION] ASSERTIONS A5-A6: SELL_OUT bridge integrity
+[2026-06-27 15:59:28] [⚠️  WARNING] [VALIDATION] A5: mat_idt or sell_out_int_id column not found in sell_out_std
+[2026-06-27 15:59:35] [✅ PASS] [VALIDATION] A6: Zero EAN fanout in sell_out_std — 1:1 EAN→MAT_IDT confirmed
+[2026-06-27 15:59:36] [INFO] [VALIDATION] ASSERTION A7: Fuzzy match quarantine check (R11)
+[2026-06-27 15:59:37] [INFO] [VALIDATION] ASSERTION A8: Row count reconciliation (R15)
+[2026-06-27 15:59:38] [INFO] [VALIDATION] A8: sell_in_std — 49,815 rows
+[2026-06-27 15:59:40] [INFO] [VALIDATION] A8: sell_out_std — 100,000 rows
+[2026-06-27 15:59:40] [INFO] [VALIDATION] A8: mkt_on_std — 7,282 rows
+[2026-06-27 15:59:41] [INFO] [VALIDATION] A8: mkt_off_std — 100,000 rows
+[2026-06-27 15:59:42] [INFO] [VALIDATION] A8: nielsen_std — 362 rows
+[2026-06-27 15:59:47] [INFO] [VALIDATION] phase3_row_count_reconciliation.txt written
+[2026-06-27 15:59:47] [INFO] [VALIDATION] ASSERTION A9: Mapping miss accountability (all NULLs must be in quarantine)
+[2026-06-27 16:00:00] [INFO] [VALIDATION] phase3_null_rate_validation.txt written
+[2026-06-27 16:00:00] [INFO] [VALIDATION] Writing mapping coverage report (Change #9 — dimension-specific thresholds)
+[2026-06-27 16:00:02] [✅ PASS] [VALIDATION] sell_in_std.marca_std: 48,413/49,815 = 97.2% (threshold=90%) — PASS
+[2026-06-27 16:00:04] [✅ PASS] [VALIDATION] sell_in_std.canal_std: 48,413/49,815 = 97.2% (threshold=95%) — PASS
+[2026-06-27 16:00:05] [⚠️  WARNING] [VALIDATION] Coverage below threshold: sell_in_std.cadena_std = 0.0% < 60%
+[2026-06-27 16:00:07] [⚠️  WARNING] [VALIDATION] Coverage below threshold: sell_out_std.canal_std = 0.0% < 70%
+[2026-06-27 16:00:09] [⚠️  WARNING] [VALIDATION] Coverage below threshold: sell_out_std.cadena_std = 0.0% < 70%
+[2026-06-27 16:00:09] [✅ PASS] [VALIDATION] mkt_on_std.canal_std: 7,282/7,282 = 100.0% (threshold=50%) — PASS
+[2026-06-27 16:00:11] [✅ PASS] [VALIDATION] mkt_on_std.marca_std: 7,282/7,282 = 100.0% (threshold=90%) — PASS
+[2026-06-27 16:00:12] [✅ PASS] [VALIDATION] mkt_off_std.marca_std: 100,000/100,000 = 100.0% (threshold=90%) — PASS
+[2026-06-27 16:00:13] [⚠️  WARNING] [VALIDATION] Coverage below threshold: nielsen_std.canal_std = 0.0% < 50%
+[2026-06-27 16:00:14] [⚠️  WARNING] [VALIDATION] Coverage below threshold: nielsen_std.region_std = 0.0% < 50%
+[2026-06-27 16:00:14] [INFO] [VALIDATION] phase3_mapping_coverage_report.txt written
+[2026-06-27 16:00:15] [INFO] [QUARANTINE] Quarantine is EMPTY — all rows mapped cleanly.
+[2026-06-27 16:00:15] [INFO] [FINAL SUMMARY] ================================================================================
+[2026-06-27 16:00:15] [INFO] [FINAL SUMMARY] PHASE 3 MDM STANDARDIZATION — FINAL STATUS REPORT
+[2026-06-27 16:00:15] [INFO] [FINAL SUMMARY] ================================================================================
+[2026-06-27 16:00:15] [✅ PASS] [FINAL SUMMARY] NO HARD BLOCKERS — all structural assertions passed.
+[2026-06-27 16:00:15] [⚠️  WARNING] [FINAL SUMMARY] TOTAL WARNINGS: 7
+[2026-06-27 16:00:15] [⚠️  WARNING] [FINAL SUMMARY]   1. phase3_quarantine_report.csv not found in logs/ — this source will be skipped in validation
+[2026-06-27 16:00:15] [⚠️  WARNING] [FINAL SUMMARY]   2. A5: mat_idt or sell_out_int_id column not found in sell_out_std
+[2026-06-27 16:00:15] [⚠️  WARNING] [FINAL SUMMARY]   3. Coverage below threshold: sell_in_std.cadena_std = 0.0% < 60%
+[2026-06-27 16:00:15] [⚠️  WARNING] [FINAL SUMMARY]   4. Coverage below threshold: sell_out_std.canal_std = 0.0% < 70%
+[2026-06-27 16:00:15] [⚠️  WARNING] [FINAL SUMMARY]   5. Coverage below threshold: sell_out_std.cadena_std = 0.0% < 70%
+[2026-06-27 16:00:15] [⚠️  WARNING] [FINAL SUMMARY]   6. Coverage below threshold: nielsen_std.canal_std = 0.0% < 50%
+[2026-06-27 16:00:15] [⚠️  WARNING] [FINAL SUMMARY]   7. Coverage below threshold: nielsen_std.region_std = 0.0% < 50%
+[2026-06-27 16:00:15] [INFO] [FINAL SUMMARY] PHASE 3 GATE: 🟡 CLEAR WITH WARNINGS
+[2026-06-27 16:00:15] [INFO] [FINAL SUMMARY] Phase 3 COMPLETE WITH WARNINGS. Complete M1-M4 manual mappings and rerun before production gold promotion.
