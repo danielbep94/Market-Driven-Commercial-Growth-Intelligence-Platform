@@ -302,6 +302,7 @@ log("INFO", f"Join probe: {n_matched}/{n_probe} ({match_pct}%) SHP_CUS_IDT → V
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 10
 # =============================================================================
 # SECTION 6 — Written recommendation
 # =============================================================================
@@ -327,7 +328,7 @@ v_d_cands = [r for r in (cardinality_rows if cardinality_rows else [])
 if v_d_cands:
     for r in sorted(v_d_cands, key=lambda x: x["distinct_values"]):
         rec_lines.append(
-            f"  {r['column_name']:40s} {r['distinct_values']:4d} distinct → CADENA_CANDIDATE"
+            f"  {r['column_name']:40s} {int(r['distinct_values']):4d} distinct → CADENA_CANDIDATE"
         )
 else:
     rec_lines.append("  ⚠️  No columns in V_D_CLIENT fall in the 15–200 cardinality range.")
@@ -343,7 +344,7 @@ dict_cands = [r for r in (dict_rows if dict_rows else [])
 if dict_cands:
     for r in sorted(dict_cands, key=lambda x: x["distinct_values"]):
         rec_lines.append(
-            f"  {r['column_name']:40s} {r['distinct_values']:4d} distinct → CADENA_CANDIDATE"
+            f"  {r['column_name']:40s} {int(r['distinct_values']):4d} distinct → CADENA_CANDIDATE"
         )
 else:
     rec_lines.append("  No cadena-level columns found in VW_D_CUSTOMER_DICTONARY either.")
@@ -383,5 +384,3 @@ with open(rec_path, "w") as f:
 log("INFO", f"Recommendation written to {rec_path}", _S)
 flush_log("phase3_standardization_audit_log.txt")
 log("INFO", "M2 cadena discovery complete.", _S)
-
-# COMMAND ----------

@@ -1,0 +1,51 @@
+======================================================================
+M2 SELL_IN CADENA DISCOVERY — RECOMMENDATION REPORT
+Generated: 2026-06-27 05:28:38.495471
+======================================================================
+
+Cardinality thresholds: CANAL ≤15 | CADENA 16–200 | TOO_GRANULAR >200
+
+── V_D_CLIENT CADENA_CANDIDATE columns ─────────────────────────────
+  CUS_ACC_GRP_COD                            16 distinct → CADENA_CANDIDATE
+  CUS_CHL_DSC                                16 distinct → CADENA_CANDIDATE
+  CUS_IND_KEY_DSC                            16 distinct → CADENA_CANDIDATE
+  CUS_CHL_DSC_EXT                            17 distinct → CADENA_CANDIDATE
+  CUS_SAL_RGN_DSC_EXT                        18 distinct → CADENA_CANDIDATE
+  DIS_CHL_DSC                                21 distinct → CADENA_CANDIDATE
+  DIS_CHL_COD                                22 distinct → CADENA_CANDIDATE
+  CUS_IND_DSC                                27 distinct → CADENA_CANDIDATE
+  PXY_CAT_1ST_DSC                            32 distinct → CADENA_CANDIDATE
+  CLU_SHT_DSC                                32 distinct → CADENA_CANDIDATE
+  CUS_CHL_ARE_DSC                            35 distinct → CADENA_CANDIDATE
+  CUS_CHL_ARE_DSC_EXT                        36 distinct → CADENA_CANDIDATE
+  PXY_CAT_1ST_COD                            37 distinct → CADENA_CANDIDATE
+  CUS_TYP_DSC                                38 distinct → CADENA_CANDIDATE
+  CUS_IND_KEY_COD                            44 distinct → CADENA_CANDIDATE
+  CUS_IND_COD                                58 distinct → CADENA_CANDIDATE
+  CUS_PRC_LIS_TYP_COD                        59 distinct → CADENA_CANDIDATE
+  CUS_ADR_RGN_COD                            78 distinct → CADENA_CANDIDATE
+  CUS_ABC_CLS_COD                           102 distinct → CADENA_CANDIDATE
+  CUS_GRP_DSC                               106 distinct → CADENA_CANDIDATE
+  CUS_GRP_COD                               109 distinct → CADENA_CANDIDATE
+  CUS_2ND_IND_DSC                           114 distinct → CADENA_CANDIDATE
+  CUS_2ND_IND_COD                           115 distinct → CADENA_CANDIDATE
+  CUS_4TH_IND_DSC                           116 distinct → CADENA_CANDIDATE
+  CUS_1ST_IND_DSC                           118 distinct → CADENA_CANDIDATE
+  CUS_4TH_IND_COD                           118 distinct → CADENA_CANDIDATE
+  CUS_1ST_IND_COD                           119 distinct → CADENA_CANDIDATE
+  CUS_3RD_IND_COD                           122 distinct → CADENA_CANDIDATE
+  CUS_3RD_IND_DSC                           122 distinct → CADENA_CANDIDATE
+  CHN_FMT_DSL_DSC                           130 distinct → CADENA_CANDIDATE
+
+── VW_D_CUSTOMER_DICTONARY CADENA_CANDIDATE columns ────────────────
+  NEW_CUS_CHL_ARE_DSC                        22 distinct → CADENA_CANDIDATE
+  OLD_CUS_CHL_ARE_DSC                        23 distinct → CADENA_CANDIDATE
+  NEW_PLT_COD                                84 distinct → CADENA_CANDIDATE
+  OLD_PLT_COD                                95 distinct → CADENA_CANDIDATE
+
+── SHP_CUS_IDT → V_D_CLIENT join match rate ────────────────────────
+  200/200 sampled rows matched (100.0%)
+
+── FINAL RECOMMENDATION ────────────────────────────────────────────
+  USE: CUS_ACC_GRP_COD (16 distinct values)
+  Wire this column as cadena_raw in silver_sell_in.py and map to cadena_std.
