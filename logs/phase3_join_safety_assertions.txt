@@ -1,0 +1,1 @@
+notebook,left,right,join_key,join_type,notes,registered_at

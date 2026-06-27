@@ -1,0 +1,13 @@
+assertion_name,result_value,comparison,threshold,status,description
+NULL_EAN_ACTIVE_PRODUCTS,0,GT,0,PASS,Active products (MAT_ACT_FLG=1) with NULL SKU_EAN_COD = 0. Must be 0 for sell-in → sell-out matching to work.
+EAN_ACTIVE_ACTIVE_CONFLICT,0,GT,0,PASS,EANs with > 1 ACTIVE MAT_IDT = 0. Active-active EAN conflicts block reliable product matching.
+SKU_MAPPING_ACTIVE_EXPORT_COUNT,81627,EQ,0,PASS,"signoff_01_sku_mapping.csv exported 81,627 active SKUs. Zero would indicate V_D_ITEM is empty or MAT_ACT_FLG filter is broken."
+CAT_UPC_DUPLICATE_MAT_IDT,0,GT,0,PASS,Duplicate MAT_IDT rows in sku_mapping = 0 (structural — verify after catalog enrichment). Each MAT_IDT should appear exactly once in the product catalog.
+SELL_OUT_UPC_AMBIGUOUS_EAN,0,GT,0,PASS,EANs in P1 match that resolve to multiple MAT_IDT = 0. Ambiguous EAN joins would fan-out sell-out volumes incorrectly.
+MKT_ON_UPC_JOIN_PROHIBITED,STRUCTURAL,NONE,N/A,PASS,Nielsen MKT_ON data NEVER joins on UPC. Market aggregates are keyed on market strings only. Structural design assertion — PASS by construction.
+MKT_OFF_UPC_JOIN_PROHIBITED,STRUCTURAL,NONE,N/A,PASS,Nielsen MKT_OFF data NEVER joins on UPC. Market aggregates are keyed on market strings only. Structural design assertion — PASS by construction.
+MKT_OFF_CADENA_JOIN_PROHIBITED,STRUCTURAL,NONE,N/A,PASS,"Nielsen MKT_OFF data NEVER joins on CADENA_STD. MKT_OFF → SELL_OUT bridge uses market string matching, not chain-level join. Structural design assertion — PASS by construction."
+MKT_OFF_CADENA_STD_NULL_RATE,DEFERRED,NONE,N/A,WARNING,Cannot assert CADENA_STD null-rate against mkt_off_std until Phase 3 silver layer runs. Assert deferred to Phase 3 validation notebook.
+SELL_IN_ACTIVE_SKU_ZERO,81627,EQ,0,PASS,"Active SELL_IN SKUs from V_D_ITEM = 81,627. Zero active SKUs means sell-in data cannot be used for product matching."
+FUZZY_UPC_AUTO_PROMOTION,STRUCTURAL,NONE,N/A,PASS,Fuzzy UPC matching (P3) is quarantine-only by design. No fuzzy match may be auto-promoted to silver layer without explicit manual sign-off. Structural design assertion — PASS by construction.
+NIELSEN_MARKET_NEEDS_REVIEW,362,WARN,0,WARNING,362 Nielsen market strings tagged NEEDS_REVIEW. Manual standardisation required before market bridge joins in Phase 3.

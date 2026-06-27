@@ -1,2 +1,2 @@
-raw_sku_id,source_system,clean_sku_id,product_key,brand_key,description,format,size,is_active,notes
-[TO BE POPULATED IN PHASE 1],[],[],[],[],[],[],[],TRUE,
+mat_idt,sku_ean_cod,mat_lcl_dsc,marca_std,cbu,mat_act_flg,is_active,ean_mat_idt_count,active_mat_idt_count_for_ean,ean_cardinality_status,is_preferred_mat_idt_for_ean,preferred_rule,sell_out_int_id,sell_out_import_id,match_priority,match_method,match_confidence,review_status,source_system,created_at,updated_at,notes
+[PENDING_SNOWFLAKE_QUERY],[PENDING_SNOWFLAKE_QUERY],[PENDING_SNOWFLAKE_QUERY],[PENDING_SNOWFLAKE_QUERY],[PENDING_SNOWFLAKE_QUERY],[PENDING_SNOWFLAKE_QUERY],TRUE,[PENDING],[PENDING],NEEDS_REVIEW,FALSE,NEEDS_REVIEW,,,,,0.0,NEEDS_REVIEW,SELL_IN,[TO_BE_POPULATED],[TO_BE_POPULATED],PLACEHOLDER — run phase2_mdm_signoff.py Sign-Off #1D to populate. Grain = one row per MAT_IDT. SKU_EAN_COD is a barcode attribute and may be non-unique.

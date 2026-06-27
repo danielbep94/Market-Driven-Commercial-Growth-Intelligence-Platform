@@ -1,0 +1,100 @@
+[2026-06-26 06:27:05] [INFO] [SIGN-OFF #1] Starting 1A: EAN null/blank quality check
+[2026-06-26 06:27:06] [INFO] [SIGN-OFF #1] total_rows=82,684 | null_ean_rows=1,057 | blank_ean_rows=0 | null_ean_active=0 | distinct_ean=2,940 | distinct_mat_idt=82,684
+[2026-06-26 06:27:06] [⚠️  WARNING] [SIGN-OFF #1] 1A: 1,057 rows have NULL EAN (including inactive) — inactive NULLs are tolerable
+[2026-06-26 06:27:06] [✅ PASS] [SIGN-OFF #1] 1A: No ACTIVE products have NULL EAN — blocker condition clear
+[2026-06-26 06:27:06] [INFO] [SIGN-OFF #1] 1A: Distinct EAN count=2,940 vs Distinct MAT_IDT count=82,684. If MAT_IDT > EAN, multiple products share EANs (expected for SKU variants).
+[2026-06-26 06:27:06] [INFO] [SIGN-OFF #1] Starting 1B: EAN cardinality check
+[2026-06-26 06:27:07] [INFO] [SIGN-OFF #1] 1B: 1,115 EANs share more than one MAT_IDT. Decision on blocking deferred to 1C (active-active test).
+[2026-06-26 06:27:08] [INFO] [SIGN-OFF #1] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_01_ean_cardinality.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_01_ean_cardinality.csv
+[2026-06-26 06:27:09] [INFO] [SIGN-OFF #1] Starting 1C: Active-active EAN conflict test
+[2026-06-26 06:27:10] [INFO] [SIGN-OFF #1] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_01_ean_active_conflict.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_01_ean_active_conflict.csv
+[2026-06-26 06:27:10] [INFO] [SIGN-OFF #1] 1C: All multi-MAT_IDT EANs are inactive history only — blocker downgraded to WARNING
+[2026-06-26 06:27:10] [⚠️  WARNING] [SIGN-OFF #1] 1C: 1,115 EANs map to multiple MAT_IDTs but ALL are inactive history — no active-active EAN conflict detected. Monitor after catalog refresh.
+[2026-06-26 06:27:10] [✅ PASS] [SIGN-OFF #1] 1C: Active-active EAN conflict test CLEAR
+[2026-06-26 06:27:11] [INFO] [SIGN-OFF #1] Starting 1D: SKU seed export
+[2026-06-26 06:27:12] [INFO] [SIGN-OFF #1] 1D: SKU seed export — 81,627 SKUs with non-null EAN (all V_D_ITEM rows — MAT_ACT_FLG is NULL for entire table)
+[2026-06-26 06:27:15] [INFO] [SIGN-OFF #1] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_01_sku_mapping.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_01_sku_mapping.csv
+[2026-06-26 06:27:15] [✅ PASS] [SIGN-OFF #1] 1D: SKU seed export PASS — 81,627 SKUs exported to signoff_01_sku_mapping.csv
+[2026-06-26 06:27:15] [INFO] [SIGN-OFF #2] Starting 2A: P1 — INT_ID = SKU_EAN_COD exact match
+[2026-06-26 06:27:16] [INFO] [SIGN-OFF #2] 2A Read1: 2,622 SELL_OUT products with non-null INT_ID from VW_D_PRODUCT_RM
+[2026-06-26 06:27:16] [INFO] [SIGN-OFF #2] 2A Read2: 2,940 unique EANs from V_D_ITEM (deduplicated — MIN(MAT_IDT) per EAN, no MAT_ACT_FLG filter needed)
+[2026-06-26 06:27:16] [INFO] [SIGN-OFF #2] 2A P1: 1,899 SELL_OUT products matched via INT_ID = SKU_EAN_COD (no fanout — 1:1 per EAN)
+[2026-06-26 06:27:17] [INFO] [SIGN-OFF #2] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_02_upc_p1_matches.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_02_upc_p1_matches.csv
+[2026-06-26 06:27:18] [INFO] [SIGN-OFF #2] 2A: 1,524 distinct INT_IDs matched at P1 (will be excluded from P2)
+[2026-06-26 06:27:18] [INFO] [SIGN-OFF #2] Starting 2B: P2 — IMPORT_ID = SKU_EAN_COD (excluding P1 matches)
+[2026-06-26 06:27:19] [INFO] [SIGN-OFF #2] 2B Read1: 2,622 SELL_OUT products with non-null IMPORT_ID
+[2026-06-26 06:27:19] [INFO] [SIGN-OFF #2] 2B Read2: 2,940 rows from V_D_ITEM (fresh read)
+[2026-06-26 06:27:36] [INFO] [SIGN-OFF #2] 2B: 723 SELL_OUT rows remain after P1 exclusion
+[2026-06-26 06:27:36] [INFO] [SIGN-OFF #2] 2B P2: 2 SELL_OUT products matched via IMPORT_ID = SKU_EAN_COD
+[2026-06-26 06:27:37] [INFO] [SIGN-OFF #2] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_02_upc_p2_matches.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_02_upc_p2_matches.csv
+[2026-06-26 06:27:38] [INFO] [SIGN-OFF #2] Starting 2C: Unmatched SELL_OUT products
+[2026-06-26 06:27:38] [INFO] [SIGN-OFF #2] 2C Read1: 2,622 total SELL_OUT products from VW_D_PRODUCT_RM
+[2026-06-26 06:27:38] [INFO] [SIGN-OFF #2] 2C Read2: 2,940 distinct non-null EAN keys from V_D_ITEM
+[2026-06-26 06:27:39] [INFO] [SIGN-OFF #2] 2C: 721 SELL_OUT products unmatched to any SKU_EAN_COD
+[2026-06-26 06:27:40] [INFO] [SIGN-OFF #2] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_02_upc_unmatched.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_02_upc_unmatched.csv
+[2026-06-26 06:27:40] [INFO] [SIGN-OFF #2] Starting 2D: Cascade summary
+[2026-06-26 06:27:40] [INFO] [SIGN-OFF #2] 2D Cascade: P1=1,899 (72.43%) | P2=2 (0.08%) | Unmatched=721 (27.5%)
+[2026-06-26 06:27:42] [INFO] [SIGN-OFF #2] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_02_upc_cascade.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_02_upc_cascade.csv
+[2026-06-26 06:27:42] [✅ PASS] [SIGN-OFF #2] 2D: P1 match rate 72.43% ≥ 70% threshold
+[2026-06-26 06:27:42] [INFO] [SIGN-OFF #2] 2D REMINDER: P3 fuzzy matching is PROHIBITED from auto-promotion to silver layer. Fuzzy matches must remain in quarantine and require manual sign-off before any join.
+[2026-06-26 06:27:42] [INFO] [SIGN-OFF #3] Starting Sign-Off #3: Nielsen market string catalog
+[2026-06-26 06:27:43] [INFO] [SIGN-OFF #3] 3: PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_MKT_DIM → 155 distinct MRKT_DSC_SHRT values
+[2026-06-26 06:27:44] [INFO] [SIGN-OFF #3] 3: PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_MKT_DIM → 163 distinct MRKT_DSC_SHRT values
+[2026-06-26 06:27:45] [INFO] [SIGN-OFF #3] 3: PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_MKT_DIM → 73 distinct MRKT_DSC_SHRT values
+[2026-06-26 06:27:46] [INFO] [SIGN-OFF #3] 3: PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM → 82 distinct MRKT_DSC_SHRT values
+[2026-06-26 06:27:47] [INFO] [SIGN-OFF #3] 3: 362 unique MRKT_DSC_SHRT values across all Nielsen dim tables
+[2026-06-26 06:27:50] [INFO] [SIGN-OFF #3] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_03_nielsen_markets.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_03_nielsen_markets.csv
+[2026-06-26 06:27:50] [⚠️  WARNING] [SIGN-OFF #3] 3: All 362 Nielsen market strings are tagged NEEDS_REVIEW. Manual standardisation required before market bridge join in Phase 3.
+[2026-06-26 06:27:50] [INFO] [SIGN-OFF #4] Starting 4A: V_D_CLIENT schema inspection
+[2026-06-26 06:27:51] [INFO] [SIGN-OFF #4] 4A: V_D_CLIENT has 141 columns
+[2026-06-26 06:27:52] [INFO] [SIGN-OFF #4] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_04_v_d_client_schema.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_04_v_d_client_schema.csv
+[2026-06-26 06:27:52] [INFO] [SIGN-OFF #4] Starting 4B: CUS_GRN_CHL_DSC channel distribution
+[2026-06-26 06:27:52] [INFO] [SIGN-OFF #4] 4B: 5 distinct CUS_GRN_CHL_DSC values
+[2026-06-26 06:27:54] [INFO] [SIGN-OFF #4] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_04_v_d_client.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_04_v_d_client.csv
+[2026-06-26 06:27:54] [INFO] [SIGN-OFF #4] 4B INTERPRETATION: Only 5 distinct values in CUS_GRN_CHL_DSC. This is likely CANAL (grand channel / trade class), NOT CADENA (retail chain). SELL_IN CADENA_STD remains NULL until a chain-level field is confirmed in V_D_CLIENT or another source.
+[2026-06-26 06:27:54] [⚠️  WARNING] [SIGN-OFF #4] 4B: CUS_GRN_CHL_DSC appears to be a grand-channel field (5 values) — CADENA_STD cannot be populated from this column alone
+[2026-06-26 06:27:54] [INFO] [SIGN-OFF #4] Starting 4C: Cadena candidate column search
+[2026-06-26 06:27:54] [INFO] [SIGN-OFF #4] 4C: 3 candidate columns identified as potential CADENA / chain fields. Review signoff_04_v_d_client_cadena_candidates.csv and sample values before confirming.
+[2026-06-26 06:27:55] [INFO] [SIGN-OFF #4] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_04_v_d_client_cadena_candidates.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_04_v_d_client_cadena_candidates.csv
+[2026-06-26 06:27:55] [✅ PASS] [SIGN-OFF #4] 4C: 3 cadena candidate columns found — requires manual review
+[2026-06-26 06:27:56] [INFO] [SIGN-OFF #5] Starting 5A: VW_D_STORE_RM schema inspection
+[2026-06-26 06:27:56] [INFO] [SIGN-OFF #5] 5A: VW_D_STORE_RM has 67 columns
+[2026-06-26 06:27:57] [INFO] [SIGN-OFF #5] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_05_store_schema.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_05_store_schema.csv
+[2026-06-26 06:27:57] [INFO] [SIGN-OFF #5] Starting 5B: CHAIN + FORMAT distribution
+[2026-06-26 06:27:59] [INFO] [SIGN-OFF #5] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_05_store_chain.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_05_store_chain.csv
+[2026-06-26 06:27:59] [INFO] [SIGN-OFF #5] 5B: Distinct CHAIN values=19 | Distinct FORMAT values=86
+[2026-06-26 06:27:59] [INFO] [SIGN-OFF #5] 5B INTERPRETATION: 19 CHAIN values → likely CADENA_STD. 86 FORMAT values → likely CANAL_STD or sub-cadena. Do NOT use CHAIN as both CANAL and CADENA — they represent different hierarchy levels.
+[2026-06-26 06:27:59] [INFO] [SIGN-OFF #5] Starting 5C: Chain and Format classification scaffolds
+[2026-06-26 06:28:01] [INFO] [SIGN-OFF #5] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_05_store_chain_classification.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_05_store_chain_classification.csv
+[2026-06-26 06:28:02] [INFO] [SIGN-OFF #5] 5C: Chain classification scaffold saved — 19 chains to map as CADENA_STD
+[2026-06-26 06:28:03] [INFO] [SIGN-OFF #5] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_05_store_format_classification.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_05_store_format_classification.csv
+[2026-06-26 06:28:04] [INFO] [SIGN-OFF #5] 5C: Format classification scaffold saved — 86 formats to map as CANAL_STD or sub-cadena
+[2026-06-26 06:28:04] [✅ PASS] [SIGN-OFF #5] 5C: Chain + Format classification scaffolds created — NEEDS_REVIEW
+[2026-06-26 06:28:04] [INFO] [SIGN-OFF #6] Starting Sign-Off #6: Hard Blocker Assertion Suite (v3 — 12 assertions)
+[2026-06-26 06:28:04] [✅ PASS] [SIGN-OFF #6] NULL_EAN_ACTIVE_PRODUCTS: Active products (MAT_ACT_FLG=1) with NULL SKU_EAN_COD = 0. Must be 0 for sell-in → sell-out matching to work. (value=0)
+[2026-06-26 06:28:04] [✅ PASS] [SIGN-OFF #6] EAN_ACTIVE_ACTIVE_CONFLICT: EANs with > 1 ACTIVE MAT_IDT = 0. Active-active EAN conflicts block reliable product matching. (value=0)
+[2026-06-26 06:28:04] [✅ PASS] [SIGN-OFF #6] SKU_MAPPING_ACTIVE_EXPORT_COUNT: signoff_01_sku_mapping.csv exported 81,627 active SKUs. Zero would indicate V_D_ITEM is empty or MAT_ACT_FLG filter is broken. (value=81627)
+[2026-06-26 06:28:04] [✅ PASS] [SIGN-OFF #6] CAT_UPC_DUPLICATE_MAT_IDT: Duplicate MAT_IDT rows in sku_mapping = 0 (structural — verify after catalog enrichment). Each MAT_IDT should appear exactly once in the product catalog. (value=0)
+[2026-06-26 06:28:05] [✅ PASS] [SIGN-OFF #6] SELL_OUT_UPC_AMBIGUOUS_EAN: EANs in P1 match that resolve to multiple MAT_IDT = 0. Ambiguous EAN joins would fan-out sell-out volumes incorrectly. (value=0)
+[2026-06-26 06:28:05] [✅ PASS] [SIGN-OFF #6] MKT_ON_UPC_JOIN_PROHIBITED: Nielsen MKT_ON data NEVER joins on UPC. Market aggregates are keyed on market strings only. Structural design assertion — PASS by construction. (value=STRUCTURAL)
+[2026-06-26 06:28:05] [✅ PASS] [SIGN-OFF #6] MKT_OFF_UPC_JOIN_PROHIBITED: Nielsen MKT_OFF data NEVER joins on UPC. Market aggregates are keyed on market strings only. Structural design assertion — PASS by construction. (value=STRUCTURAL)
+[2026-06-26 06:28:05] [✅ PASS] [SIGN-OFF #6] MKT_OFF_CADENA_JOIN_PROHIBITED: Nielsen MKT_OFF data NEVER joins on CADENA_STD. MKT_OFF → SELL_OUT bridge uses market string matching, not chain-level join. Structural design assertion — PASS by construction. (value=STRUCTURAL)
+[2026-06-26 06:28:05] [⚠️  WARNING] [SIGN-OFF #6] MKT_OFF_CADENA_STD_NULL_RATE: Cannot assert CADENA_STD null-rate against mkt_off_std until Phase 3 silver layer runs. Assert deferred to Phase 3 validation notebook. (value=DEFERRED)
+[2026-06-26 06:28:05] [✅ PASS] [SIGN-OFF #6] SELL_IN_ACTIVE_SKU_ZERO: Active SELL_IN SKUs from V_D_ITEM = 81,627. Zero active SKUs means sell-in data cannot be used for product matching. (value=81627)
+[2026-06-26 06:28:05] [✅ PASS] [SIGN-OFF #6] FUZZY_UPC_AUTO_PROMOTION: Fuzzy UPC matching (P3) is quarantine-only by design. No fuzzy match may be auto-promoted to silver layer without explicit manual sign-off. Structural design assertion — PASS by construction. (value=STRUCTURAL)
+[2026-06-26 06:28:06] [⚠️  WARNING] [SIGN-OFF #6] NIELSEN_MARKET_NEEDS_REVIEW: 362 Nielsen market strings tagged NEEDS_REVIEW. Manual standardisation required before market bridge joins in Phase 3. (value=362)
+[2026-06-26 06:28:07] [INFO] [SIGN-OFF #6] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase2_signoff/signoff_06_hard_blocker_check.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/signoff_06_hard_blocker_check.csv
+[2026-06-26 06:28:07] [INFO] [SIGN-OFF #6] Sign-Off #6 complete: 10 PASS | 0 BLOCKER | 2 WARNING
+[2026-06-26 06:28:07] [INFO] [FINAL SUMMARY] ================================================================================
+[2026-06-26 06:28:07] [INFO] [FINAL SUMMARY] PHASE 2 MDM SIGN-OFF — FINAL STATUS REPORT
+[2026-06-26 06:28:07] [INFO] [FINAL SUMMARY] ================================================================================
+[2026-06-26 06:28:07] [✅ PASS] [FINAL SUMMARY] NO HARD BLOCKERS — Phase 2 sign-off conditions met for all structural checks
+[2026-06-26 06:28:07] [⚠️  WARNING] [FINAL SUMMARY] TOTAL WARNINGS: 6
+[2026-06-26 06:28:07] [⚠️  WARNING] [FINAL SUMMARY]   1. 1A: 1,057 rows have NULL EAN (including inactive) — inactive NULLs are tolerable
+[2026-06-26 06:28:07] [⚠️  WARNING] [FINAL SUMMARY]   2. 1C: 1,115 EANs map to multiple MAT_IDTs but ALL are inactive history — no active-active EAN conflict detected. Monitor after catalog refresh.
+[2026-06-26 06:28:07] [⚠️  WARNING] [FINAL SUMMARY]   3. 3: All 362 Nielsen market strings are tagged NEEDS_REVIEW. Manual standardisation required before market bridge join in Phase 3.
+[2026-06-26 06:28:07] [⚠️  WARNING] [FINAL SUMMARY]   4. 4B: CUS_GRN_CHL_DSC appears to be a grand-channel field (5 values) — CADENA_STD cannot be populated from this column alone
+[2026-06-26 06:28:07] [⚠️  WARNING] [FINAL SUMMARY]   5. [MKT_OFF_CADENA_STD_NULL_RATE] Cannot assert CADENA_STD null-rate against mkt_off_std until Phase 3 silver layer runs. Assert deferred to Phase 3 validation notebook.
+[2026-06-26 06:28:07] [⚠️  WARNING] [FINAL SUMMARY]   6. [NIELSEN_MARKET_NEEDS_REVIEW] 362 Nielsen market strings tagged NEEDS_REVIEW. Manual standardisation required before market bridge joins in Phase 3.
+[2026-06-26 06:28:07] [INFO] [FINAL SUMMARY] PHASE 3 GATE: 🟢 CLEAR
+[2026-06-26 06:28:07] [INFO] [FINAL SUMMARY] Phase 2 sign-off COMPLETE. No hard blockers detected. Phase 3 may proceed after manual review of all NEEDS_REVIEW items.

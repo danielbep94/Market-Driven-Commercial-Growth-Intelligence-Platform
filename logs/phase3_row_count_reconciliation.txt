@@ -1,0 +1,5 @@
+sell_in_std: 49815
+sell_out_std: 100000
+mkt_on_std: 7282
+mkt_off_std: 100000
+nielsen_std: 362

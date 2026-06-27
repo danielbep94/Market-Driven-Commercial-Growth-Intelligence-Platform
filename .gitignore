@@ -52,6 +52,9 @@ data/
 *.orc
 # Exception: homologation mapping files (these are code, not data)
 !homologation/*.csv
+# Exception: logs/ — audit logs and sign-off CSVs written by notebooks (committed for traceability)
+!logs/*.csv
+!logs/*.txt
 
 # Model artifacts — stored in MLflow, not git
 models/**/*.pkl

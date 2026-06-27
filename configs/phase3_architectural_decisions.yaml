@@ -1,0 +1,101 @@
+# =============================================================================
+# phase3_architectural_decisions.yaml
+# =============================================================================
+# Documents structural design decisions made during Phase 3 standardization.
+# These are not bugs or gaps — they are intentional architectural choices.
+# Each entry must include: decision, reason, evidence, confirmed_by, status.
+#
+# Rule reference: R9 (structural NULLs are allowed when architecturally correct)
+# =============================================================================
+
+decisions:
+
+  # ---------------------------------------------------------------------------
+  # M2: SELL_IN cadena_std = NULL
+  # ---------------------------------------------------------------------------
+  sell_in_cadena_std:
+    value: NULL
+    status: CONFIRMED
+    confirmed_date: "2026-06-27"
+    confirmed_by: "M2 cadena discovery — sell_in_cadena_discovery.py"
+    rule_reference: R9
+    decision: >
+      cadena_std is NULL for all SELL_IN rows. This is structurally correct,
+      not a data quality gap.
+    reason: >
+      VW_FACT_RNV (SELL_IN fact table) ships to chain-level CEDIS distribution
+      centres, not to individual retail stores. The customer dimension (V_D_CLIENT)
+      confirms this: the top customers in the join probe are all CEDIS nodes
+      (e.g. "CEDIS CHEDRAUI TEOLOYUCAN", "7 ELEVEN CEDIS MONTERREY",
+      "CEDIS HEB"). No retail chain (cadena) granularity exists at the SELL_IN
+      transaction level. The finest channel available is CUS_CHL_DSC (16 values:
+      NACIONALES, GLOBALES, TDC, AUTOSERVICIO, MAYOREO, E-COMMERCE, etc.)
+      which is canal-level, not cadena-level.
+    evidence:
+      - logs/m2_cadena_recommendation.txt
+      - logs/m2_join_probe_shpcus_to_client.csv
+      - logs/m2_v_d_client_columns.csv
+      - logs/m2_v_d_client_samples.csv
+    columns_evaluated: 30
+    cadena_candidates_found: 0
+    canal_column_confirmed: CUS_CHL_DSC   # 16 distinct values — canal level only
+    validation_impact: >
+      The phase3_mdm_validation warning "sell_in_std.cadena_std = 0% < 60%"
+      should be treated as EXPECTED_NULL, not a data gap.
+      The 60% threshold does not apply to structural NULLs.
+
+  # ---------------------------------------------------------------------------
+  # MKT_OFF cadena_std = NULL (pre-existing R9 decision from Phase 2)
+  # ---------------------------------------------------------------------------
+  mkt_off_cadena_std:
+    value: NULL
+    status: CONFIRMED
+    confirmed_date: "2026-06-26"
+    confirmed_by: "Phase 2 MDM Sign-Off (Phase 2 review, R9 approved)"
+    rule_reference: R9
+    decision: >
+      cadena_std is NULL for all MKT_OFF rows (FACT_MEDIA_OFF).
+    reason: >
+      Offline media investment (TV, radio, OOH) is not targeted at specific
+      retail chains. The FACT_MEDIA_OFF table has no cadena-level dimension.
+      NULL AS cadena_std is an approved structural hardcode — not a mapping gap.
+    evidence:
+      - Phase 2 sign-off review (2026-06-26)
+      - APPROVED_WITH_MODIFICATIONS flag in Phase 2 audit log
+
+  # ---------------------------------------------------------------------------
+  # MKT_ON cadena_std = NULL for digital campaigns (86.89% of rows)
+  # ---------------------------------------------------------------------------
+  mkt_on_cadena_std_digital:
+    value: NULL
+    status: CONFIRMED
+    confirmed_date: "2026-06-27"
+    confirmed_by: "silver_mkt_on_std.py — Phase 3 audit log"
+    rule_reference: R9
+    decision: >
+      cadena_std is NULL for 86.89% of MKT_ON rows where CADENA is blank.
+    reason: >
+      Digital media campaigns (DISPLAY, OLV, programmatic, social) in
+      VW_MKT_ECOMM are not associated with a specific retail chain.
+      6,327 / 7,282 rows have blank CADENA — these are brand-level digital
+      campaigns, not retailer-specific activations. This is expected.
+    evidence:
+      - logs/phase3_standardization_audit_log.txt
+      - "[MKT_ON] NULL rate — cadena_std: 6,327 / 7,282 = 86.89%"
+
+  # ---------------------------------------------------------------------------
+  # SELL_IN: sell_in_std name (no SELL_IN fact in source at row level)
+  # ---------------------------------------------------------------------------
+  sell_in_std_output_naming:
+    value: "sell_in_std.csv"
+    status: CONFIRMED
+    confirmed_date: "2026-06-26"
+    confirmed_by: "Phase 3 Phase 2 sign-off review correction (item #1)"
+    rule_reference: R1
+    decision: >
+      Output file is named sell_in_std.csv (not sell_in_sell_in_std).
+      The output contains SELL_IN fact data aggregated by SKU (49,815 rows).
+    reason: >
+      VW_FACT_RNV is confirmed as the SELL_IN fact source for PRD_MEX.
+      BIL_NET_VAL_MXN (revenue MXN) and BIL_NET_KGR (volume KG) are the
+      confirmed fact columns. The output is correctly named and structured.

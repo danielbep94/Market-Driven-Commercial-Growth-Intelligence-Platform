@@ -1,0 +1,126 @@
+{
+  "DATA_SELL_IN_CONSOLIDATED": {
+    "db": "PRD_MEX",
+    "schema": "MEX_DSP_OTC",
+    "source_type": "Capa Semántica Sell In / MDM / OTC",
+    "business_domain": "Sell In",
+    "description": "Capa semántica consolidada de Sell In para México, construida a partir de la tabla de hechos de sell-in más las dimensiones de cliente, producto y período. Está enriquecida con lógica de armonización de clientes para crear una vista unificada a través de migraciones, cambios estructurales y cambios de canal.",
+    "raw_grain": "Nivel transaccional de hechos de sell-in expuesto por VW_FACT_RNV",
+    "reporting_grain": "Mes + Cliente Armonizado + SKU + CEDIS + Región + CBU",
+    "fact_table": {
+      "name": "FACT_SELL_IN_CONSOLIDATED",
+      "source_table": "VW_FACT_RNV",
+      "description": "Tabla principal de hechos de sell-in para México utilizada como base transaccional de la capa semántica.",
+      "technical_keys_expected": [
+        {"column": "[COLUMNA_ID_CLIENTE_FACT]", "data_type": "STRING", "note": "Llave del cliente en VW_FACT_RNV"},
+        {"column": "[COLUMNA_ID_PRODUCTO_FACT]", "data_type": "STRING", "note": "Llave del producto en VW_FACT_RNV"},
+        {"column": "[COLUMNA_ID_PERIODO_FACT]", "data_type": "STRING", "note": "Llave del periodo en VW_FACT_RNV"},
+        {"column": "[COLUMNA_ID_CEDIS_FACT]", "data_type": "STRING", "note": "Llave de distribución/organizacional en VW_FACT_RNV"}
+      ],
+      "value_fields_expected": [
+        {"column": "VOLUMEN", "data_type": "FLOAT"},
+        {"column": "VALOR", "data_type": "FLOAT"}
+      ]
+    },
+    "dimensions": {
+      "customer": {
+        "name": "DIM_CLIENTE_SELL_IN",
+        "source_table": "V_D_CLIENT",
+        "description": "Dimensión de cliente que contiene los atributos descriptivos utilizados en los reportes de sell-in.",
+        "recommended_business_keys": [
+          "[COLUMNA_ID_CLIENTE_DIM]"
+        ],
+        "standardized_columns_highlighted": {
+          "CUS_NAM_DSC": "NOMBRE_DEL_CLIENTE",
+          "CUS_GRN_CHL_DSC": "CANAL",
+          "CUS_CHL_ARE_DSC_EXT": "REGION"
+        },
+        "business_role": "Proporciona atributos descriptivos del cliente como nombre, canal comercial y región."
+      },
+      "customer_harmonization": {
+        "name": "DIM_CLIENTE_HARMONIZADO",
+        "source_table": "VW_D_CUSTOMER_DICTONARY",
+        "description": "Tabla de armonización de clientes que mapea los IDs antiguos de clientes a nuevos IDs unificados, resuelve duplicados y cambios estructurales, y permite una vista única del cliente para análisis.",
+        "recommended_business_keys": [
+          "[COLUMNA_ID_CLIENTE_ORIGINAL]",
+          "[COLUMNA_ID_CLIENTE_UNIFICADO]"
+        ],
+        "business_role": "Capa crítica de armonización de clientes para evitar el doble conteo durante migraciones, cambios organizacionales y cambios de canal."
+      },
+      "product": {
+        "name": "DIM_PRODUCTO_SELL_IN",
+        "source_table": "V_D_ITEM",
+        "description": "Dimensión de producto utilizada en los reportes de sell-in, proporcionando identificadores, jerarquía, conversiones de unidades y atributos de ciclo de vida.",
+        "recommended_business_keys": [
+          "MAT_IDT",
+          "SKU_EAN_COD"
+        ],
+        "standardized_columns": {
+          "MAT_IDT": "ID_PRODUCTO",
+          "SKU_EAN_COD": "CODIGO_EAN",
+          "CBU": "UNIDAD_NEGOCIO",
+          "MAT_LCL_DSC": "NOMBRE_PRODUCTO",
+          "MAT_DSC": "DESCRIPCION_PRODUCTO",
+          "LV1_PDT_ARE_DSC": "CATEGORIA",
+          "LV2_UMB_BRD_DSC": "MARCA",
+          "LV3_PDT_BRD_DSC": "SUBMARCA",
+          "LV4_PDT_FAM_DSC": "FAMILIA",
+          "LV5_PDT_SFM_DSC": "SUBFAMILIA",
+          "LV6_PDT_NAT_DSC": "SEGMENTO",
+          "UOM_CALC_LIT_PU": "VOLUMEN_POR_UNIDAD_L",
+          "SKU_KGS_PZA": "PESO_POR_UNIDAD_KG",
+          "SKU_NET_STD_WGH_VAL": "PESO_NETO",
+          "STD_WGH_UOM_COD": "UNIDAD_PESO",
+          "MAT_ACT_FLG": "ES_ACTIVO",
+          "MAT_STS_CSL": "ESTATUS_PRODUCTO",
+          "MAT_CRE_DAT": "FECHA_CREACION",
+          "MAT_TYP_COD": "TIPO_PRODUCTO",
+          "MAT_CLASS": "CLASE_PRODUCTO",
+          "MAT_SEGM": "SEGMENTO_PRODUCTO",
+          "FMT_TYP_COD": "TIPO_FORMATO",
+          "LV2_UMB_BRD_GRP_DSC": "GRUPO_MARCA"
+        },
+        "business_role": "Proporciona jerarquía de productos, EAN, atributos de marca y factores de normalización necesarios para analítica de sell-in y conversiones de volumen."
+      },
+      "period": {
+        "name": "DIM_PERIODO_SELL_IN",
+        "source_table": "V_D_PERIOD",
+        "description": "Dimensión de período utilizada para definir el mes de reporte y el contexto del calendario.",
+        "recommended_business_keys": [
+          "[COLUMNA_ID_PERIODO_DIM]"
+        ],
+        "business_role": "Proporciona el contexto de mes / período para la agregación de sell-in."
+      }
+    },
+    "relations": {
+      "base_table": "VW_FACT_RNV",
+      "conditions": [
+        "VW_FACT_RNV.[COLUMNA_ID_CLIENTE_FACT] = V_D_CLIENT.[COLUMNA_ID_CLIENTE_DIM]",
+        "V_D_CLIENT.[COLUMNA_ID_CLIENTE_DIM] = VW_D_CUSTOMER_DICTONARY.[COLUMNA_ID_CLIENTE_ORIGINAL]",
+        "VW_FACT_RNV.[COLUMNA_ID_PRODUCTO_FACT] = V_D_ITEM.MAT_IDT",
+        "VW_FACT_RNV.[COLUMNA_ID_PERIODO_FACT] = V_D_PERIOD.[COLUMNA_ID_PERIODO_DIM]"
+      ]
+    },
+    "business_units": ["WATERS", "EDP"],
+    "business_logic": {
+      "customer_harmonization_logic": [
+        "Utilizar VW_D_CUSTOMER_DICTONARY para mapear los IDs históricos al ID unificado.",
+        "Regla SQL Recomendada: COALESCE(VW_D_CUSTOMER_DICTONARY.[COLUMNA_ID_CLIENTE_UNIFICADO], V_D_CLIENT.[COLUMNA_ID_CLIENTE_DIM]) AS ID_CLIENTE_ARMONIZADO"
+      ],
+      "product_volume_normalization_logic": [
+        {"business_unit": "WATERS", "rule": "VOLUMEN * V_D_ITEM.UOM_CALC_LIT_PU (Convertir a Litros)"},
+        {"business_unit": "EDP", "rule": "VOLUMEN * V_D_ITEM.SKU_KGS_PZA (Convertir a Kilogramos)"}
+      ],
+      "reporting_logic": [
+        "Nivel de agregación: Mes + Cliente Armonizado + SKU + CEDIS + Región + CBU"
+      ]
+    },
+    "known_issues_and_modeling_notes": [
+      "Riesgo de rendimiento: El mapeo de clientes depende de múltiples JOINs. Asegurar que las llaves de cruce estén indexadas o particionadas.",
+      "La estandarización de marcas (MARCA_STD) está actualmente hardcodeada (fijada en código) y debería idealmente moverse a una tabla de referencia.",
+      "Diferentes lógicas de volumen por unidad de negocio (LITROS vs KGS) pueden crear inconsistencias si se suman directamente; deben mantenerse en columnas separadas o unificadas bajo una métrica de 'Tonelaje/Volumen Equivalente'.",
+      "El modelo depende fuertemente de la calidad de la armonización de clientes.",
+      "Sell-in y Sell-out deben mantenerse modelados por separado a nivel de origen, incluso si comparten dimensiones comunes como marca, cliente y período."
+    ]
+  }
+}

@@ -1,0 +1,194 @@
+{
+  "DATA_WATER_NIELSEN_SCANTRACK": {
+    "db": "PRD_MEX",
+    "schema": "MEX_DSP_DPH_MKT",
+    "source_type": "Nielsen Scantrack",
+    "business_domain": "Aguas",
+    "description": "Capa semántica mensual para Nielsen Water Scantrack en México. Construida a partir de datos de hechos semanales de Nielsen más catálogos de producto, mercado, período y métricas, enriquecida con mapeos de negocio para la lógica de segmento, presentación, fabricante, marca, submarca y subsegmento de aguas.",
+    "raw_grain": "market_id + product_id + period_id + FACT_COLUMN",
+    "reporting_grain": "PER_DATE + ITM_SEGMENT_2 + ITM_UNIF_BRAND + ITM_UNIF_SUBBRND + MKT_SHORT_DSC + ITM_UNIF_SUBSEG_DAN_1 + SEGMENTO_LOCAL + PRESENTACION_LOCAL + ITM_UNIF_MANUF_DAN + ITM_UNIF_BRND_DAN + ITM_UNIF_SUBBRND_DAN + TIPO + ITM_UNIF_SUBSEG_DAN_2 + ITM_UNIF_SUBSEG_DAN_3 + ITM_UNIF_SUBSEG_DAN_4 + ITM_UNIF_SUBSEG_DAN_5",
+    "fact_table": {
+      "name": "FACT_NIELSEN_SCANTRACK_WATER",
+      "source_table": "VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT",
+      "description": "Tabla de hechos de Nielsen Water Scantrack que contiene medidas por mercado, producto, período y código de métrica.",
+      "technical_keys": [
+        {"column": "market_id", "data_type": "STRING"},
+        {"column": "product_id", "data_type": "STRING"},
+        {"column": "period_id", "data_type": "STRING"},
+        {"column": "FACT_COLUMN", "data_type": "STRING"}
+      ],
+      "value_field": {"column": "FACT_VALUE", "data_type": "FLOAT"}
+    },
+    "dimensions": {
+      "product": {
+        "name": "DIM_PRODUCTO_NIELSEN_WATER",
+        "source_table": "VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM",
+        "description": "Catálogo de productos de Nielsen Water Scantrack con jerarquía de productos y atributos armonizados utilizados para el mapeo de segmentos, marcas y presentaciones.",
+        "recommended_business_keys": [
+          "ID_PRODUCTO_NIELSEN",
+          "CODIGO_PRODUCTO_NIELSEN"
+        ],
+        "standardized_columns": {
+          "product_id": "ID_PRODUCTO_NIELSEN",
+          "CSTM_10000000000000673935": "CATEGORIA_MACRO",
+          "CSTM_321331": "FABRICANTE",
+          "CSTM_421268": "SEGMENTO",
+          "CSTM_310589": "MARCA",
+          "CSTM_972397": "SUBMARCA",
+          "CSTM_940056": "RANGO_TAMANO",
+          "INP_57051": "CONTENIDO_UNIDAD",
+          "CSTM_942012": "TIPO_PACK",
+          "CSTM_384949": "FORMATO_PRESENTACION",
+          "PRDC_LNG_DSC": "DESCRIPCION_LARGA_PRODUCTO",
+          "PRDC_CD": "CODIGO_PRODUCTO_NIELSEN",
+          "hierarchy_number": "NUMERO_JERARQUIA",
+          "hierarchy_level": "NIVEL_JERARQUIA",
+          "hierarchy_level_name": "NOMBRE_NIVEL_JERARQUIA"
+        },
+        "important_fields_used_in_semantic_logic": [
+          "CSTM_321331", "CSTM_421268", "CSTM_310589", "CSTM_972397",
+          "CSTM_940056", "INP_57051", "CSTM_942012", "CSTM_384949",
+          "PRDC_LNG_DSC", "PRDC_CD", "hierarchy_level"
+        ],
+        "notes": [
+          "El catálogo crudo de productos se puede explorar en hierarchy_level = 11 (nivel UPC).",
+          "La capa semántica actual de Water Scantrack filtra por hierarchy_level = 9 para la presentación armonizada a nivel de reporte."
+        ]
+      },
+      "market": {
+        "name": "DIM_MERCADO_NIELSEN_WATER",
+        "source_table": "VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM",
+        "description": "Catálogo de mercados de Nielsen Water Scantrack con descripciones que cubren el total de México, áreas, ciudades y variantes de lectura/surtido.",
+        "recommended_business_keys": ["ID_MERCADO_NIELSEN"],
+        "standardized_columns": {
+          "market_id": "ID_MERCADO_NIELSEN",
+          "MRKT_DSC_SHRT": "DESCRIPCION_CORTA_MERCADO"
+        },
+        "recommended_semantic_fields": [
+          "CANAL_NIELSEN", "TIPO_LECTURA_NIELSEN", "TIPO_SURTIDO_NIELSEN",
+          "NIVEL_GEOGRAFICO_NIELSEN", "AREA_NIELSEN", "CIUDAD_NIELSEN", "ES_MT"
+        ],
+        "sample_values": {
+          "MRKT_DSC_SHRT": ["AUTOSERVICIOS T. MEX", "FARMACIAS", "OXXO"]
+        },
+        "notes": [
+          "El catálogo de mercados mezcla la familia de mercado, tipo de lectura, surtido y geografía en la columna MRKT_DSC_SHRT.",
+          "Se recomienda una vista estandarizada del mercado antes del consumo semántico final."
+        ]
+      },
+      "period": {
+        "name": "DIM_PERIODO_NIELSEN_WATER",
+        "source_table": "VW_IND_AGUA_BNF_ST_NLSN_PER_DIM",
+        "description": "Catálogo de períodos de Nielsen Water Scantrack con períodos semanales de NIQ y fechas de fin de semana.",
+        "recommended_business_keys": ["ID_PERIODO_NIELSEN"],
+        "standardized_columns": {
+          "period_id": "ID_PERIODO_NIELSEN",
+          "period_short_description": "DESCRIPCION_CORTA_PERIODO",
+          "period_long_description": "DESCRIPCION_LARGA_PERIODO",
+          "period_ending_datetime": "FECHA_FIN_PERIODO",
+          "niq_calendar": "CALENDARIO_NIQ",
+          "niq_periodicity": "PERIODICIDAD_NIQ"
+        },
+        "notes": [
+          "El catálogo de períodos de origen es semanal.",
+          "La capa semántica convierte los períodos semanales de Nielsen en un PER_DATE a nivel mensual usando DATE_TRUNC('MONTH', FECHA_FIN)."
+        ]
+      },
+      "metric": {
+        "name": "DIM_METRICA_NIELSEN_WATER",
+        "source_table": "VW_IND_AGUA_BNF_ST_NLSN_FACT_REF",
+        "description": "Catálogo de métricas de Nielsen Water Scantrack que traduce los códigos de métricas de Nielsen a descripciones de métricas de negocio legibles.",
+        "recommended_business_keys": ["CODIGO_METRICA_NIELSEN"],
+        "standardized_columns": {
+          "fact_column": "CODIGO_METRICA_NIELSEN",
+          "fact_description": "DESCRIPCION_METRICA"
+        },
+        "important_metric_codes_used": [
+          "U", "AP_U", "E", "AP_E", "DOL", "AP_DOL", "NUM_DIST",
+          "DOL_CCV_TDP_NON_REACH_CONTEXT", "DOL_CCV_NON_REACH_CONTEXT",
+          "AP_NUM_DIST", "AP_DOL_SGV_NON_REACH_CONTEXT"
+        ],
+        "recommended_metric_groups": {
+          "VALUE": ["DOL", "AP_DOL"],
+          "VOLUME_LITRES": ["E", "AP_E"],
+          "UNITS": ["U", "AP_U"],
+          "DISTRIBUTION": ["NUM_DIST", "AP_NUM_DIST", "DOL_CCV_TDP_NON_REACH_CONTEXT", "DOL_CCV_NON_REACH_CONTEXT", "AP_DOL_SGV_NON_REACH_CONTEXT"]
+        }
+      }
+    },
+    "relations": {
+      "join_type": "LEFT JOIN",
+      "base_table": "VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT",
+      "conditions": [
+        "VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT.market_id = VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM.market_id",
+        "VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT.period_id = VW_IND_AGUA_BNF_ST_NLSN_PER_DIM.period_id",
+        "VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT.FACT_COLUMN = VW_IND_AGUA_BNF_ST_NLSN_FACT_REF.fact_column",
+        "VW_IND_AGUA_BNF_ST_NLSN_AGG_DATA_PVT.product_id = VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM.product_id"
+      ]
+    },
+    "time_logic": {
+      "source_periodicity": "Semanal",
+      "intermediate_logic": ["CTE_FECHA_FIN", "CTE_PERIOD"],
+      "semantic_transformation": "FECHA = DATE_TRUNC('MONTH', FECHA_FIN)::DATE",
+      "reporting_period_field": "PER_DATE"
+    },
+    "business_logic": {
+      "constant_fields": {
+        "ITM_UNIF_SUBSEG_DAN_1": "TOTAL WATERS"
+      },
+      "derived_fields": [
+        "SEGMENTO_LOCAL", "PRESENTACION_LOCAL", "ITM_UNIF_MANUF_DAN",
+        "ITM_UNIF_BRND_DAN", "ITM_UNIF_SUBBRND_DAN", "TIPO",
+        "ITM_UNIF_SUBSEG_DAN_2", "ITM_UNIF_SUBSEG_DAN_3",
+        "ITM_UNIF_SUBSEG_DAN_4", "ITM_UNIF_SUBSEG_DAN_5"
+      ],
+      "segment_logic_summary": [
+        {"condition": "AGUA NATURAL", "result": "NATURAL"},
+        {"condition": "AGUA SABORIZADA / BEBIDAS REFRESCANTES", "result": "SABOR"}
+      ],
+      "presentation_logic_summary": [
+        {"condition": "NATURAL AND CONTENIDO_UNIDAD >= 5", "result": "GARRAFON"},
+        {"condition": "NATURAL AND CONTENIDO_UNIDAD < 5", "result": "ADULTO / KIDS"},
+        {"condition": "SABOR", "result": "ADULTO / KIDS"}
+      ],
+      "manufacturer_harmonization_examples": [
+        "IND. REFRESQUERA PENINSULAR / COCA-COLA COMPANY -> COCA-COLA",
+        "GRUPO GEPP / PEPSICO -> PEPSI",
+        "O.FAB. -> OTHERS"
+      ],
+      "brand_harmonization_examples": [
+        "LEVITE CLASICA / INFUSIONES / CERO / BALANCE -> LEVITE",
+        "BONAFONT + KIDS -> BONAFONT KIDS"
+      ],
+      "type_logic_summary": [
+        {"condition": "AGUA NATURAL AND brand IN ('EVIAN', 'PERRIER')", "result": "PREMIUM"},
+        {"condition": "AGUA NATURAL AND brand IN ('ZOE', 'VITALINE')", "result": "ALCALINA"},
+        {"condition": "ELSE", "result": "REGULAR"}
+      ]
+    },
+    "output_metrics": [
+      "DIST_POND", "VTAS_VALOR_CUALQUIER_PROMO", "VTAS_LITRES_CUALQUIER_PROMO",
+      "DIST_NUM", "VTAS_UNDS_CUALQUIER_PROMO", "VTAS_LITRES", "VTAS_UNDS",
+      "DIST_POND_TDP", "DIST_NUM_CUALQUIER_PROMO", "DIST_POND_CUALQUIER_PROMO", "VTAS_VALOR"
+    ],
+    "output_metric_mapping_by_fact_description": {
+      "Dist. Pond.": "DIST_POND",
+      "Vtas Valor Cualquier Promo": "VTAS_VALOR_CUALQUIER_PROMO",
+      "Vtas (LITRES) Cualquier Promo": "VTAS_LITRES_CUALQUIER_PROMO",
+      "Dist. Num.": "DIST_NUM",
+      "Vtas Unds Cualquier Promo": "VTAS_UNDS_CUALQUIER_PROMO",
+      "Vtas (LITRES)": "VTAS_LITRES",
+      "Vtas Unds": "VTAS_UNDS",
+      "Dist. Pond. TDP": "DIST_POND_TDP",
+      "Dist. Num. Cualquier Promo": "DIST_NUM_CUALQUIER_PROMO",
+      "Dist. Pond. Cualquier Promo": "DIST_POND_CUALQUIER_PROMO",
+      "Vtas Valor": "VTAS_VALOR"
+    },
+    "quality_and_modeling_notes": [
+      "El período de origen crudo es semanal; la capa semántica final es mensual.",
+      "El catálogo de productos soporta múltiples niveles de jerarquía; la lógica de reporte actual usa hierarchy_level = 9.",
+      "Idealmente, el catálogo de mercados debe estandarizarse antes del consumo semántico final porque MRKT_DSC_SHRT mezcla canal, tipo de lectura, surtido y geografía.",
+      "Este dataset debe mantenerse separado de Water Retail / RIE y no consolidarse con él a nivel de modelo de origen."
+    ]
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "DATA_PLANT_BASED_NIELSEN_SCANTRACK": {
+    "db": "PRD_MEX",
+    "schema": "MEX_DSP_DPH_MKT",
+    "source_type": "Nielsen Scantrack",
+    "business_domain": "Plant Based",
+    "description": "Capa semántica mensual para Nielsen Plant Based Scantrack en México, enfocada en Sustitutos de Leche. Construida a partir de datos de hechos de Nielsen más catálogos de producto, mercado, período y métricas, con tratamiento específico para marcas de distribuidor (controlled-label) y agregación mensual.",
+    "raw_grain": "market_id + product_id + period_id + FACT_COLUMN",
+    "reporting_grain": "FECHA + ITM_UNIF_BRAND + MKT_SHORT_DSC + SUBCATEGORIA + ITEM_UNIF_SUBBRND",
+    "fact_table": {
+      "name": "FACT_NIELSEN_SCANTRACK_PB",
+      "source_table": "VW_SUST_LECHE_ST_NLSN_AGG_DATA_PVT",
+      "description": "Tabla de hechos de Nielsen Plant Based Scantrack que contiene medidas por mercado, producto, período y código de métrica.",
+      "technical_keys": [
+        {"column": "market_id", "data_type": "STRING"},
+        {"column": "product_id", "data_type": "STRING"},
+        {"column": "period_id", "data_type": "STRING"},
+        {"column": "FACT_COLUMN", "data_type": "STRING"}
+      ],
+      "value_field": {"column": "FACT_VALUE", "data_type": "FLOAT"}
+    },
+    "dimensions": {
+      "product": {
+        "name": "DIM_PRODUCTO_NIELSEN_PB",
+        "source_table": "VW_SUST_LECHE_ST_NLSN_PROD_DIM",
+        "description": "Catálogo de productos de Nielsen Plant Based Scantrack utilizado para identificar los atributos de categoría, fabricante, marca, submarca, tipo, subsegmento, sabor, envase y tamaño.",
+        "recommended_business_keys": [
+          "ID_PRODUCTO_NIELSEN",
+          "UPC"
+        ],
+        "standardized_columns": {
+          "product_id": "ID_PRODUCTO_NIELSEN",
+          "CSTM_10000000000000681840": "CATEGORIA",
+          "CSTM_331037": "FABRICANTE",
+          "INP_56985": "MARCA",
+          "INP_56988": "SUBMARCA",
+          "INP_56991": "TIPO_PRODUCTO",
+          "INP_57045": "SUBSEGMENTO",
+          "INP_57006": "SABOR",
+          "INP_56997": "ENVASE",
+          "CSTM_403959": "RANGO_PESO_CONVERTIDO",
+          "PRDC_LNG_DSC": "DESCRIPCION_LARGA_PRODUCTO",
+          "PRDC_CD": "UPC"
+        },
+        "important_fields_used_in_semantic_logic": [
+          "CSTM_331037", "INP_56985", "INP_56988", "INP_56991",
+          "INP_57045", "INP_57006", "INP_56997", "CSTM_403959",
+          "PRDC_LNG_DSC", "PRDC_CD"
+        ],
+        "notes": [
+          "El catálogo de productos proporciona los atributos de negocio para Plant Based / Sustitutos de Leche.",
+          "El tratamiento de 'Controlled Label' (Marcas de distribuidor/Genéricas) se maneja por separado en la lógica semántica filtrando por CSTM_331037 = 'CONTROLLED LABEL'."
+        ]
+      },
+      "market": {
+        "name": "DIM_MERCADO_NIELSEN_PB",
+        "source_table": "VW_SUST_LECHE_ST_NLSN_MKT_DIM",
+        "description": "Catálogo de mercados de Nielsen Plant Based Scantrack con alcances que combinan canal, tipo de lectura, surtido y geografía.",
+        "recommended_business_keys": ["ID_MERCADO_NIELSEN"],
+        "standardized_columns": {
+          "market_id": "ID_MERCADO_NIELSEN",
+          "MRKT_DSC_SHRT": "DESCRIPCION_CORTA_MERCADO"
+        },
+        "recommended_semantic_fields": [
+          "CANAL_NIELSEN", "TIPO_LECTURA_NIELSEN", "TIPO_SURTIDO_NIELSEN",
+          "NIVEL_GEOGRAFICO_NIELSEN", "AREA_NIELSEN", "CIUDAD_NIELSEN", "ES_MT"
+        ],
+        "notes": [
+          "MRKT_DSC_SHRT combina al menos la base del canal, tipo de lectura, tipo de surtido, geografía y el sufijo opcional MT.",
+          "Se recomienda una vista estandarizada del mercado antes del consumo semántico final."
+        ]
+      },
+      "period": {
+        "name": "DIM_PERIODO_NIELSEN_PB",
+        "source_table": "VW_SUST_LECHE_ST_NLSN_PER_DIM",
+        "description": "Catálogo de períodos de Nielsen Plant Based Scantrack con períodos semanales de NIQ y fechas de fin de semana.",
+        "recommended_business_keys": ["ID_PERIODO_NIELSEN"],
+        "standardized_columns": {
+          "period_id": "ID_PERIODO_NIELSEN",
+          "period_short_description": "DESCRIPCION_CORTA_PERIODO",
+          "period_long_description": "DESCRIPCION_LARGA_PERIODO",
+          "period_ending_datetime": "FECHA_FIN_PERIODO",
+          "niq_calendar": "CALENDARIO_NIQ",
+          "niq_periodicity": "PERIODICIDAD_NIQ"
+        },
+        "notes": [
+          "El catálogo de períodos de origen es semanal.",
+          "La capa semántica convierte los períodos semanales de Nielsen a un nivel mensual FECHA utilizando DATE_TRUNC('MONTH', TO_DATE(period_ending_datetime))."
+        ]
+      },
+      "metric": {
+        "name": "DIM_METRICA_NIELSEN_PB",
+        "source_table": "VW_SUST_LECHE_ST_NLSN_FACT_REF",
+        "description": "Catálogo de métricas de Nielsen Plant Based Scantrack que traduce los códigos de métricas a descripciones de negocio legibles.",
+        "recommended_business_keys": ["CODIGO_METRICA_NIELSEN"],
+        "standardized_columns": {
+          "fact_column": "CODIGO_METRICA_NIELSEN",
+          "fact_description": "DESCRIPCION_METRICA"
+        },
+        "important_metric_codes_used": [
+          "U", "AP_U", "DOL", "AP_DOL", "E", "E1", "NUM_DIST",
+          "TDP_NUM_DIST", "U1", "V", "V1"
+        ],
+        "recommended_metric_groups": {
+          "VALUE": ["DOL", "AP_DOL", "V", "V1"],
+          "UNITS": ["U", "AP_U", "U1"],
+          "VOLUME_OR_EQUIVALENT": ["E", "E1"],
+          "DISTRIBUTION": ["NUM_DIST", "TDP_NUM_DIST"]
+        }
+      }
+    },
+    "relations": {
+      "join_type": "LEFT JOIN",
+      "base_table": "VW_SUST_LECHE_ST_NLSN_AGG_DATA_PVT",
+      "conditions": [
+        "VW_SUST_LECHE_ST_NLSN_AGG_DATA_PVT.product_id = VW_SUST_LECHE_ST_NLSN_PROD_DIM.product_id",
+        "VW_SUST_LECHE_ST_NLSN_AGG_DATA_PVT.market_id = VW_SUST_LECHE_ST_NLSN_MKT_DIM.market_id",
+        "VW_SUST_LECHE_ST_NLSN_AGG_DATA_PVT.period_id = VW_SUST_LECHE_ST_NLSN_PER_DIM.period_id",
+        "VW_SUST_LECHE_ST_NLSN_AGG_DATA_PVT.FACT_COLUMN = VW_SUST_LECHE_ST_NLSN_FACT_REF.fact_column"
+      ]
+    },
+    "time_logic": {
+      "source_periodicity": "Semanal",
+      "semantic_date_field": "FECHA",
+      "semantic_date_rule": "FECHA = DATE_TRUNC('MONTH', TO_DATE(period_ending_datetime))::DATE",
+      "reporting_note": "El dataset semántico final es agregado mensualmente a partir de los períodos semanales de origen de Nielsen."
+    },
+    "business_logic": {
+      "data_sources_and_filters": {
+        "regular_branch": {
+          "description": "Flujo principal de datos Plant Based (Excluye Controlled Label si se implementa como CTE separado)",
+          "sql_conditions": [
+            "VW_SUST_LECHE_ST_NLSN_FACT_REF.fact_column IN ('U', 'AP_U', 'DOL', 'AP_DOL', 'E', 'E1', 'NUM_DIST', 'TDP_NUM_DIST')",
+            "TO_DATE(period_ending_datetime) >= '2024-01-01'"
+          ],
+          "metric_value_adjustment_logic": [
+            {"condition": "fact_column IN ('[AQUI_PONER_LISTA_METRICAS_A_DIVIDIR]')", "operation": "FACT_VALUE / 1000"},
+            {"condition": "ELSE", "operation": "FACT_VALUE"}
+          ]
+        },
+        "controlled_label_branch": {
+          "description": "Flujo de datos específico para Marcas Genéricas (Requiere un UNION ALL con el flujo principal)",
+          "sql_conditions": [
+            "CSTM_331037 = 'CONTROLLED LABEL'",
+            "VW_SUST_LECHE_ST_NLSN_FACT_REF.fact_column IN ('U', 'U1', 'V', 'V1', 'E', 'E1', 'NUM_DIST', 'TDP_NUM_DIST')",
+            "TO_DATE(period_ending_datetime) >= '2024-01-01'"
+          ],
+          "metric_value_adjustment_logic": [
+            {"condition": "fact_column IN ('[AQUI_PONER_LISTA_METRICAS_A_DIVIDIR]')", "operation": "FACT_VALUE / 1000"},
+            {"condition": "ELSE", "operation": "FACT_VALUE"}
+          ],
+          "brand_override_logic": "ITM_UNIF_BRAND = 'CONTROLLED LABEL'"
+        }
+      },
+      "constant_fields": {
+        "SUBCATEGORIA": "SUSTITUTOS DE LECHE",
+        "ITEM_UNIF_SUBBRND": "PLANT BASED"
+      }
+    },
+    "output_metrics": [
+      "DIST_NUM_TDP", "VTAS_VALOR_CUALQUIER_PROMO", "VTAS_UNDS_CUALQUIER_PROMO",
+      "VTAS_UNDS", "VTAS_VALOR", "DIST_NUM"
+    ],
+    "output_metric_mapping_by_fact_description": {
+      "Dist. Num. TDP": "DIST_NUM_TDP",
+      "Vtas Valor Cualquier Promo": "VTAS_VALOR_CUALQUIER_PROMO",
+      "Vtas Unds Cualquier Promo": "VTAS_UNDS_CUALQUIER_PROMO",
+      "Vtas Unds": "VTAS_UNDS",
+      "Vtas Valor": "VTAS_VALOR",
+      "Dist. Num.": "DIST_NUM"
+    },
+    "quality_and_modeling_notes": [
+      "Este dataset debe mantenerse separado de cualquier dataset Plant Based de Retail / RIE a nivel de modelo de origen.",
+      "El catálogo de períodos de origen es semanal, pero la salida semántica final es mensual.",
+      "El catálogo de mercados debe estandarizarse antes de una reutilización semántica amplia porque MRKT_DSC_SHRT mezcla canal, tipo de lectura, surtido y geografía.",
+      "El catálogo de productos contiene los atributos clave de negocio para Plant Based y también controla la lógica de controlled-label."
+    ]
+  }
+}
