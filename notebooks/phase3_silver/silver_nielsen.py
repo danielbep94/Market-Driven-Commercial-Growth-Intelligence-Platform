@@ -163,7 +163,7 @@ has_canal  = "canal_std"  in m1_cols_lower
 has_region = "region_std" in m1_cols_lower
 has_status = any(c in m1_cols_lower for c in ["mapping_status", "review_status"])
 
-m1_select = [F.col("mrkt_dsc_shrt").alias("m1_key")]
+m1_select = [F.upper(F.trim(F.col("mrkt_dsc_shrt"))).alias("m1_key")]  # fix W6: normalize to UPPER TRIM
 m1_select.append(F.col("canal_std")  if has_canal  else F.lit(None).cast("string").alias("canal_std"))
 m1_select.append(F.col("region_std") if has_region else F.lit(None).cast("string").alias("region_std"))
 if has_status:
@@ -181,7 +181,7 @@ df_m1_sel = df_m1.select(m1_select)
 
 df_nielsen_std = df_nielsen_dim.join(
     df_m1_sel,
-    df_nielsen_dim["MRKT_DSC_SHRT"] == df_m1_sel["m1_key"],
+    F.upper(F.trim(df_nielsen_dim["MRKT_DSC_SHRT"])) == df_m1_sel["m1_key"],  # fix W6: normalize left side
     "left")
 register_join("silver_nielsen", "nielsen_market_dim", "signoff_03_nielsen_markets",
               "MRKT_DSC_SHRT=mrkt_dsc_shrt", "left")

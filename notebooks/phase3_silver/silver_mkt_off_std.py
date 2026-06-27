@@ -191,8 +191,13 @@ log("INFO", f"mkt_off_std: {n_off:,} rows from Snowflake", _S)
 register_join("silver_mkt_off_std", "FACT_MEDIA_OFF", "none",
               "no join — single table + GROUP BY (R7/R8 compliant)", "none")
 
+# canal_std = MEDIO (fix W7: offline channel — TV, RADIO, OOH, DIGITAL_OFF, etc.)
+# MEDIO is the channel dimension for MKT_OFF, equivalent to canal_std in other sources
+df_mkt_off_std = df_mkt_off_std.withColumn("canal_std", F.col("MEDIO"))
+log("INFO", "canal_std mapped from MEDIO column (W7 fix)", _S)
+
 # Null rate audit
-for col_name in ["marca_std", "cadena_std", "inversion_real"]:
+for col_name in ["marca_std", "canal_std", "cadena_std", "inversion_real"]:
     if col_name in [c.lower() for c in df_mkt_off_std.columns]:
         n_null = df_mkt_off_std.filter(F.col(col_name).isNull()).count()
         pct = round(n_null / n_off * 100, 2) if n_off > 0 else 0.0

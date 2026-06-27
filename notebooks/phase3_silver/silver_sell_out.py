@@ -237,7 +237,7 @@ df_chain_map = load_mapping_csv(
 df_so = df_so.join(
     df_chain_map.select(
         F.col("chain_value"),
-        F.col("cadena_std"),
+        F.col("cadena_std").alias("cadena_std_mapped"),   # fix W4: alias to avoid ambiguity
         F.col("mapping_status").alias("cadena_mapping_status")),
     df_so["chain"] == df_chain_map["chain_value"], "left")
 register_join("silver_sell_out", "sell_out", "chain_classification",
@@ -246,7 +246,7 @@ assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × chain_classification (M3)"
 
 df_so = df_so.withColumn(
     "cadena_std",
-    F.when(F.col("cadena_mapping_status") == "CONFIRMED", F.col("cadena_std"))
+    F.when(F.col("cadena_mapping_status") == "CONFIRMED", F.col("cadena_std_mapped"))
      .otherwise(F.lit(None).cast("string")))
 
 # M4: format → canal_std
@@ -256,7 +256,7 @@ df_format_map = load_mapping_csv(
 df_so = df_so.join(
     df_format_map.select(
         F.col("format_value"),
-        F.col("canal_std"),
+        F.col("canal_std").alias("canal_std_mapped"),     # fix W5: alias to avoid ambiguity
         F.col("mapping_status").alias("canal_mapping_status")),
     df_so["format"] == df_format_map["format_value"], "left")
 register_join("silver_sell_out", "sell_out", "format_classification",
@@ -265,7 +265,7 @@ assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × format_classification (M4)
 
 df_so = df_so.withColumn(
     "canal_std",
-    F.when(F.col("canal_mapping_status") == "CONFIRMED", F.col("canal_std"))
+    F.when(F.col("canal_mapping_status") == "CONFIRMED", F.col("canal_std_mapped"))
      .otherwise(F.lit(None).cast("string")))
 
 # Quarantine NEEDS_REVIEW
