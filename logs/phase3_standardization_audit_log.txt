@@ -1,47 +1,27 @@
-[2026-06-27 02:47:29] [INFO] [INIT] ======================================================================
-[2026-06-27 02:47:29] [INFO] [INIT] Phase 3 shared utilities — silver_homologation_apply.py loaded
-[2026-06-27 02:47:29] [INFO] [INIT] REPO_ROOT     : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform
-[2026-06-27 02:47:29] [INFO] [INIT] REPO_LOGS_DIR : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
-[2026-06-27 02:47:29] [INFO] [INIT] DBFS_ROOT     : dbfs:/mnt/mdp/mdm/phase3_std
-[2026-06-27 02:47:29] [INFO] [INIT] ACTIVE_CATALOG_FILTER (R4, locked): 'SKU_EAN_COD IS NOT NULL'
-[2026-06-27 02:47:29] [INFO] [INIT] Credentials: PRD_MEX and PRD_MDP profiles ready.
-[2026-06-27 02:47:29] [INFO] [INIT] JOIN_REGISTRY initialized (call register_join() after every join).
-[2026-06-27 02:47:29] [INFO] [INIT] ======================================================================
-[2026-06-27 02:47:29] [INFO] [NIELSEN] Starting NIELSEN standardization
-[2026-06-27 02:47:29] [INFO] [NIELSEN] Join key: J."market_id" = K."market_id" (double-quoted — case-sensitive)
-[2026-06-27 02:47:29] [INFO] [NIELSEN] Step A: Building unique market dimension from MKT_DIM tables
-[2026-06-27 02:47:30] [INFO] [NIELSEN] EDP_NIELSEN MKT_DIM: 155 market entries
-[2026-06-27 02:47:32] [INFO] [NIELSEN] PB_NIELSEN MKT_DIM: 163 market entries
-[2026-06-27 02:47:32] [INFO] [NIELSEN] WATER_RETAIL MKT_DIM: 73 market entries
-[2026-06-27 02:47:34] [INFO] [NIELSEN] WATER_SCANTRACK MKT_DIM: 82 market entries
-[2026-06-27 02:47:35] [INFO] [NIELSEN] Nielsen market dim: 362 unique MRKT_DSC_SHRT (111 cross-CBU duplicates removed, R13)
-[2026-06-27 02:47:37] [INFO] [NIELSEN] Step B: Applying M1 market mapping (signoff_03_nielsen_markets.csv)
-[2026-06-27 02:47:38] [INFO] [NIELSEN] Mapping loaded: signoff_03_nielsen_markets.csv — 362 rows, all unique on 'mrkt_dsc_shrt'
-[2026-06-27 02:47:38] [⚠️  WARNING] [NIELSEN] M1 PENDING: canal_std not yet in signoff_03 CSV
-[2026-06-27 02:47:38] [⚠️  WARNING] [NIELSEN] M1 PENDING: region_std not yet in signoff_03 CSV
-[2026-06-27 02:47:38] [INFO] [JOIN_REGISTRY] JOIN: silver_nielsen | nielsen_market_dim ↔ signoff_03_nielsen_markets ON [MRKT_DSC_SHRT=mrkt_dsc_shrt] (left)
-[2026-06-27 02:47:41] [✅ PASS] [NIELSEN] nielsen_std x M1 market mapping: row count preserved — 362 rows.
-[2026-06-27 02:47:44] [⚠️  WARNING] [NIELSEN] 362 rows quarantined from 'NIELSEN_MARKET_NEEDS_REVIEW': M1 PENDING: market string not mapped to canal_std/region_std
-[2026-06-27 02:47:45] [INFO] [NIELSEN] M1 coverage: 0 CONFIRMED / 362 total (0.0%)
-[2026-06-27 02:47:45] [⚠️  WARNING] [NIELSEN] Nielsen M1 coverage 0.0% < 50% — complete the mapping CSV
-[2026-06-27 02:47:50] [INFO] [NIELSEN] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/nielsen_std.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/nielsen_std.csv
-[2026-06-27 02:47:50] [INFO] [NIELSEN] nielsen_std saved: 362 rows
-[2026-06-27 02:47:50] [INFO] [NIELSEN] Step C: Snowflake-pushdown aggregation per CBU (938M+ rows in Snowflake)
-[2026-06-27 02:47:50] [INFO] [NIELSEN] Executing Snowflake pushdown for EDP_NIELSEN...
-[2026-06-27 02:48:16] [INFO] [NIELSEN] EDP_NIELSEN: 432,469 aggregated rows returned from Snowflake
-[2026-06-27 02:48:16] [INFO] [JOIN_REGISTRY] JOIN: silver_nielsen | EDP_NIELSEN_agg ↔ nielsen_std ON [MRKT_DSC_SHRT] (left)
-[2026-06-27 02:48:21] [✅ PASS] [NIELSEN] EDP_NIELSEN agg x nielsen_std: row count preserved — 432,469 rows.
-[2026-06-27 02:48:21] [INFO] [NIELSEN] Executing Snowflake pushdown for PB_NIELSEN...
-[2026-06-27 02:48:30] [INFO] [NIELSEN] PB_NIELSEN: 296,782 aggregated rows returned from Snowflake
-[2026-06-27 02:48:30] [INFO] [JOIN_REGISTRY] JOIN: silver_nielsen | PB_NIELSEN_agg ↔ nielsen_std ON [MRKT_DSC_SHRT] (left)
-[2026-06-27 02:48:34] [✅ PASS] [NIELSEN] PB_NIELSEN agg x nielsen_std: row count preserved — 296,782 rows.
-[2026-06-27 02:48:34] [INFO] [NIELSEN] Executing Snowflake pushdown for WATER_RETAIL...
-[2026-06-27 02:48:39] [INFO] [NIELSEN] WATER_RETAIL: 28,154 aggregated rows returned from Snowflake
-[2026-06-27 02:48:39] [INFO] [JOIN_REGISTRY] JOIN: silver_nielsen | WATER_RETAIL_agg ↔ nielsen_std ON [MRKT_DSC_SHRT] (left)
-[2026-06-27 02:48:43] [✅ PASS] [NIELSEN] WATER_RETAIL agg x nielsen_std: row count preserved — 28,154 rows.
-[2026-06-27 02:48:43] [INFO] [NIELSEN] Executing Snowflake pushdown for WATER_SCANTRACK...
-[2026-06-27 02:49:02] [INFO] [NIELSEN] WATER_SCANTRACK: 335,151 aggregated rows returned from Snowflake
-[2026-06-27 02:49:02] [INFO] [JOIN_REGISTRY] JOIN: silver_nielsen | WATER_SCANTRACK_agg ↔ nielsen_std ON [MRKT_DSC_SHRT] (left)
-[2026-06-27 02:49:05] [✅ PASS] [NIELSEN] WATER_SCANTRACK agg x nielsen_std: row count preserved — 335,151 rows.
-[2026-06-27 02:49:19] [INFO] [NIELSEN] nielsen_facts_std: 1,092,556 rows across 4 CBUs
-[2026-06-27 02:49:52] [INFO] [NIELSEN] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/nielsen_facts_std.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/nielsen_facts_std.csv
+[2026-06-27 02:56:20] [INFO] [INIT] ======================================================================
+[2026-06-27 02:56:20] [INFO] [INIT] Phase 3 shared utilities — silver_homologation_apply.py loaded
+[2026-06-27 02:56:20] [INFO] [INIT] REPO_ROOT     : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform
+[2026-06-27 02:56:20] [INFO] [INIT] REPO_LOGS_DIR : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-27 02:56:20] [INFO] [INIT] DBFS_ROOT     : dbfs:/mnt/mdp/mdm/phase3_std
+[2026-06-27 02:56:20] [INFO] [INIT] ACTIVE_CATALOG_FILTER (R4, locked): 'SKU_EAN_COD IS NOT NULL'
+[2026-06-27 02:56:20] [INFO] [INIT] Credentials: PRD_MEX and PRD_MDP profiles ready.
+[2026-06-27 02:56:20] [INFO] [INIT] JOIN_REGISTRY initialized (call register_join() after every join).
+[2026-06-27 02:56:20] [INFO] [INIT] ======================================================================
+[2026-06-27 02:56:21] [INFO] [MKT_ON] Starting MKT_ON standardization
+[2026-06-27 02:56:21] [INFO] [MKT_ON] Source: PRD_MDP.MDP_DSP.VW_MKT_ECOMM (digital media spend)
+[2026-06-27 02:56:21] [INFO] [MKT_ON] NOTE: MKT_ON is media investment data — NOT Nielsen market share.
+[2026-06-27 02:56:21] [INFO] [MKT_ON] Step 1: Row count probe
+[2026-06-27 02:56:23] [INFO] [MKT_ON] VW_MKT_ECOMM (2024+): 46,642 rows | 32 brands | date: 2024-01-01 → 2026-03-31
+[2026-06-27 02:56:23] [INFO] [MKT_ON] Step 2: Snowflake pushdown — apply MARCA_STD + aggregate
+[2026-06-27 02:56:24] [INFO] [MKT_ON] mkt_on_std: 7,282 rows from Snowflake
+[2026-06-27 02:56:24] [INFO] [JOIN_REGISTRY] JOIN: silver_mkt_on_std | VW_MKT_ECOMM ↔ none ON [no join — single table + GROUP BY (R6 compliant)] (none)
+[2026-06-27 02:56:24] [INFO] [MKT_ON] Step 3: Apply canal_std from CADENA (digital channel label)
+[2026-06-27 02:56:25] [⚠️  WARNING] [MKT_ON] 6,327 rows quarantined from 'MKT_ON_CADENA_BLANK': CADENA is blank in VW_MKT_ECOMM — cadena_std=NULL
+[2026-06-27 02:56:25] [⚠️  WARNING] [MKT_ON] MKT_ON: 6,327 rows with blank CADENA
+[2026-06-27 02:56:25] [INFO] [MKT_ON] NULL rate — marca_std: 0 / 7,282 = 0.0%
+[2026-06-27 02:56:25] [INFO] [MKT_ON] NULL rate — cadena_std: 6,327 / 7,282 = 86.89%
+[2026-06-27 02:56:26] [INFO] [MKT_ON] NULL rate — canal_std: 0 / 7,282 = 0.0%
+[2026-06-27 02:56:26] [INFO] [MKT_ON] NULL rate — inversion_real: 0 / 7,282 = 0.0%
+[2026-06-27 02:56:27] [INFO] [MKT_ON] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/mkt_on_std.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/mkt_on_std.csv
+[2026-06-27 02:56:27] [INFO] [MKT_ON] mkt_on_std saved: 7,282 rows
+[2026-06-27 02:56:28] [✅ PASS] [MKT_ON] A1 — R6: MKT_ON no UPC join: No prohibited join found. (1 joins in registry scanned.)
