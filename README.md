@@ -2,9 +2,9 @@
 
 **Organization:** Danone Mexico  
 **Owner:** Victor Hernandez  
-**Branch:** `MDM`  
+**Branch:** `phase4-gold-kpi`  
 **Last Updated:** 2026-06-27  
-**Status:** 🟢 Phase 3 Silver — **GATE: CLEAR** — Gold promotion approved
+**Status:** 🟡 Phase 4 Gold KPI — **IN PROGRESS** — commit 187fc77
 
 ---
 
@@ -30,7 +30,7 @@ Build a unified **MDM Master Catalog Standardization** pipeline that bridges fiv
 | Phase 3 — Silver | All 5 standardization notebooks | ✅ Complete |
 | Phase 3 — Mappings | M1–M4 manual mappings | ✅ All CONFIRMED |
 | Phase 3 — Validation | `phase3_mdm_validation.py` | ✅ **🟢 GATE: CLEAR** (2026-06-27) |
-| Phase 4 | KPI features (Gold layer) | 🔲 Not started — approved to begin |
+| Phase 4 — Gold KPI | `notebooks/phase4_gold/` (7 notebooks) | 🟡 In progress — commit 187fc77 |
 | Phase 5 | ML models | 🔲 Not started |
 
 ---
@@ -108,6 +108,57 @@ Run in this order — each depends on `silver_homologation_apply.py` via `%run`:
 4. notebooks/phase3_silver/silver_mkt_on_std.py
 5. notebooks/phase3_silver/silver_mkt_off_std.py
 6. notebooks/phase3_mdm_validation.py
+```
+
+---
+
+## How to Run — Phase 4 (Gold KPI Layer)
+
+> **IMPORTANT:** Phase 4 performs zero Snowflake writes. All outputs land on DBFS and `logs/`.
+> B14 + B15 pre-confirmed 2026-06-27: zero Snowflake write or mutation statements in any Phase 4 notebook.
+
+### Execution Order
+
+```
+# Step 0 — Pre-step: validate cross-source brand alignment (already implemented)
+nnotebooks/validate_cross_source_joins_phase_d.py
+
+# Step 1 — Shared utilities (run first — all other notebooks %run this)
+notebooks/phase4_gold/gold_kpi_utils.py   [RUN_MODE = FULL]
+
+# Steps 2–5 — Source Gold KPIs (independent — run in parallel)
+notebooks/phase4_gold/gold_sell_in.py       → gold_sell_in_kpi.csv
+                                               gold_sell_in_kpi_master.csv
+notebooks/phase4_gold/gold_sell_out.py      → gold_sell_out_kpi.csv
+notebooks/phase4_gold/gold_investment.py    → gold_investment_kpi.csv
+notebooks/phase4_gold/gold_nielsen.py       → gold_nielsen_kpi.csv
+                                               gold_nielsen_kpi_master.csv
+
+# Step 6 — Master commercial KPI table (depends on steps 2–5)
+notebooks/phase4_gold/gold_commercial_kpi.py → gold_commercial_kpi.csv
+
+# Step 7 — Validation gate
+notebooks/phase4_gold_validation.py
+# Expected: PHASE 4 GATE: 🟢 CLEAR
+```
+
+### Gold Output Locations
+
+| File | Location | Grain |
+|---|---|---|
+| `gold_sell_in_kpi.csv` | `dbfs:/mnt/mdp/mdm/phase4_gold/data/` | fecha_month × marca_std × canal_std × cbu |
+| `gold_sell_in_kpi_master.csv` | `dbfs:/mnt/mdp/mdm/phase4_gold/data/` | fecha_month × marca_std × canal_std |
+| `gold_sell_out_kpi.csv` | `dbfs:/mnt/mdp/mdm/phase4_gold/data/` | fecha_month × marca_std × canal_std × cadena_std |
+| `gold_investment_kpi.csv` | `dbfs:/mnt/mdp/mdm/phase4_gold/data/` | fecha_month × marca_std × canal_std × brand_owner_type |
+| `gold_nielsen_kpi.csv` | `dbfs:/mnt/mdp/mdm/phase4_gold/data/` | fecha_month × canal_std × region_std |
+| `gold_nielsen_kpi_master.csv` | `dbfs:/mnt/mdp/mdm/phase4_gold/data/` | fecha_month × canal_std |
+| `gold_commercial_kpi.csv` | `dbfs:/mnt/mdp/mdm/phase4_gold/data/` | fecha_month × marca_std × canal_std × cadena_std |
+
+Audit files (repo-safe, small):
+- `logs/phase4_standardization_audit_log.txt`
+- `logs/phase4_gold_coverage_report.txt`
+- `logs/phase4_row_count_reconciliation.txt`
+- `logs/phase4_kpi_registry.csv`
 ```
 
 > ⚠️ Always re-run `phase3_mdm_validation.py` after any silver notebook change.
