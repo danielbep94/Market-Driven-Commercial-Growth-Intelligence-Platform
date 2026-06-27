@@ -1,20 +1,20 @@
 chain_value,cadena_std,cadena_type,mapping_status,notes
-7ELEVEN,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-AMAZON,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-CALIMAX,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-CASALEY,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-CITY CLUB,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-COMERCIAL CITY FRESKO,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-COMERCIAL MEXICANA,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-CORNERSHOP,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-COSTCO,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-FUTURAMA,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-HEB,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-JUSTO,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-OXXO,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-RAPPI,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-SAMS,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-SORIANA,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-TIENDAS CHEDRAUI,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-WALMART,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
-ZORRO,,,NEEDS_REVIEW,Populated by Phase 2 v3 scaffold — manual mapping required
+7ELEVEN,7-ELEVEN,CONVENIENCE,CONFIRMED,Standard Mexican convenience chain
+AMAZON,AMAZON,ECOMMERCE,CONFIRMED,Pure ecommerce player
+CALIMAX,CALIMAX,SUPERMARKET,CONFIRMED,Regional supermarket Baja California
+CASALEY,CASALEY,SUPERMARKET,CONFIRMED,Regional supermarket
+CITY CLUB,CITY CLUB,WHOLESALE,CONFIRMED,Wholesale/membership format (Soriana group)
+COMERCIAL CITY FRESKO,CCF,SUPERMARKET,CONFIRMED,Comercial Chedraui Fresko group
+COMERCIAL MEXICANA,COMERCIAL MEXICANA,SUPERMARKET,CONFIRMED,CCF group legacy banner
+CORNERSHOP,CORNERSHOP,ECOMMERCE,CONFIRMED,On-demand delivery platform
+COSTCO,COSTCO,WHOLESALE,CONFIRMED,Membership wholesale club
+FUTURAMA,FUTURAMA,SUPERMARKET,CONFIRMED,Regional supermarket Monterrey/NE
+HEB,HEB,SUPERMARKET,CONFIRMED,Regional supermarket NE Mexico
+JUSTO,JUSTO,ECOMMERCE,CONFIRMED,Online grocery delivery
+OXXO,OXXO,CONVENIENCE,CONFIRMED,FEMSA convenience chain
+RAPPI,RAPPI,ECOMMERCE,CONFIRMED,On-demand delivery superapp
+SAMS,SAM'S CLUB,WHOLESALE,CONFIRMED,Walmart membership wholesale
+SORIANA,SORIANA,SUPERMARKET,CONFIRMED,National supermarket chain
+TIENDAS CHEDRAUI,CHEDRAUI,SUPERMARKET,CONFIRMED,Chedraui supermarket chain
+WALMART,WALMART,SUPERMARKET,CONFIRMED,Walmart Mexico supermarket/hypermarket
+ZORRO,ZORRO,SUPERMARKET,CONFIRMED,Regional supermarket
