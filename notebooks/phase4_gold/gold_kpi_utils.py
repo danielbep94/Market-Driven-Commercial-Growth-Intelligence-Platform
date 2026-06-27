@@ -388,18 +388,28 @@ def flush_kpi_registry():
 
 
 def load_phase_config():
-    """Load dq_thresholds.yaml and return the config dict."""
+    """Load dq_thresholds.yaml and return the config dict.
+
+    Same path resolution strategy as _load_danone_brands():
+    CWD = notebooks/phase4_gold/ → configs/ is two levels up.
+    """
+    cwd = os.getcwd()
     candidates = [
-        os.path.join(os.getcwd(), "configs", "dq_thresholds.yaml"),
-        os.path.join(os.getcwd(), "..", "configs", "dq_thresholds.yaml"),
+        os.path.join(cwd, "configs", "dq_thresholds.yaml"),
+        os.path.join(cwd, "..", "configs", "dq_thresholds.yaml"),
+        os.path.join(cwd, "..", "..", "configs", "dq_thresholds.yaml"),
+        os.path.join(cwd, "..", "..", "..", "configs", "dq_thresholds.yaml"),
     ]
     for c in candidates:
-        if os.path.exists(c):
-            with open(c) as f:
+        norm = os.path.normpath(c)
+        if os.path.exists(norm):
+            with open(norm) as f:
                 cfg = yaml.safe_load(f)
-            log_gold("INFO", f"Loaded dq_thresholds.yaml from {c}", "CONFIG")
+            log_gold("INFO", f"Loaded dq_thresholds.yaml from {norm}", "CONFIG")
             return cfg
-    log_gold("WARNING", "dq_thresholds.yaml not found — using default thresholds", "CONFIG")
+    log_gold("WARNING",
+             f"dq_thresholds.yaml not found from CWD={cwd} — using default thresholds",
+             "CONFIG")
     return {
         "sell_out_coverage_low_threshold": 0.70,
         "sell_out_coverage_medium_threshold": 0.85,
