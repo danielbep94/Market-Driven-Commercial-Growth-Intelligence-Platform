@@ -54,6 +54,64 @@ else:
     mart_passed("GOLD_COUNT", f"Gold row count confirmed: {gold_row_count:,}", SECTION)
 
 # COMMAND ----------
+# MAGIC %md ## Step 1b — Enforce Gold numeric types (CSV inferSchema guard)
+
+# COMMAND ----------
+
+# Gold was saved as CSV partitions in Phase 4.
+# Spark CSV inferSchema can return StringType for numeric columns when the file
+# contains nulls or is read without an explicit schema. Cast all numeric Gold
+# columns explicitly to their correct types before any derivation.
+
+GOLD_NUMERIC_CASTS = {
+    # Sell-in
+    "si_revenue_mxn":            DoubleType(),
+    "si_vol_litros":             DoubleType(),
+    "si_vol_kg":                 DoubleType(),
+    "si_avg_price_mxn_per_litre": DoubleType(),
+    "si_avg_price_mxn_per_kg":   DoubleType(),
+    "si_sku_count":              DoubleType(),
+    # Sell-out
+    "so_revenue_mxn":            DoubleType(),
+    "so_vol_units":              DoubleType(),
+    "so_avg_price_mxn":          DoubleType(),
+    "so_inventory_days":         DoubleType(),
+    "so_store_count":            DoubleType(),
+    # Investment
+    "inv_total_mxn":             DoubleType(),
+    "inv_mkt_on_mxn":            DoubleType(),
+    "inv_mkt_off_mxn":           DoubleType(),
+    "inv_on_pct":                DoubleType(),
+    # Nielsen
+    "nls_value_share":           DoubleType(),
+    "nls_volume_share":          DoubleType(),
+    "nls_numeric_dist":          DoubleType(),
+    "nls_category_value_mxn":    DoubleType(),
+    # Derived (already in Gold)
+    "roas_gross":                DoubleType(),
+}
+
+for col_name, dtype in GOLD_NUMERIC_CASTS.items():
+    if col_name in df.columns:
+        df = df.withColumn(col_name, F.col(col_name).cast(dtype))
+
+log_mart("INFO",
+         f"Explicit numeric cast applied to {len(GOLD_NUMERIC_CASTS)} Gold columns "
+         "(CSV inferSchema guard — prevents MG14 StringType failures)",
+         SECTION)
+
+# Spot-check types
+bad_types = []
+schema_map_gold = {f.name: type(f.dataType).__name__ for f in df.schema.fields}
+for col_name in GOLD_NUMERIC_CASTS:
+    if col_name in schema_map_gold and schema_map_gold[col_name] == "StringType":
+        bad_types.append(col_name)
+if bad_types:
+    raise ValueError(f"Cast failed — still StringType after explicit cast: {bad_types}")
+else:
+    log_mart("INFO", "All Gold numeric columns confirmed as non-StringType after cast", SECTION)
+
+# COMMAND ----------
 # MAGIC %md ## Step 2 — Date dimensions
 
 # COMMAND ----------
@@ -65,6 +123,7 @@ df = (df
       .withColumn("month_number", F.month(F.col("fecha_month")).cast(IntegerType()))
 )
 log_mart("INFO", "Date dimensions derived: month_key, year_number, month_number", SECTION)
+
 
 # COMMAND ----------
 # MAGIC %md ## Step 3 — Window spec (finest mart grain)
