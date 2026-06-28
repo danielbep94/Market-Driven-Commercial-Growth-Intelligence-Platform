@@ -1,0 +1,28 @@
+mart_column,source_domain,source_column_or_formula,definition,grain,null_handling,status,notes
+fecha_month,GOLD,fecha_month,Month dimension (1st of month),fecha_month × marca_std × canal_std × cadena_std,NOT NULL,ACTIVE,
+marca_std,GOLD,marca_std,Standardised brand name,fecha_month × marca_std × canal_std × cadena_std,NOT NULL,ACTIVE,
+canal_std,GOLD,canal_std,Standardised trade channel,fecha_month × marca_std × canal_std × cadena_std,NOT NULL,ACTIVE,
+cadena_std,GOLD,cadena_std,Standardised retail chain,fecha_month × marca_std × canal_std × cadena_std,NULLABLE,ACTIVE,NULL by design for SELL_IN (R9)
+sell_in_units,SELL_IN,si_vol_litros,Sell-in volume,fecha_month × marca_std × canal_std × cadena_std,NULLABLE,PROXY,"Maps si_vol_litros. Represents sell-in volume in liters, not discrete unit count — MG28"
+sell_out_units,SELL_OUT,so_vol_units,Sell-out volume in units,fecha_month × marca_std × canal_std × cadena_std,NULLABLE,ACTIVE,
+sell_out_revenue,SELL_OUT,so_revenue_mxn,Sell-out revenue MXN,fecha_month × marca_std × canal_std × cadena_std,NULLABLE,ACTIVE,
+investment_spend,INVESTMENT,inv_total_mxn,Total investment MXN,fecha_month × marca_std × canal_std × cadena_std,NULLABLE,ACTIVE,NULL when no Danone investment for grain
+sell_out_sell_in_ratio,DERIVED,so_revenue_mxn/si_revenue_mxn,Revenue sell-through ratio,fecha_month × marca_std × canal_std × cadena_std,NULL when si=0/NULL,ACTIVE,MXN/MXN. Pre-projection validation MG21
+roas_gross,GOLD,roas_gross,Gross ROAS (so_revenue/inv),fecha_month × marca_std × canal_std × cadena_std,NULL when inv=0/NULL,ACTIVE,APPROVED Phase 5 extra column
+mom_revenue_growth_pct,DERIVED,MoM % Δ so_revenue_mxn,Month-over-month revenue growth %,fecha_month × marca_std × canal_std × cadena_std,NULL — first month per grain,ACTIVE,APPROVED Phase 5 extra column. Finest grain window.
+share_change_pp,DERIVED,Δ nls_value_share,MoM share change (pp),fecha_month × marca_std × canal_std × cadena_std,NULL — first month or NULL share,ACTIVE,
+market_category_growth_pct,DERIVED,PoP % Δ nls_category_value_mxn,Category value growth %,fecha_month × marca_std × canal_std × cadena_std,NULL — first month or NULL value,ACTIVE,Derived from Gold nls_category_value_mxn PoP growth — NOT direct map
+market_adjusted_growth,DERIVED,mom_revenue_growth_pct − market_category_growth_pct,Brand growth vs category growth,fecha_month × marca_std × canal_std × cadena_std,NULL when either input NULL,ACTIVE,
+sell_out_coverage_pct,SELL_OUT,coverage_level → numeric,Store coverage numeric,fecha_month × marca_std × canal_std × cadena_std,NULL when coverage_level unexpected,ACTIVE,"HIGH=1.0, MEDIUM/MED=0.75, LOW=0.5. MG29 validates."
+value_share,NIELSEN,nls_value_share,Nielsen value market share,fecha_month × marca_std × canal_std × cadena_std,NULLABLE,ACTIVE,
+volume_share,NIELSEN,nls_volume_share,Nielsen volume market share,fecha_month × marca_std × canal_std × cadena_std,NULLABLE,ACTIVE,
+numeric_distribution,NIELSEN,nls_numeric_dist,Numeric distribution %,fecha_month × marca_std × canal_std × cadena_std,NULLABLE,ACTIVE,
+growth_quality_score,DEFERRED,NULL,Composite growth quality 0–100,N/A,Always NULL,DEFERRED,W6 — commercial scoring logic not signed off
+gqs_confidence_level,DEFERRED,NULL,GQS confidence level,N/A,Always NULL,DEFERRED,W6 — same
+gqs_version,DEFERRED,NULL,GQS version string,N/A,Always NULL,DEFERRED,W6 — same
+waste_risk_score,PHASE_6,NULL,Waste risk score 0–1,N/A,Always NULL,PHASE_6,ML model — out of scope
+competitive_risk_score,PHASE_6,NULL,Competitive risk score 0–100,N/A,Always NULL,PHASE_6,ML model — out of scope
+recommended_action,PHASE_6,NULL,Recommendation engine output,N/A,Always NULL,PHASE_6,ML model — out of scope
+data_confidence_overall,GOLD,data_confidence,Overall data confidence level,fecha_month × marca_std × canal_std × cadena_std,NOT NULL,ACTIVE,HIGH/MEDIUM/LOW
+mart_computed_at,AUDIT,current_timestamp(),Mart build timestamp,N/A,NOT NULL,ACTIVE,
+pipeline_run_id,AUDIT,UUID_FALLBACK,Build run identifier,N/A,NOT NULL,ACTIVE,Source: UUID_FALLBACK

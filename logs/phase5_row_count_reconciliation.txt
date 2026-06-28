@@ -1,0 +1,5 @@
+gold_row_count        : 4,427
+mart_row_count        : 4,427
+difference            : +0
+missing_gold_keys     : 0 (mart_row_count == gold_row_count)
+new_mart_keys         : 0

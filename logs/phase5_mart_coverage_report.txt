@@ -1,0 +1,7 @@
+rows_with_sell_in           : 0 (0.0%)
+rows_with_sell_out          : 4,427 (100.0%)
+rows_with_investment        : 10 (0.2%)
+rows_with_nielsen           : 0 (0.0%)
+rows_with_all_sources       : 0 (0.0%)
+sparse_mom_rows             : 889 (first month per grain — no prior period, MoM=NULL)
+sell_in_units_proxy_warning : sell_in_units mapped from si_vol_litros (liters, not discrete units) — MG28

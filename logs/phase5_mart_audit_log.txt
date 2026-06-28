@@ -1,0 +1,76 @@
+========================================================================
+PHASE 5 MART — AUDIT LOG
+========================================================================
+run_timestamp       : 2026-06-28 03:15:37
+pipeline_run_id     : f585bbebf0c2
+run_id_source       : FROM_MART
+input_path          : dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_commercial_kpi
+output_path_dbfs    : dbfs:/mnt/mdp/mdm/phase5_mart/mart_commercial_kpi_monthly
+output_path_csv     : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/mart_commercial_kpi_monthly_pbi.csv
+dbfs_output_format  : PARQUET
+gold_row_count      : 4,427
+mart_row_count      : 4,427
+validation_status   : 🔴 BLOCKED
+snowflake_writes    : CONFIRMED ZERO
+b14_confirmed       : zero Snowflake write operations in Phase 5 notebooks
+b15_confirmed       : zero Snowflake mutation statements in Phase 5 notebooks
+
+[2026-06-28 03:15:17] [INFO] [INIT] ========================================================================
+[2026-06-28 03:15:17] [INFO] [INIT] PHASE 5 ANALYTICS MART UTILS — INITIALISED
+[2026-06-28 03:15:17] [INFO] [INIT] MART_RUN_MODE    = FULL
+[2026-06-28 03:15:17] [INFO] [INIT] MART_START_MONTH = 2025-01-01
+[2026-06-28 03:15:17] [INFO] [INIT] DBFS_GOLD_ROOT   = dbfs:/mnt/mdp/mdm/phase4_gold/data
+[2026-06-28 03:15:17] [INFO] [INIT] DBFS_MART_ROOT   = dbfs:/mnt/mdp/mdm/phase5_mart
+[2026-06-28 03:15:17] [INFO] [INIT] LOGS_DIR         = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-28 03:15:17] [INFO] [SECURITY] B14 PRE-CONFIRMED: zero Snowflake write operations in Phase 5 notebooks
+[2026-06-28 03:15:17] [INFO] [SECURITY] B15 PRE-CONFIRMED: zero Snowflake mutation statements in Phase 5 notebooks
+[2026-06-28 03:15:17] [INFO] [INIT] ========================================================================
+[2026-06-28 03:15:17] [INFO] [MART_VALIDATION] ========================================================================
+[2026-06-28 03:15:17] [INFO] [MART_VALIDATION] PHASE 5 MART VALIDATION — START
+[2026-06-28 03:15:19] [INFO] [MART_VALIDATION] Mart loaded: 4,427 rows × 44 columns
+[2026-06-28 03:15:22] [INFO] [IO] Loaded Gold (CSV): dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_commercial_kpi
+[2026-06-28 03:15:22] [INFO] [MART_VALIDATION] Gold loaded: 4,427 rows (reference)
+[2026-06-28 03:15:22] [✅ PASS MG1A] [MART_VALIDATION] Mart rows = Gold rows = 4,427
+[2026-06-28 03:15:22] [✅ PASS MG1B] [MART_VALIDATION] Mart rows ≤ Gold rows (4,427 ≤ 4,427)
+[2026-06-28 03:15:24] [✅ PASS MG1C] [MART_VALIDATION] No Gold grain keys missing from mart
+[2026-06-28 03:15:26] [✅ PASS MG1D] [MART_VALIDATION] No new mart grain keys absent from Gold
+[2026-06-28 03:15:27] [✅ PASS MG2] [MART_VALIDATION] fecha_month has zero NULLs
+[2026-06-28 03:15:27] [✅ PASS MG3] [MART_VALIDATION] marca_std has zero NULLs
+[2026-06-28 03:15:28] [✅ PASS MG4] [MART_VALIDATION] Grain unique on ['fecha_month', 'marca_std', 'canal_std', 'cadena_std'] (4,427 rows)
+[2026-06-28 03:15:28] [✅ PASS MG5] [MART_VALIDATION] sell_out_revenue ≥ 0 for 99.95% of rows
+[2026-06-28 03:15:29] [✅ PASS MG6] [mart] [mart] 'roas_gross' — no Inf/NaN
+[2026-06-28 03:15:29] [✅ PASS MG7] [mart] [mart] 'mom_revenue_growth_pct' — no Inf/NaN
+[2026-06-28 03:15:29] [✅ PASS MG20] [mart] [mart] 'sell_out_sell_in_ratio' — no Inf/NaN
+[2026-06-28 03:15:29] [✅ PASS MG22] [mart] [mart] 'share_change_pp' — no Inf/NaN
+[2026-06-28 03:15:30] [✅ PASS MG8] [MART_VALIDATION] data_confidence_overall ∈ ['HIGH', 'MEDIUM', 'LOW'] for all rows
+[2026-06-28 03:15:30] [✅ PASS MG8B] [MART_VALIDATION] data_confidence_overall has zero NULLs
+[2026-06-28 03:15:31] [✅ PASS MG9] [MART_VALIDATION] mart_computed_at has zero NULLs
+[2026-06-28 03:15:31] [✅ PASS MG10] [MART_VALIDATION] Date range: 2025-01-01 → 2026-06-01
+[2026-06-28 03:15:31] [✅ PASS MG11] [MART_VALIDATION] All 44 approved mart columns present
+[2026-06-28 03:15:32] [✅ PASS MG12] [MART_VALIDATION] No columns outside approved mart contract
+[2026-06-28 03:15:32] [✅ PASS MG13] [MART_VALIDATION] Column order matches approved mart contract
+[2026-06-28 03:15:32] [🚨 BLOCKER MG14] [MART_VALIDATION] Numeric DDL columns with non-numeric Spark types: ['sell_in_units: StringType()', 'value_share: StringType()', 'volume_share: StringType()']
+[2026-06-28 03:15:32] [✅ PASS MG15] [MART_VALIDATION] fecha_month is DateType
+[2026-06-28 03:15:33] [✅ PASS MG15B] [MART_VALIDATION] CSV fecha_month format = YYYY-MM-DD (sample: 2025-01-01)
+[2026-06-28 03:15:33] [✅ PASS MG16] [MART_VALIDATION] mart_computed_at is TimestampType
+[2026-06-28 03:15:33] [✅ PASS MG17] [MART_VALIDATION] No duplicate column names
+[2026-06-28 03:15:34] [✅ PASS MG18] [MART_VALIDATION] pipeline_run_id populated for all rows (sample: f585bbebf0c2)
+[2026-06-28 03:15:34] [✅ PASS MG19] [MART_VALIDATION] growth_quality_score exists and is all NULL (W6 deferred)
+[2026-06-28 03:15:34] [INFO] [MART_VALIDATION] sell_out_sell_in_ratio: 0 non-NULL rows out of 4,427
+[2026-06-28 03:15:34] [✅ PASS MG21] [MART_VALIDATION] MG21 pre-projection validation confirmed in mart_builder.py
+[2026-06-28 03:15:36] [✅ PASS MG25] [MART_VALIDATION] CSV row count = DBFS row count = 4,427
+[2026-06-28 03:15:36] [✅ PASS MG26] [MART_VALIDATION] Power BI CSV has one header row, no duplicate columns
+[2026-06-28 03:15:36] [✅ PASS MG27] [MART_VALIDATION] Structural scan: zero Snowflake write patterns in /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/notebooks/phase5_mart/*.py
+[2026-06-28 03:15:36] [⚠️  WARNING MG28] [MART_VALIDATION] sell_in_units is mapped from si_vol_litros (proxy). Represents sell-in volume in liters, not discrete unit count. Power BI report labels should reflect this.
+[2026-06-28 03:15:37] [✅ PASS MG29] [MART_VALIDATION] sell_out_coverage_pct ∈ [1.0, 0.75, 0.5] or NULL for all rows
+[2026-06-28 03:15:37] [INFO] [FINAL SUMMARY] ========================================================================
+[2026-06-28 03:15:37] [INFO] [FINAL SUMMARY] PHASE 5 MART VALIDATION — FINAL STATUS REPORT
+[2026-06-28 03:15:37] [INFO] [FINAL SUMMARY] ========================================================================
+[2026-06-28 03:15:37] [🚨 BLOCKED] [FINAL SUMMARY] HARD BLOCKERS: 1
+[2026-06-28 03:15:37] [🚨] [FINAL SUMMARY]   MG14: Numeric DDL columns with non-numeric Spark types: ['sell_in_units: StringType()', 'value_share: StringType()', 'volume_share: StringType()']
+[2026-06-28 03:15:37] [⚠️  WARNING] [FINAL SUMMARY] TOTAL WARNINGS: 1
+[2026-06-28 03:15:37] [⚠️ ] [FINAL SUMMARY]   MG28: sell_in_units is mapped from si_vol_litros (proxy). Represents sell-in volume in liters, not discrete unit count. Power BI report labels should reflect this.
+[2026-06-28 03:15:37] [✅ PASS] [FINAL SUMMARY] B14 PRE-CONFIRMED: zero Snowflake write operations in Phase 5 notebooks
+[2026-06-28 03:15:37] [✅ PASS] [FINAL SUMMARY] B15 PRE-CONFIRMED: zero Snowflake mutation statements in Phase 5 notebooks
+[2026-06-28 03:15:37] [INFO] [FINAL SUMMARY] PHASE 5 GATE: 🔴 BLOCKED
+[2026-06-28 03:15:37] [INFO] [FINAL SUMMARY] ========================================================================
