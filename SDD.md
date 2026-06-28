@@ -1,9 +1,9 @@
 # Software Design Document — Market Driven Commercial Growth Intelligence Platform
 
-**Version:** 2.0  
+**Version:** 3.0  
 **Date:** 2026-06-27  
 **Author:** MDM Project (Victor Hernandez)  
-**Status:** 🟢 Phase 3 COMPLETE — Gate CLEAR — Gold promotion approved
+**Status:** 🟡 Phase 4 Gold KPI — IN PROGRESS — commit 187fc77
 
 ---
 
@@ -346,3 +346,178 @@ All criteria met as of **2026-06-27 17:37 UTC**:
 | — | CBU table failure treated as `warn()` in `silver_nielsen.py` | 🟡 MEDIUM | Immediate | Should be `blocker()` |
 | — | Silver stub notebooks (forecast, inventory, waste, price, promotions, investment) | 🟢 LOW | Phase 4 scope | Empty stubs only |
 | — | JOIN_REGISTRY mutation without try/finally guard | 🟢 LOW | Before Phase 4 | Risk of registry corruption on error |
+
+---
+
+## 13. Gold Layer Design
+
+### 13.1 Architecture Rule
+
+> **Phase 4 performs ZERO Snowflake writes.**  
+> All Gold outputs land on `dbfs:/mnt/mdp/mdm/phase4_gold/data/` (compute) and `logs/` (audit, small files only).  
+> B14 + B15 pre-confirmed 2026-06-27: zero Snowflake write or mutation statements in any Phase 4 notebook.
+
+### 13.2 Input Files (Phase 3 Silver — Gate CLEAR commit e3bbf81)
+
+| File | Rows | Status |
+|---|---|---|
+| `logs/sell_in_std.csv` | 49,815 | ✅ Full period |
+| `logs/sell_out_std.csv` | 100,000 | ⚠️ Possible sample cap |
+| `logs/mkt_on_std.csv` | 7,282 | ✅ Full period |
+| `logs/mkt_off_std.csv` | 100,000 | ✅ Full period |
+| `logs/nielsen_std.csv` | 362 | ✅ Market dim |
+| `logs/nielsen_facts_std.csv` | 100,001 | ✅ Confirmed Phase 3 output |
+
+### 13.3 Master Join Strategy
+
+**Master grain:** `fecha_month × marca_std × canal_std × cadena_std`
+
+**Fan-out prevention (F1):** All right-side tables must be aggregated to master-safe grain before joining.
+
+```
+gold_sell_out_kpi               ← BASE (finest grain)
+  LEFT JOIN gold_sell_in_kpi_master   ON fecha_month, marca_std, canal_std
+  LEFT JOIN gold_investment_kpi       ON fecha_month, marca_std, canal_std  [Danone only]
+  LEFT JOIN gold_nielsen_kpi_master   ON fecha_month, canal_std
+```
+
+Before every join:
+1. `assert_unique_keys(right_df, join_keys, table_name)` — B10
+2. `assert_no_join_fanout(base_count, joined_df, join_name)` — B8
+3. Log pre-join and post-join row counts
+
+### 13.4 Dimensions Excluded from Master Table (F2)
+
+- `region_std` — Nielsen regional detail. Available in `gold_nielsen_kpi.csv` only.
+- `cbu` — SELL_IN CBU detail. Available in `gold_sell_in_kpi.csv` only.
+- These must NOT be added to `gold_commercial_kpi` unless the master grain is formally expanded.
+
+### 13.5 Brand Owner Classification (F6)
+
+```python
+brand_owner_type = DANONE    # brand in brand_crosswalk.yaml danone_brands
+brand_owner_type = COMPETITOR # all others
+```
+- Source: `configs/brand_crosswalk.yaml` (danone_brands keys)
+- `gold_commercial_kpi` includes Danone brands only
+- Competitor rows retained in `gold_investment_kpi.csv` for benchmark analysis
+
+### 13.6 Date Range
+
+```python
+GOLD_START_MONTH = "2025-01-01"
+GOLD_END_MONTH   = None  # auto-detect from Silver max(fecha_month)
+RUN_MODE         = "FULL"  # FULL | SAMPLE
+```
+
+- `fecha_month` = `F.trunc(date_col, "MM")` in every Gold notebook (B13)
+- B11: rows outside date range are hard-blocked
+- B12: SAMPLE mode blocks Gold output in production
+
+---
+
+## 14. KPI Definitions
+
+### 14.1 SELL_IN KPIs
+
+| KPI | Formula | Unit | Source column |
+|---|---|---|---|
+| `si_revenue_mxn` | `SUM(REVENUE_MXN)` | MXN | `REVENUE_MXN` |
+| `si_vol_litros` | `SUM(VOLUME_LITER)` | Litres | `VOLUME_LITER` |
+| `si_vol_kg` | `SUM(VOLUME_KGR)` | KG | `VOLUME_KGR` |
+| `si_avg_price_mxn_per_litre` | `si_revenue_mxn / si_vol_litros` | MXN/L | derived |
+| `si_avg_price_mxn_per_kg` | `si_revenue_mxn / si_vol_kg` | MXN/KG | derived |
+| `si_sku_count` | `COUNT(DISTINCT SKU_EAN_COD)` | # | `SKU_EAN_COD` |
+| `si_transaction_count` | `COUNT(*)` | # | — |
+
+### 14.2 SELL_OUT KPIs
+
+| KPI | Formula | Unit | Source column |
+|---|---|---|---|
+| `so_revenue_mxn` | `SUM(REVENUE_SELL_OUT)` | MXN | `REVENUE_SELL_OUT` |
+| `so_vol_units` | `SUM(VOL_SELL_OUT)` | Units | `VOL_SELL_OUT` |
+| `so_pcs` | `SUM(PCS_SELL_OUT)` | Pieces | `PCS_SELL_OUT` |
+| `so_avg_price_mxn` | `so_revenue_mxn / so_vol_units` | MXN/unit | derived |
+| `so_inventory_units` | `SUM(VOL_INV)` | Units | `VOL_INV` |
+| `so_inventory_days` | `(so_inventory_units × 30) / so_vol_units` | Days | derived |
+| `so_store_count` | `COUNT(DISTINCT STORE_ID)` | # | `STORE_ID` |
+| `so_sku_count` | `COUNT(DISTINCT sku_ean_cod)` | # | `sku_ean_cod` |
+| `coverage_level` | CASE on store_count vs thresholds | LOW/MED/HIGH | `dq_thresholds.yaml` |
+
+### 14.3 Investment KPIs
+
+| KPI | Formula | Unit | Source |
+|---|---|---|---|
+| `inv_mkt_on_mxn` | `SUM(INVERSION_REAL)` WHERE MKT_ON | MXN | `INVERSION_REAL` |
+| `inv_mkt_off_mxn` | `SUM(INVERSION_REAL)` WHERE MKT_OFF | MXN | `INVERSION_REAL` |
+| `inv_total_mxn` | `inv_mkt_on_mxn + inv_mkt_off_mxn` | MXN | derived |
+| `inv_on_pct` | `inv_mkt_on_mxn / inv_total_mxn` | % | derived |
+| `inv_campaign_count` | `COUNT(DISTINCT CAMPANA)` | # | `CAMPANA` |
+| `inv_platform_count` | `COUNT(DISTINCT SOPORTE_PLATAFORMA)` | # | MKT_ON only |
+| `inv_media_type_count` | `COUNT(DISTINCT MEDIO)` | # | `MEDIO` |
+
+### 14.4 Nielsen KPIs
+
+| KPI | Source `METRIC_NAME` | Unit |
+|---|---|---|
+| `nls_units` | `U` | Units |
+| `nls_avg_unit_price` | `AVG_U_PRC` | MXN/unit |
+| `nls_avg_equiv_price` | `AVG_E_PRC` | MXN/KG |
+| `nls_value_share` | `VALUE_SHARE` | % |
+| `nls_volume_share` | `VOLUME_SHARE` | % |
+| `nls_numeric_dist` | `NUMERIC_DISTRIBUTION` | % |
+| `nls_category_value_mxn` | `CATEGORY_VALUE` | MXN |
+
+> Nielsen measures market-level share — no `marca_std` in source. Join to master is on `(fecha_month, canal_std)` only.
+
+### 14.5 Derived KPIs
+
+| KPI | Formula | Note |
+|---|---|---|
+| `roas_gross` | `so_revenue_mxn / inv_total_mxn` | F5: NOT roi_gross. Guarded: NULL when inv=0 or NULL. |
+| `data_confidence` | HIGH / MEDIUM / LOW | Based on source availability per row |
+
+---
+
+## 15. Master Join Strategy Detail
+
+See §13.3. Required utility functions in `gold_kpi_utils.py`:
+
+| Function | Enforces | Description |
+|---|---|---|
+| `safe_divide(num, den)` | B4 | Returns NULL (not 0/Inf) when denominator is 0 or NULL |
+| `assert_unique_keys(df, keys, name)` | B10 | Raises ValueError if not unique |
+| `assert_no_join_fanout(base_n, df, name)` | B8 | Raises ValueError if joined count > base |
+| `check_run_mode()` | B12 | Raises RuntimeError if RUN_MODE=SAMPLE |
+| `check_fecha_month_range(df, name)` | B11+B13 | Checks range and day=1 |
+| `check_no_inf_nan(df, cols, name)` | B4 | Checks for Inf/NaN in derived columns |
+
+---
+
+## 16. Data Confidence Logic
+
+```python
+data_confidence = (
+    HIGH   # all 4 sources present (sell_in, sell_out, investment, nielsen)
+    MEDIUM # sell_out present, ≥1 other source missing
+    LOW    # sell_out absent
+)
+```
+
+Source: `gold_commercial_kpi.py` metadata columns.
+Inputs: `has_sell_in`, `has_sell_out`, `has_investment`, `has_nielsen` (boolean).
+
+---
+
+## 17. Security — Snowflake No-Write Rule
+
+| Rule | Status |
+|---|---|
+| No Snowflake writes in Phase 4 | **ENFORCED — B14/B15 PRE-CONFIRMED 2026-06-27** |
+| No production Snowflake table mutations | **ENFORCED — B15 PRE-CONFIRMED 2026-06-27** |
+| Snowflake used as read-only source in Phases 1–3 only | Confirmed |
+| Gold writes: DBFS only (`dbfs:/mnt/mdp/mdm/phase4_gold/data/`) | Confirmed |
+| Audit files only in repo `logs/` (small, non-sensitive) | Confirmed |
+| Large commercial KPI CSVs: NOT committed to repo | B16 blocker in validation |
+| TD-006: `PRD_OSM_DPH_READER` credential rotation | 🔴 HIGH — deferred to project end |
+
