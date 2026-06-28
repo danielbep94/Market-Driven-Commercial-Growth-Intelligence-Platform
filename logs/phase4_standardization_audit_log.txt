@@ -583,3 +583,220 @@
 [2026-06-27 22:53:29] [INFO] [COMMERCIAL_KPI] Saved → dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_commercial_kpi (4427 rows)
 [2026-06-27 22:53:29] [INFO] [REGISTRY] KPI registry flushed → /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/phase4_kpi_registry.csv (2 metrics)
 [2026-06-27 22:53:29] [INFO] [COMMERCIAL_KPI] GOLD_COMMERCIAL_KPI — COMPLETE ✅
+[2026-06-28 01:35:42] [INFO] [INIT] LOGS_DIR = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-28 01:35:42] [INFO] [INIT] AUDIT_LOG = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/phase4_standardization_audit_log.txt
+[2026-06-28 01:35:42] [INFO] [INIT] RUN_MODE  = FULL
+[2026-06-28 01:35:42] [INFO] [INIT] GOLD_START_MONTH = 2022-01-01
+[2026-06-28 01:35:42] [INFO] [INIT] ========================================================================
+[2026-06-28 01:35:42] [INFO] [INIT] PHASE 4 GOLD KPI UTILS — INITIALISED
+[2026-06-28 01:35:42] [INFO] [INIT] RUN_MODE         = FULL
+[2026-06-28 01:35:42] [INFO] [INIT] GOLD_START_MONTH = 2022-01-01
+[2026-06-28 01:35:42] [INFO] [INIT] GOLD_END_MONTH   = None
+[2026-06-28 01:35:42] [INFO] [INIT] DBFS_GOLD_ROOT   = dbfs:/mnt/mdp/mdm/phase4_gold/data
+[2026-06-28 01:35:42] [INFO] [INIT] LOGS_DIR         = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-28 01:35:42] [INFO] [SECURITY] B14 PRE-CONFIRMED: zero Snowflake write operations in Phase 4 notebooks
+[2026-06-28 01:35:42] [INFO] [SECURITY] B15 PRE-CONFIRMED: zero production Snowflake mutation statements
+[2026-06-28 01:35:42] [INFO] [INIT] ========================================================================
+[2026-06-28 01:35:42] [INFO] [CONFIG] Loaded 32 Danone brands from /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/configs/brand_crosswalk.yaml
+[2026-06-28 01:35:42] [INFO] [INVESTMENT] ========================================================================
+[2026-06-28 01:35:42] [INFO] [INVESTMENT] GOLD_INVESTMENT — START
+[2026-06-28 01:35:42] [INFO] [RUN_MODE] RUN_MODE = FULL — Gold output enabled
+[2026-06-28 01:35:42] [INFO] [INVESTMENT] Loading: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/mkt_on_std.csv
+[2026-06-28 01:35:45] [INFO] [INVESTMENT] Loading: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/mkt_off_std.csv
+[2026-06-28 01:35:57] [INFO] [INVESTMENT] mkt_on_std: 7,282 rows | mkt_off_std: 100,000 rows | total: 107,282
+[2026-06-28 01:36:00] [INFO] [INVESTMENT] Union of MKT_ON + MKT_OFF: 107,282 rows total
+[2026-06-28 01:36:02] [✅ PASS B2] [INVESTMENT] fecha_month has zero NULLs in investment data
+[2026-06-28 01:36:03] [✅ PASS B3] [INVESTMENT] MARCA_STD has zero NULLs in investment data
+[2026-06-28 01:36:05] [✅ PASS B13] [investment_union] [investment_union] All fecha_month values are 1st of month
+[2026-06-28 01:36:06] [✅ PASS B11] [investment_union] [investment_union] All fecha_month within configured range
+[2026-06-28 01:36:11] [INFO] [INVESTMENT] brand_owner_type = COMPETITOR: 81,538 rows
+[2026-06-28 01:36:11] [INFO] [INVESTMENT] brand_owner_type = DANONE: 25,744 rows
+[2026-06-28 01:36:13] [⚠️  WARNING W5] [INVESTMENT] W5: 81,538 competitor investment rows retained in gold_investment_kpi but excluded from gold_commercial_kpi (Danone-only master).
+[2026-06-28 01:36:16] [INFO] [INVESTMENT] gold_investment_kpi: 2,646 rows at grain ['fecha_month', 'MARCA_STD', 'canal_std', 'brand_owner_type']
+[2026-06-28 01:36:20] [✅ PASS B4] [gold_investment_kpi] [gold_investment_kpi] No Inf/NaN in 'inv_on_pct'
+[2026-06-28 01:36:42] [INFO] [INVESTMENT] Saved → dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_investment_kpi (2646 rows)
+[2026-06-28 01:36:42] [INFO] [INVESTMENT] Registered 7 Investment KPI metrics
+[2026-06-28 01:36:42] [INFO] [INVESTMENT] GOLD_INVESTMENT — COMPLETE ✅
+[2026-06-28 01:37:26] [INFO] [INIT] LOGS_DIR = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-28 01:37:26] [INFO] [INIT] AUDIT_LOG = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/phase4_standardization_audit_log.txt
+[2026-06-28 01:37:26] [INFO] [INIT] RUN_MODE  = FULL
+[2026-06-28 01:37:26] [INFO] [INIT] GOLD_START_MONTH = 2022-01-01
+[2026-06-28 01:37:26] [INFO] [INIT] ========================================================================
+[2026-06-28 01:37:26] [INFO] [INIT] PHASE 4 GOLD KPI UTILS — INITIALISED
+[2026-06-28 01:37:26] [INFO] [INIT] RUN_MODE         = FULL
+[2026-06-28 01:37:26] [INFO] [INIT] GOLD_START_MONTH = 2022-01-01
+[2026-06-28 01:37:26] [INFO] [INIT] GOLD_END_MONTH   = None
+[2026-06-28 01:37:26] [INFO] [INIT] DBFS_GOLD_ROOT   = dbfs:/mnt/mdp/mdm/phase4_gold/data
+[2026-06-28 01:37:26] [INFO] [INIT] LOGS_DIR         = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-28 01:37:26] [INFO] [SECURITY] B14 PRE-CONFIRMED: zero Snowflake write operations in Phase 4 notebooks
+[2026-06-28 01:37:26] [INFO] [SECURITY] B15 PRE-CONFIRMED: zero production Snowflake mutation statements
+[2026-06-28 01:37:26] [INFO] [INIT] ========================================================================
+[2026-06-28 01:37:26] [INFO] [CONFIG] Loaded 32 Danone brands from /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/configs/brand_crosswalk.yaml
+[2026-06-28 01:37:26] [INFO] [NIELSEN] ========================================================================
+[2026-06-28 01:37:26] [INFO] [NIELSEN] GOLD_NIELSEN — START
+[2026-06-28 01:37:26] [INFO] [RUN_MODE] RUN_MODE = FULL — Gold output enabled
+[2026-06-28 01:37:27] [INFO] [NIELSEN] Loading facts: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/nielsen_facts_std.csv
+[2026-06-28 01:37:28] [INFO] [NIELSEN] Loading market dim: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/nielsen_std.csv
+[2026-06-28 01:37:29] [INFO] [NIELSEN] nielsen_facts_std: 100,000 rows | nielsen_std: 362 rows
+[2026-06-28 01:37:31] [INFO] [NIELSEN] B17 METRIC_NAME discovery: 13 unique values found:
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'AVG_E_PRC'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'AVG_U_PRC'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'DOL'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'DOL_CCV_NON_REACH_CONTEXT_OOSLS'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'DOL_CCV_REACH_CONTEXT'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'DOL_CCV_TDP_REACH_CONTEXT'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'DOL_ROS'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'E'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'E_ROS'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'NUMERIC_DIST_OOSLS'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'NUM_DIST'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'U'
+[2026-06-28 01:37:31] [INFO] [NIELSEN_DISCOVERY]   METRIC_NAME = 'U_ROS'
+[2026-06-28 01:37:31] [✅ PASS B17] [NIELSEN] METRIC_NAME discovery complete — 13 metrics found
+[2026-06-28 01:37:31] [INFO] [NIELSEN] Mapped metrics: ['AVG_E_PRC', 'AVG_U_PRC', 'DOL', 'DOL_CCV_NON_REACH_CONTEXT_OOSLS', 'DOL_CCV_REACH_CONTEXT', 'DOL_CCV_TDP_REACH_CONTEXT', 'DOL_ROS', 'E', 'E_ROS', 'NUMERIC_DIST_OOSLS', 'NUM_DIST', 'U', 'U_ROS']
+[2026-06-28 01:37:32] [✅ PASS B2] [NIELSEN] fecha_month has zero NULLs in Nielsen facts
+[2026-06-28 01:37:33] [✅ PASS B13] [nielsen_facts_std] [nielsen_facts_std] All fecha_month values are 1st of month
+[2026-06-28 01:37:34] [✅ PASS B11] [nielsen_facts_std] [nielsen_facts_std] All fecha_month within configured range
+[2026-06-28 01:37:39] [INFO] [NIELSEN] gold_nielsen_kpi (detailed): 8,214 rows at grain ['fecha_month', 'MRKT_DSC_SHRT', 'canal_std', 'region_std']
+[2026-06-28 01:37:41] [INFO] [NIELSEN] gold_nielsen_kpi_master: 636 rows at grain ['fecha_month', 'canal_std']
+[2026-06-28 01:37:45] [✅ PASS B10] [gold_nielsen_kpi_master] [gold_nielsen_kpi_master] Unique on ['fecha_month', 'canal_std'] (636 rows)
+[2026-06-28 01:37:48] [INFO] [NIELSEN] Nielsen fecha_month range: 2022-01-01 → 2026-05-01
+[2026-06-28 01:37:48] [INFO] [NIELSEN] distinct months: 53, distinct canales: 12
+[2026-06-28 01:37:55] [INFO] [NIELSEN] Saved → dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_nielsen_kpi (8214 rows)
+[2026-06-28 01:38:02] [INFO] [NIELSEN] Saved → dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_nielsen_kpi_master (636 rows)
+[2026-06-28 01:38:02] [INFO] [NIELSEN] Registered 16 Nielsen KPI metrics
+[2026-06-28 01:38:02] [INFO] [NIELSEN] GOLD_NIELSEN — COMPLETE ✅
+[2026-06-28 01:38:25] [INFO] [INIT] LOGS_DIR = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-28 01:38:25] [INFO] [INIT] AUDIT_LOG = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/phase4_standardization_audit_log.txt
+[2026-06-28 01:38:25] [INFO] [INIT] RUN_MODE  = FULL
+[2026-06-28 01:38:25] [INFO] [INIT] GOLD_START_MONTH = 2022-01-01
+[2026-06-28 01:38:25] [INFO] [INIT] ========================================================================
+[2026-06-28 01:38:25] [INFO] [INIT] PHASE 4 GOLD KPI UTILS — INITIALISED
+[2026-06-28 01:38:25] [INFO] [INIT] RUN_MODE         = FULL
+[2026-06-28 01:38:25] [INFO] [INIT] GOLD_START_MONTH = 2022-01-01
+[2026-06-28 01:38:25] [INFO] [INIT] GOLD_END_MONTH   = None
+[2026-06-28 01:38:25] [INFO] [INIT] DBFS_GOLD_ROOT   = dbfs:/mnt/mdp/mdm/phase4_gold/data
+[2026-06-28 01:38:25] [INFO] [INIT] LOGS_DIR         = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-28 01:38:25] [INFO] [SECURITY] B14 PRE-CONFIRMED: zero Snowflake write operations in Phase 4 notebooks
+[2026-06-28 01:38:25] [INFO] [SECURITY] B15 PRE-CONFIRMED: zero production Snowflake mutation statements
+[2026-06-28 01:38:25] [INFO] [INIT] ========================================================================
+[2026-06-28 01:38:26] [INFO] [CONFIG] Loaded 32 Danone brands from /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/configs/brand_crosswalk.yaml
+[2026-06-28 01:38:26] [INFO] [COMMERCIAL_KPI] ========================================================================
+[2026-06-28 01:38:26] [INFO] [COMMERCIAL_KPI] GOLD_COMMERCIAL_KPI — START
+[2026-06-28 01:38:26] [INFO] [RUN_MODE] RUN_MODE = FULL — Gold output enabled
+[2026-06-28 01:38:32] [INFO] [COMMERCIAL_KPI] Loaded from DBFS: dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_sell_out_kpi (4,427 rows)
+[2026-06-28 01:38:33] [INFO] [COMMERCIAL_KPI] Loaded from DBFS: dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_sell_in_kpi_master (1,045 rows)
+[2026-06-28 01:38:34] [INFO] [COMMERCIAL_KPI] Loaded from DBFS: dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_investment_kpi (2,646 rows)
+[2026-06-28 01:38:35] [INFO] [COMMERCIAL_KPI] Loaded from DBFS: dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_nielsen_kpi_master (636 rows)
+[2026-06-28 01:38:35] [INFO] [COMMERCIAL_KPI] Base table (sell_out_kpi): 4,427 rows
+[2026-06-28 01:38:36] [✅ PASS B10] [gold_sell_in_kpi_master] [gold_sell_in_kpi_master] Unique on ['fecha_month', 'marca_std', 'canal_std'] (1045 rows)
+[2026-06-28 01:38:37] [INFO] [COMMERCIAL_KPI] Investment: 1,077 Danone rows / 1,569 competitor rows excluded
+[2026-06-28 01:38:37] [⚠️  WARNING W5] [COMMERCIAL_KPI] W5: 1,569 competitor investment rows excluded from master join
+[2026-06-28 01:38:37] [✅ PASS B10] [gold_investment_kpi_danone] [gold_investment_kpi_danone] Unique on ['fecha_month', 'marca_std', 'canal_std'] (1077 rows)
+[2026-06-28 01:38:38] [✅ PASS B10] [gold_nielsen_kpi_master] [gold_nielsen_kpi_master] Unique on ['fecha_month', 'canal_std'] (636 rows)
+[2026-06-28 01:38:38] [INFO] [COMMERCIAL_KPI] JOIN 1: sell_out LEFT JOIN sell_in_master on (fecha_month, marca_std, canal_std)
+[2026-06-28 01:38:48] [✅ PASS B8] [SI_MASTER_JOIN] [SI_MASTER_JOIN] No fan-out (4427 → 4427)
+[2026-06-28 01:38:48] [INFO] [COMMERCIAL_KPI] JOIN 2: + LEFT JOIN investment_danone on (fecha_month, marca_std, canal_std)
+[2026-06-28 01:38:49] [✅ PASS B8] [INV_DANONE_JOIN] [INV_DANONE_JOIN] No fan-out (4427 → 4427)
+[2026-06-28 01:38:49] [INFO] [COMMERCIAL_KPI] JOIN 3: + LEFT JOIN nielsen_master on (fecha_month, canal_std)
+[2026-06-28 01:38:50] [✅ PASS B8] [NIELSEN_MASTER_JOIN] [NIELSEN_MASTER_JOIN] No fan-out (4427 → 4427)
+[2026-06-28 01:38:50] [INFO] [COMMERCIAL_KPI] All 3 joins complete — final row count: 4,427
+[2026-06-28 01:38:51] [✅ PASS B9] [gold_commercial_kpi] [gold_commercial_kpi] All 32 expected columns present
+[2026-06-28 01:38:52] [INFO] [COMMERCIAL_KPI] gold_commercial_kpi final: 4,427 rows, 32 columns
+[2026-06-28 01:38:52] [INFO] [COMMERCIAL_KPI] Master grain: fecha_month x marca_std x canal_std x cadena_std
+[2026-06-28 01:38:52] [INFO] [COMMERCIAL_KPI] region_std and cbu NOT in master table (F2 correction)
+[2026-06-28 01:38:53] [✅ PASS B4] [gold_commercial_kpi] [gold_commercial_kpi] No Inf/NaN in 'roas_gross'
+[2026-06-28 01:38:54] [✅ PASS B4] [gold_commercial_kpi] [gold_commercial_kpi] No Inf/NaN in 'so_inventory_days'
+[2026-06-28 01:38:54] [✅ PASS B2] [COMMERCIAL_KPI] fecha_month has zero NULLs in master table
+[2026-06-28 01:38:55] [✅ PASS B3] [COMMERCIAL_KPI] marca_std has zero NULLs in master table
+[2026-06-28 01:38:55] [✅ PASS B8] [COMMERCIAL_KPI] No fan-out: 4427 ≤ 4427 (sell_out base)
+[2026-06-28 01:38:55] [⚠️  WARNING W2] [COMMERCIAL_KPI] gold_commercial_kpi has 2 rows with negative so_revenue_mxn
+[2026-06-28 01:38:56] [INFO] [COMMERCIAL_KPI] data_confidence = MEDIUM: 4,427 rows
+[2026-06-28 01:38:59] [INFO] [COMMERCIAL_KPI] Saved → dbfs:/mnt/mdp/mdm/phase4_gold/data/gold_commercial_kpi (4427 rows)
+[2026-06-28 01:38:59] [INFO] [REGISTRY] KPI registry flushed → /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/phase4_kpi_registry.csv (2 metrics)
+[2026-06-28 01:38:59] [INFO] [COMMERCIAL_KPI] GOLD_COMMERCIAL_KPI — COMPLETE ✅
+[2026-06-28 01:40:46] [INFO] [INIT] LOGS_DIR = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-28 01:40:46] [INFO] [INIT] AUDIT_LOG = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/phase4_standardization_audit_log.txt
+[2026-06-28 01:40:46] [INFO] [INIT] RUN_MODE  = FULL
+[2026-06-28 01:40:46] [INFO] [INIT] GOLD_START_MONTH = 2022-01-01
+[2026-06-28 01:40:46] [INFO] [INIT] ========================================================================
+[2026-06-28 01:40:46] [INFO] [INIT] PHASE 4 GOLD KPI UTILS — INITIALISED
+[2026-06-28 01:40:46] [INFO] [INIT] RUN_MODE         = FULL
+[2026-06-28 01:40:46] [INFO] [INIT] GOLD_START_MONTH = 2022-01-01
+[2026-06-28 01:40:46] [INFO] [INIT] GOLD_END_MONTH   = None
+[2026-06-28 01:40:46] [INFO] [INIT] DBFS_GOLD_ROOT   = dbfs:/mnt/mdp/mdm/phase4_gold/data
+[2026-06-28 01:40:46] [INFO] [INIT] LOGS_DIR         = /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-28 01:40:46] [INFO] [SECURITY] B14 PRE-CONFIRMED: zero Snowflake write operations in Phase 4 notebooks
+[2026-06-28 01:40:46] [INFO] [SECURITY] B15 PRE-CONFIRMED: zero production Snowflake mutation statements
+[2026-06-28 01:40:46] [INFO] [INIT] ========================================================================
+[2026-06-28 01:40:46] [INFO] [CONFIG] Loaded 32 Danone brands from /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/configs/brand_crosswalk.yaml
+[2026-06-28 01:40:47] [INFO] [PHASE4_VALIDATION] ================================================================================
+[2026-06-28 01:40:47] [INFO] [PHASE4_VALIDATION] PHASE 4 GOLD VALIDATION — START
+[2026-06-28 01:40:47] [INFO] [PHASE4_VALIDATION] Run timestamp: 2026-06-28 01:40:47
+[2026-06-28 01:40:47] [INFO] [PHASE4_VALIDATION] B14 ✅ PRE-CONFIRMED: zero Snowflake write operations detected
+[2026-06-28 01:40:47] [INFO] [PHASE4_VALIDATION] B15 ✅ PRE-CONFIRMED: zero Snowflake mutation statements detected
+[2026-06-28 01:40:47] [INFO] [RUN_MODE] RUN_MODE = FULL — Gold output enabled
+[2026-06-28 01:40:48] [INFO] [PHASE4_VALIDATION] Loaded gold_sell_in_kpi: 1,045 rows
+[2026-06-28 01:40:49] [INFO] [PHASE4_VALIDATION] Loaded gold_sell_in_kpi_master: 1,045 rows
+[2026-06-28 01:40:49] [INFO] [PHASE4_VALIDATION] Loaded gold_sell_out_kpi: 4,427 rows
+[2026-06-28 01:40:50] [INFO] [PHASE4_VALIDATION] Loaded gold_investment_kpi: 2,646 rows
+[2026-06-28 01:40:51] [INFO] [PHASE4_VALIDATION] Loaded gold_nielsen_kpi_master: 636 rows
+[2026-06-28 01:40:52] [INFO] [PHASE4_VALIDATION] Loaded gold_commercial_kpi: 4,427 rows
+[2026-06-28 01:40:52] [✅ PASS B1] [PHASE4_VALIDATION] gold_sell_in_kpi: 1,045 rows
+[2026-06-28 01:40:52] [✅ PASS B1] [PHASE4_VALIDATION] gold_sell_in_kpi_master: 1,045 rows
+[2026-06-28 01:40:52] [✅ PASS B1] [PHASE4_VALIDATION] gold_sell_out_kpi: 4,427 rows
+[2026-06-28 01:40:52] [✅ PASS B1] [PHASE4_VALIDATION] gold_investment_kpi: 2,646 rows
+[2026-06-28 01:40:52] [✅ PASS B1] [PHASE4_VALIDATION] gold_nielsen_kpi_master: 636 rows
+[2026-06-28 01:40:52] [✅ PASS B1] [PHASE4_VALIDATION] gold_commercial_kpi: 4,427 rows
+[2026-06-28 01:40:52] [✅ PASS B2] [PHASE4_VALIDATION] gold_sell_in_kpi: fecha_month has zero NULLs
+[2026-06-28 01:40:52] [✅ PASS B2] [PHASE4_VALIDATION] gold_sell_in_kpi_master: fecha_month has zero NULLs
+[2026-06-28 01:40:52] [✅ PASS B2] [PHASE4_VALIDATION] gold_sell_out_kpi: fecha_month has zero NULLs
+[2026-06-28 01:40:53] [✅ PASS B2] [PHASE4_VALIDATION] gold_investment_kpi: fecha_month has zero NULLs
+[2026-06-28 01:40:53] [✅ PASS B2] [PHASE4_VALIDATION] gold_nielsen_kpi_master: fecha_month has zero NULLs
+[2026-06-28 01:40:53] [✅ PASS B2] [PHASE4_VALIDATION] gold_commercial_kpi: fecha_month has zero NULLs
+[2026-06-28 01:40:53] [✅ PASS B3] [PHASE4_VALIDATION] gold_sell_in_kpi: marca_std has zero NULLs
+[2026-06-28 01:40:53] [✅ PASS B3] [PHASE4_VALIDATION] gold_sell_in_kpi_master: marca_std has zero NULLs
+[2026-06-28 01:40:54] [✅ PASS B3] [PHASE4_VALIDATION] gold_sell_out_kpi: marca_std has zero NULLs
+[2026-06-28 01:40:54] [✅ PASS B3] [PHASE4_VALIDATION] gold_investment_kpi: marca_std has zero NULLs
+[2026-06-28 01:40:54] [✅ PASS B3] [PHASE4_VALIDATION] gold_commercial_kpi: marca_std has zero NULLs
+[2026-06-28 01:40:54] [✅ PASS B4] [gold_sell_out_kpi] [gold_sell_out_kpi] No Inf/NaN in 'so_avg_price_mxn'
+[2026-06-28 01:40:55] [✅ PASS B4] [gold_sell_out_kpi] [gold_sell_out_kpi] No Inf/NaN in 'so_inventory_days'
+[2026-06-28 01:40:55] [✅ PASS B4] [gold_investment_kpi] [gold_investment_kpi] No Inf/NaN in 'inv_on_pct'
+[2026-06-28 01:40:55] [✅ PASS B4] [gold_commercial_kpi] [gold_commercial_kpi] No Inf/NaN in 'roas_gross'
+[2026-06-28 01:40:55] [✅ PASS B4] [gold_commercial_kpi] [gold_commercial_kpi] No Inf/NaN in 'so_inventory_days'
+[2026-06-28 01:40:55] [✅ PASS B4] [gold_sell_in_kpi] [gold_sell_in_kpi] No Inf/NaN in 'si_avg_price_mxn_per_litre'
+[2026-06-28 01:40:56] [✅ PASS B4] [gold_sell_in_kpi] [gold_sell_in_kpi] No Inf/NaN in 'si_avg_price_mxn_per_kg'
+[2026-06-28 01:40:56] [✅ PASS B8] [PHASE4_VALIDATION] No fan-out detected in any Gold table
+[2026-06-28 01:40:56] [✅ PASS B9] [gold_commercial_kpi] [gold_commercial_kpi] All 32 expected columns present
+[2026-06-28 01:40:57] [✅ PASS B10] [gold_sell_in_kpi_master] [gold_sell_in_kpi_master] Unique on ['fecha_month', 'marca_std', 'canal_std'] (1045 rows)
+[2026-06-28 01:40:57] [✅ PASS B10] [gold_nielsen_kpi_master] [gold_nielsen_kpi_master] Unique on ['fecha_month', 'canal_std'] (636 rows)
+[2026-06-28 01:40:58] [✅ PASS B13] [gold_commercial_kpi] [gold_commercial_kpi] All fecha_month values are 1st of month
+[2026-06-28 01:40:58] [✅ PASS B11] [gold_commercial_kpi] [gold_commercial_kpi] All fecha_month within configured range
+[2026-06-28 01:40:58] [✅ PASS B13] [gold_sell_out_kpi] [gold_sell_out_kpi] All fecha_month values are 1st of month
+[2026-06-28 01:40:58] [✅ PASS B11] [gold_sell_out_kpi] [gold_sell_out_kpi] All fecha_month within configured range
+[2026-06-28 01:40:59] [✅ PASS B13] [PHASE4_VALIDATION] gold_sell_in_kpi: all fecha_month values are 1st of month
+[2026-06-28 01:40:59] [✅ PASS B13] [PHASE4_VALIDATION] gold_sell_in_kpi_master: all fecha_month values are 1st of month
+[2026-06-28 01:40:59] [✅ PASS B13] [PHASE4_VALIDATION] gold_sell_out_kpi: all fecha_month values are 1st of month
+[2026-06-28 01:40:59] [✅ PASS B13] [PHASE4_VALIDATION] gold_investment_kpi: all fecha_month values are 1st of month
+[2026-06-28 01:40:59] [✅ PASS B13] [PHASE4_VALIDATION] gold_nielsen_kpi_master: all fecha_month values are 1st of month
+[2026-06-28 01:40:59] [✅ PASS B13] [PHASE4_VALIDATION] gold_commercial_kpi: all fecha_month values are 1st of month
+[2026-06-28 01:41:00] [✅ PASS B17] [PHASE4_VALIDATION] nielsen_facts_std.csv confirmed at /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/nielsen_facts_std.csv
+[2026-06-28 01:41:00] [INFO] [PHASE4_VALIDATION] W1: Checking source coverage by month
+[2026-06-28 01:41:01] [INFO] [PHASE4_VALIDATION]   gold_sell_out_kpi: 18 months — 2025-01-01 → 2026-06-01
+[2026-06-28 01:41:01] [INFO] [PHASE4_VALIDATION]   gold_sell_in_kpi_master: 18 months — 2025-01-01 → 2026-06-01
+[2026-06-28 01:41:02] [INFO] [PHASE4_VALIDATION]   gold_investment_kpi: 36 months — 2024-01-01 → 2026-12-01
+[2026-06-28 01:41:02] [INFO] [PHASE4_VALIDATION]   gold_nielsen_kpi_master: 53 months — 2022-01-01 → 2026-05-01
+[2026-06-28 01:41:02] [⚠️  WARNING W6] [PHASE4_VALIDATION] W6: GQS scoring and validation are DISABLED in Phase 4. growth_quality_score_methodology.md is v1.0 DRAFT — weights not formally approved by commercial leadership. Enable GQS validation only after formal sign-off and entry in KPI registry.
+[2026-06-28 01:41:02] [INFO] [FINAL SUMMARY] ================================================================================
+[2026-06-28 01:41:02] [INFO] [FINAL SUMMARY] PHASE 4 GOLD VALIDATION — FINAL STATUS REPORT
+[2026-06-28 01:41:02] [INFO] [FINAL SUMMARY] ================================================================================
+[2026-06-28 01:41:02] [✅ PASS] [FINAL SUMMARY] NO HARD BLOCKERS — all Phase 4 Gold structural assertions passed.
+[2026-06-28 01:41:02] [⚠️  WARNING] [FINAL SUMMARY] TOTAL WARNINGS: 1
+[2026-06-28 01:41:02] [⚠️ ] [FINAL SUMMARY]   W6: W6: GQS scoring and validation are DISABLED in Phase 4. growth_quality_score_methodology.md is v1.0 DRAFT — weights not formally approved by commercial leadership. Enable GQS validation only after formal sign-off and entry in KPI registry.
+[2026-06-28 01:41:02] [✅ PASS] [FINAL SUMMARY] B14 PRE-CONFIRMED: zero Snowflake write operations in Phase 4 notebooks
+[2026-06-28 01:41:02] [✅ PASS] [FINAL SUMMARY] B15 PRE-CONFIRMED: zero Snowflake mutation statements in Phase 4 notebooks
+[2026-06-28 01:41:02] [INFO] [FINAL SUMMARY] W6: GQS validation DISABLED — awaiting commercial leadership sign-off on weights
+[2026-06-28 01:41:02] [INFO] [FINAL SUMMARY] PHASE 4 GATE: 🟢 CLEAR
+[2026-06-28 01:41:02] [INFO] [FINAL SUMMARY] ================================================================================
+[2026-06-28 01:41:02] [INFO] [FINAL SUMMARY] Coverage report written → /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/phase4_gold_coverage_report.txt
+[2026-06-28 01:41:03] [INFO] [FINAL SUMMARY] Row count reconciliation written → /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/phase4_row_count_reconciliation.txt

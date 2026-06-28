@@ -1,0 +1,6 @@
+gold_sell_in_kpi: 1,045 rows
+gold_sell_in_kpi_master: 1,045 rows
+gold_sell_out_kpi: 4,427 rows
+gold_investment_kpi: 2,646 rows
+gold_nielsen_kpi_master: 636 rows
+gold_commercial_kpi: 4,427 rows

@@ -1,0 +1,14 @@
+=== Silver Inputs ===
+sell_in_std.csv: 49815
+sell_out_std.csv: 100000
+mkt_on_std.csv: 7282
+mkt_off_std.csv: 100000
+nielsen_facts_std.csv: 100001
+
+=== Gold Outputs ===
+gold_sell_in_kpi: 1,045 rows
+gold_sell_in_kpi_master: 1,045 rows
+gold_sell_out_kpi: 4,427 rows
+gold_investment_kpi: 2,646 rows
+gold_nielsen_kpi_master: 636 rows
+gold_commercial_kpi: 4,427 rows
