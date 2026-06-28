@@ -2,9 +2,10 @@
 
 **Organization:** Danone Mexico  
 **Owner:** Victor Hernandez  
-**Branch:** `phase4-gold-kpi`  
-**Last Updated:** 2026-06-27  
-**Status:** 🟡 Phase 4 Gold KPI — **IN PROGRESS** — commit 187fc77
+**Branch:** `phase5-analytics-mart`  
+**Last Updated:** 2026-06-28  
+**Status:** 🟢 Phase 4 Gold KPI — **GATE CLEAR** (commit `10b7100`) | 🟡 Phase 5 Analytics Mart — **IN PROGRESS**
+
 
 ---
 
@@ -30,8 +31,9 @@ Build a unified **MDM Master Catalog Standardization** pipeline that bridges fiv
 | Phase 3 — Silver | All 5 standardization notebooks | ✅ Complete |
 | Phase 3 — Mappings | M1–M4 manual mappings | ✅ All CONFIRMED |
 | Phase 3 — Validation | `phase3_mdm_validation.py` | ✅ **🟢 GATE: CLEAR** (2026-06-27) |
-| Phase 4 — Gold KPI | `notebooks/phase4_gold/` (7 notebooks) | 🟡 In progress — commit 187fc77 |
-| Phase 5 | ML models | 🔲 Not started |
+| Phase 4 — Gold KPI | `notebooks/phase4_gold/` (7 notebooks) | ✅ **🟢 GATE: CLEAR** (2026-06-28, commit `10b7100`) |
+| Phase 5 — Analytics Mart | `notebooks/phase5_mart/` | 🟡 In progress — branch `phase5-analytics-mart` |
+
 
 ---
 
@@ -93,9 +95,21 @@ Market Growth Intelligence/
 
 ---
 
-## How to Run (Phase 4 — next)
+## How to Run — Phase 5 (Analytics Mart)
 
-Phase 3 is complete. All `*_std.csv` outputs are committed to `logs/`. Validation gate is 🟢 CLEAR.
+Phase 4 is complete. All Gold KPI outputs are on DBFS at `dbfs:/mnt/mdp/mdm/phase4_gold/data/`.
+Validation gate is 🟢 CLEAR. Branch: `phase5-analytics-mart`.
+
+### Phase 4 Gold outputs (inputs to Phase 5)
+
+| Table | Rows | Grain |
+|---|---|---|
+| `gold_sell_in_kpi_master` | 1,045 | fecha_month × marca_std × canal_std |
+| `gold_sell_out_kpi` | 4,427 | fecha_month × marca_std × canal_std × cadena_std |
+| `gold_investment_kpi` | 2,646 | fecha_month × marca_std × canal_std × brand_owner_type |
+| `gold_nielsen_kpi_master` | 636 | fecha_month × canal_std |
+| `gold_commercial_kpi` | 4,427 | fecha_month × marca_std × canal_std × cadena_std (32 cols) |
+
 
 ### If re-running silver notebooks (e.g. after mapping updates)
 
