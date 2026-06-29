@@ -123,10 +123,9 @@ def run_sf(sql: str, db: str):
     if _BLOCKED.search(sql):
         blocker("RO", f"Blocked keyword or semicolon detected. SQL[:80]: {sql[:80]}")
         raise RuntimeError("Blocked SQL")
-    opts = _get_sf_options(db)
     return (
         spark.read.format("net.snowflake.spark.snowflake")
-        .options(**opts)
+        .options(**get_sf_options(db))
         .option("sfDatabase", db)
         .option("query", sql)
         .load()
@@ -134,31 +133,50 @@ def run_sf(sql: str, db: str):
 
 # ---------------------------------------------------------------------------
 # 0.7  Credential loader — dual profile (PRD_MEX direct / PRD_MDP Key Vault)
+#      Pattern identical to build_cat_canal.py — module loaded ONCE at startup.
 # ---------------------------------------------------------------------------
-def _get_sf_options(database: str) -> dict:
-    """Return Snowflake connector options for a given database profile."""
-    spec = importlib.util.spec_from_file_location(
-        "snowflake_creds",
-        os.path.join(_repo_root, "configs", "snowflake_creds.py")
-    )
-    _creds_mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(_creds_mod)
-    cfg = _creds_mod.get_config(database)
+SF_URL = "danonenam.east-us-2.azure.snowflakecomputing.com"
 
-    base = {
-        "sfURL":       cfg["account"] + ".snowflakecomputing.com",
-        "sfWarehouse": cfg.get("warehouse", "COMPUTE_WH"),
-        "sfSchema":    cfg.get("schema",    "PUBLIC"),
-        "sfRole":      cfg.get("role",      ""),
-    }
-    if database == DB_PRD_MDP:
-        kv_scope           = "DAN-AM-P-KVT800-R-MDP-DB"
-        base["sfUser"]     = dbutils.secrets.get(kv_scope, "snowflake-user")
-        base["sfPassword"] = dbutils.secrets.get(kv_scope, "snowflake-password")
+_creds_path = os.path.normpath(
+    os.path.join(_repo_root, "configs", "snowflake_creds.py")
+)
+if not os.path.exists(_creds_path):
+    raise FileNotFoundError(
+        "configs/snowflake_creds.py NOT FOUND.\n"
+        "   Copy configs/snowflake_creds.example.py -> configs/snowflake_creds.py"
+    )
+_spec = importlib.util.spec_from_file_location("snowflake_creds", _creds_path)
+_m    = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_m)
+
+_mdp_user = getattr(_m, "SF_MDP_USER", None)
+_mdp_pwd  = getattr(_m, "SF_MDP_PASSWORD", None)
+
+def get_sf_options(database: str) -> dict:
+    """Return Snowflake connector options for a given database profile.
+    PRD_MEX: reads SF_MEX_* flat attributes from snowflake_creds.py.
+    PRD_MDP: SF_MDP_USER/PASSWORD if set, otherwise falls back to KV secrets.
+    """
+    if database == DB_PRD_MEX:
+        return {
+            "sfURL":       SF_URL,
+            "sfUser":      _m.SF_MEX_USER,
+            "sfPassword":  _m.SF_MEX_PASSWORD,
+            "sfWarehouse": getattr(_m, "SF_MEX_WH",   "PRD_MEX_ANL_WH"),
+            "sfRole":      getattr(_m, "SF_MEX_ROLE",  "PRD_MEX_READER"),
+        }
+    elif database == DB_PRD_MDP:
+        return {
+            "sfURL":       SF_URL,
+            "sfUser":      _mdp_user or dbutils.secrets.get(
+                               "DAN-AM-P-KVT800-R-MDP-DB", "snowflake-user"),
+            "sfPassword":  _mdp_pwd or dbutils.secrets.get(
+                               "DAN-AM-P-KVT800-R-MDP-DB", "snowflake-password"),
+            "sfWarehouse": getattr(_m, "SF_MDP_WH",   "PRD_MDP_ANL_WH"),
+            "sfRole":      getattr(_m, "SF_MDP_ROLE",  "PRD_MDP"),
+        }
     else:
-        base["sfUser"]     = cfg["user"]
-        base["sfPassword"] = cfg["password"]
-    return base
+        raise ValueError(f"Unknown database profile: {database}")
 
 # ---------------------------------------------------------------------------
 # 0.8  Helper functions
