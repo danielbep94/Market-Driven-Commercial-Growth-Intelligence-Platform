@@ -227,6 +227,26 @@ competitor_brands:
     variants: ["SEVEN UP", "SEVENUP", "SEVEN UP CHI"]
     sources: [MKT_OFF]
 
+  PUREZA VITAL:
+    variants: ["PUREZA VITAL"]
+    sources: [NIELSEN_EDP, NIELSEN_WATER_ST, NIELSEN_WATER_RT]
+    note: "kids water brand — confirmed competitor in Nielsen Water 2026-06-29"
+
+  PUREZA VITAL KIDS:
+    variants: ["PUREZA VITAL KIDS"]
+    sources: [NIELSEN_WATER_ST, NIELSEN_WATER_RT]
+    note: "kids water sub-brand — confirmed competitor in Nielsen Water 2026-06-29"
+
+  SUNNY DELIGHT:
+    variants: ["SUNNY DELIGHT"]
+    sources: [NIELSEN_WATER_ST, NIELSEN_WATER_RT]
+    note: "confirmed competitor in Nielsen Water 2026-06-29"
+
+  LA PUREZA:
+    variants: ["LA PUREZA"]
+    sources: [NIELSEN_WATER_RT]
+    note: "confirmed competitor in Nielsen Water Retail 2026-06-29"
+
   # Remaining single-variant competitors kept as-is:
   # FANTA, SPRITE, SQUIRT, MUNDET, JARRITOS, SANGRIA, BARRILITOS,
   # YAKULT, SANTA MARIA, TERRAFERTIL, etc.
