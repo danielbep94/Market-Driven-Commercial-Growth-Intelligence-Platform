@@ -5,9 +5,11 @@
 # MAGIC ## plan ref: build_cat_canal_plan_v3 — approved 2026-06-29
 
 # COMMAND ----------
+
 # MAGIC %md ## SECTION 0 — Setup, Logging, Helpers, Snowflake Read-Only Guard
 
 # COMMAND ----------
+
 # Cell 0: constants + helper imports
 import re, hashlib, datetime, json, math, os, importlib.util, pathlib
 from pyspark.sql import functions as F, types as T
@@ -59,6 +61,7 @@ def canal_key(source_system, source_column, canal_level, canal_raw_norm):
 udf_canal_key = F.udf(canal_key, T.StringType())
 
 # COMMAND ----------
+
 # Cell 1: Snowflake connection + read-only guard
 # Uses the same credential pattern as build_cat_marca.py and validate_canal_dim_structure.py
 
@@ -138,12 +141,14 @@ info("S0", f"build_cat_canal v{CATALOG_VERSION} initializing — run_date={RUN_D
 
 
 # COMMAND ----------
+
 # Cell 2: Init DBFS output dirs
 for sub in ["", "/seed"]:
     dbutils.fs.mkdirs(DBFS_BASE + sub)
 info("S0", f"DBFS output dirs initialized: {DBFS_BASE}")
 
 # COMMAND ----------
+
 # Cell 3: Load seed file
 _SEED_SCHEMA = T.StructType([
     T.StructField("source_system",       T.StringType()),
@@ -172,9 +177,12 @@ except Exception as e:
     df_seed = None
 
 # COMMAND ----------
+
 # MAGIC %md ## SECTION 1 — IBP Commercial Channel Hierarchy
 
 # COMMAND ----------
+
+# DBTITLE 1,Cell 8
 info("S1_IBP", "=" * 70)
 info("S1_IBP", "IBP COMMERCIAL CHANNEL HIERARCHY")
 
@@ -231,7 +239,7 @@ SQL_IBP_SPLIT = """
 """
 df_ibp_split = run_sf(SQL_IBP_SPLIT, DB_PRD_MDP)
 for r in df_ibp_split.collect():
-    info("S1_IBP", f"  GRAN_CANAL={r['GRAN_CANAL']:6s}  rows={r['row_count']:>10,}  ({r['row_pct']:.1f}%)  valor_plan={r['valor_plan']:,.0f}")
+    info("S1_IBP", f"  GRAN_CANAL={r['GRAN_CANAL']:6s}  rows={r['ROW_COUNT']:>10,}  ({r['ROW_PCT']:.1f}%)  valor_plan={r['VALOR_PLAN']:,.0f}")
 
 # Write ibp_canal_hierarchy.csv
 df_ibp_hier = (
@@ -295,9 +303,12 @@ info("S1_IBP", f"IBP L1 rows: {df_ibp_l1.count()} | IBP L2 rows: {df_ibp_l2.coun
 info("S1_IBP", "Section 1 complete.")
 
 # COMMAND ----------
+
 # MAGIC %md ## SECTION 2 — SELL_IN Commercial Channel Hierarchy (L1 + L2)
 
 # COMMAND ----------
+
+# DBTITLE 1,Cell 10
 info("S2_SELLIN", "=" * 70)
 info("S2_SELLIN", "SELL_IN COMMERCIAL CHANNEL HIERARCHY")
 
@@ -329,9 +340,9 @@ si_null_row = df_si_l1_raw.filter(F.col("cus_grn_chl_dsc").isNull()).agg(F.sum("
 si_null  = si_null_row[0][0] if si_null_row and si_null_row[0][0] else 0
 
 for r in df_si_l1_raw.orderBy(F.col("row_count").desc()).collect():
-    val_disp = r["cus_grn_chl_dsc"] or "(null)"
-    pct = r["row_count"] / si_total * 100
-    info("S2_SELLIN", f"  cus_grn_chl_dsc={val_disp:10s}  rows={r['row_count']:>10,}  ({pct:.1f}%)")
+    val_disp = r["CUS_GRN_CHL_DSC"] or "(null)"
+    pct = r["ROW_COUNT"] / si_total * 100
+    info("S2_SELLIN", f"  cus_grn_chl_dsc={val_disp:10s}  rows={r['ROW_COUNT']:>10,}  ({pct:.1f}%)")
 
 # Validation: expected L1 = DTT and UTT
 L1_MAP = {
@@ -367,7 +378,7 @@ L1_MAP = {
 
 actual_l1 = set()
 for r in df_si_l1_raw.filter(F.col("cus_grn_chl_dsc").isNotNull()).collect():
-    actual_l1.add(normalize(r["cus_grn_chl_dsc"]))
+    actual_l1.add(normalize(r["CUS_GRN_CHL_DSC"]))
 
 expected_l1 = {"DTT", "UTT"}
 allowed_l1  = {"DTT", "UTT", "NA"}
@@ -410,7 +421,7 @@ df_si_l1_classified = (
 
 _si_rows = []
 for r in df_si_l1_classified.collect():
-    norm_val = normalize(r["cus_grn_chl_dsc"])
+    norm_val = normalize(r["CUS_GRN_CHL_DSC"])
     mapping = L1_MAP.get(norm_val, {
         "canal_std": norm_val,
         "gran_canal_grp": "UNKNOWN",
@@ -423,7 +434,7 @@ for r in df_si_l1_classified.collect():
         "canal_std":           mapping["canal_std"],
         "canal_type":          "COMMERCIAL_CHANNEL",
         "canal_level":         "L1_GRAN_CANAL",
-        "canal_raw":           r["cus_grn_chl_dsc"],
+        "canal_raw":           r["CUS_GRN_CHL_DSC"],
         "canal_raw_norm":      norm_val,
         "gran_canal_grp":      mapping["gran_canal_grp"],
         "parent_canal_std":    None,
@@ -432,13 +443,21 @@ for r in df_si_l1_classified.collect():
         "source_column":       "cus_grn_chl_dsc",
         "promoted":            mapping["promoted"],
         "confirmation_status": mapping["confirmation_status"],
-        "row_count":           r["row_count"],
+        "row_count":           r["ROW_COUNT"],
         "catalog_date":        RUN_DATE,
         "catalog_version":     CATALOG_VERSION,
         "notes":               mapping["notes"],
     })
 
-df_si_l1 = spark.createDataFrame(_si_rows)
+_si_schema = T.StructType(
+    [T.StructField(k, T.StringType(), True) for k in [
+        "canal_key", "canal_std", "canal_type", "canal_level", "canal_raw",
+        "canal_raw_norm", "gran_canal_grp", "parent_canal_std", "l2_channel",
+        "source_system", "source_column", "promoted", "confirmation_status",
+        "catalog_date", "catalog_version", "notes",
+    ]] + [T.StructField("row_count", T.DecimalType(18, 0), True)]
+)
+df_si_l1 = spark.createDataFrame(_si_rows, schema=_si_schema)
 info("S2_SELLIN", f"SELL_IN L1 catalog rows built: {df_si_l1.count()}")
 
 # Load L1+L2 data and profile lv6_hie_cus_dsc
@@ -481,7 +500,7 @@ if max_share > 70:
 # Build SELL_IN L2 catalog rows
 _si_l2_rows = []
 for r in df_l2_dist.filter(F.col("lv6_hie_cus_dsc").isNotNull()).collect():
-    l1_norm = normalize(r["cus_grn_chl_dsc"])
+    l1_norm = normalize(r['cus_grn_chl_dsc'])
     l2_norm = normalize(r["lv6_hie_cus_dsc"])
     parent  = L1_MAP.get(l1_norm, {}).get("canal_std", l1_norm)
     grp     = L1_MAP.get(l1_norm, {}).get("gran_canal_grp", "UNKNOWN")
@@ -515,9 +534,12 @@ info("S2_SELLIN", f"SELL_IN L2 catalog rows built: {df_si_l2.count()} (promoted=
 info("S2_SELLIN", "Section 2 complete.")
 
 # COMMAND ----------
+
 # MAGIC %md ## SECTION 3 — SELL_OUT FORMAT Mapping (Seed-Driven)
 
 # COMMAND ----------
+
+# DBTITLE 1,Cell 12
 info("S3_SELLOUT", "=" * 70)
 info("S3_SELLOUT", "SELL_OUT RETAIL FORMAT — SEED-DRIVEN CLASSIFICATION")
 
@@ -663,7 +685,20 @@ if seeded_not_live:
         }
         for f in seeded_not_live
     ]
-    df_snl = spark.createDataFrame(_snl_rows)
+    _snl_schema = T.StructType([
+        T.StructField("FORMAT",              T.StringType(), True),
+        T.StructField("CHAIN",               T.StringType(), True),
+        T.StructField("FORMAT_NORM",         T.StringType(), True),
+        T.StructField("store_count",         T.LongType(),   True),
+        T.StructField("gran_canal_grp",      T.StringType(), True),
+        T.StructField("canal_type",          T.StringType(), True),
+        T.StructField("promoted",            T.StringType(), True),
+        T.StructField("business_rule",       T.StringType(), True),
+        T.StructField("confirmation_status", T.StringType(), True),
+        T.StructField("notes",               T.StringType(), True),
+        T.StructField("seed_bucket",         T.StringType(), True),
+    ])
+    df_snl = spark.createDataFrame(_snl_rows, schema=_snl_schema)
     df_coverage = df_coverage.unionByName(df_snl, allowMissingColumns=True)
 
 df_coverage.coalesce(1).write.mode("overwrite").option("header", True).csv(f"{DBFS_BASE}/sellout_format_seed_coverage.csv")
@@ -745,9 +780,12 @@ info("S3_SELLOUT", f"SELL_OUT FORMAT (L1) rows: {df_so_l1.count()} | CHAIN (L2 r
 info("S3_SELLOUT", "Section 3 complete.")
 
 # COMMAND ----------
+
 # MAGIC %md ## SECTION 4 — Aggregate Channel Split Validation
 
 # COMMAND ----------
+
+# DBTITLE 1,Cell 14
 info("S4_VALIDATION", "=" * 70)
 info("S4_VALIDATION", "AGGREGATE CHANNEL SPLIT VALIDATION")
 
@@ -823,8 +861,8 @@ info("S4_VALIDATION", "IBP channel split (dynamic):")
 for r in ibp_val_rows:
     info(
         "S4_VALIDATION",
-        f"  {r['GRAN_CANAL']:6s}: rows={r['row_count']:>10,} ({r['row_pct']:.1f}%) | "
-        f"valor={r['valor_plan']:>15,.0f} ({r['valor_pct']:.1f}%)",
+        f"  {r['GRAN_CANAL']:6s}: rows={r['ROW_COUNT']:>10,} ({r['ROW_PCT']:.1f}%) | "
+        f"valor={r['VALOR_PLAN']:>15,.0f} ({r['VALOR_PCT']:.1f}%)",
     )
 
 # Step 4C: SELL_IN fact split (conditional on schema discovery)
@@ -847,30 +885,30 @@ if _confirmed_fact:
         df_si_val        = run_sf(SQL_SI_VAL, DB_PRD_MEX)
         _sellin_val_rows = df_si_val.collect()
         info("S4_VALIDATION", f"SELL_IN ({_confirmed_fact}) channel split:")
-        _total_rev = sum(r["revenue"] or 0 for r in _sellin_val_rows)
+        _total_rev = sum(r["REVENUE"] or 0 for r in _sellin_val_rows)
         for r in _sellin_val_rows:
-            rev = r["revenue"] or 0
+            rev = r["REVENUE"] or 0
             info("S4_VALIDATION",
-                 f"  {r['gran_canal']:6s}: customers={r['customer_count']:>8,} | "
+                 f"  {r['GRAN_CANAL']:6s}: customers={r['CUSTOMER_COUNT']:>8,} | "
                  f"revenue={rev:>15,.0f} ({rev / _total_rev * 100:.1f}%)" if _total_rev else
-                 f"  {r['gran_canal']:6s}: customers={r['customer_count']:>8,} | revenue={rev:>15,.0f}")
+                 f"  {r['GRAN_CANAL']:6s}: customers={r['CUSTOMER_COUNT']:>8,} | revenue={rev:>15,.0f}")
 
         # V10 gate: compare IBP vs SELL_IN UTT/DTT value split
         _total_rev_safe = _total_rev or 1
         ibp_utt_pct = next(
-            (r["valor_pct"] for r in ibp_val_rows if normalize(r["GRAN_CANAL"]) == "UTT"), 0
+            (r["VALOR_PCT"] for r in ibp_val_rows if normalize(r["GRAN_CANAL"]) == "UTT"), 0
         )
         ibp_dtt_pct = next(
-            (r["valor_pct"] for r in ibp_val_rows if normalize(r["GRAN_CANAL"]) == "DTT"), 0
+            (r["VALOR_PCT"] for r in ibp_val_rows if normalize(r["GRAN_CANAL"]) == "DTT"), 0
         )
         si_utt_pct = next(
-            ((r["revenue"] or 0) / _total_rev_safe * 100
-             for r in _sellin_val_rows if normalize(r["gran_canal"]) == "UTT"),
+            ((r["REVENUE"] or 0) / _total_rev_safe * 100
+             for r in _sellin_val_rows if normalize(r["GRAN_CANAL"]) == "UTT"),
             0,
         )
         si_dtt_pct = next(
-            ((r["revenue"] or 0) / _total_rev_safe * 100
-             for r in _sellin_val_rows if normalize(r["gran_canal"]) == "DTT"),
+            ((r["REVENUE"] or 0) / _total_rev_safe * 100
+             for r in _sellin_val_rows if normalize(r["GRAN_CANAL"]) == "DTT"),
             0,
         )
         diff = abs(ibp_utt_pct - si_utt_pct)
@@ -897,19 +935,19 @@ for r in ibp_val_rows:
     _val_output.append({
         "source":       "IBP",
         "gran_canal":   r["GRAN_CANAL"],
-        "row_count":    r["row_count"],
-        "value":        r["valor_plan"],
-        "value_pct":    r["valor_pct"],
+        "row_count":    r["ROW_COUNT"],
+        "value":        r["VALOR_PLAN"],
+        "value_pct":    r["VALOR_PCT"],
         "metric":       "VALOR",
         "catalog_date": RUN_DATE,
     })
 for r in _sellin_val_rows:
-    rev = r["revenue"] or 0
-    _total_rev_safe2 = sum(rr["revenue"] or 0 for rr in _sellin_val_rows) or 1
+    rev = r["REVENUE"] or 0
+    _total_rev_safe2 = sum(rr["REVENUE"] or 0 for rr in _sellin_val_rows) or 1
     _val_output.append({
         "source":       "SELL_IN",
-        "gran_canal":   r["gran_canal"],
-        "row_count":    r["customer_count"],
+        "gran_canal":   r["GRAN_CANAL"],
+        "row_count":    r["CUSTOMER_COUNT"],
         "value":        rev,
         "value_pct":    rev / _total_rev_safe2 * 100,
         "metric":       _confirmed_value_col or "UNKNOWN",
@@ -922,16 +960,19 @@ info("S4_VALIDATION", f"Written canal_volume_validation.csv ({len(_val_output)} 
 info("S4_VALIDATION", "Section 4 complete.")
 
 # COMMAND ----------
+
 # MAGIC %md ## SECTION 5 — IBP ↔ SELL_IN Cross-Validation
 
 # COMMAND ----------
+
+# DBTITLE 1,Cell 16
 info("S5_XVAL", "=" * 70)
 info("S5_XVAL", "IBP vs SELL_IN CHANNEL CROSS-VALIDATION")
 
 sellin_l1_vals = {
-    normalize(r["cus_grn_chl_dsc"])
+    normalize(r["CUS_GRN_CHL_DSC"])
     for r in df_si_l1_raw.filter(F.col("cus_grn_chl_dsc").isNotNull()).collect()
-    if normalize(r["cus_grn_chl_dsc"]) not in {"NA"}
+    if normalize(r["CUS_GRN_CHL_DSC"]) not in {"NA"}
 }
 
 in_both  = ibp_gran_canal_vals & sellin_l1_vals
@@ -959,9 +1000,11 @@ else:
 info("S5_XVAL", "Section 5 complete.")
 
 # COMMAND ----------
+
 # MAGIC %md ## SECTION 6 — Assemble Catalog Outputs
 
 # COMMAND ----------
+
 info("S6_BUILD", "=" * 70)
 info("S6_BUILD", "ASSEMBLING cat_canal.csv + cat_canal_pending.csv + cat_canal_reference.csv")
 
@@ -1075,9 +1118,11 @@ info("S6_BUILD", f"cat_canal_reference.csv: {df_reference.count()} rows")
 info("S6_BUILD", "Section 6 complete.")
 
 # COMMAND ----------
+
 # MAGIC %md ## SECTION 7 — Summary Report
 
 # COMMAND ----------
+
 info("S7_SUMMARY", "=" * 70)
 info("S7_SUMMARY", "CANAL CATALOG BUILD SUMMARY")
 
@@ -1164,3 +1209,7 @@ if len(_blockers) == 0:
 else:
     info("S7_SUMMARY", f"❌ FAIL — {len(_blockers)} BLOCKER(s) raised. See report above.")
 info("S7_SUMMARY", f"{len(_warnings)} warning(s) raised (non-blocking).")
+
+# COMMAND ----------
+
+
