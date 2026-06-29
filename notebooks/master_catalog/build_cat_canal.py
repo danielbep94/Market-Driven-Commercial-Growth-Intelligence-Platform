@@ -376,9 +376,13 @@ L1_MAP = {
     },
 }
 
+# Empty string from Snowflake must be treated the same as NULL for L1
+# (normalize("") = "" which is not in L1_MAP — causes spurious V4 WARN)
 actual_l1 = set()
 for r in df_si_l1_raw.filter(F.col("cus_grn_chl_dsc").isNotNull()).collect():
-    actual_l1.add(normalize(r["CUS_GRN_CHL_DSC"]))
+    norm = normalize(r["CUS_GRN_CHL_DSC"])
+    if norm:   # exclude empty string — same treatment as null
+        actual_l1.add(norm)
 
 expected_l1 = {"DTT", "UTT"}
 allowed_l1  = {"DTT", "UTT", "NA"}
@@ -394,9 +398,9 @@ info("V3", "PASS — SELL_IN contains DTT and UTT")
 if unexpected:
     for u in unexpected:
         if u == "CAM":
-            warn("V4", "SELL_IN has CAM channel — unexpected but preserved per plan (classify same as IBP CAM). Business confirmation recommended.")
+            warn("V4", "SELL_IN has CAM channel — unexpected but preserved per plan. Business confirmation recommended.")
         else:
-            warn("V4", f"Unexpected SELL_IN L1 value detected: '{u}' — review required")
+            warn("V4", f"Unexpected SELL_IN L1 value: '{u}' — review required")
 
 # SELL_IN split stats (dynamic)
 si_excl_na_rows = df_si_l1_raw.filter(F.col("cus_grn_chl_dsc").isin(["DTT", "UTT"])).agg(F.sum("row_count")).collect()
@@ -413,9 +417,11 @@ info("S2_SELLIN", f"  null: {si_null:>10,} rows ({si_null / si_total * 100:.1f}%
 
 # Build SELL_IN L1 catalog rows from a fresh query (avoid double-cache issues)
 df_si_l1_raw2 = run_sf(SQL_SELLIN_L1, DB_PRD_MEX)
+# Filter: exclude null AND empty-string values (empty string = Snowflake blank = same as null)
 df_si_l1_classified = (
     df_si_l1_raw2
     .filter(F.col("cus_grn_chl_dsc").isNotNull())
+    .filter(F.trim(F.col("cus_grn_chl_dsc")) != "")
     .withColumn("cus_grn_chl_dsc_norm", F.trim(F.upper(F.col("cus_grn_chl_dsc"))))
 )
 
@@ -484,18 +490,27 @@ max_share = (max_share_row["rc"] / si_l2_total * 100) if max_share_row else 100.
 
 info("S2_SELLIN", f"lv6_hie_cus_dsc: null_rate={l2_null_rate:.1f}%, distinct_vals={l2_distinct}, max_single_share={max_share:.1f}%")
 
+# Promotion rules:
+#   FAIL (null_rate > 30%)  → REFERENCE_ONLY
+#   FAIL (distinct < 2)     → REFERENCE_ONLY (no segmentation value)
+#   FAIL (distinct > 50)    → REFERENCE_ONLY (grain-level data, not a channel dimension)
+#   WARN (max_share > 70%)  → note dominant value, still promotable if thresholds pass
 if l2_null_rate > 30:
-    warn("V5", f"lv6_hie_cus_dsc null rate {l2_null_rate:.1f}% > 30% threshold — promoting as REFERENCE_ONLY")
+    warn("V5", f"lv6_hie_cus_dsc null rate {l2_null_rate:.1f}% > 30% — REFERENCE_ONLY")
     _l2_promotable = False
 elif l2_distinct < 2:
     warn("V5", f"lv6_hie_cus_dsc has only {l2_distinct} distinct value(s) — insufficient for segmentation — REFERENCE_ONLY")
     _l2_promotable = False
+elif l2_distinct > 50:
+    warn("V5", f"lv6_hie_cus_dsc has {l2_distinct:,} distinct values (> 50 threshold) — "
+               f"this is grain-level client data, NOT a channel dimension. Demoting to REFERENCE_ONLY.")
+    _l2_promotable = False
 else:
-    info("V5", f"PASS — lv6_hie_cus_dsc profiling supports promotion (null={l2_null_rate:.1f}%, distinct={l2_distinct})")
+    info("V5", f"PASS — lv6_hie_cus_dsc promotion supported (null={l2_null_rate:.1f}%, distinct={l2_distinct})")
     _l2_promotable = True
 
 if max_share > 70:
-    warn("S2_SELLIN", f"lv6_hie_cus_dsc one value dominates at {max_share:.1f}% — reduced analytical usefulness noted")
+    warn("S2_SELLIN", f"lv6_hie_cus_dsc dominant value share={max_share:.1f}% > 70% — reduced analytical usefulness noted")
 
 # Build SELL_IN L2 catalog rows
 _si_l2_rows = []
