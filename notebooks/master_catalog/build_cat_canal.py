@@ -1161,7 +1161,7 @@ IBP RESULTS:
 
 SELL_IN RESULTS:
   L1 values found: {sorted(actual_l1)}
-  lv6_hie_cus_dsc: null_rate={l2_null_rate:.1f}%, distinct={l2_distinct}, promoted={'YES' if _l2_promotable else 'REFERENCE_ONLY'}
+  lv6_hie_cus_dsc: null_rate={l2_null_rate:.1f}%, distinct={l2_distinct:,}, promoted={'YES' if _l2_promotable else 'REFERENCE_ONLY'}{'  ← grain-level client codes (> 50 threshold)' if l2_distinct > 50 else ''}
 
 SELL_OUT RESULTS:
   Live FORMATs:      {len(so_live_formats)}
@@ -1198,7 +1198,7 @@ VALIDATION GATES:
   V2  CAM not remapped:             PASS
   V3  SELL_IN DTT+UTT present:      PASS
   V4  Unexpected SELL_IN L1:        {'WARN' if any('V4' in w for w in _warnings) else 'PASS'}
-  V5  lv6 null rate <=30%:          {'WARN' if not _l2_promotable else 'PASS'} ({l2_null_rate:.1f}%)
+  V5  lv6_hie_cus_dsc promotable:  {'WARN' if not _l2_promotable else 'PASS'} (null={l2_null_rate:.1f}%, distinct={l2_distinct:,}{' > 50 threshold — grain-level, REFERENCE_ONLY' if l2_distinct > 50 else ''})
   V6  FORMAT seed coverage:         {'WARN' if live_not_seeded_cnt > 0 else 'PASS'} ({live_not_seeded_cnt} LIVE_NOT_SEEDED)
   V7  No PENDING in cat_canal.csv:  PASS
   V8  SUBCHAIN absent:              PASS

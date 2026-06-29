@@ -19,7 +19,7 @@ SELL_OUT,FORMAT,7E-SUPERPREMIUM,7E-SUPERPREMIUM,L1_FORMAT,DTT,RETAIL_FORMAT,YES,
 SELL_OUT,FORMAT,7E-TRAFICO,7E-TRAFICO,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven high traffic — convenience channel
 SELL_OUT,FORMAT,7E-TURISTAS,7E-TURISTAS,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven tourist — convenience channel
 SELL_OUT,FORMAT,7E-ZONA DE PROXIMIDAD,7E-ZONA DE PROXIMIDAD,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven proximity zone — convenience channel
-SELL_OUT,FORMAT,CALMAX,CALMAX,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_regional,CONFIRMED,Calmax regional supermarket — organized trade
+SELL_OUT,FORMAT,CALIMAX,CALIMAX,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_regional,CONFIRMED,Calimax regional supermarket — organized trade (NW Mexico)
 SELL_OUT,FORMAT,CASH AND CARRY,CASH AND CARRY,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_b2b_replenishment,CONFIRMED_RECOMMENDED,"Recommended DTT: proximity/high-frequency B2B replenishment; not aligned with centralized Modern Trade logistics; final business approval recommended"
 SELL_OUT,FORMAT,CCF-CEDIS,CCF-CEDIS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_distribution,CONFIRMED,CCF distribution center — organized trade logistics
 SELL_OUT,FORMAT,CCF-CITY MARKET,CCF-CITY MARKET,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,CCF City Market — Modern Trade premium format
