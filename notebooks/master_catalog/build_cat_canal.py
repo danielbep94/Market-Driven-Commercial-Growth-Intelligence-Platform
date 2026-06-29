@@ -825,36 +825,27 @@ except Exception as e:
     schema_rows, tables_found = [], set()
 
 # Determine best fact table and metric columns
+# OQ1 RESOLVED: VW_FACT_RNV confirmed by user (2026-06-29)
+# Columns sourced from SELL_IN_DICT.txt:
+#   join key  : SHP_CUS_IDT  (joins to V_D_CLIENT.CUS_IDT)
+#   date col  : BIL_DAT      (YYYYMMDD integer — filter as >= 20250101)
+#   value col : BIL_INV      (billed invoice value = VALOR / net revenue)
+#   volume col: LITER        (WATERS) / BIL_NET_KGR (EDP) — not used for channel split
 _FACT_CANDIDATES     = ["VW_FACT_RNV", "V_F_SALES"]
 _confirmed_fact      = None
 _confirmed_value_col = None
 _confirmed_date_col  = None
 _confirmed_join_key  = None
 
-for tbl in _FACT_CANDIDATES:
-    if tbl in tables_found:
-        tbl_cols         = {r["COLUMN_NAME"].upper() for r in schema_rows if r["TABLE_NAME"] == tbl}
-        value_candidates = ["NSV_MXN", "REVENUE_MXN", "NETO_MXN", "VALOR", "AMOUNT", "NET_SALES"]
-        date_candidates  = ["YEAR_MONTH", "PERIODO", "FECHA", "MES_ANIO", "ANIO_MES"]
-        join_candidates  = ["CUS_IDT", "SHP_CUS_IDT", "CUSTOMER_ID", "CLI_IDT"]
-        for vc in value_candidates:
-            if vc in tbl_cols:
-                _confirmed_value_col = vc
-                break
-        for dc in date_candidates:
-            if dc in tbl_cols:
-                _confirmed_date_col = dc
-                break
-        for jc in join_candidates:
-            if jc in tbl_cols:
-                _confirmed_join_key = jc
-                break
-        if _confirmed_value_col and _confirmed_date_col and _confirmed_join_key:
-            _confirmed_fact = tbl
-            info("S4_VALIDATION",
-                 f"Confirmed fact table: {_confirmed_fact} | value={_confirmed_value_col} | "
-                 f"date={_confirmed_date_col} | join={_confirmed_join_key}")
-            break
+# Hardcoded confirmed path — bypasses column-name guessing for VW_FACT_RNV
+if "VW_FACT_RNV" in tables_found or True:   # True: always apply confirmed mapping
+    _confirmed_fact      = "VW_FACT_RNV"
+    _confirmed_join_key  = "SHP_CUS_IDT"
+    _confirmed_date_col  = "BIL_DAT"
+    _confirmed_value_col = "BIL_INV"
+    info("S4_VALIDATION",
+         f"OQ1 RESOLVED — Confirmed fact table: {_confirmed_fact} "
+         f"| join={_confirmed_join_key} | date={_confirmed_date_col} | value={_confirmed_value_col}")
 
 # Step 4B: IBP value split (always runs — IBP schema is known)
 SQL_IBP_VAL = """
@@ -883,16 +874,18 @@ for r in ibp_val_rows:
 # Step 4C: SELL_IN fact split (conditional on schema discovery)
 _sellin_val_rows = []
 if _confirmed_fact:
+    # BIL_DAT is stored as YYYYMMDD integer — filter for 2025 onwards
     SQL_SI_VAL = f"""
         SELECT
-            c.cus_grn_chl_dsc          AS gran_canal,
-            COUNT(DISTINCT c.CUS_IDT)  AS customer_count,
-            SUM(f.{_confirmed_value_col}) AS revenue
+            c.cus_grn_chl_dsc                          AS gran_canal,
+            COUNT(DISTINCT f.{_confirmed_join_key})    AS customer_count,
+            SUM(f.{_confirmed_value_col})              AS revenue
         FROM PRD_MEX.MEX_DSP_OTC.{_confirmed_fact} f
         JOIN PRD_MEX.MEX_DSP_OTC.V_D_CLIENT c
             ON f.{_confirmed_join_key} = c.CUS_IDT
-        WHERE c.cus_grn_chl_dsc IN ('DTT','UTT')
-          AND f.{_confirmed_date_col} >= '202501'
+           AND f.SAL_ORG_COD = c.SAL_ORG_COD
+        WHERE c.cus_grn_chl_dsc IN ('DTT', 'UTT')
+          AND f.{_confirmed_date_col} >= 20250101
         GROUP BY 1
         ORDER BY revenue DESC
     """
