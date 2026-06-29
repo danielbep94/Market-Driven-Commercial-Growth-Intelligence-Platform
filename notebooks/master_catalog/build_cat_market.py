@@ -263,20 +263,19 @@ info("S1_EDP", "EDP NIELSEN MARKET DIMENSION")
 info("S1_EDP", "Credential: PRD_MEX")
 
 SQL_EDP = """
-    SELECT market_id, MRKT_DSC_SHRT
+    SELECT MRKT_DSC_SHRT
     FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_MKT_DIM
 """
 
 try:
-    df_edp_raw    = run_sf(SQL_EDP, DB_PRD_MEX).cache()
+    df_edp_raw      = run_sf(SQL_EDP, DB_PRD_MEX).cache()
     _edp_total      = df_edp_raw.count()
-    _edp_id_count   = df_edp_raw.select("market_id").distinct().count()
     _edp_name_count = df_edp_raw.select("MRKT_DSC_SHRT").distinct().count()
-    info("S1_EDP", f"Rows: {_edp_total}  |  market_id stability: {_edp_id_count} IDs / {_edp_name_count} names")
+    _edp_id_count   = _edp_name_count  # no market_id column — name-based stability only
+    info("S1_EDP", f"Rows: {_edp_total}  |  distinct MRKT_DSC_SHRT: {_edp_name_count}")
 except Exception as _e:
     blocker("S1_EDP", f"Failed to query EDP market table: {_e}")
-    df_edp_raw    = spark.createDataFrame([], T.StructType([
-        T.StructField("market_id",     T.StringType()),
+    df_edp_raw      = spark.createDataFrame([], T.StructType([
         T.StructField("MRKT_DSC_SHRT", T.StringType()),
     ]))
     _edp_total = _edp_id_count = _edp_name_count = 0
@@ -341,9 +340,9 @@ if not _edp_has_total:
 else:
     info("M8", "EDP: is_total_mexico=YES confirmed")
 
-# Write profile (includes market_id for traceability)
+# Write profile (market_key is the stable identifier — market_id not available in view)
 df_edp_profile = df_edp_joined.select(
-    "market_id", "mrkt_dsc_shrt", "mrkt_dsc_shrt_norm", "market_key",
+    "mrkt_dsc_shrt", "mrkt_dsc_shrt_norm", "market_key",
     "canal_std", "canal_lvl1", "canal_lvl2", "agg_level",
     "region_type", "region_std", "region_detail",
     "is_total_mexico", "is_scanning", "source_cbu", "promoted", "confirmation_status", "notes"
@@ -351,7 +350,7 @@ df_edp_profile = df_edp_joined.select(
 df_edp_profile.coalesce(1).write.mode("overwrite").option("header", True).csv(
     f"{DBFS_BASE}/profiles/edp_market_profile.csv"
 )
-info("S1_EDP", f"Written: edp_market_profile.csv ({_edp_name_count} rows — incl. market_id)")
+info("S1_EDP", f"Written: edp_market_profile.csv ({_edp_name_count} rows)")
 
 # COMMAND ----------
 
@@ -365,20 +364,19 @@ info("S2_WST", "NOTE: WATER_ST has 0 rows in signoff seed — all markets will b
 info("S2_WST", "Credential: PRD_MEX")
 
 SQL_WST = """
-    SELECT market_id, MRKT_DSC_SHRT
+    SELECT MRKT_DSC_SHRT
     FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM
 """
 
 try:
-    df_wst_raw    = run_sf(SQL_WST, DB_PRD_MEX).cache()
+    df_wst_raw      = run_sf(SQL_WST, DB_PRD_MEX).cache()
     _wst_total      = df_wst_raw.count()
-    _wst_id_count   = df_wst_raw.select("market_id").distinct().count()
     _wst_name_count = df_wst_raw.select("MRKT_DSC_SHRT").distinct().count()
-    info("S2_WST", f"Rows: {_wst_total}  |  market_id stability: {_wst_id_count} IDs / {_wst_name_count} names")
+    _wst_id_count   = _wst_name_count
+    info("S2_WST", f"Rows: {_wst_total}  |  distinct MRKT_DSC_SHRT: {_wst_name_count}")
 except Exception as _e:
     blocker("S2_WST", f"Failed to query WATER_ST market table: {_e}")
-    df_wst_raw    = spark.createDataFrame([], T.StructType([
-        T.StructField("market_id",     T.StringType()),
+    df_wst_raw      = spark.createDataFrame([], T.StructType([
         T.StructField("MRKT_DSC_SHRT", T.StringType()),
     ]))
     _wst_total = _wst_id_count = _wst_name_count = 0
@@ -423,7 +421,7 @@ _wst_pct       = 0.0
 info("S2_WST", f"Coverage: 0/{_wst_name_count} classified (0%) — governance debt")
 
 df_wst_profile = df_wst_joined.select(
-    "market_id", "mrkt_dsc_shrt", "mrkt_dsc_shrt_norm", "market_key",
+    "mrkt_dsc_shrt", "mrkt_dsc_shrt_norm", "market_key",
     "canal_std", "canal_lvl1", "canal_lvl2", "agg_level",
     "region_type", "region_std", "region_detail",
     "is_total_mexico", "is_scanning", "source_cbu", "promoted", "confirmation_status", "notes"
@@ -431,7 +429,7 @@ df_wst_profile = df_wst_joined.select(
 df_wst_profile.coalesce(1).write.mode("overwrite").option("header", True).csv(
     f"{DBFS_BASE}/profiles/water_st_market_profile.csv"
 )
-info("S2_WST", f"Written: water_st_market_profile.csv ({_wst_name_count} rows — all PENDING, incl. market_id)")
+info("S2_WST", f"Written: water_st_market_profile.csv ({_wst_name_count} rows — all PENDING)")
 
 # COMMAND ----------
 
@@ -444,20 +442,19 @@ info("S3_WRT", "WATER RIE MARKET DIMENSION")
 info("S3_WRT", "Credential: PRD_MEX")
 
 SQL_WRT = """
-    SELECT market_id, MRKT_DSC_SHRT
+    SELECT MRKT_DSC_SHRT
     FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_MKT_DIM
 """
 
 try:
-    df_wrt_raw    = run_sf(SQL_WRT, DB_PRD_MEX).cache()
+    df_wrt_raw      = run_sf(SQL_WRT, DB_PRD_MEX).cache()
     _wrt_total      = df_wrt_raw.count()
-    _wrt_id_count   = df_wrt_raw.select("market_id").distinct().count()
     _wrt_name_count = df_wrt_raw.select("MRKT_DSC_SHRT").distinct().count()
-    info("S3_WRT", f"Rows: {_wrt_total}  |  market_id stability: {_wrt_id_count} IDs / {_wrt_name_count} names")
+    _wrt_id_count   = _wrt_name_count
+    info("S3_WRT", f"Rows: {_wrt_total}  |  distinct MRKT_DSC_SHRT: {_wrt_name_count}")
 except Exception as _e:
     blocker("S3_WRT", f"Failed to query WATER_RT market table: {_e}")
-    df_wrt_raw    = spark.createDataFrame([], T.StructType([
-        T.StructField("market_id",     T.StringType()),
+    df_wrt_raw      = spark.createDataFrame([], T.StructType([
         T.StructField("MRKT_DSC_SHRT", T.StringType()),
     ]))
     _wrt_total = _wrt_id_count = _wrt_name_count = 0
@@ -521,7 +518,7 @@ else:
     info("M8", "WATER_RT: is_total_mexico=YES confirmed")
 
 df_wrt_profile = df_wrt_joined.select(
-    "market_id", "mrkt_dsc_shrt", "mrkt_dsc_shrt_norm", "market_key",
+    "mrkt_dsc_shrt", "mrkt_dsc_shrt_norm", "market_key",
     "canal_std", "canal_lvl1", "canal_lvl2", "agg_level",
     "region_type", "region_std", "region_detail",
     "is_total_mexico", "is_scanning", "source_cbu", "promoted", "confirmation_status", "notes"
@@ -529,7 +526,7 @@ df_wrt_profile = df_wrt_joined.select(
 df_wrt_profile.coalesce(1).write.mode("overwrite").option("header", True).csv(
     f"{DBFS_BASE}/profiles/water_rt_market_profile.csv"
 )
-info("S3_WRT", f"Written: water_rt_market_profile.csv ({_wrt_name_count} rows — incl. market_id)")
+info("S3_WRT", f"Written: water_rt_market_profile.csv ({_wrt_name_count} rows)")
 
 # COMMAND ----------
 
@@ -542,20 +539,19 @@ info("S4_PB", "PLANT BASED MARKET DIMENSION")
 info("S4_PB", "Credential: PRD_MEX")
 
 SQL_PB = """
-    SELECT market_id, MRKT_DSC_SHRT
+    SELECT MRKT_DSC_SHRT
     FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_MKT_DIM
 """
 
 try:
-    df_pb_raw    = run_sf(SQL_PB, DB_PRD_MEX).cache()
-    _pb_total      = df_pb_raw.count()
-    _pb_id_count   = df_pb_raw.select("market_id").distinct().count()
-    _pb_name_count = df_pb_raw.select("MRKT_DSC_SHRT").distinct().count()
-    info("S4_PB", f"Rows: {_pb_total}  |  market_id stability: {_pb_id_count} IDs / {_pb_name_count} names")
+    df_pb_raw       = run_sf(SQL_PB, DB_PRD_MEX).cache()
+    _pb_total       = df_pb_raw.count()
+    _pb_name_count  = df_pb_raw.select("MRKT_DSC_SHRT").distinct().count()
+    _pb_id_count    = _pb_name_count
+    info("S4_PB", f"Rows: {_pb_total}  |  distinct MRKT_DSC_SHRT: {_pb_name_count}")
 except Exception as _e:
     blocker("S4_PB", f"Failed to query PB market table: {_e}")
-    df_pb_raw    = spark.createDataFrame([], T.StructType([
-        T.StructField("market_id",     T.StringType()),
+    df_pb_raw       = spark.createDataFrame([], T.StructType([
         T.StructField("MRKT_DSC_SHRT", T.StringType()),
     ]))
     _pb_total = _pb_id_count = _pb_name_count = 0
@@ -619,7 +615,7 @@ else:
     info("M8", "PB: is_total_mexico=YES confirmed")
 
 df_pb_profile = df_pb_joined.select(
-    "market_id", "mrkt_dsc_shrt", "mrkt_dsc_shrt_norm", "market_key",
+    "mrkt_dsc_shrt", "mrkt_dsc_shrt_norm", "market_key",
     "canal_std", "canal_lvl1", "canal_lvl2", "agg_level",
     "region_type", "region_std", "region_detail",
     "is_total_mexico", "is_scanning", "source_cbu", "promoted", "confirmation_status", "notes"
@@ -627,7 +623,7 @@ df_pb_profile = df_pb_joined.select(
 df_pb_profile.coalesce(1).write.mode("overwrite").option("header", True).csv(
     f"{DBFS_BASE}/profiles/pb_market_profile.csv"
 )
-info("S4_PB", f"Written: pb_market_profile.csv ({_pb_name_count} rows — incl. market_id)")
+info("S4_PB", f"Written: pb_market_profile.csv ({_pb_name_count} rows)")
 
 # COMMAND ----------
 
@@ -1138,12 +1134,13 @@ _report_lines += [
     "  Action: classify WATER_ST markets, add to signoff seed with",
     "          NIELSEN_SOURCE_TABLE='WATER_NIELSEN_ST', then re-run.",
     "",
-    "MARKET_ID STABILITY:",
-    f"  EDP:      {_edp_id_count} IDs / {_edp_name_count} names",
-    f"  WATER_ST: {_wst_id_count} IDs / {_wst_name_count} names  (all PENDING)",
-    f"  WATER_RT: {_wrt_id_count} IDs / {_wrt_name_count} names",
-    f"  PB:       {_pb_id_count} IDs / {_pb_name_count} names",
-    "  (market_id retained in per-CBU profile files — use for lineage traceability)",
+    "NAME STABILITY (distinct MRKT_DSC_SHRT per view):",
+    f"  EDP:      {_edp_name_count} distinct names",
+    f"  WATER_ST: {_wst_name_count} distinct names  (all PENDING — governance debt)",
+    f"  WATER_RT: {_wrt_name_count} distinct names",
+    f"  PB:       {_pb_name_count} distinct names",
+    "  NOTE: Nielsen market views do not expose a market_id PK column.",
+    "        market_key (md5 of source_cbu|mrkt_dsc_shrt_norm) is the stable catalog identifier.",
     "",
     "GEOGRAPHIC HIERARCHY DISTRIBUTION (promoted rows):",
     f"  NATIONAL: {_region_dist.get('NATIONAL', 0)}",
@@ -1189,10 +1186,10 @@ _report_lines += [
     f"  cat_market.csv:              {_promoted_count} rows  (promoted=YES)",
     f"  cat_market_pending.csv:      {_pending_count} rows",
     f"  cat_market_reference.csv:    {_reference_count} rows",
-    f"  profiles/edp_market_profile.csv:      {_edp_name_count} rows  (incl. market_id)",
-    f"  profiles/water_st_market_profile.csv: {_wst_name_count} rows  (all PENDING, incl. market_id)",
-    f"  profiles/water_rt_market_profile.csv: {_wrt_name_count} rows  (incl. market_id)",
-    f"  profiles/pb_market_profile.csv:       {_pb_name_count} rows  (incl. market_id)",
+    f"  profiles/edp_market_profile.csv:      {_edp_name_count} rows",
+    f"  profiles/water_st_market_profile.csv: {_wst_name_count} rows  (all PENDING)",
+    f"  profiles/water_rt_market_profile.csv: {_wrt_name_count} rows",
+    f"  profiles/pb_market_profile.csv:       {_pb_name_count} rows",
     f"  profiles/ibp_mercado_profile.csv:     {_ibp_count} rows",
     f"  profiles/sellin_geo_profile.csv:      {_si_count} rows",
     "  audit/market_cross_cbu_overlap.csv:   written (descriptive)",
