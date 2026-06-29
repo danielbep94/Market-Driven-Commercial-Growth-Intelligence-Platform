@@ -1,5 +1,4 @@
 # Databricks notebook source
-
 # MAGIC %md
 # MAGIC # Master Catalog Source Profiling -- v6.0.0
 # MAGIC
@@ -319,7 +318,7 @@ df_marca_edp = run_sf(DB_PRD_MEX, """
         'NIELSEN_EDP'               AS source_system
     FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
     WHERE INP_56985 IS NOT NULL
-      AND hierarchy_level = 11
+      AND "hierarchy_level" = 11
     GROUP BY 1, 2
 """)
 
@@ -344,7 +343,7 @@ df_marca_water_st = run_sf(DB_PRD_MEX, """
         'NIELSEN_WATER_ST'          AS source_system
     FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM
     WHERE CSTM_310589 IS NOT NULL
-      AND hierarchy_level = 11
+      AND "hierarchy_level" = 11
     GROUP BY 1, 2
 """)
 
@@ -353,11 +352,11 @@ df_marca_water_rt = run_sf(DB_PRD_MEX, """
     SELECT
         TRIM(UPPER(CSTM_310589))    AS raw_variant,
         CSTM_310589                 AS brand_original,
-        COUNT(DISTINCT product_id)  AS row_count,
-        'NIELSEN_WATER_RT'          AS source_system
+        COUNT(DISTINCT "product_id")  AS row_count,
+        'NIELSEN_WATER_RT'            AS source_system
     FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM
     WHERE CSTM_310589 IS NOT NULL
-      AND hierarchy_level = 9
+      AND "hierarchy_level" = 9
     GROUP BY 1, 2
 """)
 
@@ -958,7 +957,7 @@ for _dataset, _table in _NIELSEN_MKT_TABLES.items():
             SELECT
                 MRKT_DSC_SHRT,
                 MRKT_DSC_LONG,
-                COUNT(DISTINCT market_id) AS market_id_count,
+                COUNT(DISTINCT "market_id") AS market_id_count,
                 '{_dataset}'              AS nielsen_dataset
             FROM {_table}
             WHERE MRKT_DSC_SHRT IS NOT NULL
@@ -972,11 +971,11 @@ for _dataset, _table in _NIELSEN_MKT_TABLES.items():
             SELECT
                 MRKT_DSC_SHRT,
                 CAST(NULL AS VARCHAR) AS MRKT_DSC_LONG,
-                COUNT(DISTINCT market_id) AS market_id_count,
+                COUNT(DISTINCT "market_id") AS market_id_count,
                 '{_dataset}'              AS nielsen_dataset
             FROM {_table}
             WHERE MRKT_DSC_SHRT IS NOT NULL
-            GROUP BY 1, 3, 4
+            GROUP BY 1
         """)
     _df.cache()
     _cnt = _df.count()
@@ -1170,12 +1169,12 @@ _sap_agg = run_sf(DB_PRD_MEX, """
     FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM
 """).collect()[0]
 
-_sap_mat_total    = int(_sap_agg["total_mat_idt"])
-_sap_null_ean     = int(_sap_agg["total_null_ean"])
-_sap_null_ean_pct = float(_sap_agg["null_ean_pct"])
+_sap_mat_total    = int(_sap_agg["TOTAL_MAT_IDT"])
+_sap_null_ean     = int(_sap_agg["TOTAL_NULL_EAN"])
+_sap_null_ean_pct = float(_sap_agg["NULL_EAN_PCT"])
 _sap_ean_cov_pct  = round(100.0 - _sap_null_ean_pct, 2)
 
-log("INFO", f"SAP totals: MAT_IDT={_sap_mat_total:,} | total_EAN={_sap_agg['total_ean']:,} | "
+log("INFO", f"SAP totals: MAT_IDT={_sap_mat_total:,} | total_EAN={_sap_agg['TOTAL_EAN']:,} | "
             f"null_EAN={_sap_null_ean:,} | null_EAN%={_sap_null_ean_pct:.2f}% | EAN_coverage={_sap_ean_cov_pct:.2f}%", SECTION)
 
 blocker(
@@ -1213,7 +1212,7 @@ _so_agg = run_sf(DB_PRD_MDP, """
         SUM(CASE WHEN IMPORT_ID IS NULL THEN 1 ELSE 0 END) AS null_import_id
     FROM PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM
 """).collect()[0]
-log("INFO", f"SELL_OUT totals: INT_ID={_so_agg['total_int_id']:,} | IMPORT_ID={_so_agg['total_import_id']:,} | null_IMPORT_ID={_so_agg['null_import_id']:,}", SECTION)
+log("INFO", f"SELL_OUT totals: INT_ID={_so_agg['TOTAL_INT_ID']:,} | IMPORT_ID={_so_agg['TOTAL_IMPORT_ID']:,} | null_IMPORT_ID={_so_agg['NULL_IMPORT_ID']:,}", SECTION)
 
 # ----------------------------------------------------------
 # 4C: Nielsen PROD_DIM UPC coverage (3 datasets -- Water Retail EXCLUDED)
@@ -1224,7 +1223,7 @@ _NIELSEN_PROD_CONFIG = {
     "EDP": {
         "table":     "PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM",
         "brand_col": "INP_56985",
-        "where":     "hierarchy_level = 11",
+        "where":     '"hierarchy_level" = 11',
     },
     "PB_SCANTRACK": {
         "table":     "PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_PROD_DIM",
@@ -1234,7 +1233,7 @@ _NIELSEN_PROD_CONFIG = {
     "WATER_SCANTRACK": {
         "table":     "PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM",
         "brand_col": "CSTM_310589",
-        "where":     "hierarchy_level = 11",
+        "where":     '"hierarchy_level" = 11',
     },
 }
 
@@ -1253,11 +1252,11 @@ for _ds, _cfg in _NIELSEN_PROD_CONFIG.items():
     _row = _df.collect()[0]
     _nielsen_upc_rows.append({
         "nielsen_dataset":  _ds,
-        "distinct_prdc_cd": int(_row["distinct_prdc_cd"]),
-        "null_prdc_cd":     int(_row["null_prdc_cd"]),
-        "distinct_brands":  int(_row["distinct_brands"]),
+        "distinct_prdc_cd": int(_row["DISTINCT_PRDC_CD"]),
+        "null_prdc_cd":     int(_row["NULL_PRDC_CD"]),
+        "distinct_brands":  int(_row["DISTINCT_BRANDS"]),
     })
-    log("INFO", f"  {_ds:<20} | distinct_prdc_cd={_row['distinct_prdc_cd']:,} | null_prdc_cd={_row['null_prdc_cd']:,} | brands={_row['distinct_brands']:,}", SECTION)
+    log("INFO", f"  {_ds:<20} | distinct_prdc_cd={_row['DISTINCT_PRDC_CD']:,} | null_prdc_cd={_row['NULL_PRDC_CD']:,} | brands={_row['DISTINCT_BRANDS']:,}", SECTION)
 
 df_nielsen_upc = spark.createDataFrame(pd.DataFrame(_nielsen_upc_rows))
 save_df(df_nielsen_upc, f"{_UPC_BASE}/nielsen_prod_upc_coverage.csv", SECTION)
@@ -1314,21 +1313,27 @@ log("INFO", f"Overall P0 match rate (3 datasets combined): {_p0_overall_pct:.2f}
 # 4E: P1 Bridge simulation (SELL_OUT INT_ID -> SAP SKU_EAN_COD)
 # ----------------------------------------------------------
 log("INFO", "4E: P1 Bridge simulation -- SELL_OUT INT_ID <-> SAP SKU_EAN_COD...", SECTION)
-df_p1 = run_sf(DB_PRD_MEX, """
-    SELECT
-        p.INT_ID,
-        s.MAT_IDT,
-        s.SKU_EAN_COD,
-        p.CBU_ID,
-        CASE
-            WHEN s.SKU_EAN_COD IS NOT NULL THEN 'P1_MATCH'
-            ELSE 'P1_UNMATCHED'
-        END AS match_status
-    FROM PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM p
-    LEFT JOIN PRD_MEX.MEX_DSP_OTC.V_D_ITEM s
-        ON TRIM(TO_VARCHAR(p.INT_ID)) = TRIM(TO_VARCHAR(s.SKU_EAN_COD))
-    WHERE p.INT_ID IS NOT NULL
+_df_p1_sellout = run_sf(DB_PRD_MDP, """
+    SELECT INT_ID, CBU_ID
+    FROM PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM
+    WHERE INT_ID IS NOT NULL
 """)
+_df_p1_sap = run_sf(DB_PRD_MEX, """
+    SELECT MAT_IDT, SKU_EAN_COD
+    FROM PRD_MEX.MEX_DSP_OTC.V_D_ITEM
+    WHERE SKU_EAN_COD IS NOT NULL
+""")
+df_p1 = (
+    _df_p1_sellout
+    .withColumn("_join_key", F.trim(F.col("INT_ID").cast("string")))
+    .join(
+        _df_p1_sap.withColumn("_join_key", F.trim(F.col("SKU_EAN_COD").cast("string"))),
+        on="_join_key",
+        how="left"
+    )
+    .withColumn("match_status", F.when(F.col("SKU_EAN_COD").isNotNull(), F.lit("P1_MATCH")).otherwise(F.lit("P1_UNMATCHED")))
+    .select("INT_ID", "MAT_IDT", "SKU_EAN_COD", "CBU_ID", "match_status")
+)
 df_p1.cache()
 _p1_total    = df_p1.count()
 _p1_matched  = df_p1.filter(F.col("match_status") == "P1_MATCH").count()
@@ -1495,7 +1500,8 @@ else:
 # Flush all logs
 flush_log(f"catalog_profiling_report_v6_{RUN_DATE}.txt")
 
-# Hard raise if blockers
+# Hard raise if blockers (deduplicate before reporting)
+_HARD_BLOCKERS = list(dict.fromkeys(_HARD_BLOCKERS))
 if _HARD_BLOCKERS:
     raise RuntimeError(
         f"CATALOG PROFILING BLOCKED: {len(_HARD_BLOCKERS)} hard blocker(s).\n"
@@ -1506,3 +1512,7 @@ print(f"\nOK Catalog profiling complete -- v{CATALOG_VERSION} -- {RUN_DATE}")
 print(f"   Hard blockers: {len(_HARD_BLOCKERS)}  |  Warnings: {len(_WARNINGS)}")
 print(f"   Summary JSON: {_json_dbfs_path}")
 print(f"   Summary CSV : {_flat_dbfs_path}")
+
+# COMMAND ----------
+
+

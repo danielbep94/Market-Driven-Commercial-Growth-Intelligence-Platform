@@ -1,0 +1,220 @@
+[2026-06-29 00:43:38][INFO][AMBI_01] ======================================================================
+[2026-06-29 00:43:38][INFO][AMBI_01] AMBIGUITY 1 -- stat_cod active filter value
+[2026-06-29 00:43:38][INFO][AMBI_01] QUESTION: What are the distinct stat_cod values in V_D_CLIENT?
+[2026-06-29 00:43:38][INFO][AMBI_01]           Does stat_cod='A' represent the active state?
+[2026-06-29 00:44:05][INFO][AMBI_01] stat_cod distribution:
+[2026-06-29 00:44:09][INFO][AMBI_01] Distinct stat_cod values found: ['0', '1', '2', '3', 'ACTIVO', 'INACTIVO']
+[2026-06-29 00:44:09][INFO][AMBI_01] RESULT: These are all stat_cod values. The active filter in plan uses stat_cod = 'A'.
+[2026-06-29 00:44:09][INFO][AMBI_01]         Verify this matches the highest-count status code.
+[2026-06-29 00:44:09][WARNING][AMBI_01] stat_cod='A' NOT found in V_D_CLIENT! Plan active filter stat_cod='A' will return 0 rows. Investigate.
+[2026-06-29 00:44:09][CONCLUSION][AMBI_01] FLAGGED: stat_cod='A' absent -- plan active filter must be revised.
+[2026-06-29 00:44:26][INFO][AMBI_01] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambi_01_stat_cod_values.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/ambiguity_resolution/ambi_01_stat_cod_values.csv
+[2026-06-29 00:44:26][INFO][AMBI_01] Ambiguity 1 complete.
+[2026-06-29 00:44:26][INFO][AMBI_02] ======================================================================
+[2026-06-29 00:44:26][INFO][AMBI_02] AMBIGUITY 2 -- VW_WASTE actual column names
+[2026-06-29 00:44:26][INFO][AMBI_02] QUESTION: What columns in VW_WASTE represent volume, value, and SKU?
+[2026-06-29 00:44:26][INFO][AMBI_02]           Plan uses placeholder [COLUMNA_WASTE_*] -- resolve to actual names.
+[2026-06-29 00:44:28][INFO][AMBI_02] VW_WASTE column list (14 columns):
+[2026-06-29 00:44:28][INFO][AMBI_02]   [01] ANIO
+[2026-06-29 00:44:28][INFO][AMBI_02]   [02] MES
+[2026-06-29 00:44:28][INFO][AMBI_02]   [03] CADENA
+[2026-06-29 00:44:28][INFO][AMBI_02]   [04] SKU
+[2026-06-29 00:44:28][INFO][AMBI_02]   [05] DESCRIPCION
+[2026-06-29 00:44:28][INFO][AMBI_02]   [06] TIPO_PRODUCTO
+[2026-06-29 00:44:28][INFO][AMBI_02]   [07] MARCA
+[2026-06-29 00:44:28][INFO][AMBI_02]   [08] PROYECTO
+[2026-06-29 00:44:28][INFO][AMBI_02]   [09] CANAL
+[2026-06-29 00:44:28][INFO][AMBI_02]   [10] "Waste ($)"
+[2026-06-29 00:44:28][INFO][AMBI_02]   [11] "Waste (KG)"
+[2026-06-29 00:44:28][INFO][AMBI_02]   [12] FUENTE
+[2026-06-29 00:44:28][INFO][AMBI_02]   [13] FECHA
+[2026-06-29 00:44:28][INFO][AMBI_02]   [14] FORMATO
+[2026-06-29 00:44:28][INFO][AMBI_02] VW_WASTE FUENTE distribution:
+[2026-06-29 00:44:30][INFO][AMBI_02] RESULT: Full column list printed above. Identify volume, value, and SKU columns.
+[2026-06-29 00:44:30][INFO][AMBI_02]         Common candidates: look for KG, VOL, VTA, IMP, EAN, SKU, UPC in column names.
+[2026-06-29 00:44:33][INFO][AMBI_02] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambi_02_waste_columns.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/ambiguity_resolution/ambi_02_waste_columns.csv
+[2026-06-29 00:44:35][INFO][AMBI_02] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambi_02_waste_fuente_distribution.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/ambiguity_resolution/ambi_02_waste_fuente_distribution.csv
+[2026-06-29 00:44:35][CONCLUSION][AMBI_02] VW_WASTE column list captured. Architect must identify volume/value/SKU columns from the list.
+[2026-06-29 00:44:35][INFO][AMBI_02] Ambiguity 2 complete.
+[2026-06-29 00:44:35][INFO][AMBI_03] ======================================================================
+[2026-06-29 00:44:35][INFO][AMBI_03] AMBIGUITY 3 -- Nielsen EDP hierarchy_level distribution
+[2026-06-29 00:44:35][INFO][AMBI_03] QUESTION: Does hierarchy_level=11 exist and have populated PRDC_CD?
+[2026-06-29 00:44:35][INFO][AMBI_03]           P0 UPC bridge for EDP requires level 11 rows with PRDC_CD.
+[2026-06-29 00:44:37][INFO][AMBI_03] EDP hierarchy_level distribution:
+[2026-06-29 00:44:37][INFO][AMBI_03] Level 11: rows=3,330 | distinct_PRDC_CD=3,218 | null_pct=0.00%
+[2026-06-29 00:44:37][CONCLUSION][AMBI_03] hierarchy_level=11 EXISTS with 3,218 distinct PRDC_CD values (null_pct=0.00%). EDP P0 bridge is VALID at level 11.
+[2026-06-29 00:44:39][INFO][AMBI_03] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambi_03_edp_hierarchy_levels.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/ambiguity_resolution/ambi_03_edp_hierarchy_levels.csv
+[2026-06-29 00:44:39][INFO][AMBI_03] Ambiguity 3 complete.
+[2026-06-29 00:44:39][INFO][AMBI_04] ======================================================================
+[2026-06-29 00:44:39][INFO][AMBI_04] AMBIGUITY 4 -- Nielsen Water Retail hierarchy_level distribution
+[2026-06-29 00:44:39][INFO][AMBI_04] QUESTION: Does VW_IND_AGUA_BNF_RT max hierarchy_level = 9 (no level 11)?
+[2026-06-29 00:44:41][INFO][AMBI_04] Water Retail hierarchy_level distribution:
+[2026-06-29 00:44:42][INFO][AMBI_04] Water Retail max hierarchy_level = 9
+[2026-06-29 00:44:42][INFO][AMBI_04] C1 decision CONFIRMED: Water Retail max level=9 <= 9. No UPC grain -- P0 exclusion is correct.
+[2026-06-29 00:44:42][CONCLUSION][AMBI_04] Water Retail max hierarchy_level=9. C1 decision CONFIRMED: Water Retail correctly excluded from P0 UPC bridge.
+[2026-06-29 00:44:42][INFO][AMBI_04] Water Retail max hierarchy_level = 9. C1 decision CONFIRMED.
+[2026-06-29 00:44:43][INFO][AMBI_04] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambi_04_water_retail_hierarchy.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/ambiguity_resolution/ambi_04_water_retail_hierarchy.csv
+[2026-06-29 00:44:43][INFO][AMBI_04] Ambiguity 4 complete.
+[2026-06-29 00:44:43][INFO][AMBI_05] ======================================================================
+[2026-06-29 00:44:43][INFO][AMBI_05] AMBIGUITY 5 -- SELL_IN VW_FACT_RNV join key validation
+[2026-06-29 00:44:43][INFO][AMBI_05] QUESTION: Does SHP_CUS_IDT exist in VW_FACT_RNV? Are MAT_IDT and BIL_NET_VAL present?
+[2026-06-29 00:44:44][INFO][AMBI_05] VW_FACT_RNV column list (43 columns):
+[2026-06-29 00:44:44][INFO][AMBI_05]   [01] BIL_DAT
+[2026-06-29 00:44:44][INFO][AMBI_05]   [02] BIL_DOC_IDT
+[2026-06-29 00:44:44][INFO][AMBI_05]   [03] SHP_CUS_IDT
+[2026-06-29 00:44:44][INFO][AMBI_05]   [04] PAY_CUS_IDT
+[2026-06-29 00:44:44][INFO][AMBI_05]   [05] DIS_CHL_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [06] SAL_ORG_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [07] CUS_SAL_RGN_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [08] PLT_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [09] CUS_1ST_IND_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [10] CUS_IND_KEY_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [11] CUS_PRC_LIS_TYP_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [12] CUS_SAL_GRP_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [13] CUS_SAL_OFI_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [14] CUS_ABC_CLS_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [15] MAT_IDT
+[2026-06-29 00:44:44][INFO][AMBI_05]   [16] SND_ITM_CAT_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [17] BIL_DOC_TYP_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [18] LITER
+[2026-06-29 00:44:44][INFO][AMBI_05]   [19] CASES
+[2026-06-29 00:44:44][INFO][AMBI_05]   [20] PACK
+[2026-06-29 00:44:44][INFO][AMBI_05]   [21] SALE_DISCOUNT
+[2026-06-29 00:44:44][INFO][AMBI_05]   [22] EVIAN_DISCOUNTS
+[2026-06-29 00:44:44][INFO][AMBI_05]   [23] EVIAN_GROSS_SALES
+[2026-06-29 00:44:44][INFO][AMBI_05]   [24] GROSS_SALES
+[2026-06-29 00:44:44][INFO][AMBI_05]   [25] PROMOTION
+[2026-06-29 00:44:44][INFO][AMBI_05]   [26] IEPS
+[2026-06-29 00:44:44][INFO][AMBI_05]   [27] IVA
+[2026-06-29 00:44:44][INFO][AMBI_05]   [28] BIL_NET_KGR
+[2026-06-29 00:44:44][INFO][AMBI_05]   [29] BIL_INV
+[2026-06-29 00:44:44][INFO][AMBI_05]   [30] BIL_SKU_QTY
+[2026-06-29 00:44:44][INFO][AMBI_05]   [31] CBU
+[2026-06-29 00:44:44][INFO][AMBI_05]   [32] IEPS_TOT_PROMO
+[2026-06-29 00:44:44][INFO][AMBI_05]   [33] RUT_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [34] LITERS_20
+[2026-06-29 00:44:44][INFO][AMBI_05]   [35] TOT_COST
+[2026-06-29 00:44:44][INFO][AMBI_05]   [36] TOT_PROMO
+[2026-06-29 00:44:44][INFO][AMBI_05]   [37] CAB_WO_IEPS
+[2026-06-29 00:44:44][INFO][AMBI_05]   [38] CAB
+[2026-06-29 00:44:44][INFO][AMBI_05]   [39] BIL_PYD
+[2026-06-29 00:44:44][INFO][AMBI_05]   [40] CANN_CAF
+[2026-06-29 00:44:44][INFO][AMBI_05]   [41] TOT_IEPS
+[2026-06-29 00:44:44][INFO][AMBI_05]   [42] TOT_DISCOUNT
+[2026-06-29 00:44:44][INFO][AMBI_05]   [43] RUT_PV_COD
+[2026-06-29 00:44:44][INFO][AMBI_05]   SHP_CUS_IDT          | FOUND    | Primary customer join key (plan assumption)
+[2026-06-29 00:44:44][INFO][AMBI_05]   MAT_IDT              | FOUND    | Material join key (plan assumption)
+[2026-06-29 00:44:44][INFO][AMBI_05]   BIL_DAT              | FOUND    | Billing date
+[2026-06-29 00:44:44][INFO][AMBI_05]   BIL_NET_VAL          | MISSING  | Net billing value
+[2026-06-29 00:44:44][INFO][AMBI_05]   BIL_NET_KGR          | FOUND    | Net billing kilograms
+[2026-06-29 00:44:45][INFO][AMBI_05] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambi_05_fact_rnv_columns.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/ambiguity_resolution/ambi_05_fact_rnv_columns.csv
+[2026-06-29 00:44:45][INFO][AMBI_05] Ambiguity 5 complete.
+[2026-06-29 00:44:46][INFO][AMBI_06] ======================================================================
+[2026-06-29 00:44:46][INFO][AMBI_06] AMBIGUITY 6 -- IBP CADENA value classification
+[2026-06-29 00:44:46][INFO][AMBI_06] QUESTION: Are IBP CADENA values retail chain names or territory codes?
+[2026-06-29 00:44:46][INFO][AMBI_06]           IBP_MDM.txt sample shows 'REGION VI' -- if territorial, cannot cross-validate with SELL_OUT CHAIN.
+[2026-06-29 00:44:50][INFO][AMBI_06] IBP CADENA distinct GRAN_CANAL+CANAL+CADENA combinations: 20
+[2026-06-29 00:44:52][INFO][AMBI_06] Distinct CADENA values (20 total):
+[2026-06-29 00:44:52][INFO][AMBI_06]   'ALSEA'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'CALIMAX'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'CASA LEY'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'CHEDRAUI'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'CITY FRESKO'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'COSTCO'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'EL SALVADOR'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'GUATEMALA'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'HEB'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'MAYORISTAS'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'OTHER CONVENIENCE'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'OTHER RETAIL'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'OXXO'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'PROXIMITY'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'S PRECIO - NETO'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'SAMS'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'SOCIOS COMERCIALES'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'SORIANA'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'TIENDAS 3B'
+[2026-06-29 00:44:52][INFO][AMBI_06]   'WALMART'
+[2026-06-29 00:44:52][INFO][AMBI_06] RESULT: Review CADENA values above.
+[2026-06-29 00:44:52][INFO][AMBI_06]         IBP_MDM.txt sample shows 'REGION VI' -- check if territorial codes appear below.
+[2026-06-29 00:44:52][INFO][AMBI_06] Territorial indicator hits: []
+[2026-06-29 00:44:52][CONCLUSION][AMBI_06] No territorial indicators found in IBP CADENA. Values appear to be retail chains. MC-A14 is valid.
+[2026-06-29 00:44:54][INFO][AMBI_06] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambi_06_ibp_cadena_values.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/ambiguity_resolution/ambi_06_ibp_cadena_values.csv
+[2026-06-29 00:44:54][INFO][AMBI_06] Ambiguity 6 complete.
+[2026-06-29 00:44:54][INFO][AMBI_07] ======================================================================
+[2026-06-29 00:44:54][INFO][AMBI_07] AMBIGUITY 7 -- SELL_OUT SUBCHAIN null rate
+[2026-06-29 00:44:54][INFO][AMBI_07] QUESTION: What is SUBCHAIN null rate in VW_D_STORE_RM? Is it reliable for D1?
+[2026-06-29 00:44:55][INFO][AMBI_07] SUBCHAIN null rate by FORMAT:
+[2026-06-29 00:44:57][INFO][AMBI_07] SUBCHAIN overall: total_rows=136,042 | null=45,348 | null_pct=33.33%
+[2026-06-29 00:44:57][WARNING][AMBI_07] SUBCHAIN overall null rate = 33.33% > 30% threshold. SUBCHAIN is unreliable for D1 canal profiling. D1 profiling should rely on FORMAT and CHAIN only.
+[2026-06-29 00:44:57][CONCLUSION][AMBI_07] FLAGGED: SUBCHAIN null rate = 33.33% > 30%. Exclude from D1 winner selection; use FORMAT and CHAIN only.
+[2026-06-29 00:44:59][INFO][AMBI_07] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambi_07_subchain_null_rate.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/ambiguity_resolution/ambi_07_subchain_null_rate.csv
+[2026-06-29 00:44:59][INFO][AMBI_07] Ambiguity 7 complete.
+[2026-06-29 00:44:59][INFO][AMBI_08] ======================================================================
+[2026-06-29 00:44:59][INFO][AMBI_08] AMBIGUITY 8 -- VW_D_CUSTOMER_DICTONARY join key verification
+[2026-06-29 00:44:59][INFO][AMBI_08] QUESTION: Do OLD_CUS_IDT and NEW_CUS_IDT exist? What is the dedup record count?
+[2026-06-29 00:45:00][INFO][AMBI_08] VW_D_CUSTOMER_DICTONARY column list (15 columns):
+[2026-06-29 00:45:00][INFO][AMBI_08]   [01] SAL_ORG_COD
+[2026-06-29 00:45:00][INFO][AMBI_08]   [02] NEW_CUS_IDT
+[2026-06-29 00:45:00][INFO][AMBI_08]   [03] NEW_CUS_NAM_DSC
+[2026-06-29 00:45:00][INFO][AMBI_08]   [04] OLD_CUS_IDT
+[2026-06-29 00:45:00][INFO][AMBI_08]   [05] OLD_CUS_NAM_DSC
+[2026-06-29 00:45:00][INFO][AMBI_08]   [06] NEW_CUS_CHL_ARE_DSC
+[2026-06-29 00:45:00][INFO][AMBI_08]   [07] OLD_CUS_CHL_ARE_DSC
+[2026-06-29 00:45:00][INFO][AMBI_08]   [08] NEW_CUS_ADR_CTY_DSC
+[2026-06-29 00:45:00][INFO][AMBI_08]   [09] OLD_CUS_ADR_CTY_DSC
+[2026-06-29 00:45:00][INFO][AMBI_08]   [10] NEW_CUS_SAL_RGN_COD
+[2026-06-29 00:45:00][INFO][AMBI_08]   [11] OLD_CUS_SAL_RGN_COD
+[2026-06-29 00:45:00][INFO][AMBI_08]   [12] NEW_CUS_CHL_DSC
+[2026-06-29 00:45:00][INFO][AMBI_08]   [13] OLD_CUS_CHL_DSC
+[2026-06-29 00:45:00][INFO][AMBI_08]   [14] NEW_PLT_COD
+[2026-06-29 00:45:00][INFO][AMBI_08]   [15] OLD_PLT_COD
+[2026-06-29 00:45:00][INFO][AMBI_08]   OLD_CUS_IDT          | FOUND
+[2026-06-29 00:45:00][INFO][AMBI_08]   NEW_CUS_IDT          | FOUND
+[2026-06-29 00:45:00][INFO][AMBI_08]   SAL_ORG_COD          | FOUND
+[2026-06-29 00:45:01][INFO][AMBI_08] Record count stats:
+[2026-06-29 00:45:01][INFO][AMBI_08]   total_rows:        748,004
+[2026-06-29 00:45:01][INFO][AMBI_08]   distinct_old_ids:  518,911
+[2026-06-29 00:45:01][INFO][AMBI_08]   distinct_new_ids:  386,750
+[2026-06-29 00:45:01][INFO][AMBI_08]   same_id_rows (no migration): 1,143
+[2026-06-29 00:45:04][INFO][AMBI_08] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambi_08_customer_dict_validation.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/ambiguity_resolution/ambi_08_customer_dict_validation.csv
+[2026-06-29 00:45:04][CONCLUSION][AMBI_08] VW_D_CUSTOMER_DICTONARY CONFIRMED: OLD_CUS_IDT and NEW_CUS_IDT exist. total_rows=748,004 | distinct_old=518,911 | same_id=1,143.
+[2026-06-29 00:45:04][INFO][AMBI_08] Ambiguity 8 complete.
+[2026-06-29 00:45:04][INFO][AMBI_09] ======================================================================
+[2026-06-29 00:45:04][INFO][AMBI_09] AMBIGUITY 9 -- Nielsen Water Scantrack hierarchy_level for UPC grain
+[2026-06-29 00:45:04][INFO][AMBI_09] QUESTION: Does VW_IND_AGUA_BNF_ST have hierarchy_level=11 with populated PRDC_CD?
+[2026-06-29 00:45:04][INFO][AMBI_09]           Unlike Water Retail (max level 9), Scantrack should reach UPC grain.
+[2026-06-29 00:45:06][INFO][AMBI_09] Water Scantrack hierarchy_level distribution:
+[2026-06-29 00:45:07][INFO][AMBI_09] Water Scantrack max hierarchy_level = 11
+[2026-06-29 00:45:07][INFO][AMBI_09] Level 11: distinct_PRDC_CD=2,885 | null_PRDC_CD=76
+[2026-06-29 00:45:07][CONCLUSION][AMBI_09] hierarchy_level=11 EXISTS in Water Scantrack with 2,885 distinct PRDC_CD. P0 Water Scantrack bridge is VALID at level 11.
+[2026-06-29 00:45:08][INFO][AMBI_09] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambi_09_water_scantrack_hierarchy.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/ambiguity_resolution/ambi_09_water_scantrack_hierarchy.csv
+[2026-06-29 00:45:08][INFO][AMBI_09] Ambiguity 9 complete.
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] ======================================================================
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] AMBIGUITY RESOLUTION SUMMARY
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] Run date: 2026-06-29
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] ======================================================================
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] AMBI_ID      | STATUS     | QUESTION + ACTION
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] ----------------------------------------------------------------------
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] AMBI_01      | FLAGGED    | stat_cod active filter value in V_D_CLIENT
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY]                             ACTION: Update plan active filter to correct stat_cod value.
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] AMBI_02      | RESOLVED   | VW_WASTE column names for volume, value, SKU
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY]                             ACTION: No action. Column names confirmed.
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] AMBI_03      | RESOLVED   | Nielsen EDP hierarchy_level=11 has populated PRDC_CD
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY]                             ACTION: No action. EDP P0 bridge at level 11 is valid.
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] AMBI_04      | RESOLVED   | Nielsen Water Retail max hierarchy_level = 9 (no level 11)
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY]                             ACTION: No action. C1 decision confirmed: Water Retail excluded from P0.
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] AMBI_05      | RESOLVED   | VW_FACT_RNV SHP_CUS_IDT and MAT_IDT join keys exist
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY]                             ACTION: No action. All join keys confirmed.
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] AMBI_06      | RESOLVED   | IBP CADENA values are retail chains (not territory codes)
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY]                             ACTION: No action. IBP CADENA == retail chains. MC-A14 valid.
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] AMBI_07      | FLAGGED    | SELL_OUT SUBCHAIN null rate <= 30% (usable for D1)
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY]                             ACTION: Exclude SUBCHAIN from D1 winner selection. Use FORMAT+CHAIN only.
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] AMBI_08      | RESOLVED   | VW_D_CUSTOMER_DICTONARY has OLD_CUS_IDT and NEW_CUS_IDT
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY]                             ACTION: No action. Customer dictionary keys confirmed.
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] AMBI_09      | RESOLVED   | Nielsen Water Scantrack hierarchy_level=11 has PRDC_CD for P0 bridge
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY]                             ACTION: No action. Water Scantrack P0 bridge at level 11 is valid.
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] ======================================================================
+[2026-06-29 00:45:08][INFO][AMBI_SUMMARY] TOTAL: RESOLVED=7 | FLAGGED=2 | BLOCKED=0
+[2026-06-29 00:45:10][INFO][AMBI_SUMMARY] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambiguity_resolution_summary.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/ambiguity_resolution/ambiguity_resolution_summary.csv
+[2026-06-29 00:45:10][INFO][AMBI_SUMMARY] Summary CSV written: dbfs:/mnt/mdp/mdm/master_catalog/ambiguity_resolution/ambiguity_resolution_summary.csv

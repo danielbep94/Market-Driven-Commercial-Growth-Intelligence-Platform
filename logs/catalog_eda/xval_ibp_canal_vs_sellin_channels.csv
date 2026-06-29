@@ -1,0 +1,13 @@
+ibp_canal,si_col,match
+*CENTRO AMÉRICA,lv6_hie_cus_dsc,False
+AUTOSERVICIOS,lv6_hie_cus_dsc,False
+CONVENIENCIA,lv6_hie_cus_dsc,False
+MAYORISTAS,lv6_hie_cus_dsc,False
+PROXIMITY,lv6_hie_cus_dsc,False
+SOCIOS COMERCIALES,lv6_hie_cus_dsc,False
+*CENTRO AMÉRICA,cus_grn_chl_dsc,False
+AUTOSERVICIOS,cus_grn_chl_dsc,False
+CONVENIENCIA,cus_grn_chl_dsc,False
+MAYORISTAS,cus_grn_chl_dsc,False
+PROXIMITY,cus_grn_chl_dsc,False
+SOCIOS COMERCIALES,cus_grn_chl_dsc,False

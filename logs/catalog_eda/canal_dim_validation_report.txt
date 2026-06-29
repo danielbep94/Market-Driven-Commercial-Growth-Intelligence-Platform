@@ -1,0 +1,220 @@
+[2026-06-29 00:47:19][INFO][S1_IBP_CANAL] ======================================================================
+[2026-06-29 00:47:19][INFO][S1_IBP_CANAL] IBP CHANNEL HIERARCHY PROFILING -- VW_FACT_DANONE_IBP
+[2026-06-29 00:47:19][INFO][S1_IBP_CANAL] Plan ref: Finding C9 -- IBP CANAL upgraded to confirmed 5-level hierarchy
+[2026-06-29 00:47:19][INFO][S1_IBP_CANAL] Loading IBP distinct hierarchy combinations...
+[2026-06-29 00:47:27][INFO][S1_IBP_CANAL] Distinct IBP hierarchy combinations (non-null GRAN_CANAL): 30
+[2026-06-29 00:47:27][INFO][S1_IBP_CANAL] Loading full IBP channel columns for null/distinct profiling...
+[2026-06-29 00:47:39][INFO][S1_IBP_CANAL] Total IBP fact rows (all scenarios): 2,384,268
+[2026-06-29 00:47:41][INFO][S1_IBP_CANAL]   GRAN_CANAL      | distinct=    3 | null%=  0.00% | D1=1.3863
+[2026-06-29 00:47:42][INFO][S1_IBP_CANAL]   CANAL           | distinct=    6 | null%=  0.00% | D1=1.9459
+[2026-06-29 00:47:43][INFO][S1_IBP_CANAL]   GRUPO           | distinct=    9 | null%=  0.00% | D1=2.3026
+[2026-06-29 00:47:44][INFO][S1_IBP_CANAL]   CADENA          | distinct=   20 | null%=  0.00% | D1=3.0445
+[2026-06-29 00:47:45][INFO][S1_IBP_CANAL]   FM              | distinct=   30 | null%=  0.00% | D1=3.4340
+[2026-06-29 00:47:47][INFO][S1_IBP_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/ibp_canal_column_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/ibp_canal_column_profile.csv
+[2026-06-29 00:47:47][INFO][S1_IBP_CANAL] Top 30 GRAN_CANAL values:
+[2026-06-29 00:47:51][INFO][S1_IBP_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/ibp_gran_canal_top30.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/ibp_gran_canal_top30.csv
+[2026-06-29 00:47:51][INFO][S1_IBP_CANAL] Top 30 CANAL values:
+[2026-06-29 00:47:53][INFO][S1_IBP_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/ibp_canal_top30.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/ibp_canal_top30.csv
+[2026-06-29 00:47:53][INFO][S1_IBP_CANAL] GRAN_CANAL -> CANAL -> GRUPO -> CADENA hierarchy (distinct):
+[2026-06-29 00:47:58][INFO][S1_IBP_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/ibp_gran_canal_canal_grupo_cadena_hierarchy.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/ibp_gran_canal_canal_grupo_cadena_hierarchy.csv
+[2026-06-29 00:47:58][INFO][S1_IBP_CANAL] Section 1 complete. IBP hierarchy profiled across 5 levels.
+[2026-06-29 00:47:59][INFO][S2_SELLIN_CLIENT] ======================================================================
+[2026-06-29 00:47:59][INFO][S2_SELLIN_CLIENT] SELL_IN V_D_CLIENT CHANNEL PROFILING
+[2026-06-29 00:47:59][INFO][S2_SELLIN_CLIENT] Plan ref: Finding C10 -- new columns + cus_chl_are_dsc name correction
+[2026-06-29 00:47:59][INFO][S2_SELLIN_CLIENT] Loading V_D_CLIENT (all channel-relevant columns)...
+[2026-06-29 00:48:18][INFO][S2_SELLIN_CLIENT] Total V_D_CLIENT rows (all status): 7,085,334
+[2026-06-29 00:48:18][INFO][S2_SELLIN_CLIENT] stat_cod (ESTATUS) distribution:
+[2026-06-29 00:48:22][INFO][S2_SELLIN_CLIENT] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellin_client_stat_cod_distribution.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/sellin_client_stat_cod_distribution.csv
+[2026-06-29 00:48:23][INFO][S2_SELLIN_CLIENT] Active (stat_cod='A'): 0 (0.0%) | Inactive: 7,085,334
+[2026-06-29 00:48:23][WARNING][S2_SELLIN_CLIENT] Less than 50% of V_D_CLIENT rows are active. active%=0.0. Review expected.
+[2026-06-29 00:48:23][INFO][S2_SELLIN_CLIENT] Active client rows for D1 profiling: 0
+[2026-06-29 00:48:23][INFO][S2_SELLIN_CLIENT] D1 profiling for CANAL candidate columns (active clients only)...
+[2026-06-29 00:48:25][INFO][S2_SELLIN_CLIENT]   cus_grn_chl_dsc           | distinct=    0 | null%=  0.00% | D1=0.0000
+[2026-06-29 00:48:25][INFO][S2_SELLIN_CLIENT]   lv6_hie_cus_dsc           | distinct=    0 | null%=  0.00% | D1=0.0000
+[2026-06-29 00:48:26][INFO][S2_SELLIN_CLIENT]   cus_chl_are_dsc           | distinct=    0 | null%=  0.00% | D1=0.0000
+[2026-06-29 00:48:26][INFO][S2_SELLIN_CLIENT]   cus_sal_plt_dsc           | distinct=    0 | null%=  0.00% | [CEDIS -- internal ref, not canal]
+[2026-06-29 00:48:27][INFO][S2_SELLIN_CLIENT] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellin_client_canal_d1_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/sellin_client_canal_d1_profile.csv
+[2026-06-29 00:48:27][INFO][S2_SELLIN_CLIENT] Top 30 cus_grn_chl_dsc (active clients):
+[2026-06-29 00:48:29][INFO][S2_SELLIN_CLIENT] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellin_cus_grn_chl_dsc_top30.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/sellin_cus_grn_chl_dsc_top30.csv
+[2026-06-29 00:48:29][INFO][S2_SELLIN_CLIENT] Top 30 lv6_hie_cus_dsc / TIPO_CLIENTE (active clients):
+[2026-06-29 00:48:30][INFO][S2_SELLIN_CLIENT] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellin_lv6_hie_cus_dsc_top30.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/sellin_lv6_hie_cus_dsc_top30.csv
+[2026-06-29 00:48:30][INFO][S2_SELLIN_CLIENT] Section 2 complete.
+[2026-06-29 00:48:30][INFO][S3_SELLOUT_STORE] ======================================================================
+[2026-06-29 00:48:30][INFO][S3_SELLOUT_STORE] SELL_OUT VW_D_STORE_RM CHANNEL + GEOGRAPHY PROFILING
+[2026-06-29 00:48:30][INFO][S3_SELLOUT_STORE] Plan ref: C12 -- full store geography; FORMAT->CHAIN->SUBCHAIN hierarchy
+[2026-06-29 00:48:30][INFO][S3_SELLOUT_STORE] Loading VW_D_STORE_RM...
+[2026-06-29 00:48:34][INFO][S3_SELLOUT_STORE] Distinct VW_D_STORE_RM rows: 90,695
+[2026-06-29 00:48:34][INFO][S3_SELLOUT_STORE] Channel dimension distinct counts:
+[2026-06-29 00:48:35][INFO][S3_SELLOUT_STORE]   FORMAT       | distinct=   86 | null%=  0.00% | D1=4.4659
+[2026-06-29 00:48:36][INFO][S3_SELLOUT_STORE]   CHAIN        | distinct=   19 | null%=  0.00% | D1=2.9957
+[2026-06-29 00:48:36][INFO][S3_SELLOUT_STORE] FORMAT -> CHAIN hierarchy (distinct combinations):
+[2026-06-29 00:48:38][INFO][S3_SELLOUT_STORE] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellout_format_chain_hierarchy.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/sellout_format_chain_hierarchy.csv
+[2026-06-29 00:48:38][INFO][S3_SELLOUT_STORE] Top 20 FORMAT values:
+[2026-06-29 00:48:40][INFO][S3_SELLOUT_STORE] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellout_format_top20.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/sellout_format_top20.csv
+[2026-06-29 00:48:40][INFO][S3_SELLOUT_STORE] Store geography distinct counts (internal ref dim -- NOT cat_market):
+[2026-06-29 00:48:41][INFO][S3_SELLOUT_STORE]   CITY       | distinct=  962 | null%=0.00%  [internal store geo]
+[2026-06-29 00:48:42][INFO][S3_SELLOUT_STORE]   STATE      | distinct=   35 | null%=0.00%  [internal store geo]
+[2026-06-29 00:48:42][INFO][S3_SELLOUT_STORE]   REGION     | distinct=    6 | null%=0.00%  [internal store geo]
+[2026-06-29 00:48:43][INFO][S3_SELLOUT_STORE]   CLUSTER    | distinct=   10 | null%=50.00%  [internal store geo]
+[2026-06-29 00:48:44][INFO][S3_SELLOUT_STORE] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellout_store_geo_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/sellout_store_geo_profile.csv
+[2026-06-29 00:48:44][INFO][S3_SELLOUT_STORE] NOTE: CITY/STATE/REGION/CLUSTER are internal store geo ref dimensions. They do NOT contribute to cat_market.csv (Nielsen markets only). C12.
+[2026-06-29 00:48:44][INFO][S3_SELLOUT_STORE] Section 3 complete.
+[2026-06-29 00:48:44][INFO][S4_XVAL_GRAN_CANAL] ======================================================================
+[2026-06-29 00:48:44][INFO][S4_XVAL_GRAN_CANAL] CROSS-VALIDATION: IBP GRAN_CANAL vs SELL_IN cus_grn_chl_dsc
+[2026-06-29 00:48:44][INFO][S4_XVAL_GRAN_CANAL] Plan ref: C9, MC-A14 -- overlap target >= 80%
+[2026-06-29 00:48:44][INFO][S4_XVAL_GRAN_CANAL] Loading IBP GRAN_CANAL distinct values...
+[2026-06-29 00:52:04][INFO][S4_XVAL_GRAN_CANAL] ======================================================================
+[2026-06-29 00:52:04][INFO][S4_XVAL_GRAN_CANAL] CROSS-VALIDATION: IBP GRAN_CANAL vs SELL_IN cus_grn_chl_dsc
+[2026-06-29 00:52:04][INFO][S4_XVAL_GRAN_CANAL] Plan ref: C9, MC-A14 -- overlap target >= 80%
+[2026-06-29 00:52:04][INFO][S4_XVAL_GRAN_CANAL] Loading IBP GRAN_CANAL distinct values...
+[2026-06-29 00:52:06][INFO][S4_XVAL_GRAN_CANAL] IBP GRAN_CANAL distinct values: 3
+[2026-06-29 00:52:06][INFO][S4_XVAL_GRAN_CANAL] Loading SELL_IN cus_grn_chl_dsc distinct values (active only)...
+[2026-06-29 00:52:09][INFO][S4_XVAL_GRAN_CANAL] SELL_IN cus_grn_chl_dsc distinct values (active): 0
+[2026-06-29 00:52:09][INFO][S4_XVAL_GRAN_CANAL] IN_BOTH:         0  values: []
+[2026-06-29 00:52:09][INFO][S4_XVAL_GRAN_CANAL] IBP_ONLY:        3  values: ['CAM', 'DTT', 'UTT']
+[2026-06-29 00:52:09][INFO][S4_XVAL_GRAN_CANAL] SELL_IN_ONLY:    0  values: []
+[2026-06-29 00:52:09][INFO][S4_XVAL_GRAN_CANAL] Overlap % (Jaccard):  0.00%
+[2026-06-29 00:52:09][INFO][S4_XVAL_GRAN_CANAL] Alignment score:      0.0000
+[2026-06-29 00:52:09][WARNING][S4_XVAL_GRAN_CANAL] MC-A14 WARNING: IBP GRAN_CANAL <> SELL_IN cus_grn_chl_dsc overlap = 0.0% (threshold: 80%). IBP_ONLY=['CAM', 'DTT', 'UTT']. Business review required.
+[2026-06-29 00:52:11][INFO][S4_XVAL_GRAN_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/xval_ibp_gran_canal_vs_sellin_cus_grn_chl_dsc.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/xval_ibp_gran_canal_vs_sellin_cus_grn_chl_dsc.csv
+[2026-06-29 00:52:11][INFO][S4_XVAL_GRAN_CANAL] Section 4 complete.
+[2026-06-29 00:52:41][INFO][S4_XVAL_GRAN_CANAL] ======================================================================
+[2026-06-29 00:52:41][INFO][S4_XVAL_GRAN_CANAL] CROSS-VALIDATION: IBP GRAN_CANAL vs SELL_IN cus_grn_chl_dsc
+[2026-06-29 00:52:41][INFO][S4_XVAL_GRAN_CANAL] Plan ref: C9, MC-A14 -- overlap target >= 80%
+[2026-06-29 00:52:41][INFO][S4_XVAL_GRAN_CANAL] Loading IBP GRAN_CANAL distinct values...
+[2026-06-29 00:52:43][INFO][S4_XVAL_GRAN_CANAL] IBP GRAN_CANAL distinct values: 3
+[2026-06-29 00:52:43][INFO][S4_XVAL_GRAN_CANAL] Loading SELL_IN cus_grn_chl_dsc distinct values (active only)...
+[2026-06-29 00:52:44][INFO][S4_XVAL_GRAN_CANAL] SELL_IN cus_grn_chl_dsc distinct values (active): 0
+[2026-06-29 00:52:44][INFO][S4_XVAL_GRAN_CANAL] IN_BOTH:         0  values: []
+[2026-06-29 00:52:44][INFO][S4_XVAL_GRAN_CANAL] IBP_ONLY:        3  values: ['CAM', 'DTT', 'UTT']
+[2026-06-29 00:52:44][INFO][S4_XVAL_GRAN_CANAL] SELL_IN_ONLY:    0  values: []
+[2026-06-29 00:52:44][INFO][S4_XVAL_GRAN_CANAL] Overlap % (Jaccard):  0.00%
+[2026-06-29 00:52:44][INFO][S4_XVAL_GRAN_CANAL] Alignment score:      0.0000
+[2026-06-29 00:52:44][WARNING][S4_XVAL_GRAN_CANAL] MC-A14 WARNING: IBP GRAN_CANAL <> SELL_IN cus_grn_chl_dsc overlap = 0.0% (threshold: 80%). IBP_ONLY=['CAM', 'DTT', 'UTT']. Business review required.
+[2026-06-29 00:52:45][INFO][S4_XVAL_GRAN_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/xval_ibp_gran_canal_vs_sellin_cus_grn_chl_dsc.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/xval_ibp_gran_canal_vs_sellin_cus_grn_chl_dsc.csv
+[2026-06-29 00:52:45][INFO][S4_XVAL_GRAN_CANAL] Section 4 complete.
+[2026-06-29 00:53:05][INFO][S4_XVAL_GRAN_CANAL] ======================================================================
+[2026-06-29 00:53:05][INFO][S4_XVAL_GRAN_CANAL] CROSS-VALIDATION: IBP GRAN_CANAL vs SELL_IN cus_grn_chl_dsc
+[2026-06-29 00:53:05][INFO][S4_XVAL_GRAN_CANAL] Plan ref: C9, MC-A14 -- overlap target >= 80%
+[2026-06-29 00:53:05][INFO][S4_XVAL_GRAN_CANAL] Loading IBP GRAN_CANAL distinct values...
+[2026-06-29 00:53:06][INFO][S4_XVAL_GRAN_CANAL] IBP GRAN_CANAL distinct values: 3
+[2026-06-29 00:53:06][INFO][S4_XVAL_GRAN_CANAL] Loading SELL_IN cus_grn_chl_dsc distinct values (active only)...
+[2026-06-29 00:53:08][INFO][S4_XVAL_GRAN_CANAL] SELL_IN cus_grn_chl_dsc distinct values (active): 0
+[2026-06-29 00:53:08][INFO][S4_XVAL_GRAN_CANAL] IN_BOTH:         0  values: []
+[2026-06-29 00:53:08][INFO][S4_XVAL_GRAN_CANAL] IBP_ONLY:        3  values: ['CAM', 'DTT', 'UTT']
+[2026-06-29 00:53:08][INFO][S4_XVAL_GRAN_CANAL] SELL_IN_ONLY:    0  values: []
+[2026-06-29 00:53:08][INFO][S4_XVAL_GRAN_CANAL] Overlap % (Jaccard):  0.00%
+[2026-06-29 00:53:08][INFO][S4_XVAL_GRAN_CANAL] Alignment score:      0.0000
+[2026-06-29 00:53:08][WARNING][S4_XVAL_GRAN_CANAL] MC-A14 WARNING: IBP GRAN_CANAL <> SELL_IN cus_grn_chl_dsc overlap = 0.0% (threshold: 80%). IBP_ONLY=['CAM', 'DTT', 'UTT']. Business review required.
+[2026-06-29 00:53:09][INFO][S4_XVAL_GRAN_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/xval_ibp_gran_canal_vs_sellin_cus_grn_chl_dsc.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/xval_ibp_gran_canal_vs_sellin_cus_grn_chl_dsc.csv
+[2026-06-29 00:53:09][INFO][S4_XVAL_GRAN_CANAL] Section 4 complete.
+[2026-06-29 00:53:30][INFO][S5_XVAL_CANAL] ======================================================================
+[2026-06-29 00:53:30][INFO][S5_XVAL_CANAL] CROSS-VALIDATION: IBP CANAL vs SELL_IN lv6_hie_cus_dsc + cus_grn_chl_dsc
+[2026-06-29 00:53:30][INFO][S5_XVAL_CANAL] Plan ref: C9, C10 -- secondary-level channel alignment
+[2026-06-29 00:53:30][INFO][S5_XVAL_CANAL] Loading IBP CANAL distinct values...
+[2026-06-29 00:53:32][INFO][S6_XVAL_CADENA_CHAIN] ======================================================================
+[2026-06-29 00:53:32][INFO][S6_XVAL_CADENA_CHAIN] CROSS-VALIDATION: IBP CADENA vs SELL_OUT VW_D_STORE_RM CHAIN
+[2026-06-29 00:53:32][INFO][S6_XVAL_CADENA_CHAIN] Plan ref: C9 (IBP CADENA = level 4), C12 (SELL_OUT CHAIN confirmed)
+[2026-06-29 00:53:32][INFO][S6_XVAL_CADENA_CHAIN] Loading IBP CADENA distinct values...
+[2026-06-29 00:54:23][INFO][S5_XVAL_CANAL] ======================================================================
+[2026-06-29 00:54:23][INFO][S5_XVAL_CANAL] CROSS-VALIDATION: IBP CANAL vs SELL_IN lv6_hie_cus_dsc + cus_grn_chl_dsc
+[2026-06-29 00:54:23][INFO][S5_XVAL_CANAL] Plan ref: C9, C10 -- secondary-level channel alignment
+[2026-06-29 00:54:23][INFO][S5_XVAL_CANAL] Loading IBP CANAL distinct values...
+[2026-06-29 00:54:25][INFO][S5_XVAL_CANAL] IBP CANAL distinct values: 6
+[2026-06-29 00:54:25][INFO][S5_XVAL_CANAL] Loading SELL_IN lv6_hie_cus_dsc distinct values (active)...
+[2026-06-29 00:54:28][INFO][S5_XVAL_CANAL]   IBP CANAL <> lv6_hie_cus_dsc overlap: 0.0% (0 common)
+[2026-06-29 00:54:28][INFO][S5_XVAL_CANAL]   IBP_ONLY: ['*CENTRO AMÉRICA', 'AUTOSERVICIOS', 'CONVENIENCIA', 'MAYORISTAS', 'PROXIMITY', 'SOCIOS COMERCIALES']
+[2026-06-29 00:54:28][INFO][S5_XVAL_CANAL]   SI_ONLY:  []
+[2026-06-29 00:54:28][INFO][S5_XVAL_CANAL]   IBP CANAL <> cus_grn_chl_dsc overlap: 0.0% (0 common)
+[2026-06-29 00:54:28][WARNING][S5_XVAL_CANAL] IBP CANAL low alignment: lv6_hie_cus_dsc=0.0% and cus_grn_chl_dsc=0.0%. IBP CANAL may be a different hierarchy level. D1 selection should prefer cus_grn_chl_dsc for GRAN_CANAL alignment.
+[2026-06-29 00:54:30][INFO][S5_XVAL_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/xval_ibp_canal_vs_sellin_channels.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/xval_ibp_canal_vs_sellin_channels.csv
+[2026-06-29 00:54:30][INFO][S5_XVAL_CANAL] Section 5 complete.
+[2026-06-29 00:54:47][INFO][S6_XVAL_CADENA_CHAIN] ======================================================================
+[2026-06-29 00:54:47][INFO][S6_XVAL_CADENA_CHAIN] CROSS-VALIDATION: IBP CADENA vs SELL_OUT VW_D_STORE_RM CHAIN
+[2026-06-29 00:54:47][INFO][S6_XVAL_CADENA_CHAIN] Plan ref: C9 (IBP CADENA = level 4), C12 (SELL_OUT CHAIN confirmed)
+[2026-06-29 00:54:47][INFO][S6_XVAL_CADENA_CHAIN] Loading IBP CADENA distinct values...
+[2026-06-29 00:54:49][INFO][S7_D1_WINNER] ======================================================================
+[2026-06-29 00:54:49][INFO][S7_D1_WINNER] D1 WINNER SELECTION -- CANAL CATALOG
+[2026-06-29 00:54:49][INFO][S7_D1_WINNER] Computing D1 scores for SELL_OUT FORMAT and CHAIN...
+[2026-06-29 00:55:32][INFO][S6_XVAL_CADENA_CHAIN] ======================================================================
+[2026-06-29 00:55:32][INFO][S6_XVAL_CADENA_CHAIN] CROSS-VALIDATION: IBP CADENA vs SELL_OUT VW_D_STORE_RM CHAIN
+[2026-06-29 00:55:32][INFO][S6_XVAL_CADENA_CHAIN] Plan ref: C9 (IBP CADENA = level 4), C12 (SELL_OUT CHAIN confirmed)
+[2026-06-29 00:55:32][INFO][S6_XVAL_CADENA_CHAIN] Loading IBP CADENA distinct values...
+[2026-06-29 00:55:33][INFO][S6_XVAL_CADENA_CHAIN] IBP CADENA distinct values: 20
+[2026-06-29 00:55:33][INFO][S6_XVAL_CADENA_CHAIN] Loading SELL_OUT VW_D_STORE_RM CHAIN distinct values...
+[2026-06-29 00:55:35][INFO][S6_XVAL_CADENA_CHAIN] SELL_OUT CHAIN distinct values: 19
+[2026-06-29 00:55:35][INFO][S6_XVAL_CADENA_CHAIN] IN_BOTH:          7  sample: ['CALIMAX', 'COSTCO', 'HEB', 'OXXO', 'SAMS', 'SORIANA', 'WALMART']
+[2026-06-29 00:55:35][INFO][S6_XVAL_CADENA_CHAIN] IBP_ONLY:        13  sample: ['ALSEA', 'CASA LEY', 'CHEDRAUI', 'CITY FRESKO', 'EL SALVADOR', 'GUATEMALA', 'MAYORISTAS', 'OTHER CONVENIENCE', 'OTHER RETAIL', 'PROXIMITY']
+[2026-06-29 00:55:35][INFO][S6_XVAL_CADENA_CHAIN] SELL_OUT_ONLY:   12  sample: ['7ELEVEN', 'AMAZON', 'CASALEY', 'CITY CLUB', 'COMERCIAL CITY FRESKO', 'COMERCIAL MEXICANA', 'CORNERSHOP', 'FUTURAMA', 'JUSTO', 'RAPPI']
+[2026-06-29 00:55:35][INFO][S6_XVAL_CADENA_CHAIN] Jaccard match rate: 21.9%
+[2026-06-29 00:55:35][WARNING][S6_XVAL_CADENA_CHAIN] IBP CADENA <> SELL_OUT CHAIN match rate = 21.9% (below 40%). Naming conventions may differ. Manual reconciliation recommended.
+[2026-06-29 00:55:37][INFO][S6_XVAL_CADENA_CHAIN] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/xval_ibp_cadena_vs_sellout_chain.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/xval_ibp_cadena_vs_sellout_chain.csv
+[2026-06-29 00:55:37][INFO][S6_XVAL_CADENA_CHAIN] Section 6 complete.
+[2026-06-29 00:55:57][INFO][S7_D1_WINNER] ======================================================================
+[2026-06-29 00:55:57][INFO][S7_D1_WINNER] D1 WINNER SELECTION -- CANAL CATALOG
+[2026-06-29 00:55:57][INFO][S7_D1_WINNER] Computing D1 scores for SELL_OUT FORMAT and CHAIN...
+[2026-06-29 00:55:58][INFO][S7_D1_WINNER]   FORMAT       | distinct=   86 | null%=  0.00% | D1=4.4659
+[2026-06-29 00:55:58][INFO][S7_D1_WINNER]   CHAIN        | distinct=   19 | null%=  0.00% | D1=2.9957
+[2026-06-29 00:55:58][INFO][S7_D1_WINNER] ============================================================
+[2026-06-29 00:55:58][INFO][S7_D1_WINNER] FINAL D1 WINNER TABLE:
+[2026-06-29 00:55:58][INFO][S7_D1_WINNER]   SOURCE       | BEST_COLUMN               | D1_SCORE | PROMOTED
+[2026-06-29 00:55:58][INFO][S7_D1_WINNER]   -------------+---------------------------+----------+---------
+[2026-06-29 00:55:58][INFO][S7_D1_WINNER]   IBP          | FM                        |   3.4340 | YES
+[2026-06-29 00:55:58][INFO][S7_D1_WINNER]   SELL_IN      | cus_grn_chl_dsc           |   0.0000 | YES
+[2026-06-29 00:55:58][INFO][S7_D1_WINNER]   SELL_OUT     | FORMAT                    |   4.4659 | YES
+[2026-06-29 00:55:58][INFO][S7_D1_WINNER] ============================================================
+[2026-06-29 00:55:58][WARNING][S7_D1_WINNER] D1 winner for IBP is 'FM' but plan expects 'GRAN_CANAL'. Review profiling results.
+[2026-06-29 00:55:58][PASS][S7_D1_WINNER] D1 winner for SELL_IN: 'cus_grn_chl_dsc' matches plan expectation.
+[2026-06-29 00:55:58][PASS][S7_D1_WINNER] D1 winner for SELL_OUT: 'FORMAT' matches plan expectation.
+[2026-06-29 00:56:00][INFO][S7_D1_WINNER] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/canal_d1_winner_table.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/canal_d1_winner_table.csv
+[2026-06-29 00:56:00][INFO][S7_D1_WINNER] Canal winner summary -> dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/canal_d1_winner_summary.txt
+[2026-06-29 00:56:00][INFO][S7_D1_WINNER] Section 7 complete.
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] ======================================================================
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] CANAL DIM VALIDATION -- SUMMARY REPORT
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] Generated: 2026-06-29 00:56:00
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] 
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] SOURCE PROFILE SUMMARY:
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   IBP VW_FACT_DANONE_IBP   -- 2,384,268 total rows |    30 distinct hierarchy combos
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   SELL_IN V_D_CLIENT        -- 7,085,334 total rows |     0 active (stat_cod='A')
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   SELL_OUT VW_D_STORE_RM    --   90,695 distinct stores
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] 
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] CROSS-VALIDATION RESULTS:
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   [S4] IBP GRAN_CANAL <> SELL_IN cus_grn_chl_dsc -- overlap=0.0%  align_score=0.0000
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   [S5] IBP CANAL      <> SELL_IN lv6_hie_cus_dsc -- overlap=0.0%
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   [S5] IBP CANAL      <> SELL_IN cus_grn_chl_dsc -- overlap=0.0%
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   [S6] IBP CADENA     <> SELL_OUT CHAIN           -- match_rate=21.9%
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] 
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] D1 WINNERS (promoted=YES):
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   IBP          -> FM                         D1=3.4340
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   SELL_IN      -> cus_grn_chl_dsc            D1=0.0000
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   SELL_OUT     -> FORMAT                     D1=4.4659
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] 
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] VALIDATION ASSERTIONS:
+[2026-06-29 00:56:00][PASS][S8_SUMMARY] No hard blockers found.
+[2026-06-29 00:56:00][WARNING][S8_SUMMARY] 7 warnings -- review before promoting to cat_canal.csv:
+[2026-06-29 00:56:00][WARNING][S8_SUMMARY]   [S2_SELLIN_CLIENT] Less than 50% of V_D_CLIENT rows are active. active%=0.0. Review expected.
+[2026-06-29 00:56:00][WARNING][S8_SUMMARY]   [S4_XVAL_GRAN_CANAL] MC-A14 WARNING: IBP GRAN_CANAL <> SELL_IN cus_grn_chl_dsc overlap = 0.0% (threshold: 80%). IBP_ONLY=['CAM', 'DTT', 'UTT']. Business review required.
+[2026-06-29 00:56:00][WARNING][S8_SUMMARY]   [S4_XVAL_GRAN_CANAL] MC-A14 WARNING: IBP GRAN_CANAL <> SELL_IN cus_grn_chl_dsc overlap = 0.0% (threshold: 80%). IBP_ONLY=['CAM', 'DTT', 'UTT']. Business review required.
+[2026-06-29 00:56:00][WARNING][S8_SUMMARY]   [S4_XVAL_GRAN_CANAL] MC-A14 WARNING: IBP GRAN_CANAL <> SELL_IN cus_grn_chl_dsc overlap = 0.0% (threshold: 80%). IBP_ONLY=['CAM', 'DTT', 'UTT']. Business review required.
+[2026-06-29 00:56:00][WARNING][S8_SUMMARY]   [S5_XVAL_CANAL] IBP CANAL low alignment: lv6_hie_cus_dsc=0.0% and cus_grn_chl_dsc=0.0%. IBP CANAL may be a different hierarchy level. D1 selection should prefer cus_grn_chl_dsc for GRAN_CANAL alignment.
+[2026-06-29 00:56:00][WARNING][S8_SUMMARY]   [S6_XVAL_CADENA_CHAIN] IBP CADENA <> SELL_OUT CHAIN match rate = 21.9% (below 40%). Naming conventions may differ. Manual reconciliation recommended.
+[2026-06-29 00:56:00][WARNING][S8_SUMMARY]   [S7_D1_WINNER] D1 winner for IBP is 'FM' but plan expects 'GRAN_CANAL'. Review profiling results.
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] 
+[2026-06-29 00:56:00][INFO][S8_SUMMARY] DBFS OUTPUT FILES:
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/ibp_canal_column_profile.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/ibp_gran_canal_top30.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/ibp_canal_top30.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/ibp_gran_canal_canal_grupo_cadena_hierarchy.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellin_client_stat_cod_distribution.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellin_client_canal_d1_profile.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellin_cus_grn_chl_dsc_top30.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellin_lv6_hie_cus_dsc_top30.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellout_format_chain_hierarchy.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellout_format_top20.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/sellout_store_geo_profile.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/xval_ibp_gran_canal_vs_sellin_cus_grn_chl_dsc.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/xval_ibp_canal_vs_sellin_channels.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/xval_ibp_cadena_vs_sellout_chain.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/canal_d1_winner_table.csv
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/canal_d1_winner_summary.txt
+[2026-06-29 00:56:00][INFO][S8_SUMMARY]   dbfs:/mnt/mdp/mdm/master_catalog/canal/eda_canal_dim_validation/canal_dim_validation_report.txt

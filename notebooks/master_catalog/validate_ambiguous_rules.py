@@ -1,5 +1,4 @@
 # Databricks notebook source
-
 # MAGIC %md
 # MAGIC # Ambiguity Resolution Notebook -- v6.0.0
 # MAGIC
@@ -244,7 +243,7 @@ log("INFO", "stat_cod distribution:", SECTION)
 df_stat_cod.show(20, truncate=False)
 
 # Check if 'A' is present
-_stat_values = [str(r["stat_cod"]).strip() for r in _stat_rows if r["stat_cod"] is not None]
+_stat_values = [str(r["STAT_COD"]).strip() for r in _stat_rows if r["STAT_COD"] is not None]
 _has_a       = "A" in _stat_values
 
 log("INFO", f"Distinct stat_cod values found: {sorted(_stat_values)}", SECTION)
@@ -252,9 +251,9 @@ log("INFO", "RESULT: These are all stat_cod values. The active filter in plan us
 log("INFO", "        Verify this matches the highest-count status code.", SECTION)
 
 if _has_a:
-    _a_row = next((r for r in _stat_rows if str(r["stat_cod"]).strip() == "A"), None)
+    _a_row = next((r for r in _stat_rows if str(r["STAT_COD"]).strip() == "A"), None)
     if _a_row:
-        log("INFO", f"  stat_cod='A' found: count={_a_row['client_count']:,} | pct={_a_row['pct']:.2f}%", SECTION)
+        log("INFO", f"  stat_cod='A' found: count={_a_row['CLIENT_COUNT']:,} | pct={_a_row['PCT']:.2f}%", SECTION)
     resolve(SECTION, "stat_cod='A' EXISTS in V_D_CLIENT. Plan active filter is valid.")
 else:
     warn(True, "stat_cod='A' NOT found in V_D_CLIENT! Plan active filter stat_cod='A' will return 0 rows. Investigate.", SECTION)
@@ -331,13 +330,13 @@ log("INFO", "          P0 UPC bridge for EDP requires level 11 rows with PRDC_CD
 
 df_edp_hier = run_sf(DB_PRD_MEX, """
     SELECT
-        hierarchy_level,
-        COUNT(*) AS row_count,
-        COUNT(DISTINCT PRDC_CD) AS distinct_prdc_cd,
-        SUM(CASE WHEN PRDC_CD IS NULL THEN 1 ELSE 0 END) AS null_prdc_cd,
+        "hierarchy_level" AS HIERARCHY_LEVEL,
+        COUNT(*) AS ROW_COUNT,
+        COUNT(DISTINCT PRDC_CD) AS DISTINCT_PRDC_CD,
+        SUM(CASE WHEN PRDC_CD IS NULL THEN 1 ELSE 0 END) AS NULL_PRDC_CD,
         ROUND(
             SUM(CASE WHEN PRDC_CD IS NULL THEN 1.0 ELSE 0 END) / COUNT(*) * 100, 2
-        ) AS null_prdc_pct
+        ) AS NULL_PRDC_PCT
     FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
     GROUP BY 1
     ORDER BY 1
@@ -348,8 +347,8 @@ _edp_hier_rows = df_edp_hier.collect()
 log("INFO", "EDP hierarchy_level distribution:", SECTION)
 df_edp_hier.show(20, truncate=False)
 
-_levels_present = [r["hierarchy_level"] for r in _edp_hier_rows]
-_level_11_row   = next((r for r in _edp_hier_rows if r["hierarchy_level"] == 11), None)
+_levels_present = [r["HIERARCHY_LEVEL"] for r in _edp_hier_rows]
+_level_11_row   = next((r for r in _edp_hier_rows if r["HIERARCHY_LEVEL"] == 11), None)
 
 if _level_11_row is None:
     blocker(True,
@@ -357,9 +356,9 @@ if _level_11_row is None:
         "P0 EDP bridge will have no UPC-grain rows. Plan must be revised.",
         SECTION)
 else:
-    _l11_null_pct = float(_level_11_row["null_prdc_pct"])
-    _l11_distinct = int(_level_11_row["distinct_prdc_cd"])
-    log("INFO", f"Level 11: rows={_level_11_row['row_count']:,} | distinct_PRDC_CD={_l11_distinct:,} | null_pct={_l11_null_pct:.2f}%", SECTION)
+    _l11_null_pct = float(_level_11_row["NULL_PRDC_PCT"])
+    _l11_distinct = int(_level_11_row["DISTINCT_PRDC_CD"])
+    log("INFO", f"Level 11: rows={_level_11_row['ROW_COUNT']:,} | distinct_PRDC_CD={_l11_distinct:,} | null_pct={_l11_null_pct:.2f}%", SECTION)
 
     blocker(
         _l11_null_pct >= 100.0,
@@ -395,18 +394,16 @@ log("INFO", "QUESTION: Does VW_IND_AGUA_BNF_RT max hierarchy_level = 9 (no level
 
 df_wrt_hier = run_sf(DB_PRD_MEX, """
     SELECT
-        hierarchy_level,
-        COUNT(*) AS row_count,
-        COUNT(DISTINCT PRDC_CD) AS distinct_prdc_cd,
-        SUM(CASE WHEN PRDC_CD IS NULL THEN 1 ELSE 0 END) AS null_prdc_cd
+        "hierarchy_level" AS HIERARCHY_LEVEL,
+        COUNT(*) AS ROW_COUNT
     FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM
     GROUP BY 1
     ORDER BY 1
 """)
 df_wrt_hier.cache()
 _wrt_rows  = df_wrt_hier.collect()
-_max_level = max((r["hierarchy_level"] for r in _wrt_rows), default=0)
-_has_11    = any(r["hierarchy_level"] == 11 for r in _wrt_rows)
+_max_level = max((r["HIERARCHY_LEVEL"] for r in _wrt_rows), default=0)
+_has_11    = any(r["HIERARCHY_LEVEL"] == 11 for r in _wrt_rows)
 
 log("INFO", "Water Retail hierarchy_level distribution:", SECTION)
 df_wrt_hier.show(20, truncate=False)
@@ -621,9 +618,9 @@ _subchain_totals = run_sf(DB_PRD_MDP, """
     FROM PRD_MDP.MDP_DSP.VW_D_STORE_RM
 """).collect()[0]
 
-_overall_null_pct = float(_subchain_totals["null_subchain_pct"])
-_total_stores     = int(_subchain_totals["total_rows"])
-_null_cnt         = int(_subchain_totals["null_subchain"])
+_overall_null_pct = float(_subchain_totals["NULL_SUBCHAIN_PCT"])
+_total_stores     = int(_subchain_totals["TOTAL_ROWS"])
+_null_cnt         = int(_subchain_totals["NULL_SUBCHAIN"])
 
 log("INFO", f"SUBCHAIN overall: total_rows={_total_stores:,} | null={_null_cnt:,} | null_pct={_overall_null_pct:.2f}%", SECTION)
 
@@ -709,16 +706,16 @@ if not _missing_cust_cols or all(c not in ["OLD_CUS_IDT", "NEW_CUS_IDT"] for c i
     """)
     _cust_stats = df_cust_dict_stats.collect()[0]
     log("INFO", f"Record count stats:", SECTION)
-    log("INFO", f"  total_rows:        {_cust_stats['total_rows']:,}", SECTION)
-    log("INFO", f"  distinct_old_ids:  {_cust_stats['distinct_old_ids']:,}", SECTION)
-    log("INFO", f"  distinct_new_ids:  {_cust_stats['distinct_new_ids']:,}", SECTION)
-    log("INFO", f"  same_id_rows (no migration): {_cust_stats['same_id_rows']:,}", SECTION)
+    log("INFO", f"  total_rows:        {_cust_stats['TOTAL_ROWS']:,}", SECTION)
+    log("INFO", f"  distinct_old_ids:  {_cust_stats['DISTINCT_OLD_IDS']:,}", SECTION)
+    log("INFO", f"  distinct_new_ids:  {_cust_stats['DISTINCT_NEW_IDS']:,}", SECTION)
+    log("INFO", f"  same_id_rows (no migration): {_cust_stats['SAME_ID_ROWS']:,}", SECTION)
     save_df(df_cust_dict_stats, f"{DBFS_AMBI}/ambi_08_customer_dict_validation.csv", SECTION)
 
     if not _missing_cust_cols:
         resolve(SECTION,
             f"VW_D_CUSTOMER_DICTONARY CONFIRMED: OLD_CUS_IDT and NEW_CUS_IDT exist. "
-            f"total_rows={_cust_stats['total_rows']:,} | distinct_old={_cust_stats['distinct_old_ids']:,} | same_id={_cust_stats['same_id_rows']:,}.")
+            f"total_rows={_cust_stats['TOTAL_ROWS']:,} | distinct_old={_cust_stats['DISTINCT_OLD_IDS']:,} | same_id={_cust_stats['SAME_ID_ROWS']:,}.")
 else:
     # Save column list only
     _col_rows_cust = pd.DataFrame([{"column_index": i, "column_name": c} for i, c in enumerate(_cust_dict_cols, 1)])
@@ -748,19 +745,19 @@ log("INFO", "          Unlike Water Retail (max level 9), Scantrack should reach
 
 df_wst_hier = run_sf(DB_PRD_MEX, """
     SELECT
-        hierarchy_level,
-        COUNT(*) AS row_count,
-        COUNT(DISTINCT PRDC_CD) AS distinct_prdc_cd,
-        SUM(CASE WHEN PRDC_CD IS NULL THEN 1 ELSE 0 END) AS null_prdc_cd
+        "hierarchy_level" AS HIERARCHY_LEVEL,
+        COUNT(*) AS ROW_COUNT,
+        COUNT(DISTINCT PRDC_CD) AS DISTINCT_PRDC_CD,
+        SUM(CASE WHEN PRDC_CD IS NULL THEN 1 ELSE 0 END) AS NULL_PRDC_CD
     FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM
     GROUP BY 1
     ORDER BY 1
 """)
 df_wst_hier.cache()
 _wst_rows    = df_wst_hier.collect()
-_wst_max_lvl = max((r["hierarchy_level"] for r in _wst_rows), default=0)
-_wst_has_11  = any(r["hierarchy_level"] == 11 for r in _wst_rows)
-_wst_has_9   = any(r["hierarchy_level"] == 9  for r in _wst_rows)
+_wst_max_lvl = max((r["HIERARCHY_LEVEL"] for r in _wst_rows), default=0)
+_wst_has_11  = any(r["HIERARCHY_LEVEL"] == 11 for r in _wst_rows)
+_wst_has_9   = any(r["HIERARCHY_LEVEL"] == 9  for r in _wst_rows)
 
 log("INFO", "Water Scantrack hierarchy_level distribution:", SECTION)
 df_wst_hier.show(20, truncate=False)
@@ -775,19 +772,19 @@ blocker(
 )
 
 if not _wst_has_11 and _wst_has_9:
-    _l9_row = next((r for r in _wst_rows if r["hierarchy_level"] == 9), None)
+    _l9_row = next((r for r in _wst_rows if r["HIERARCHY_LEVEL"] == 9), None)
     if _l9_row:
-        _l9_prdc = int(_l9_row["distinct_prdc_cd"])
-        _l9_null = int(_l9_row["null_prdc_cd"])
+        _l9_prdc = int(_l9_row["DISTINCT_PRDC_CD"])
+        _l9_null = int(_l9_row["NULL_PRDC_CD"])
         log("INFO", f"Level 9 available: distinct_PRDC_CD={_l9_prdc:,} | null_PRDC_CD={_l9_null:,}", SECTION)
         log("INFO", "If hierarchy_level=11 NOT found but hierarchy_level=9 has PRDC_CD populated, "
                     "Water Scantrack UPC grain should use level 9 instead -- escalate to architect.", SECTION)
 
 if _wst_has_11:
-    _l11_row = next((r for r in _wst_rows if r["hierarchy_level"] == 11), None)
+    _l11_row = next((r for r in _wst_rows if r["HIERARCHY_LEVEL"] == 11), None)
     if _l11_row:
-        _l11_prdc = int(_l11_row["distinct_prdc_cd"])
-        _l11_null = int(_l11_row["null_prdc_cd"])
+        _l11_prdc = int(_l11_row["DISTINCT_PRDC_CD"])
+        _l11_null = int(_l11_row["NULL_PRDC_CD"])
         log("INFO", f"Level 11: distinct_PRDC_CD={_l11_prdc:,} | null_PRDC_CD={_l11_null:,}", SECTION)
         if _l11_prdc > 0:
             resolve(SECTION,
@@ -950,3 +947,7 @@ print(f"\nOK Ambiguity resolution complete -- {RUN_DATE}")
 print(f"   RESOLVED: {_resolved_n}  |  FLAGGED: {_flagged_n}  |  BLOCKED: {_blocked_n}")
 print(f"   Summary: {DBFS_AMBI}/ambiguity_resolution_summary.csv")
 print(f"   Report:  {DBFS_AMBI}/ambiguity_resolution_report_{RUN_DATE}.txt")
+
+# COMMAND ----------
+
+

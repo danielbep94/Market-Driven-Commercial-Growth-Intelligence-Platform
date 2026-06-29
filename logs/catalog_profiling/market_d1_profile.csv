@@ -1,0 +1,5 @@
+nielsen_dataset,column,total_rows,null_count,null_pct,distinct_count,d1_score
+EDP,MRKT_DSC_SHRT,155,0,0.0,155,5.0499
+PB,MRKT_DSC_SHRT,163,0,0.0,163,5.0999
+WATER_ST,MRKT_DSC_SHRT,82,0,0.0,82,4.4188
+WATER_RT,MRKT_DSC_SHRT,73,0,0.0,73,4.3041

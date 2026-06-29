@@ -1,0 +1,6 @@
+source,column,total_rows,null_count,null_pct,distinct_count,d1_score
+IBP,GRAN_CANAL,2384268,0,0.0,3,1.3863
+IBP,CANAL,2384268,0,0.0,6,1.9459
+IBP,GRUPO,2384268,0,0.0,9,2.3026
+IBP,CADENA,2384268,0,0.0,20,3.0445
+IBP,FM,2384268,0,0.0,30,3.434

@@ -1,0 +1,5 @@
+column,distinct_count,null_count,null_pct
+CITY,962,0,0.0
+STATE,35,0,0.0
+REGION,6,0,0.0
+CLUSTER,10,45348,50.0

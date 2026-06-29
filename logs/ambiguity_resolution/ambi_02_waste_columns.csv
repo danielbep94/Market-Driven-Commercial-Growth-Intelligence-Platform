@@ -1,0 +1,15 @@
+column_index,column_name
+1,ANIO
+2,MES
+3,CADENA
+4,SKU
+5,DESCRIPCION
+6,TIPO_PRODUCTO
+7,MARCA
+8,PROYECTO
+9,CANAL
+10,"""Waste ($)"""
+11,"""Waste (KG)"""
+12,FUENTE
+13,FECHA
+14,FORMATO

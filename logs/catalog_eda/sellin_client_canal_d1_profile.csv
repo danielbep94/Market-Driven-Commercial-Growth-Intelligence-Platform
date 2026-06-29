@@ -1,0 +1,4 @@
+source,column,total_active,null_count,null_pct,distinct_count,d1_score
+SELL_IN,cus_grn_chl_dsc,0,0,0.0,0,0.0
+SELL_IN,lv6_hie_cus_dsc,0,0,0.0,0,0.0
+SELL_IN,cus_chl_are_dsc,0,0,0.0,0,0.0

@@ -1,0 +1,202 @@
+[2026-06-28 21:26:37][INFO][S1_MARCA] ======================================================================
+[2026-06-28 21:26:37][INFO][S1_MARCA] MARCA PROFILING -- 6.0.0
+[2026-06-28 21:26:37][INFO][S1_MARCA] Querying 10 brand-source column pairs from Snowflake...
+[2026-06-28 21:26:37][INFO][S1_MARCA] [1/10] SELL_IN -- LV2_UMB_BRD_DSC from V_D_ITEM
+[2026-06-28 21:26:37][INFO][S1_MARCA] [2/10] SELL_OUT -- BRAND from VW_D_PRODUCT_RM
+[2026-06-28 21:26:38][INFO][S1_MARCA] [3/10] MKT_ON -- MARCA from VW_MKT_ECOMM (ANIO >= 2024)
+[2026-06-28 21:26:38][INFO][S1_MARCA] [4/10] MKT_OFF -- MARCA from FACT_MEDIA_OFF (ANIO >= 2024)
+[2026-06-28 21:26:39][INFO][S1_MARCA] [5/10] IBP -- MARCA from VW_FACT_DANONE_IBP (NOMBRE_ETIQUETA='REAL')
+[2026-06-28 21:26:39][INFO][S1_MARCA] [6/10] WASTE -- MARCA from VW_WASTE
+[2026-06-28 21:26:40][INFO][S1_MARCA] [7/10] NIELSEN_EDP -- INP_56985 from VW_IR_YOG_GEL_MT_NLSN_PROD_DIM (level 11)
+[2026-06-28 21:26:40][INFO][S1_MARCA] [8/10] NIELSEN_PB -- INP_56985 from VW_SUST_LECHE_ST_NLSN_PROD_DIM
+[2026-06-28 21:26:40][INFO][S1_MARCA] [9/10] NIELSEN_WATER_ST -- CSTM_310589 from VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM (level 11)
+[2026-06-28 21:26:40][INFO][S1_MARCA] [10/10] NIELSEN_WATER_RT -- CSTM_310589 from VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM (level 9)
+[2026-06-28 21:26:41][INFO][S1_MARCA] Unioning all 10 source DataFrames...
+[2026-06-28 21:26:41][INFO][S1_MARCA] Total rows in unioned MARCA profile: 953
+[2026-06-28 21:26:41][INFO][S1_MARCA] Computing per-source variant counts...
+[2026-06-28 21:26:41][INFO][S1_MARCA] Per-source variant summary:
+[2026-06-28 21:26:42][INFO][S1_MARCA] Loading brand_crosswalk.yaml for coverage classification...
+[2026-06-28 21:26:42][INFO][S1_MARCA] Crosswalk loaded: 6 confirmed brand entries.
+[2026-06-28 21:26:42][INFO][S1_MARCA] Computing per-source coverage percentages...
+[2026-06-28 21:26:43][INFO][S1_MARCA] Per-source coverage table:
+[2026-06-28 21:26:45][INFO][S1_MARCA]   IBP                  | total=   23 | confirmed=    0 | unmapped=   23 | coverage=0.00%
+[2026-06-28 21:26:45][BLOCKER][S1_MARCA] Brand coverage for IBP = 0.00% < 97.2% threshold. Unmapped variants: 23. MDM enrichment blocked.
+[2026-06-28 21:26:45][INFO][S1_MARCA]   MKT_OFF              | total=  101 | confirmed=    0 | unmapped=  101 | coverage=0.00%
+[2026-06-28 21:26:45][BLOCKER][S1_MARCA] Brand coverage for MKT_OFF = 0.00% < 97.2% threshold. Unmapped variants: 101. MDM enrichment blocked.
+[2026-06-28 21:26:45][INFO][S1_MARCA]   MKT_ON               | total=   32 | confirmed=    0 | unmapped=   32 | coverage=0.00%
+[2026-06-28 21:26:45][BLOCKER][S1_MARCA] Brand coverage for MKT_ON = 0.00% < 97.2% threshold. Unmapped variants: 32. MDM enrichment blocked.
+[2026-06-28 21:26:45][INFO][S1_MARCA]   NIELSEN_EDP          | total=  219 | confirmed=    0 | unmapped=  219 | coverage=0.00%
+[2026-06-28 21:26:45][BLOCKER][S1_MARCA] Brand coverage for NIELSEN_EDP = 0.00% < 97.2% threshold. Unmapped variants: 219. MDM enrichment blocked.
+[2026-06-28 21:26:45][INFO][S1_MARCA]   NIELSEN_PB           | total=   77 | confirmed=    0 | unmapped=   77 | coverage=0.00%
+[2026-06-28 21:26:45][BLOCKER][S1_MARCA] Brand coverage for NIELSEN_PB = 0.00% < 97.2% threshold. Unmapped variants: 77. MDM enrichment blocked.
+[2026-06-28 21:26:45][INFO][S1_MARCA]   NIELSEN_WATER_RT     | total=  160 | confirmed=    0 | unmapped=  160 | coverage=0.00%
+[2026-06-28 21:26:45][BLOCKER][S1_MARCA] Brand coverage for NIELSEN_WATER_RT = 0.00% < 97.2% threshold. Unmapped variants: 160. MDM enrichment blocked.
+[2026-06-28 21:26:45][INFO][S1_MARCA]   NIELSEN_WATER_ST     | total=  140 | confirmed=    0 | unmapped=  140 | coverage=0.00%
+[2026-06-28 21:26:45][BLOCKER][S1_MARCA] Brand coverage for NIELSEN_WATER_ST = 0.00% < 97.2% threshold. Unmapped variants: 140. MDM enrichment blocked.
+[2026-06-28 21:26:45][INFO][S1_MARCA]   SELL_IN              | total=  129 | confirmed=    0 | unmapped=  129 | coverage=0.00%
+[2026-06-28 21:26:45][BLOCKER][S1_MARCA] Brand coverage for SELL_IN = 0.00% < 97.2% threshold. Unmapped variants: 129. MDM enrichment blocked.
+[2026-06-28 21:26:45][INFO][S1_MARCA]   SELL_OUT             | total=   42 | confirmed=    0 | unmapped=   42 | coverage=0.00%
+[2026-06-28 21:26:45][BLOCKER][S1_MARCA] Brand coverage for SELL_OUT = 0.00% < 97.2% threshold. Unmapped variants: 42. MDM enrichment blocked.
+[2026-06-28 21:26:45][INFO][S1_MARCA]   WASTE                | total=   26 | confirmed=    0 | unmapped=   26 | coverage=0.00%
+[2026-06-28 21:26:45][BLOCKER][S1_MARCA] Brand coverage for WASTE = 0.00% < 97.2% threshold. Unmapped variants: 26. MDM enrichment blocked.
+[2026-06-28 21:26:46][INFO][S1_MARCA] Writing marca_all_sources_profile.csv...
+[2026-06-28 21:26:48][INFO][S1_MARCA] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/marca/marca_all_sources_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/marca_all_sources_profile.csv
+[2026-06-28 21:26:48][INFO][S1_MARCA] Writing marca_unmapped_variants.csv...
+[2026-06-28 21:26:49][INFO][S1_MARCA] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/marca/marca_unmapped_variants.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/marca_unmapped_variants.csv
+[2026-06-28 21:26:49][INFO][S1_MARCA] Writing marca_source_summary.csv...
+[2026-06-28 21:26:52][INFO][S1_MARCA] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/marca/marca_source_summary.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/marca_source_summary.csv
+[2026-06-28 21:26:55][INFO][S1_MARCA] Section 1 complete. Total raw variants: 665 | Confirmed: 0 | Unmapped: 665 | Overall coverage: 0.00%
+[2026-06-28 21:26:56][INFO][S2_CANAL] ======================================================================
+[2026-06-28 21:26:56][INFO][S2_CANAL] CANAL PROFILING -- All Sources
+[2026-06-28 21:26:56][INFO][S2_CANAL] 2A: Loading SELL_IN V_D_CLIENT (channel + status columns)...
+[2026-06-28 21:26:57][INFO][S2_CANAL] V_D_CLIENT grouped rows: 2,289,658
+[2026-06-28 21:26:57][INFO][S2_CANAL] stat_cod distribution:
+[2026-06-28 21:27:02][INFO][S2_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/canal/sell_in_stat_cod_distribution.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/sell_in_stat_cod_distribution.csv
+[2026-06-28 21:27:03][WARNING][S2_CANAL] No rows with stat_cod='A' found in V_D_CLIENT. Active filter assumption may be wrong.
+[2026-06-28 21:27:03][INFO][S2_CANAL] Active (stat_cod='A') row sum: 0
+[2026-06-28 21:27:03][INFO][S2_CANAL] Loading flat active V_D_CLIENT rows for D1 scoring...
+[2026-06-28 21:27:03][INFO][S2_CANAL] Active V_D_CLIENT flat rows (for D1): 0
+[2026-06-28 21:27:04][INFO][S2_CANAL]   cus_grn_chl_dsc           | distinct=    0 | null%=  0.00% | D1=0.0000
+[2026-06-28 21:27:04][INFO][S2_CANAL]   lv6_hie_cus_dsc           | distinct=    0 | null%=  0.00% | D1=0.0000
+[2026-06-28 21:27:04][INFO][S2_CANAL]   cus_chl_are_dsc           | distinct=    0 | null%=  0.00% | D1=0.0000
+[2026-06-28 21:27:04][INFO][S2_CANAL] Top 30 cus_grn_chl_dsc (active clients):
+[2026-06-28 21:27:06][INFO][S2_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/canal/sell_in_canal_d1_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/sell_in_canal_d1_profile.csv
+[2026-06-28 21:27:07][INFO][S2_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/canal/sell_in_gran_canal_top30.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/sell_in_gran_canal_top30.csv
+[2026-06-28 21:27:07][INFO][S2_CANAL] SELL_IN D1 winner: cus_grn_chl_dsc (score=0.0000)
+[2026-06-28 21:27:07][INFO][S2_CANAL] 2B: Loading SELL_OUT VW_D_STORE_RM...
+[2026-06-28 21:27:08][INFO][S2_CANAL] VW_D_STORE_RM grouped rows: 7,593 | total distinct stores: 90,695
+[2026-06-28 21:27:08][INFO][S2_CANAL] Loading flat VW_D_STORE_RM for D1 scoring...
+[2026-06-28 21:27:10][INFO][S2_CANAL]   FORMAT       | distinct=   86 | null%=  0.00% | D1=4.4659
+[2026-06-28 21:27:10][INFO][S2_CANAL]   CHAIN        | distinct=   19 | null%=  0.00% | D1=2.9957
+[2026-06-28 21:27:11][INFO][S2_CANAL]   SUBCHAIN     | distinct=   39 | null%= 33.33% | D1=2.4594
+[2026-06-28 21:27:11][WARNING][S2_CANAL] SELL_OUT SUBCHAIN null rate = 33.33% > 30% -- unreliable for D1 profiling.
+[2026-06-28 21:27:11][INFO][S2_CANAL] FORMAT distinct values by store_count:
+[2026-06-28 21:27:12][INFO][S2_CANAL] FORMAT -> CHAIN hierarchy (top 20 by store_count):
+[2026-06-28 21:27:13][INFO][S2_CANAL] Store geography distinct counts:
+[2026-06-28 21:27:13][INFO][S2_CANAL]   CITY       | distinct=  962
+[2026-06-28 21:27:14][INFO][S2_CANAL]   STATE      | distinct=   35
+[2026-06-28 21:27:14][INFO][S2_CANAL]   REGION     | distinct=    6
+[2026-06-28 21:27:14][INFO][S2_CANAL]   CLUSTER    | distinct=   10
+[2026-06-28 21:27:16][INFO][S2_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/canal/sell_out_store_hierarchy_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/sell_out_store_hierarchy_profile.csv
+[2026-06-28 21:27:17][INFO][S2_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/canal/sell_out_store_d1_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/sell_out_store_d1_profile.csv
+[2026-06-28 21:27:19][INFO][S2_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/canal/sell_out_store_geo_summary.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/sell_out_store_geo_summary.csv
+[2026-06-28 21:27:19][INFO][S2_CANAL] SELL_OUT D1 winner: FORMAT (score=4.4659)
+[2026-06-28 21:27:19][INFO][S2_CANAL] 2C: Loading IBP VW_FACT_DANONE_IBP (NOMBRE_ETIQUETA='REAL')...
+[2026-06-28 21:27:20][INFO][S2_CANAL] IBP hierarchy grouped rows: 29 | total fact rows: 985,464
+[2026-06-28 21:27:20][INFO][S2_CANAL] Loading flat IBP rows for D1 scoring...
+[2026-06-28 21:27:21][INFO][S2_CANAL]   GRAN_CANAL   | distinct=    3 | null%=  0.00% | D1=1.3863
+[2026-06-28 21:27:22][INFO][S2_CANAL]   CANAL        | distinct=    6 | null%=  0.00% | D1=1.9459
+[2026-06-28 21:27:23][INFO][S2_CANAL]   GRUPO        | distinct=    9 | null%=  0.00% | D1=2.3026
+[2026-06-28 21:27:23][INFO][S2_CANAL]   CADENA       | distinct=   20 | null%=  0.00% | D1=3.0445
+[2026-06-28 21:27:24][INFO][S2_CANAL]   FM           | distinct=   29 | null%=  0.00% | D1=3.4012
+[2026-06-28 21:27:24][INFO][S2_CANAL] GRAN_CANAL -> CANAL distinct hierarchy:
+[2026-06-28 21:27:26][INFO][S2_CANAL] IBP CADENA distinct values (alphabetical):
+[2026-06-28 21:27:28][INFO][S2_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/canal/ibp_canal_hierarchy_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/ibp_canal_hierarchy_profile.csv
+[2026-06-28 21:27:30][INFO][S2_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/canal/ibp_canal_d1_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/ibp_canal_d1_profile.csv
+[2026-06-28 21:27:32][INFO][S2_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/canal/ibp_gran_canal_canal_combinations.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/ibp_gran_canal_canal_combinations.csv
+[2026-06-28 21:27:33][INFO][S2_CANAL] IBP GRAN_CANAL distinct values: 3
+[2026-06-28 21:27:33][INFO][S2_CANAL] 2D: Loading WASTE VW_WASTE CANAL (FUENTE=TOPLINE)...
+[2026-06-28 21:27:34][INFO][S2_CANAL] WASTE CANAL distinct values (TOPLINE): 1
+[2026-06-28 21:27:37][INFO][S2_CANAL] WASTE CANAL D1=0.6931 | null%=0.00% | distinct=1
+[2026-06-28 21:27:38][INFO][S2_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/canal/waste_canal_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/waste_canal_profile.csv
+[2026-06-28 21:27:38][INFO][S2_CANAL] 2E: Building unified canal seed...
+[2026-06-28 21:27:39][INFO][S2_CANAL] SELL_IN cus_grn_chl_dsc distinct: 0
+[2026-06-28 21:27:39][INFO][S2_CANAL] IBP GRAN_CANAL distinct: 3
+[2026-06-28 21:27:39][INFO][S2_CANAL] INTERSECTION (both): 0 -- []
+[2026-06-28 21:27:39][INFO][S2_CANAL] IBP_ONLY: ['CAM', 'DTT', 'UTT']
+[2026-06-28 21:27:39][INFO][S2_CANAL] SELL_IN_ONLY: []
+[2026-06-28 21:27:39][INFO][S2_CANAL] Jaccard overlap: 0.00%
+[2026-06-28 21:27:41][INFO][S2_CANAL] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/canal/canal_unified_seed.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/canal_unified_seed.csv
+[2026-06-28 21:27:41][INFO][S2_CANAL] Canal unified seed written: 89 rows
+[2026-06-28 21:27:41][INFO][S2_CANAL] Section 2 complete.
+[2026-06-28 21:27:42][INFO][S3_MARKET] ======================================================================
+[2026-06-28 21:27:42][INFO][S3_MARKET] MARKET PROFILING -- 4 Nielsen MKT_DIM tables
+[2026-06-28 21:27:42][INFO][S3_MARKET] Loading EDP from PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_MKT_DIM...
+[2026-06-28 21:27:43][WARNING][S3_MARKET] EDP: MRKT_DSC_LONG not found or error; retrying without it.
+[2026-06-28 21:27:43][INFO][S3_MARKET]   EDP: 155 distinct MRKT_DSC_SHRT groups
+[2026-06-28 21:27:47][INFO][S3_MARKET]   EDP D1=5.0499 | distinct=155 | null%=0.00%
+[2026-06-28 21:27:48][INFO][S3_MARKET] Loading PB from PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_MKT_DIM...
+[2026-06-28 21:27:49][WARNING][S3_MARKET] PB: MRKT_DSC_LONG not found or error; retrying without it.
+[2026-06-28 21:27:49][INFO][S3_MARKET]   PB: 163 distinct MRKT_DSC_SHRT groups
+[2026-06-28 21:27:51][INFO][S3_MARKET]   PB D1=5.0999 | distinct=163 | null%=0.00%
+[2026-06-28 21:27:52][INFO][S3_MARKET] Loading WATER_ST from PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM...
+[2026-06-28 21:27:52][WARNING][S3_MARKET] WATER_ST: MRKT_DSC_LONG not found or error; retrying without it.
+[2026-06-28 21:27:53][INFO][S3_MARKET]   WATER_ST: 82 distinct MRKT_DSC_SHRT groups
+[2026-06-28 21:27:56][INFO][S3_MARKET]   WATER_ST D1=4.4188 | distinct=82 | null%=0.00%
+[2026-06-28 21:27:56][INFO][S3_MARKET] Loading WATER_RT from PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_MKT_DIM...
+[2026-06-28 21:27:57][WARNING][S3_MARKET] WATER_RT: MRKT_DSC_LONG not found or error; retrying without it.
+[2026-06-28 21:27:57][INFO][S3_MARKET]   WATER_RT: 73 distinct MRKT_DSC_SHRT groups
+[2026-06-28 21:28:00][INFO][S3_MARKET]   WATER_RT D1=4.3041 | distinct=73 | null%=0.00%
+[2026-06-28 21:28:00][INFO][S3_MARKET] Computing cross-dataset MRKT_DSC_SHRT overlap...
+[2026-06-28 21:28:00][INFO][S3_MARKET] Total distinct MRKT_DSC_SHRT across all 4 datasets: 362
+[2026-06-28 21:28:00][INFO][S3_MARKET] IN_ALL_4 (common keys): 0
+[2026-06-28 21:28:00][INFO][S3_MARKET] IN_SOME  (partial):     362
+[2026-06-28 21:28:00][INFO][S3_MARKET]   EDP dataset-unique keys: 126
+[2026-06-28 21:28:00][INFO][S3_MARKET]   PB dataset-unique keys: 81
+[2026-06-28 21:28:00][INFO][S3_MARKET]   WATER_ST dataset-unique keys: 0
+[2026-06-28 21:28:00][INFO][S3_MARKET]   WATER_RT dataset-unique keys: 73
+[2026-06-28 21:28:00][INFO][S3_MARKET] Loading M1 sign-off file...
+[2026-06-28 21:28:01][INFO][S3_MARKET] M1 sign-off loaded from 'MRKT_DSC_SHRT': 362 confirmed market keys.
+[2026-06-28 21:28:03][INFO][S3_MARKET] Market M1 coverage: confirmed=362 | pending=0 | coverage=100.00%
+[2026-06-28 21:28:04][INFO][S3_MARKET] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/market/market_all_datasets_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/market_all_datasets_profile.csv
+[2026-06-28 21:28:06][INFO][S3_MARKET] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/market/market_pending_classification.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/market_pending_classification.csv
+[2026-06-28 21:28:07][INFO][S3_MARKET] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/market/market_d1_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/market_d1_profile.csv
+[2026-06-28 21:28:08][INFO][S3_MARKET] Section 3 complete.
+[2026-06-28 21:28:08][INFO][S4_UPC] ======================================================================
+[2026-06-28 21:28:08][INFO][S4_UPC] UPC PROFILING -- SAP, SELL_OUT, Nielsen P0/P1 bridges
+[2026-06-28 21:28:08][INFO][S4_UPC] 4A: Loading SAP V_D_ITEM EAN coverage by CBU...
+[2026-06-28 21:28:08][INFO][S4_UPC] SAP V_D_ITEM by CBU:
+[2026-06-28 21:28:10][INFO][S4_UPC] SAP totals: MAT_IDT=82,699 | total_EAN=2,941 | null_EAN=1,057 | null_EAN%=1.28% | EAN_coverage=98.72%
+[2026-06-28 21:28:10][BLOCKER][S4_UPC] SAP V_D_ITEM has 1,057 rows with NULL SKU_EAN_COD. Danone products without EAN cannot participate in the P0 UPC bridge. Investigate.
+[2026-06-28 21:28:12][INFO][S4_UPC] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/upc/sap_item_ean_coverage_by_cbu.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/sap_item_ean_coverage_by_cbu.csv
+[2026-06-28 21:28:12][INFO][S4_UPC] 4B: Loading SELL_OUT VW_D_PRODUCT_RM product coverage by CBU_ID...
+[2026-06-28 21:28:12][INFO][S4_UPC] SELL_OUT product coverage by CBU_ID:
+[2026-06-28 21:28:13][INFO][S4_UPC] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/upc/sellout_product_coverage_by_cbu.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/sellout_product_coverage_by_cbu.csv
+[2026-06-28 21:28:14][INFO][S4_UPC] SELL_OUT totals: INT_ID=1,950 | IMPORT_ID=1,952 | null_IMPORT_ID=0
+[2026-06-28 21:28:14][INFO][S4_UPC] 4C: Nielsen PROD_DIM UPC coverage (EDP, PB_SCANTRACK, WATER_SCANTRACK)...
+[2026-06-28 21:28:15][INFO][S4_UPC]   EDP                  | distinct_prdc_cd=3,218 | null_prdc_cd=0 | brands=219
+[2026-06-28 21:28:17][INFO][S4_UPC]   PB_SCANTRACK         | distinct_prdc_cd=496 | null_prdc_cd=2,060 | brands=77
+[2026-06-28 21:28:17][INFO][S4_UPC]   WATER_SCANTRACK      | distinct_prdc_cd=2,885 | null_prdc_cd=76 | brands=140
+[2026-06-28 21:28:19][INFO][S4_UPC] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/upc/nielsen_prod_upc_coverage.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/nielsen_prod_upc_coverage.csv
+[2026-06-28 21:28:19][INFO][S4_UPC] 4D: P0 Bridge simulation -- Nielsen PRDC_CD <-> SAP SKU_EAN_COD...
+[2026-06-28 21:28:19][INFO][S4_UPC]   Running P0 bridge for EDP...
+[2026-06-28 21:28:20][INFO][S4_UPC]   EDP: P0 match rate = 45.26% (2,189/4,836)
+[2026-06-28 21:28:22][INFO][S4_UPC] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/upc/p0_bridge_edp.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/p0_bridge_edp.csv
+[2026-06-28 21:28:22][INFO][S4_UPC]   Running P0 bridge for PB_SCANTRACK...
+[2026-06-28 21:28:23][INFO][S4_UPC]   PB_SCANTRACK: P0 match rate = 26.34% (172/653)
+[2026-06-28 21:28:24][INFO][S4_UPC] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/upc/p0_bridge_pb_scantrack.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/p0_bridge_pb_scantrack.csv
+[2026-06-28 21:28:24][INFO][S4_UPC]   Running P0 bridge for WATER_SCANTRACK...
+[2026-06-28 21:28:25][INFO][S4_UPC]   WATER_SCANTRACK: P0 match rate = 26.83% (954/3,556)
+[2026-06-28 21:28:26][INFO][S4_UPC] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/upc/p0_bridge_water_scantrack.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/p0_bridge_water_scantrack.csv
+[2026-06-28 21:28:28][INFO][S4_UPC] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/upc/p0_bridge_summary.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/p0_bridge_summary.csv
+[2026-06-28 21:28:28][INFO][S4_UPC] P0 Bridge Summary:
+[2026-06-28 21:28:28][INFO][S4_UPC] Overall P0 match rate (3 datasets combined): 36.65%
+[2026-06-28 21:28:28][INFO][S4_UPC] 4E: P1 Bridge simulation -- SELL_OUT INT_ID <-> SAP SKU_EAN_COD...
+[2026-06-28 21:28:31][INFO][S4_UPC] P1 match rate: 88.54% (5,526/6,241)
+[2026-06-28 21:28:32][INFO][S4_UPC] P1 Bridge by CBU_ID:
+[2026-06-28 21:28:36][INFO][S4_UPC] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/upc/p1_bridge_full.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/p1_bridge_full.csv
+[2026-06-28 21:28:40][INFO][S4_UPC] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/upc/p1_bridge_by_cbu.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/p1_bridge_by_cbu.csv
+[2026-06-28 21:28:40][INFO][S4_UPC] Section 4 complete.
+[2026-06-28 21:28:41][INFO][S5_SUMMARY] ======================================================================
+[2026-06-28 21:28:41][INFO][S5_SUMMARY] BUILDING MDM ENRICHMENT SUMMARY
+[2026-06-28 21:28:41][INFO][S5_SUMMARY] JSON summary written to DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/summary/catalog_profiling_summary_v6.json
+[2026-06-28 21:28:41][INFO][S5_SUMMARY] JSON summary saved to repo: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/catalog_profiling_summary_v6.json
+[2026-06-28 21:28:43][INFO][S5_SUMMARY] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/profiling/summary/catalog_profiling_summary_v6_flat.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_profiling/catalog_profiling_summary_v6_flat.csv
+[2026-06-28 21:28:43][INFO][S5_SUMMARY] Flat CSV summary written to: dbfs:/mnt/mdp/mdm/master_catalog/profiling/summary/catalog_profiling_summary_v6_flat.csv
+[2026-06-28 21:28:43][INFO][S5_SUMMARY] 
+[2026-06-28 21:28:43][INFO][S5_SUMMARY] FINAL VALIDATION STATUS:
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY] 11 HARD BLOCKERS -- MDM enrichment BLOCKED:
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY]   [S1_MARCA] Brand coverage for IBP = 0.00% < 97.2% threshold. Unmapped variants: 23. MDM enrichment blocked.
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY]   [S1_MARCA] Brand coverage for MKT_OFF = 0.00% < 97.2% threshold. Unmapped variants: 101. MDM enrichment blocked.
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY]   [S1_MARCA] Brand coverage for MKT_ON = 0.00% < 97.2% threshold. Unmapped variants: 32. MDM enrichment blocked.
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY]   [S1_MARCA] Brand coverage for NIELSEN_EDP = 0.00% < 97.2% threshold. Unmapped variants: 219. MDM enrichment blocked.
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY]   [S1_MARCA] Brand coverage for NIELSEN_PB = 0.00% < 97.2% threshold. Unmapped variants: 77. MDM enrichment blocked.
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY]   [S1_MARCA] Brand coverage for NIELSEN_WATER_RT = 0.00% < 97.2% threshold. Unmapped variants: 160. MDM enrichment blocked.
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY]   [S1_MARCA] Brand coverage for NIELSEN_WATER_ST = 0.00% < 97.2% threshold. Unmapped variants: 140. MDM enrichment blocked.
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY]   [S1_MARCA] Brand coverage for SELL_IN = 0.00% < 97.2% threshold. Unmapped variants: 129. MDM enrichment blocked.
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY]   [S1_MARCA] Brand coverage for SELL_OUT = 0.00% < 97.2% threshold. Unmapped variants: 42. MDM enrichment blocked.
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY]   [S1_MARCA] Brand coverage for WASTE = 0.00% < 97.2% threshold. Unmapped variants: 26. MDM enrichment blocked.
+[2026-06-28 21:28:43][BLOCKER][S5_SUMMARY]   [S4_UPC] SAP V_D_ITEM has 1,057 rows with NULL SKU_EAN_COD. Danone products without EAN cannot participate in the P0 UPC bridge. Investigate.
+[2026-06-28 21:28:43][WARNING][S5_SUMMARY] 2 warnings -- review before final MDM promotion:
+[2026-06-28 21:28:43][WARNING][S5_SUMMARY]   [S2_CANAL] No rows with stat_cod='A' found in V_D_CLIENT. Active filter assumption may be wrong.
+[2026-06-28 21:28:43][WARNING][S5_SUMMARY]   [S2_CANAL] SELL_OUT SUBCHAIN null rate = 33.33% > 30% -- unreliable for D1 profiling.

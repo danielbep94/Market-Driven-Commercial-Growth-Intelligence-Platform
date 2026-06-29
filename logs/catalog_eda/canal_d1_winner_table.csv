@@ -1,0 +1,11 @@
+source,column,total_rows,null_count,null_pct,distinct_count,d1_score,promoted,total_active
+IBP,GRAN_CANAL,2384268.0,0.0,0.0,3,1.3863,NO,
+IBP,CANAL,2384268.0,0.0,0.0,6,1.9459,NO,
+IBP,GRUPO,2384268.0,0.0,0.0,9,2.3026,NO,
+IBP,CADENA,2384268.0,0.0,0.0,20,3.0445,NO,
+IBP,FM,2384268.0,0.0,0.0,30,3.434,YES,
+SELL_IN,cus_grn_chl_dsc,,0.0,0.0,0,0.0,YES,0.0
+SELL_IN,lv6_hie_cus_dsc,,0.0,0.0,0,0.0,NO,0.0
+SELL_IN,cus_chl_are_dsc,,0.0,0.0,0,0.0,NO,0.0
+SELL_OUT,FORMAT,90695.0,,0.0,86,4.4659,YES,
+SELL_OUT,CHAIN,90695.0,,0.0,19,2.9957,NO,

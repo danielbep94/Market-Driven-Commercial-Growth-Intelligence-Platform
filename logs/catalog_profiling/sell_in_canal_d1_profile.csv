@@ -1,0 +1,4 @@
+source,column,alias,total_active,null_count,null_pct,distinct_count,d1_score
+SELL_IN,cus_grn_chl_dsc,gran_canal,0,0,0.0,0,0.0
+SELL_IN,lv6_hie_cus_dsc,tipo_cliente,0,0,0.0,0,0.0
+SELL_IN,cus_chl_are_dsc,canal_area,0,0,0.0,0,0.0

@@ -1,0 +1,10 @@
+ambi_id,plan_ref,question,status,action
+AMBI_01,C10,stat_cod active filter value in V_D_CLIENT,FLAGGED,Update plan active filter to correct stat_cod value.
+AMBI_02,WASTE integration,"VW_WASTE column names for volume, value, SKU",RESOLVED,No action. Column names confirmed.
+AMBI_03,P0 EDP bridge,Nielsen EDP hierarchy_level=11 has populated PRDC_CD,RESOLVED,No action. EDP P0 bridge at level 11 is valid.
+AMBI_04,C1 decision / P0 exclusion,Nielsen Water Retail max hierarchy_level = 9 (no level 11),RESOLVED,No action. C1 decision confirmed: Water Retail excluded from P0.
+AMBI_05,SELL_IN fact join logic,VW_FACT_RNV SHP_CUS_IDT and MAT_IDT join keys exist,RESOLVED,No action. All join keys confirmed.
+AMBI_06,MC-A14 cross-validation,IBP CADENA values are retail chains (not territory codes),RESOLVED,No action. IBP CADENA == retail chains. MC-A14 valid.
+AMBI_07,Canal D1 profiling,SELL_OUT SUBCHAIN null rate <= 30% (usable for D1),FLAGGED,Exclude SUBCHAIN from D1 winner selection. Use FORMAT+CHAIN only.
+AMBI_08,Customer ID migration logic,VW_D_CUSTOMER_DICTONARY has OLD_CUS_IDT and NEW_CUS_IDT,RESOLVED,No action. Customer dictionary keys confirmed.
+AMBI_09,P0 Water Scantrack bridge,Nielsen Water Scantrack hierarchy_level=11 has PRDC_CD for P0 bridge,RESOLVED,No action. Water Scantrack P0 bridge at level 11 is valid.

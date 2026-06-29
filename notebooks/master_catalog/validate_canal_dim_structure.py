@@ -1,5 +1,4 @@
 # Databricks notebook source
-
 # MAGIC %md
 # MAGIC # Canal Dimension Structure Validation -- v6
 # MAGIC
@@ -452,7 +451,7 @@ df_ibp_gc = run_sf(DB_PRD_MDP, """
     FROM PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP
     WHERE GRAN_CANAL IS NOT NULL
 """)
-ibp_gc_set = set(row["gran_canal_std"] for row in df_ibp_gc.collect())
+ibp_gc_set = set(row["GRAN_CANAL_STD"] for row in df_ibp_gc.collect())
 log("INFO", f"IBP GRAN_CANAL distinct values: {len(ibp_gc_set)}", SECTION)
 
 # Load SELL_IN cus_grn_chl_dsc distinct values (active only)
@@ -463,7 +462,7 @@ df_si_gc = run_sf(DB_PRD_MEX, """
     WHERE cus_grn_chl_dsc IS NOT NULL
       AND stat_cod = 'A'
 """)
-si_gc_set = set(row["gran_canal_std"] for row in df_si_gc.collect())
+si_gc_set = set(row["GRAN_CANAL_STD"] for row in df_si_gc.collect())
 log("INFO", f"SELL_IN cus_grn_chl_dsc distinct values (active): {len(si_gc_set)}", SECTION)
 
 # Set operations
@@ -518,7 +517,7 @@ df_ibp_canal = run_sf(DB_PRD_MDP, """
     FROM PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP
     WHERE CANAL IS NOT NULL
 """)
-ibp_canal_set = set(row["canal_std"] for row in df_ibp_canal.collect())
+ibp_canal_set = set(row["CANAL_STD"] for row in df_ibp_canal.collect())
 log("INFO", f"IBP CANAL distinct values: {len(ibp_canal_set)}", SECTION)
 
 # Compare vs lv6_hie_cus_dsc (TIPO_CLIENTE)
@@ -529,7 +528,7 @@ df_si_lv6 = run_sf(DB_PRD_MEX, """
     WHERE lv6_hie_cus_dsc IS NOT NULL
       AND stat_cod = 'A'
 """)
-si_lv6_set  = set(row["canal_std"] for row in df_si_lv6.collect())
+si_lv6_set  = set(row["CANAL_STD"] for row in df_si_lv6.collect())
 in_both_lv6 = ibp_canal_set & si_lv6_set
 union_lv6   = ibp_canal_set | si_lv6_set
 overlap_lv6 = round(len(in_both_lv6) / len(union_lv6) * 100, 2) if union_lv6 else 0.0
@@ -577,7 +576,7 @@ df_ibp_cadena = run_sf(DB_PRD_MDP, """
     FROM PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP
     WHERE CADENA IS NOT NULL
 """)
-ibp_cadena_set = set(row["cadena_std"] for row in df_ibp_cadena.collect())
+ibp_cadena_set = set(row["CADENA_STD"] for row in df_ibp_cadena.collect())
 log("INFO", f"IBP CADENA distinct values: {len(ibp_cadena_set)}", SECTION)
 
 # Load SELL_OUT CHAIN distinct values
@@ -587,7 +586,7 @@ df_so_chain = run_sf(DB_PRD_MDP, """
     FROM PRD_MDP.MDP_DSP.VW_D_STORE_RM
     WHERE CHAIN IS NOT NULL
 """)
-so_chain_set  = set(row["cadena_std"] for row in df_so_chain.collect())
+so_chain_set  = set(row["CADENA_STD"] for row in df_so_chain.collect())
 log("INFO", f"SELL_OUT CHAIN distinct values: {len(so_chain_set)}", SECTION)
 
 in_both_cc    = ibp_cadena_set & so_chain_set
@@ -791,3 +790,7 @@ if _HARD_BLOCKERS:
 
 print(f"OK Canal Dim Validation complete -- {len(_WARNINGS)} warnings, 0 blockers.")
 print(f"   Report: {DBFS_ROOT}/canal_dim_validation_report.txt")
+
+# COMMAND ----------
+
+

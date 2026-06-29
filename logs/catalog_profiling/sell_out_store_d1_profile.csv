@@ -1,0 +1,4 @@
+source,column,total_rows,null_count,null_pct,distinct_count,d1_score
+SELL_OUT,FORMAT,136042,0,0.0,86,4.4659
+SELL_OUT,CHAIN,136042,0,0.0,19,2.9957
+SELL_OUT,SUBCHAIN,136042,45348,33.33,39,2.4594
