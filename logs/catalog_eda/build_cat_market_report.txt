@@ -1,0 +1,118 @@
+======================================================================
+MARKET CATALOG BUILD SUMMARY  v1.0.0  --  2026-06-29  2026-06-29 21:00:28
+======================================================================
+TAXONOMY:            Danone Nielsen Market Catalog (signoff_03 governed)
+SNOWFLAKE_ACCESS:    READ-ONLY ✅
+
+CREDENTIAL PROFILES USED:
+  PRD_MEX: EDP, WATER_ST, WATER_RT, PB, SELL_IN
+  PRD_MDP: IBP
+
+SIGNOFF SEED:
+  Path:    configs/catalog_seeds/market/signoff_03_nielsen_markets.csv
+  Rows:    362
+  Dup keys:0   ← M11
+  canal_std exceptions: None  ← M17
+  CBUs covered: EDP_NIELSEN (155), WATER_NIELSEN_RIE (73), PB_NIELSEN (134)
+  CBUs MISSING: WATER_NIELSEN_ST — governance debt (82 → PENDING)
+
+CBU COVERAGE REPORT:
+  CBU          Live   Classified   Pending   Coverage
+  ----------------------------------------------------
+  EDP             0            0         0       0.0%
+  WATER_ST        0            0         0       0.0%  ⚠️  GOVERNANCE DEBT
+  WATER_RT        0            0         0       0.0%
+  PB              0            0         0       0.0%
+  TOTAL           0            0         0       0.0%
+
+GOVERNANCE DEBT:
+  WATER_ST: 0% coverage — 82 markets unclassified.
+  Action: classify WATER_ST markets, add to signoff seed with
+          NIELSEN_SOURCE_TABLE='WATER_NIELSEN_ST', then re-run.
+
+MARKET_ID STABILITY:
+  EDP:      0 IDs / 0 names
+  WATER_ST: 0 IDs / 0 names  (all PENDING)
+  WATER_RT: 0 IDs / 0 names
+  PB:       0 IDs / 0 names
+  (market_id retained in per-CBU profile files — use for lineage traceability)
+
+GEOGRAPHIC HIERARCHY DISTRIBUTION (promoted rows):
+  NATIONAL: 0
+  AREA:     0
+  CITY:     0
+  VDM:      0
+
+CROSS-CBU OVERLAP (descriptive — not a quality criterion):
+  IN_ALL_4: 0 | EDP∩WST: 0 | EDP∩WRT: 0 | EDP∩PB: 0
+
+PROMOTED / PENDING SUMMARY:
+  Expected promoted (live join):  0
+  Actual promoted:                0
+  Pending Nielsen rows:           0
+  Total live Nielsen:             0
+  Pending %:                      0.0%
+  M9b (promo+pend=live):          PASS
+
+is_total_mexico PER CBU (M8 — WARN only, informational):
+  EDP:      NO
+  WATER_ST: N/A (all PENDING)
+  WATER_RT: NO
+  PB:       NO
+
+DUPLICATE MARKET_KEY AUDIT:
+  Conflicting: 0  ← M12
+  Identical:   0    ← M12W
+
+SCHEMA VALIDATION (20 columns):  PASS
+NULL CRITICAL FIELDS CHECK:       PASS
+REFERENCE-ONLY EXCLUSION CHECK:   PASS
+CANAL_STD GOVERNANCE (M17):       PASS
+
+SOURCE TABLES QUERIED:
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_MKT_DIM   (S1 EDP)
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM  (S2 WATER_ST)
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_MKT_DIM  (S3 WATER_RT)
+  PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_LECHE_ST_NLSN_MKT_DIM    (S4 PB)
+  PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP                         (S5 IBP)
+  PRD_MEX.MEX_DSP_OTC.V_D_CLIENT                             (S6 SELL_IN)
+
+OUTPUT FILES:
+  cat_market.csv:              0 rows  (promoted=YES)
+  cat_market_pending.csv:      0 rows
+  cat_market_reference.csv:    0 rows
+  profiles/edp_market_profile.csv:      0 rows  (incl. market_id)
+  profiles/water_st_market_profile.csv: 0 rows  (all PENDING, incl. market_id)
+  profiles/water_rt_market_profile.csv: 0 rows  (incl. market_id)
+  profiles/pb_market_profile.csv:       0 rows  (incl. market_id)
+  profiles/ibp_mercado_profile.csv:     0 rows
+  profiles/sellin_geo_profile.csv:      0 rows
+  audit/market_cross_cbu_overlap.csv:   written (descriptive)
+  audit/cat_market_null_violations.csv: NOT WRITTEN
+  build_cat_market_report.txt:          this file
+
+VALIDATION GATES:
+  M1   EDP distinct >= 50:             FAIL (0)
+  M2   WATER_ST distinct >= 30:        FAIL (0)
+  M3   WATER_RT distinct >= 20:        FAIL (0)
+  M4   PB distinct >= 50:              FAIL (0)
+  M5   IBP MERCADO >= 5:               WARN (0)
+  M6   SELL_IN geo rows > 0:           WARN (0)
+  M7   PENDING <= 5%:                  PASS (0.0%)
+  M8   is_total_mexico per CBU:        WARN only — informational
+  M9a  promoted = live join result:    PASS (0 vs 0)
+  M9b  promoted+pending = live:        PASS
+  M10  pending rows = 0:               PASS (0)
+  M11  signoff no dup keys:            PASS
+  M12  no conflicting dup keys:        PASS
+  M12W identical dups deduplicated:    PASS
+  M13  20-column schema correct:       PASS
+  M14  all live rows in promo/pend:    PASS
+  M15  no null critical fields:        PASS
+  M16  no ref-only in cat_market:      PASS
+  M17  canal_std in governed catalog:  PASS
+  RO   Snowflake read-only:            PASS
+
+WARNINGS:  9
+BLOCKERS:  8
+======================================================================

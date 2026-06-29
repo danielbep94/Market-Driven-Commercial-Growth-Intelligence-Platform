@@ -8,6 +8,7 @@
 # MAGIC No cross-CBU collapse. All outputs to DBFS and logs/. Snowflake is READ-ONLY.
 
 # COMMAND ----------
+
 # =============================================================================
 # SECTION 0 — SETUP, CREDENTIALS, GUARDS
 # =============================================================================
@@ -203,6 +204,7 @@ _cbu_map_udf = F.udf(
 
 df_signoff = (
     df_signoff_raw
+    .withColumnRenamed("REGION_STD7", "REGION_STD")
     .withColumn("source_cbu", _cbu_map_udf(F.col("NIELSEN_SOURCE_TABLE")))
     .withColumn("mrkt_norm",  F.trim(F.upper(F.col("MRKT_DSC_SHRT"))))
     .withColumn("join_key",   F.concat_ws("|", F.col("source_cbu"), F.col("mrkt_norm")))
@@ -233,6 +235,7 @@ else:
 info("S0", "Setup complete. Starting CBU profiling.")
 
 # COMMAND ----------
+
 # =============================================================================
 # SECTION 1 — EDP NIELSEN MARKET PROFILE
 # =============================================================================
@@ -333,6 +336,7 @@ df_edp_profile.coalesce(1).write.mode("overwrite").option("header", True).csv(
 info("S1_EDP", f"Written: edp_market_profile.csv ({_edp_name_count} rows — incl. market_id)")
 
 # COMMAND ----------
+
 # =============================================================================
 # SECTION 2 — WATER SCANTRACK (WATER_ST) MARKET PROFILE — GOVERNANCE DEBT
 # =============================================================================
@@ -412,6 +416,7 @@ df_wst_profile.coalesce(1).write.mode("overwrite").option("header", True).csv(
 info("S2_WST", f"Written: water_st_market_profile.csv ({_wst_name_count} rows — all PENDING, incl. market_id)")
 
 # COMMAND ----------
+
 # =============================================================================
 # SECTION 3 — WATER RIE (WATER_RT) MARKET PROFILE
 # =============================================================================
@@ -509,6 +514,7 @@ df_wrt_profile.coalesce(1).write.mode("overwrite").option("header", True).csv(
 info("S3_WRT", f"Written: water_rt_market_profile.csv ({_wrt_name_count} rows — incl. market_id)")
 
 # COMMAND ----------
+
 # =============================================================================
 # SECTION 4 — PLANT BASED (PB) MARKET PROFILE
 # =============================================================================
@@ -606,6 +612,7 @@ df_pb_profile.coalesce(1).write.mode("overwrite").option("header", True).csv(
 info("S4_PB", f"Written: pb_market_profile.csv ({_pb_name_count} rows — incl. market_id)")
 
 # COMMAND ----------
+
 # =============================================================================
 # SECTION 5 — IBP MERCADO PROFILE (REFERENCE ONLY)
 # =============================================================================
@@ -663,6 +670,7 @@ df_ibp_profile.coalesce(1).write.mode("overwrite").option("header", True).csv(
 info("S5_IBP", f"Written: ibp_mercado_profile.csv ({_ibp_count} rows)")
 
 # COMMAND ----------
+
 # =============================================================================
 # SECTION 6 — SELL_IN INTERNAL GEOGRAPHY (REFERENCE ONLY)
 # =============================================================================
@@ -718,6 +726,7 @@ df_si_profile.coalesce(1).write.mode("overwrite").option("header", True).csv(
 info("S6_SI", f"Written: sellin_geo_profile.csv ({_si_count} rows)")
 
 # COMMAND ----------
+
 # =============================================================================
 # SECTION 7 — COVERAGE, OVERLAP (DESCRIPTIVE), DUPLICATE AUDIT
 # =============================================================================
@@ -861,6 +870,7 @@ else:
 info("S7_AUDIT", "Audit complete. Proceeding to assembly.")
 
 # COMMAND ----------
+
 # =============================================================================
 # SECTION 8 — ASSEMBLE CATALOG OUTPUTS
 # =============================================================================
@@ -1059,6 +1069,7 @@ info("S8_ASSEMBLE", f"Written: cat_market_pending.csv  ({_pending_count} rows)")
 info("S8_ASSEMBLE", f"Written: cat_market_reference.csv ({_reference_count} rows)")
 
 # COMMAND ----------
+
 # =============================================================================
 # SECTION 8 (cont.) — SUMMARY REPORT
 # =============================================================================
@@ -1226,3 +1237,7 @@ else:
     info("S8_SUMMARY",
          f"✅ PASS — {_promoted_count} market rows promoted. "
          f"{len(_warnings)} warning(s) (non-blocking).")
+
+# COMMAND ----------
+
+
