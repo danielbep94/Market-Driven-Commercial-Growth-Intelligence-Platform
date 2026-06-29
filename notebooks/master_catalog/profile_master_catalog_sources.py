@@ -409,11 +409,18 @@ if os.path.exists(_crosswalk_path):
         import yaml
         with open(_crosswalk_path, "r", encoding="utf-8") as _f:
             _cw_data = yaml.safe_load(_f)
-        if isinstance(_cw_data, dict):
-            _confirmed_brands = {str(k).strip().upper() for k in _cw_data.keys()}
-        elif isinstance(_cw_data, list):
-            _confirmed_brands = {str(v).strip().upper() for v in _cw_data}
-        log("INFO", f"Crosswalk loaded: {len(_confirmed_brands)} confirmed brand entries.", SECTION)
+        # Flatten all canonical names + all raw variants from all brand sections
+        _confirmed_brands = set()
+        _BRAND_SECTIONS = ["danone_brands", "competitor_brands", "nielsen_brands", "special_mappings"]
+        for _sec in _BRAND_SECTIONS:
+            if _sec in _cw_data and isinstance(_cw_data[_sec], dict):
+                for _brand, _meta in _cw_data[_sec].items():
+                    _confirmed_brands.add(str(_brand).strip().upper())
+                    if isinstance(_meta, dict):
+                        for _v in _meta.get("variants", []):
+                            _confirmed_brands.add(str(_v).strip().upper())
+        log("INFO", f"Crosswalk loaded: {len(_confirmed_brands)} confirmed brand+variant entries.", SECTION)
+        # Expected: ~161 entries (32 Danone + competitors + Nielsen + variants)
     except Exception as _cw_err:
         warn(True, f"brand_crosswalk.yaml found but failed to parse: {_cw_err}", SECTION)
 else:
@@ -615,15 +622,15 @@ si_active_row_sum = (
     .agg(F.sum("row_count").alias("n"))
     .collect()[0]["n"] or 0
 )
-warn(si_active_row_sum == 0, "No rows with stat_cod='A' found in V_D_CLIENT. Active filter assumption may be wrong.", SECTION)
-log("INFO", f"Active (stat_cod='A') row sum: {si_active_row_sum:,}", SECTION)
+log("WARN", "stat_cod filter removed per EDA finding 2026-06-29. Field is dirty (INACTIVO=55.4%, 1=20.4%, ACTIVO=15.2%, 0=8.2%). Full V_D_CLIENT used.", SECTION)
+log("INFO", "stat_cod distribution logged above. No active filter applied.", SECTION)
 
 # D1 scoring: load flat active rows
 log("INFO", "Loading flat active V_D_CLIENT rows for D1 scoring...", SECTION)
 df_client_flat = run_sf(DB_PRD_MEX, """
     SELECT cus_grn_chl_dsc, lv6_hie_cus_dsc, cus_chl_are_dsc
     FROM PRD_MEX.MEX_DSP_OTC.V_D_CLIENT
-    WHERE stat_cod = 'A'
+    -- stat_cod filter REMOVED: dirty field (INACTIVO/ACTIVO/0/1/2/3 mixed). Full dataset used.
 """)
 df_client_flat.cache()
 si_flat_total = df_client_flat.count()

@@ -268,7 +268,7 @@ log("INFO", f"Section 1 complete. IBP hierarchy profiled across {len(IBP_CANAL_C
 # MAGIC **Key corrections (C10):**
 # MAGIC - Column name corrected: cus_chl_are_dsc (was CUS_CHL_ARE_DSC_EXT in v5)
 # MAGIC - New columns: lv6_hie_cus_dsc (TIPO_CLIENTE), cus_sal_plt_dsc (CEDIS), stat_cod (ESTATUS)
-# MAGIC - stat_cod = 'A' filter required for active clients
+# MAGIC - stat_cod field is DIRTY (mixes Spanish text + numeric codes). No filter applied. Full dataset used.
 
 # COMMAND ----------
 
@@ -305,17 +305,12 @@ df_stat = df_client_all.groupBy("stat_cod").count().orderBy(F.desc("count"))
 df_stat.show(20, truncate=False)
 save_df(df_stat, "sellin_client_stat_cod_distribution.csv", SECTION)
 
-active_count   = df_client_all.filter(F.col("stat_cod") == "A").count()
-inactive_count = si_total - active_count
-active_pct     = round(active_count / si_total * 100, 2) if si_total > 0 else 0.0
-log("INFO", f"Active (stat_cod='A'): {active_count:,} ({active_pct:.1f}%) | Inactive: {inactive_count:,}", SECTION)
-warn(active_pct < 50.0,
-     f"Less than 50% of V_D_CLIENT rows are active. active%={active_pct:.1f}. Review expected.", SECTION)
-
-# 2c: Active-only subset for D1 profiling
-df_client_active = df_client_all.filter(F.col("stat_cod") == "A")
-df_client_active.cache()
-log("INFO", f"Active client rows for D1 profiling: {active_count:,}", SECTION)
+# stat_cod filter REMOVED (2026-06-29): field is dirty — mixes Spanish text (ACTIVO/INACTIVO)
+# and numeric codes (0,1,2,3). EDA showed: INACTIVO=55.4%, 1=20.4%, ACTIVO=15.2%, 0=8.2%.
+# No reliable active/inactive split is possible. Full V_D_CLIENT dataset used.
+active_count = 0   # informational placeholder only
+log("WARN", "stat_cod filter REMOVED — dirty field. Full V_D_CLIENT used (all stat_cod values).", SECTION)
+df_client_active = df_client_all   # no filter — use full dataset
 
 # 2d: D1 scoring for canal candidates (active clients only)
 log("INFO", "D1 profiling for CANAL candidate columns (active clients only)...", SECTION)
@@ -460,7 +455,7 @@ df_si_gc = run_sf(DB_PRD_MEX, """
     SELECT DISTINCT UPPER(TRIM(cus_grn_chl_dsc)) AS gran_canal_std
     FROM PRD_MEX.MEX_DSP_OTC.V_D_CLIENT
     WHERE cus_grn_chl_dsc IS NOT NULL
-      AND stat_cod = 'A'
+      -- stat_cod filter removed: dirty field (INACTIVO/ACTIVO/0/1/2/3)
 """)
 si_gc_set = set(row["GRAN_CANAL_STD"] for row in df_si_gc.collect())
 log("INFO", f"SELL_IN cus_grn_chl_dsc distinct values (active): {len(si_gc_set)}", SECTION)
@@ -526,7 +521,7 @@ df_si_lv6 = run_sf(DB_PRD_MEX, """
     SELECT DISTINCT UPPER(TRIM(lv6_hie_cus_dsc)) AS canal_std
     FROM PRD_MEX.MEX_DSP_OTC.V_D_CLIENT
     WHERE lv6_hie_cus_dsc IS NOT NULL
-      AND stat_cod = 'A'
+      -- stat_cod filter removed: dirty field (INACTIVO/ACTIVO/0/1/2/3)
 """)
 si_lv6_set  = set(row["CANAL_STD"] for row in df_si_lv6.collect())
 in_both_lv6 = ibp_canal_set & si_lv6_set
@@ -724,7 +719,7 @@ log("INFO", "", SECTION)
 
 log("INFO", "SOURCE PROFILE SUMMARY:", SECTION)
 log("INFO", f"  IBP VW_FACT_DANONE_IBP   -- {ibp_total:>8,} total rows | {ibp_hier_count:>5,} distinct hierarchy combos", SECTION)
-log("INFO", f"  SELL_IN V_D_CLIENT        -- {si_total:>8,} total rows | {active_count:>5,} active (stat_cod='A')", SECTION)
+log("INFO", f"  SELL_IN V_D_CLIENT        -- {si_total:>8,} total rows | stat_cod filter REMOVED (dirty field)", SECTION)
 log("INFO", f"  SELL_OUT VW_D_STORE_RM    -- {store_count:>8,} distinct stores", SECTION)
 log("INFO", "", SECTION)
 
