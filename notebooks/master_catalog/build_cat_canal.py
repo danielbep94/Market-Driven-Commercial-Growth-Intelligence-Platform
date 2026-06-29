@@ -9,7 +9,7 @@
 
 # COMMAND ----------
 # Cell 0: constants + helper imports
-import re, hashlib, datetime, json, math
+import re, hashlib, datetime, json, math, os, importlib.util, pathlib
 from pyspark.sql import functions as F, types as T
 from functools import reduce
 
@@ -60,25 +60,56 @@ udf_canal_key = F.udf(canal_key, T.StringType())
 
 # COMMAND ----------
 # Cell 1: Snowflake connection + read-only guard
-import json
-try:
-    _sf_creds = json.load(open(
-        "/Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/configs/snowflake_creds.json",
-        "r"
-    ))
-except Exception:
-    _sf_creds = {}
+# Uses the same credential pattern as build_cat_marca.py and validate_canal_dim_structure.py
 
-def sf_opts(db):
-    return {
-        "sfURL":       _sf_creds.get("account",   dbutils.secrets.get("mdp", "sf_account")),
-        "sfUser":      _sf_creds.get("user",       dbutils.secrets.get("mdp", "sf_user")),
-        "sfPassword":  _sf_creds.get("password",   dbutils.secrets.get("mdp", "sf_password")),
-        "sfDatabase":  db,
-        "sfWarehouse": _sf_creds.get("warehouse",  dbutils.secrets.get("mdp", "sf_warehouse")),
-        "sfRole":      _sf_creds.get("role",       dbutils.secrets.get("mdp", "sf_role")),
+_current_dir = os.getcwd()
+_creds_path  = os.path.normpath(
+    os.path.join(_current_dir, "..", "..", "configs", "snowflake_creds.py")
+)
+
+if not os.path.exists(_creds_path):
+    raise FileNotFoundError(
+        "configs/snowflake_creds.py NOT FOUND.\n"
+        "   Copy configs/snowflake_creds.example.py -> configs/snowflake_creds.py"
+    )
+
+_spec = importlib.util.spec_from_file_location("snowflake_creds", _creds_path)
+_m    = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_m)
+
+SF_URL = "danonenam.east-us-2.azure.snowflakecomputing.com"
+
+
+def get_sf_options(database: str) -> dict:
+    """Return Snowflake connector options for the given database."""
+    _mdp_user = getattr(_m, "SF_MDP_USER", None)
+    _mdp_pwd  = getattr(_m, "SF_MDP_PASSWORD", None)
+    profiles = {
+        DB_PRD_MEX: {
+            "sfURL":       SF_URL,
+            "sfUser":      _m.SF_MEX_USER,
+            "sfPassword":  _m.SF_MEX_PASSWORD,
+            "sfWarehouse": getattr(_m, "SF_MEX_WH",  "PRD_MEX_ANL_WH"),
+            "sfRole":      getattr(_m, "SF_MEX_ROLE", "PRD_MEX_READER"),
+        },
+        DB_PRD_MDP: {
+            "sfURL":       SF_URL,
+            "sfUser":      _mdp_user or dbutils.secrets.get(
+                               "DAN-AM-P-KVT800-R-MDP-DB", "snowflake-user"),
+            "sfPassword":  _mdp_pwd or dbutils.secrets.get(
+                               "DAN-AM-P-KVT800-R-MDP-DB", "snowflake-password"),
+            "sfWarehouse": getattr(_m, "SF_MDP_WH",  "PRD_MDP_ANL_WH"),
+            "sfRole":      getattr(_m, "SF_MDP_ROLE", "PRD_MDP"),
+        },
     }
+    if database not in profiles:
+        raise ValueError(
+            f"No Snowflake profile for '{database}'. Available: {list(profiles.keys())}"
+        )
+    return dict(profiles[database])
 
+
+# Snowflake read-only guard
 _ALLOWED = re.compile(r'^\s*(SELECT|WITH)\b', re.IGNORECASE)
 _BLOCKED = re.compile(
     r'\b(INSERT|UPDATE|DELETE|MERGE|CREATE|DROP|TRUNCATE|ALTER|'
@@ -86,20 +117,25 @@ _BLOCKED = re.compile(
     re.IGNORECASE
 )
 
-def run_sf(sql, db):
-    """Safe Snowflake SELECT-only reader with DML guard."""
+
+def run_sf(sql: str, db: str):
+    """Safe Snowflake SELECT-only reader with DML/DDL guard (V11)."""
     if not _ALLOWED.match(sql):
         blocker("V11", f"SQL must start with SELECT or WITH. Got: {sql[:80]}")
     if _BLOCKED.search(sql):
-        blocker("V11", f"DML/DDL keyword detected in SQL — Snowflake is read-only. SQL[:80]: {sql[:80]}")
+        blocker("V11", f"DML/DDL keyword detected — Snowflake is read-only. SQL[:80]: {sql[:80]}")
     return (
-        spark.read.format("snowflake")
-        .options(**sf_opts(db))
+        spark.read.format("net.snowflake.spark.snowflake")
+        .options(**get_sf_options(db))
+        .option("sfDatabase", db)
         .option("query", sql)
         .load()
     )
 
+
+print(f"OK Credentials loaded -- PRD_MEX user: {_m.SF_MEX_USER}")
 info("S0", f"build_cat_canal v{CATALOG_VERSION} initializing — run_date={RUN_DATE}")
+
 
 # COMMAND ----------
 # Cell 2: Init DBFS output dirs
