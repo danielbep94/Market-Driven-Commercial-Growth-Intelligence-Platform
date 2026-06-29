@@ -1,7 +1,9 @@
 canal_value,source,in_ibp_gran_canal
+,SELL_IN_cus_grn_chl_dsc,False
+DTT,SELL_IN_cus_grn_chl_dsc,True
+NA,SELL_IN_cus_grn_chl_dsc,False
+UTT,SELL_IN_cus_grn_chl_dsc,True
 CAM,IBP_GRAN_CANAL_only,True
-DTT,IBP_GRAN_CANAL_only,True
-UTT,IBP_GRAN_CANAL_only,True
 7E-7ELEVEN,SELL_OUT_FORMAT,False
 7E-AEROPUERTO,SELL_OUT_FORMAT,False
 7E-AEROPUERTO PREMIUM,SELL_OUT_FORMAT,False

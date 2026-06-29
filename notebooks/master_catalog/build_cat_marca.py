@@ -1,5 +1,4 @@
 # Databricks notebook source
-
 # MAGIC %md
 # MAGIC # MARCA Catalog Build -- v6
 # MAGIC
@@ -848,3 +847,7 @@ if _WARNINGS:
         log("WARNING", f"  {_w}", SECTION)
 
 flush_log("build_cat_marca_report.txt")
+
+# COMMAND ----------
+
+

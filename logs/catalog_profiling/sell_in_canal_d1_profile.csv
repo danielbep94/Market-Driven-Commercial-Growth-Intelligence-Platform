@@ -1,4 +1,4 @@
 source,column,alias,total_active,null_count,null_pct,distinct_count,d1_score
-SELL_IN,cus_grn_chl_dsc,gran_canal,0,0,0.0,0,0.0
-SELL_IN,lv6_hie_cus_dsc,tipo_cliente,0,0,0.0,0,0.0
-SELL_IN,cus_chl_are_dsc,canal_area,0,0,0.0,0,0.0
+SELL_IN,cus_grn_chl_dsc,gran_canal,7085334,2087025,29.46,5,1.2639
+SELL_IN,lv6_hie_cus_dsc,tipo_cliente,7085334,2979510,42.05,23533,5.8334
+SELL_IN,cus_chl_are_dsc,canal_area,7085334,435109,6.14,36,3.3892

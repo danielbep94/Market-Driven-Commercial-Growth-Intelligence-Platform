@@ -1,0 +1,505 @@
+[2026-06-29 01:46:42][INFO][S1_CROSSWALK] ======================================================================
+[2026-06-29 01:46:42][INFO][S1_CROSSWALK] LOAD BRAND CROSSWALK YAML (FIXED -- flattened sections + variants)
+[2026-06-29 01:46:42][INFO][S1_CROSSWALK] Notebook: build_cat_marca v6.0.0
+[2026-06-29 01:46:42][INFO][S1_CROSSWALK] Crosswalk loaded: 234 confirmed brand+variant entries (expected ~161).
+[2026-06-29 01:46:42][INFO][S1_CROSSWALK]   danone_brands             : 32 canonical entries
+[2026-06-29 01:46:42][INFO][S1_CROSSWALK]   competitor_brands         : 10 canonical entries
+[2026-06-29 01:46:42][INFO][S1_CROSSWALK]   nielsen_brands            : 3 canonical entries
+[2026-06-29 01:46:42][INFO][S1_CROSSWALK]   special_mappings          : 3 canonical entries
+[2026-06-29 01:46:43][INFO][S1_CROSSWALK] Broadcast complete: 234 entries in crosswalk.
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] ======================================================================
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] EXTRACT BRAND VARIANTS FROM ALL 10 SOURCES
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] COLUMN VERIFICATION TABLE:
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] -------------------------------------------------------------------------------------------------------------
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] Source             | Source Table                                         | Brand Column     | Plan Confirmed
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] -------------------------------------------------------------------------------------------------------------
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] SELL_IN            | PRD_MEX.MEX_DSP_OTC.V_D_ITEM                         | LV2_UMB_BRD_DSC  | YES
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] SELL_OUT           | PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM                      | BRAND            | YES
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] MKT_ON             | PRD_MDP.MDP_DSP.VW_MKT_ECOMM                         | MARCA            | YES
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] MKT_OFF            | PRD_MDP.MDP_STG.FACT_MEDIA_OFF                       | MARCA            | YES
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] IBP                | PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP                   | MARCA            | YES
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] WASTE              | PRD_MDP.MDP_STG.VW_WASTE                             | MARCA            | YES
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] NIELSEN_EDP        | PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_..._PROD_DIM       | INP_56985        | YES (lvl 11)
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] NIELSEN_PB         | PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_..._PROD_DIM         | INP_56985        | YES
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] NIELSEN_WATER_ST   | PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_..._ST_PROD_DIM       | CSTM_310589      | YES (lvl 11)
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] NIELSEN_WATER_RT   | PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_..._RT_PROD_DIM       | CSTM_310589      | YES (lvl 9)
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] -------------------------------------------------------------------------------------------------------------
+[2026-06-29 01:46:43][INFO][S2_EXTRACT] Querying SELL_IN (db=PRD_MEX, brand_col=LV2_UMB_BRD_DSC)...
+[2026-06-29 01:47:08][INFO][S2_EXTRACT]   SELL_IN: 133 distinct raw_variant rows.
+[2026-06-29 01:47:08][INFO][S2_EXTRACT] Querying SELL_OUT (db=PRD_MDP, brand_col=BRAND)...
+[2026-06-29 01:47:11][INFO][S2_EXTRACT]   SELL_OUT: 42 distinct raw_variant rows.
+[2026-06-29 01:47:11][INFO][S2_EXTRACT] Querying MKT_ON (db=PRD_MDP, brand_col=MARCA)...
+[2026-06-29 01:47:14][INFO][S2_EXTRACT]   MKT_ON: 34 distinct raw_variant rows.
+[2026-06-29 01:47:14][INFO][S2_EXTRACT] Querying MKT_OFF (db=PRD_MDP, brand_col=MARCA)...
+[2026-06-29 01:47:17][INFO][S2_EXTRACT]   MKT_OFF: 110 distinct raw_variant rows.
+[2026-06-29 01:47:17][INFO][S2_EXTRACT] Querying IBP (db=PRD_MDP, brand_col=MARCA)...
+[2026-06-29 01:47:18][INFO][S2_EXTRACT]   IBP: 23 distinct raw_variant rows.
+[2026-06-29 01:47:18][INFO][S2_EXTRACT] Querying WASTE (db=PRD_MDP, brand_col=MARCA)...
+[2026-06-29 01:47:20][INFO][S2_EXTRACT]   WASTE: 23 distinct raw_variant rows.
+[2026-06-29 01:47:20][INFO][S2_EXTRACT] Querying NIELSEN_EDP (db=PRD_MEX, brand_col=INP_56985)...
+[2026-06-29 01:47:21][WARNING][S2_EXTRACT]   NIELSEN_EDP: Query FAILED -- An error occurred while calling o607.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 7 at position 44
+invalid identifier 'HIERARCHY_LEVEL'
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-29 01:47:21][WARNING][S2_EXTRACT] Source NIELSEN_EDP query failed: An error occurred while calling o607.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 7 at position 44
+invalid identifier 'HIERARCHY_LEVEL'
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-29 01:47:21][INFO][S2_EXTRACT] Querying NIELSEN_PB (db=PRD_MEX, brand_col=INP_56985)...
+[2026-06-29 01:47:23][INFO][S2_EXTRACT]   NIELSEN_PB: 77 distinct raw_variant rows.
+[2026-06-29 01:47:23][INFO][S2_EXTRACT] Querying NIELSEN_WATER_ST (db=PRD_MEX, brand_col=CSTM_310589)...
+[2026-06-29 01:47:24][WARNING][S2_EXTRACT]   NIELSEN_WATER_ST: Query FAILED -- An error occurred while calling o639.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 7 at position 46
+invalid identifier 'HIERARCHY_LEVEL'
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-29 01:47:24][WARNING][S2_EXTRACT] Source NIELSEN_WATER_ST query failed: An error occurred while calling o639.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 7 at position 46
+invalid identifier 'HIERARCHY_LEVEL'
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-29 01:47:24][INFO][S2_EXTRACT] Querying NIELSEN_WATER_RT (db=PRD_MEX, brand_col=CSTM_310589)...
+[2026-06-29 01:47:25][WARNING][S2_EXTRACT]   NIELSEN_WATER_RT: Query FAILED -- An error occurred while calling o655.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 3 at position 34
+invalid identifier 'PRDC_CD'
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-29 01:47:25][WARNING][S2_EXTRACT] Source NIELSEN_WATER_RT query failed: An error occurred while calling o655.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 3 at position 34
+invalid identifier 'PRDC_CD'
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-29 01:47:38][INFO][S2_EXTRACT] Total raw variant rows (all sources): 442
+[2026-06-29 01:47:42][INFO][S2_EXTRACT]   IBP                [MARCA           ] ->    23 distinct variants
+[2026-06-29 01:47:42][INFO][S2_EXTRACT]   MKT_OFF            [MARCA           ] ->   110 distinct variants
+[2026-06-29 01:47:42][INFO][S2_EXTRACT]   MKT_ON             [MARCA           ] ->    34 distinct variants
+[2026-06-29 01:47:42][INFO][S2_EXTRACT]   NIELSEN_PB         [INP_56985       ] ->    77 distinct variants
+[2026-06-29 01:47:42][INFO][S2_EXTRACT]   SELL_IN            [LV2_UMB_BRD_DSC ] ->   129 distinct variants
+[2026-06-29 01:47:42][INFO][S2_EXTRACT]   SELL_OUT           [BRAND           ] ->    42 distinct variants
+[2026-06-29 01:47:42][INFO][S2_EXTRACT]   WASTE              [MARCA           ] ->    23 distinct variants
+[2026-06-29 01:47:42][INFO][S2_EXTRACT] Section 2 complete.
+[2026-06-29 01:47:42][INFO][S3_CLASSIFY] ======================================================================
+[2026-06-29 01:47:42][INFO][S3_CLASSIFY] APPLY CROSSWALK + CLASSIFY BRAND VARIANTS
+[2026-06-29 01:47:48][INFO][S3_CLASSIFY] Classification summary:
+[2026-06-29 01:47:48][INFO][S3_CLASSIFY]   CONFIRMED                                :    300 rows
+[2026-06-29 01:47:48][INFO][S3_CLASSIFY]   UNMAPPED_COMPETITOR_OR_UNKNOWN           :    142 rows
+[2026-06-29 01:47:48][INFO][S3_CLASSIFY] Section 3 complete.
+[2026-06-29 01:47:49][INFO][S4_COVERAGE] ======================================================================
+[2026-06-29 01:47:49][INFO][S4_COVERAGE] PER-SOURCE COVERAGE REPORT + VALIDATION GATES
+[2026-06-29 01:47:49][INFO][S4_COVERAGE] Coverage gate: 97.2% CONFIRMED per source (warn, not blocker)
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] 
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] COVERAGE TABLE (97.2% gate):
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] --------------------------------------------------------------------------------------
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] Source             | BrandCol         |  Total | Confirmed | Unmapped |  Cover% | Gate
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] --------------------------------------------------------------------------------------
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] IBP                | MARCA            |     23 |        23 |        0 |  100.0% | OK
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] MKT_OFF            | MARCA            |    110 |        66 |       44 |   60.0% | WARN
+[2026-06-29 01:47:53][WARNING][S4_COVERAGE] MKT_OFF: coverage 60.0% < 97.2% gate. unmapped_likely_danone=0. Add missing brands to configs/brand_crosswalk.yaml.
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] MKT_ON             | MARCA            |     34 |        34 |        0 |  100.0% | OK
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] NIELSEN_PB         | INP_56985        |     77 |         4 |       73 |    5.2% | WARN
+[2026-06-29 01:47:53][WARNING][S4_COVERAGE] NIELSEN_PB: coverage 5.2% < 97.2% gate. unmapped_likely_danone=0. Add missing brands to configs/brand_crosswalk.yaml.
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] SELL_IN            | LV2_UMB_BRD_DSC  |    129 |       117 |       16 |   90.7% | WARN
+[2026-06-29 01:47:53][WARNING][S4_COVERAGE] SELL_IN: coverage 90.7% < 97.2% gate. unmapped_likely_danone=0. Add missing brands to configs/brand_crosswalk.yaml.
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] SELL_OUT           | BRAND            |     42 |        33 |        9 |   78.6% | WARN
+[2026-06-29 01:47:53][WARNING][S4_COVERAGE] SELL_OUT: coverage 78.6% < 97.2% gate. unmapped_likely_danone=0. Add missing brands to configs/brand_crosswalk.yaml.
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] WASTE              | MARCA            |     23 |        23 |        0 |  100.0% | OK
+[2026-06-29 01:47:53][INFO][S4_COVERAGE] --------------------------------------------------------------------------------------
+[2026-06-29 01:47:54][PASS][S4_COVERAGE] No UNMAPPED_LIKELY_DANONE variants detected. Crosswalk is complete for Danone brands.
+[2026-06-29 01:47:54][INFO][S4_COVERAGE] 
+[2026-06-29 01:47:54][INFO][S4_COVERAGE] COLUMN VERIFICATION TABLE (confirmed brand columns per Plan A15):
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   Source             | Source Table                                         | Brand Column     | Confirmed
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   ---------------------------------------------------------------------------------------------------------
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   SELL_IN            | PRD_MEX.MEX_DSP_OTC.V_D_ITEM                         | LV2_UMB_BRD_DSC  | YES
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   SELL_OUT           | PRD_MDP.MDP_DSP.VW_D_PRODUCT_RM                      | BRAND            | YES
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   MKT_ON             | PRD_MDP.MDP_DSP.VW_MKT_ECOMM                         | MARCA            | YES
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   MKT_OFF            | PRD_MDP.MDP_STG.FACT_MEDIA_OFF                       | MARCA            | YES
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   IBP                | PRD_MDP.MDP_DSP.VW_FACT_DANONE_IBP                   | MARCA            | YES
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   WASTE              | PRD_MDP.MDP_STG.VW_WASTE                             | MARCA            | YES
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   NIELSEN_EDP        | PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_..._PROD_DIM       | INP_56985        | YES (lvl 11)
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   NIELSEN_PB         | PRD_MEX.MEX_DSP_DPH_MKT.VW_SUST_..._PROD_DIM         | INP_56985        | YES
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   NIELSEN_WATER_ST   | PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_..._ST_PROD_DIM       | CSTM_310589      | YES (lvl 11)
+[2026-06-29 01:47:54][INFO][S4_COVERAGE]   NIELSEN_WATER_RT   | PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_..._RT_PROD_DIM       | CSTM_310589      | YES (lvl 9)
+[2026-06-29 01:48:09][INFO][S4_COVERAGE] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/marca/marca_source_summary.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/marca_source_summary.csv
+[2026-06-29 01:48:10][INFO][S4_COVERAGE] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/marca/by_source/IBP_brand_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/IBP_brand_profile.csv
+[2026-06-29 01:48:12][INFO][S4_COVERAGE] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/marca/by_source/MKT_OFF_brand_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/MKT_OFF_brand_profile.csv
+[2026-06-29 01:48:13][INFO][S4_COVERAGE] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/marca/by_source/MKT_ON_brand_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/MKT_ON_brand_profile.csv
+[2026-06-29 01:48:15][INFO][S4_COVERAGE] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/marca/by_source/NIELSEN_PB_brand_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/NIELSEN_PB_brand_profile.csv
+[2026-06-29 01:48:16][INFO][S4_COVERAGE] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/marca/by_source/SELL_IN_brand_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/SELL_IN_brand_profile.csv
+[2026-06-29 01:48:18][INFO][S4_COVERAGE] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/marca/by_source/SELL_OUT_brand_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/SELL_OUT_brand_profile.csv
+[2026-06-29 01:48:19][INFO][S4_COVERAGE] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/marca/by_source/WASTE_brand_profile.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/WASTE_brand_profile.csv
+[2026-06-29 01:48:19][INFO][S4_COVERAGE] Section 4 complete.
+[2026-06-29 01:48:19][INFO][S5_BUILD_CATALOG] ======================================================================
+[2026-06-29 01:48:19][INFO][S5_BUILD_CATALOG] BUILD cat_marca.csv + cat_marca_unmapped.csv
+[2026-06-29 01:48:22][INFO][S5_BUILD_CATALOG] cat_marca.csv: 300 CONFIRMED rows promoted.
+[2026-06-29 01:48:27][INFO][S5_BUILD_CATALOG] cat_marca_unmapped.csv: 142 UNMAPPED rows.
+[2026-06-29 01:48:31][INFO][S5_BUILD_CATALOG] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/marca/cat_marca.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/cat_marca.csv
+[2026-06-29 01:48:33][INFO][S5_BUILD_CATALOG] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/marca/cat_marca_unmapped.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/cat_marca_unmapped.csv
+[2026-06-29 01:48:37][INFO][S5_BUILD_CATALOG] Saved -> DBFS: dbfs:/mnt/mdp/mdm/master_catalog/marca/cat_marca_unmapped_danone.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/catalog_eda/cat_marca_unmapped_danone.csv
+[2026-06-29 01:48:37][INFO][S5_BUILD_CATALOG] 300 confirmed MARCA mappings across 10 sources promoted to cat_marca.csv.
+[2026-06-29 01:48:37][INFO][S5_BUILD_CATALOG] Section 5 complete.
+[2026-06-29 01:48:37][INFO][S6_SUMMARY] ======================================================================
+[2026-06-29 01:48:37][INFO][S6_SUMMARY] MARCA CATALOG BUILD SUMMARY
+[2026-06-29 01:48:37][INFO][S6_SUMMARY] 
+======================================================================
+MARCA CATALOG BUILD SUMMARY  --  2026-06-29
+======================================================================
+Notebook:                    build_cat_marca v6.0.0
+Crosswalk entries loaded:    234
+Total raw variants scanned:  442
+CONFIRMED:                   300
+UNMAPPED_LIKELY_DANONE:      0  <- need crosswalk update
+UNMAPPED_COMPETITOR_OR_UNK:  142    <- review
+cat_marca.csv rows:          300
+cat_marca_unmapped.csv rows: 142
+cat_marca_unmapped_danone:   0  <- business review needed
+
+OUTPUT FILES:
+  dbfs:/mnt/mdp/mdm/master_catalog/marca/cat_marca.csv
+  dbfs:/mnt/mdp/mdm/master_catalog/marca/cat_marca_unmapped.csv
+  dbfs:/mnt/mdp/mdm/master_catalog/marca/cat_marca_unmapped_danone.csv
+  dbfs:/mnt/mdp/mdm/master_catalog/marca/marca_source_summary.csv
+  dbfs:/mnt/mdp/mdm/master_catalog/marca/by_source/<source>_brand_profile.csv  (10 files)
+  dbfs:/mnt/mdp/mdm/master_catalog/marca/build_cat_marca_report.txt
+
+EDA CORRECTIONS APPLIED:
+  Bug 1 FIXED: crosswalk extraction reads all sections+variants (234 entries, was ~6)
+  Bug 2 FIXED: stat_cod filter removed from all V_D_CLIENT queries (dirty field)
+  IBP filter:  NOMBRE_ETIQUETA = 'REAL' applied (removes forecast scenarios)
+  WASTE filter: FUENTE = 'TOPLINE' applied (removes non-topline entries)
+
+NEXT STEPS:
+  1. Review cat_marca_unmapped_danone.csv with business team
+  2. Add confirmed unmapped Danone brands to configs/brand_crosswalk.yaml
+  3. Re-run build_cat_marca.py to promote newly confirmed brands
+  4. When UNMAPPED_LIKELY_DANONE = 0 -> proceed to build_cat_canal.py
+======================================================================
+
+[2026-06-29 01:48:37][PASS][S6_SUMMARY] Notebook completed successfully. 300 MARCA mappings promoted.
+[2026-06-29 01:48:37][INFO][S6_SUMMARY] 7 warning(s) raised (non-blocking):
+[2026-06-29 01:48:37][WARNING][S6_SUMMARY]   [S2_EXTRACT] Source NIELSEN_EDP query failed: An error occurred while calling o607.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 7 at position 44
+invalid identifier 'HIERARCHY_LEVEL'
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-29 01:48:37][WARNING][S6_SUMMARY]   [S2_EXTRACT] Source NIELSEN_WATER_ST query failed: An error occurred while calling o639.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 7 at position 46
+invalid identifier 'HIERARCHY_LEVEL'
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-29 01:48:37][WARNING][S6_SUMMARY]   [S2_EXTRACT] Source NIELSEN_WATER_RT query failed: An error occurred while calling o655.load.
+: net.snowflake.client.jdbc.SnowflakeSQLException: SQL compilation error: error line 3 at position 34
+invalid identifier 'PRDC_CD'
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:170)
+	at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:103)
+	at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:501)
+	at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:407)
+	at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:498)
+	at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:215)
+	at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:149)
+	at net.snowflake.client.core.SFStatement.describe(SFStatement.java:170)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.describeSqlIfNotTried(SnowflakePreparedStatementV1.java:134)
+	at net.snowflake.client.jdbc.SnowflakePreparedStatementV1.getMetaData(SnowflakePreparedStatementV1.java:682)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaDataFromStatement(SnowflakeJDBCWrapper.scala:501)
+	at net.snowflake.spark.snowflake.DefaultJDBCWrapper$DataBaseOperations.tableMetaData(SnowflakeJDBCWrapper.scala:494)
+	at net.snowflake.spark.snowflake.JDBCWrapper.resolveTable(SnowflakeJDBCWrapper.scala:88)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.$anonfun$schema$1(SnowflakeRelation.scala:83)
+	at scala.Option.getOrElse(Option.scala:189)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema$lzycompute(SnowflakeRelation.scala:78)
+	at net.snowflake.spark.snowflake.SnowflakeRelation.schema(SnowflakeRelation.scala:77)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:537)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:394)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:350)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:350)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:236)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+
+[2026-06-29 01:48:37][WARNING][S6_SUMMARY]   [S4_COVERAGE] MKT_OFF: coverage 60.0% < 97.2% gate. unmapped_likely_danone=0. Add missing brands to configs/brand_crosswalk.yaml.
+[2026-06-29 01:48:37][WARNING][S6_SUMMARY]   [S4_COVERAGE] NIELSEN_PB: coverage 5.2% < 97.2% gate. unmapped_likely_danone=0. Add missing brands to configs/brand_crosswalk.yaml.
+[2026-06-29 01:48:37][WARNING][S6_SUMMARY]   [S4_COVERAGE] SELL_IN: coverage 90.7% < 97.2% gate. unmapped_likely_danone=0. Add missing brands to configs/brand_crosswalk.yaml.
+[2026-06-29 01:48:37][WARNING][S6_SUMMARY]   [S4_COVERAGE] SELL_OUT: coverage 78.6% < 97.2% gate. unmapped_likely_danone=0. Add missing brands to configs/brand_crosswalk.yaml.

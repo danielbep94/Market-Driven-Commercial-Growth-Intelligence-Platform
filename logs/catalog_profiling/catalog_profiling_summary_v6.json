@@ -3,81 +3,81 @@
   "run_date": "2026-06-29",
   "marca": {
     "total_raw_variants": 665,
-    "confirmed": 0,
-    "unmapped": 665,
-    "coverage_pct": 0.0,
+    "confirmed": 199,
+    "unmapped": 466,
+    "coverage_pct": 29.92,
     "by_source": {
       "IBP": {
         "total_variants": 23,
-        "confirmed": 0,
-        "unmapped": 23,
-        "coverage_pct": 0.0
+        "confirmed": 23,
+        "unmapped": 0,
+        "coverage_pct": 100.0
       },
       "MKT_OFF": {
         "total_variants": 101,
-        "confirmed": 0,
-        "unmapped": 101,
-        "coverage_pct": 0.0
+        "confirmed": 60,
+        "unmapped": 41,
+        "coverage_pct": 59.41
       },
       "MKT_ON": {
         "total_variants": 32,
-        "confirmed": 0,
-        "unmapped": 32,
-        "coverage_pct": 0.0
+        "confirmed": 32,
+        "unmapped": 0,
+        "coverage_pct": 100.0
       },
       "NIELSEN_EDP": {
         "total_variants": 219,
-        "confirmed": 0,
-        "unmapped": 219,
-        "coverage_pct": 0.0
+        "confirmed": 18,
+        "unmapped": 201,
+        "coverage_pct": 8.22
       },
       "NIELSEN_PB": {
         "total_variants": 77,
-        "confirmed": 0,
-        "unmapped": 77,
-        "coverage_pct": 0.0
+        "confirmed": 4,
+        "unmapped": 73,
+        "coverage_pct": 5.19
       },
       "NIELSEN_WATER_RT": {
         "total_variants": 160,
-        "confirmed": 0,
-        "unmapped": 160,
-        "coverage_pct": 0.0
+        "confirmed": 9,
+        "unmapped": 151,
+        "coverage_pct": 5.63
       },
       "NIELSEN_WATER_ST": {
         "total_variants": 140,
-        "confirmed": 0,
-        "unmapped": 140,
-        "coverage_pct": 0.0
+        "confirmed": 8,
+        "unmapped": 132,
+        "coverage_pct": 5.71
       },
       "SELL_IN": {
         "total_variants": 129,
-        "confirmed": 0,
-        "unmapped": 129,
-        "coverage_pct": 0.0
+        "confirmed": 113,
+        "unmapped": 16,
+        "coverage_pct": 87.6
       },
       "SELL_OUT": {
         "total_variants": 42,
-        "confirmed": 0,
-        "unmapped": 42,
-        "coverage_pct": 0.0
+        "confirmed": 33,
+        "unmapped": 9,
+        "coverage_pct": 78.57
       },
       "WASTE": {
         "total_variants": 26,
-        "confirmed": 0,
-        "unmapped": 26,
-        "coverage_pct": 0.0
+        "confirmed": 26,
+        "unmapped": 0,
+        "coverage_pct": 100.0
       }
     }
   },
   "canal": {
-    "sell_in_d1_winner": "cus_grn_chl_dsc",
-    "sell_in_d1_score": 0.0,
+    "sell_in_d1_winner": "lv6_hie_cus_dsc",
+    "sell_in_d1_score": 5.8334,
     "sell_out_d1_winner": "FORMAT",
     "sell_out_d1_score": 4.4659,
     "ibp_gran_canal_distinct": 3,
     "sell_out_format_distinct": 86,
     "waste_canal_distinct": 1,
-    "ibp_sellin_gc_overlap_pct": 0.0
+    "ibp_sellin_gc_overlap_pct": 40.0
   },
   "market": {
     "total_distinct_mrkt_keys": 362,
@@ -98,23 +98,19 @@
     "p1_match_rate_pct": 88.54
   },
   "run_metadata": {
-    "hard_blocker_count": 11,
-    "warning_count": 2,
+    "hard_blocker_count": 8,
+    "warning_count": 1,
     "blockers": [
-      "[S1_MARCA] Brand coverage for IBP = 0.00% < 97.2% threshold. Unmapped variants: 23. MDM enrichment blocked.",
-      "[S1_MARCA] Brand coverage for MKT_OFF = 0.00% < 97.2% threshold. Unmapped variants: 101. MDM enrichment blocked.",
-      "[S1_MARCA] Brand coverage for MKT_ON = 0.00% < 97.2% threshold. Unmapped variants: 32. MDM enrichment blocked.",
-      "[S1_MARCA] Brand coverage for NIELSEN_EDP = 0.00% < 97.2% threshold. Unmapped variants: 219. MDM enrichment blocked.",
-      "[S1_MARCA] Brand coverage for NIELSEN_PB = 0.00% < 97.2% threshold. Unmapped variants: 77. MDM enrichment blocked.",
-      "[S1_MARCA] Brand coverage for NIELSEN_WATER_RT = 0.00% < 97.2% threshold. Unmapped variants: 160. MDM enrichment blocked.",
-      "[S1_MARCA] Brand coverage for NIELSEN_WATER_ST = 0.00% < 97.2% threshold. Unmapped variants: 140. MDM enrichment blocked.",
-      "[S1_MARCA] Brand coverage for SELL_IN = 0.00% < 97.2% threshold. Unmapped variants: 129. MDM enrichment blocked.",
-      "[S1_MARCA] Brand coverage for SELL_OUT = 0.00% < 97.2% threshold. Unmapped variants: 42. MDM enrichment blocked.",
-      "[S1_MARCA] Brand coverage for WASTE = 0.00% < 97.2% threshold. Unmapped variants: 26. MDM enrichment blocked.",
+      "[S1_MARCA] Brand coverage for MKT_OFF = 59.41% < 97.2% threshold. Unmapped variants: 41. MDM enrichment blocked.",
+      "[S1_MARCA] Brand coverage for NIELSEN_EDP = 8.22% < 97.2% threshold. Unmapped variants: 201. MDM enrichment blocked.",
+      "[S1_MARCA] Brand coverage for NIELSEN_PB = 5.19% < 97.2% threshold. Unmapped variants: 73. MDM enrichment blocked.",
+      "[S1_MARCA] Brand coverage for NIELSEN_WATER_RT = 5.63% < 97.2% threshold. Unmapped variants: 151. MDM enrichment blocked.",
+      "[S1_MARCA] Brand coverage for NIELSEN_WATER_ST = 5.71% < 97.2% threshold. Unmapped variants: 132. MDM enrichment blocked.",
+      "[S1_MARCA] Brand coverage for SELL_IN = 87.60% < 97.2% threshold. Unmapped variants: 16. MDM enrichment blocked.",
+      "[S1_MARCA] Brand coverage for SELL_OUT = 78.57% < 97.2% threshold. Unmapped variants: 9. MDM enrichment blocked.",
       "[S4_UPC] SAP V_D_ITEM has 1,057 rows with NULL SKU_EAN_COD. Danone products without EAN cannot participate in the P0 UPC bridge. Investigate."
     ],
     "warnings": [
-      "[S2_CANAL] No rows with stat_cod='A' found in V_D_CLIENT. Active filter assumption may be wrong.",
       "[S2_CANAL] SELL_OUT SUBCHAIN null rate = 33.33% > 30% -- unreliable for D1 profiling."
     ]
   }

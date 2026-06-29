@@ -626,11 +626,11 @@ log("WARN", "stat_cod filter removed per EDA finding 2026-06-29. Field is dirty 
 log("INFO", "stat_cod distribution logged above. No active filter applied.", SECTION)
 
 # D1 scoring: load flat active rows
+# stat_cod filter REMOVED: dirty field (INACTIVO/ACTIVO/0/1/2/3 mixed). Full dataset used.
 log("INFO", "Loading flat active V_D_CLIENT rows for D1 scoring...", SECTION)
 df_client_flat = run_sf(DB_PRD_MEX, """
     SELECT cus_grn_chl_dsc, lv6_hie_cus_dsc, cus_chl_are_dsc
     FROM PRD_MEX.MEX_DSP_OTC.V_D_CLIENT
-    -- stat_cod filter REMOVED: dirty field (INACTIVO/ACTIVO/0/1/2/3 mixed). Full dataset used.
 """)
 df_client_flat.cache()
 si_flat_total = df_client_flat.count()

@@ -1,0 +1,8 @@
+source_system,source_column,total_variants,confirmed,unmapped,unmapped_likely_danone,unmapped_competitor,total_grain_records,coverage_pct
+IBP,MARCA,23,23,0,0,0,985464,100.0
+MKT_OFF,MARCA,110,66,44,0,44,646411,60.0
+MKT_ON,MARCA,34,34,0,0,0,72077,100.0
+NIELSEN_PB,INP_56985,77,4,73,0,73,496,5.19
+SELL_IN,LV2_UMB_BRD_DSC,129,117,16,0,16,5466,90.7
+SELL_OUT,BRAND,42,33,9,0,9,1953,78.57
+WASTE,MARCA,23,23,0,0,0,5990364,100.0
