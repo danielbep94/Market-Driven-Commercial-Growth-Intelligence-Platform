@@ -1,0 +1,93 @@
+source_system,source_column,canal_raw,canal_raw_norm,canal_level,gran_canal_grp,canal_type,promoted,business_rule,confirmation_status,notes
+IBP,GRAN_CANAL,UTT,UTT,L1_GRAN_CANAL,UTT,COMMERCIAL_CHANNEL,YES,Modern_trade,CONFIRMED,IBP planning channel — Unidad de Tiendas Tradicionales
+IBP,GRAN_CANAL,DTT,DTT,L1_GRAN_CANAL,DTT,COMMERCIAL_CHANNEL,YES,Proximity_traditional,CONFIRMED,IBP planning channel — Distribución Tradicional
+IBP,GRAN_CANAL,CAM,CAM,L1_GRAN_CANAL,CAM,COMMERCIAL_CHANNEL,YES,Central_america_planning,CONFIRMED,IBP planning-only channel — Central America export scope
+SELL_IN,cus_grn_chl_dsc,UTT,UTT,L1_GRAN_CANAL,UTT,COMMERCIAL_CHANNEL,YES,Modern_trade,CONFIRMED,SELL_IN transactional channel — aligns with IBP UTT
+SELL_IN,cus_grn_chl_dsc,DTT,DTT,L1_GRAN_CANAL,DTT,COMMERCIAL_CHANNEL,YES,Proximity_traditional,CONFIRMED,SELL_IN transactional channel — aligns with IBP DTT
+SELL_IN,cus_grn_chl_dsc,NA,NA,L1_GRAN_CANAL,UNKNOWN,COMMERCIAL_CHANNEL,NO,Unclassified,EXCLUDED,Unclassified SELL_IN channel — excluded from promoted catalog
+SELL_OUT,FORMAT,7E-7ELEVEN,7E-7ELEVEN,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven convenience — proximity/traditional trade channel
+SELL_OUT,FORMAT,7E-AEROPUERTO,7E-AEROPUERTO,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven airport — location does not change convenience channel nature
+SELL_OUT,FORMAT,7E-AEROPUERTO PREMIUM,7E-AEROPUERTO PREMIUM,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven airport premium — same as 7E-AEROPUERTO
+SELL_OUT,FORMAT,7E-CAMPUS,7E-CAMPUS,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven campus — convenience channel
+SELL_OUT,FORMAT,7E-CARRETERA,7E-CARRETERA,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven highway — convenience channel
+SELL_OUT,FORMAT,7E-CENTRO,7E-CENTRO,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven city center — convenience channel
+SELL_OUT,FORMAT,7E-HABITACIONAL AB,7E-HABITACIONAL AB,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven residential AB — convenience channel
+SELL_OUT,FORMAT,7E-HABITACIONAL C,7E-HABITACIONAL C,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven residential C — convenience channel
+SELL_OUT,FORMAT,7E-PEATONAL,7E-PEATONAL,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven pedestrian — convenience channel
+SELL_OUT,FORMAT,7E-PLAZA COMERCIAL,7E-PLAZA COMERCIAL,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven commercial plaza — convenience channel
+SELL_OUT,FORMAT,7E-SUPERPREMIUM,7E-SUPERPREMIUM,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven super premium — convenience channel
+SELL_OUT,FORMAT,7E-TRAFICO,7E-TRAFICO,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven high traffic — convenience channel
+SELL_OUT,FORMAT,7E-TURISTAS,7E-TURISTAS,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven tourist — convenience channel
+SELL_OUT,FORMAT,7E-ZONA DE PROXIMIDAD,7E-ZONA DE PROXIMIDAD,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,7-Eleven proximity zone — convenience channel
+SELL_OUT,FORMAT,CALMAX,CALMAX,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_regional,CONFIRMED,Calmax regional supermarket — organized trade
+SELL_OUT,FORMAT,CASH AND CARRY,CASH AND CARRY,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_b2b_replenishment,CONFIRMED_RECOMMENDED,"Recommended DTT: proximity/high-frequency B2B replenishment; not aligned with centralized Modern Trade logistics; final business approval recommended"
+SELL_OUT,FORMAT,CCF-CEDIS,CCF-CEDIS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_distribution,CONFIRMED,CCF distribution center — organized trade logistics
+SELL_OUT,FORMAT,CCF-CITY MARKET,CCF-CITY MARKET,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,CCF City Market — Modern Trade premium format
+SELL_OUT,FORMAT,CCF-ECOMMERCE,CCF-ECOMMERCE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,CCF e-commerce — centralized commercial agreements; Modern Trade distribution and pricing
+SELL_OUT,FORMAT,CCF-FRESKO,CCF-FRESKO,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,CCF Fresko — Modern Trade premium supermarket
+SELL_OUT,FORMAT,CCF-LA COMER,CCF-LA COMER,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_hypermarket,CONFIRMED,La Comer — Modern Trade hypermarket
+SELL_OUT,FORMAT,CCF-SUMESA,CCF-SUMESA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,CCF Sumesa — Modern Trade supermarket
+SELL_OUT,FORMAT,CH-CEDIS,CH-CEDIS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_distribution,CONFIRMED,Chedraui distribution center — organized trade logistics
+SELL_OUT,FORMAT,CH-DARK STORE,CH-DARK STORE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Chedraui dark store — e-commerce fulfillment under Modern Trade
+SELL_OUT,FORMAT,CH-ECOMMERCE,CH-ECOMMERCE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Chedraui e-commerce — Modern Trade digital channel
+SELL_OUT,FORMAT,CH-SELECTO,CH-SELECTO,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Chedraui Selecto — premium Modern Trade format
+SELL_OUT,FORMAT,CH-SUPERCHE,CH-SUPERCHE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_hypermarket,CONFIRMED,Chedraui Superche — hypermarket format
+SELL_OUT,FORMAT,CH-SUPERCITO,CH-SUPERCITO,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Chedraui Supercito — supermarket format
+SELL_OUT,FORMAT,CH-TIENDAS,CH-TIENDAS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Chedraui stores — organized trade
+SELL_OUT,FORMAT,CITY CLUB,CITY CLUB,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_club,CONFIRMED,City Club warehouse — organized trade club format
+SELL_OUT,FORMAT,CL-ALAMODA,CL-ALAMODA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,La Comer Alamoda — Modern Trade format
+SELL_OUT,FORMAT,CL-CEDIS,CL-CEDIS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_distribution,CONFIRMED,La Comer distribution center — organized trade
+SELL_OUT,FORMAT,CL-ECOMMERCE,CL-ECOMMERCE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,La Comer e-commerce — Modern Trade digital
+SELL_OUT,FORMAT,CL-EXPRESS,CL-EXPRESS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,La Comer Express — organized trade proximity format
+SELL_OUT,FORMAT,CL-FIESTA,CL-FIESTA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Fiesta (La Comer group) — Modern Trade
+SELL_OUT,FORMAT,CL-FRESH,CL-FRESH,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,La Comer Fresh — premium Modern Trade format
+SELL_OUT,FORMAT,CL-SUPER,CL-SUPER,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,La Comer Super — Modern Trade supermarket
+SELL_OUT,FORMAT,CM-AL PRECIO,CM-AL PRECIO,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_discount,CONFIRMED,Comercial Mexicana Al Precio — discount Modern Trade format
+SELL_OUT,FORMAT,CM-BODEGA,CM-BODEGA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_discount,CONFIRMED,Comercial Mexicana Bodega — discount organized trade
+SELL_OUT,FORMAT,CM-CEDIS,CM-CEDIS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_distribution,CONFIRMED,Comercial Mexicana distribution center
+SELL_OUT,FORMAT,CM-COMERCIAL MEXICANA,CM-COMERCIAL MEXICANA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_hypermarket,CONFIRMED,Comercial Mexicana — Modern Trade hypermarket
+SELL_OUT,FORMAT,CM-MEGA,CM-MEGA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_hypermarket,CONFIRMED,Mega (Comercial Mexicana group) — Modern Trade hypermarket
+SELL_OUT,FORMAT,CORNERSHOP,CORNERSHOP,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Cornershop delivery — e-commerce under Modern Trade
+SELL_OUT,FORMAT,COSTCO,COSTCO,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_club,CONFIRMED,Costco warehouse club — organized trade
+SELL_OUT,FORMAT,COSTCO-ECOMMERCE,COSTCO-ECOMMERCE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Costco e-commerce — Modern Trade digital channel
+SELL_OUT,FORMAT,CX-ECOMMERCE,CX-ECOMMERCE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,CX e-commerce — centralized commercial agreements; Modern Trade distribution and pricing
+SELL_OUT,FORMAT,FU-AL SUPER STORE,FU-AL SUPER STORE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Futurama Al Super Store — Modern Trade supermarket
+SELL_OUT,FORMAT,FU-ALSUPER,FU-ALSUPER,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Alsuper — Modern Trade supermarket
+SELL_OUT,FORMAT,FU-ALSUPER DIFERENCIADO,FU-ALSUPER DIFERENCIADO,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Alsuper Diferenciado — premium Modern Trade format
+SELL_OUT,FORMAT,FU-ALSUPER EXPRESS,FU-ALSUPER EXPRESS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Alsuper Express — Modern Trade proximity within organized trade
+SELL_OUT,FORMAT,FU-ALSUPER STORE PLUS,FU-ALSUPER STORE PLUS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Alsuper Store Plus — Modern Trade
+SELL_OUT,FORMAT,FU-CEDIS,FU-CEDIS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_distribution,CONFIRMED,Futurama distribution center — organized trade logistics
+SELL_OUT,FORMAT,FU-ECOMMERCE,FU-ECOMMERCE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Futurama e-commerce — Modern Trade digital
+SELL_OUT,FORMAT,FU-FRESH MARKET,FU-FRESH MARKET,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Futurama Fresh Market — premium Modern Trade format
+SELL_OUT,FORMAT,FU-MAYOREOS,FU-MAYOREOS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_wholesale,CONFIRMED,Futurama Mayoreos — wholesale organized trade
+SELL_OUT,FORMAT,HEB,HEB,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_regional,CONFIRMED,HEB regional supermarket — organized trade (NE Mexico)
+SELL_OUT,FORMAT,HEB-CEDIS,HEB-CEDIS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_distribution,CONFIRMED,HEB distribution center — organized trade
+SELL_OUT,FORMAT,HEB-ECOMMERCE,HEB-ECOMMERCE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,HEB e-commerce — Modern Trade digital
+SELL_OUT,FORMAT,HEB-MI TIENDA,HEB-MI TIENDA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_regional,CONFIRMED,HEB Mi Tienda — smaller HEB format; organized trade
+SELL_OUT,FORMAT,JUSTO,JUSTO,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Justo online supermarket — e-commerce under Modern Trade
+SELL_OUT,FORMAT,JUSTO-ECOMMERCE,JUSTO-ECOMMERCE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Justo e-commerce — Modern Trade digital channel
+SELL_OUT,FORMAT,OXXO,OXXO,L1_FORMAT,DTT,RETAIL_FORMAT,YES,Proximity_convenience,CONFIRMED,OXXO (FEMSA) — Mexico largest convenience/proximity channel
+SELL_OUT,FORMAT,PURE PLAYER,PURE PLAYER,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Pure player e-commerce — centralized distribution aligned with Modern Trade
+SELL_OUT,FORMAT,RAPPI,RAPPI,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Rappi delivery — e-commerce platform under Modern Trade taxonomy
+SELL_OUT,FORMAT,SAMS CLUB,SAMS CLUB,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_club,CONFIRMED,Sams Club (Walmart group) — warehouse club organized trade
+SELL_OUT,FORMAT,SAMS-CEDIS,SAMS-CEDIS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_distribution,CONFIRMED,Sams Club distribution center — organized trade
+SELL_OUT,FORMAT,SAMS-ECOMMERCE,SAMS-ECOMMERCE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Sams Club e-commerce — Modern Trade digital
+SELL_OUT,FORMAT,SO-CEDIS,SO-CEDIS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_distribution,CONFIRMED,Soriana distribution center — organized trade logistics
+SELL_OUT,FORMAT,SO-CITY CLUB,SO-CITY CLUB,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_club,CONFIRMED,Soriana City Club — organized/Modern Trade club format
+SELL_OUT,FORMAT,SO-ECOMMERCE,SO-ECOMMERCE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Soriana e-commerce — Modern Trade digital
+SELL_OUT,FORMAT,SO-EXPRESS,SO-EXPRESS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Soriana Express — organized trade; supply chain follows Modern Trade logic
+SELL_OUT,FORMAT,SO-HIPERMERCADOS,SO-HIPERMERCADOS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_hypermarket,CONFIRMED,Soriana Hipermercados — Modern Trade hypermarket
+SELL_OUT,FORMAT,SO-MEGA,SO-MEGA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_hypermarket,CONFIRMED,Soriana Mega — Modern Trade hypermarket
+SELL_OUT,FORMAT,SO-MERCADOS,SO-MERCADOS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Soriana Mercados — Modern Trade supermarket
+SELL_OUT,FORMAT,SO-SUPER,SO-SUPER,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Soriana Super — Modern Trade supermarket
+SELL_OUT,FORMAT,SO-SUPER CITY,SO-SUPER CITY,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Soriana Super City — Modern Trade supermarket
+SELL_OUT,FORMAT,TOTAL SORIANA,TOTAL SORIANA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_hypermarket,CONFIRMED,Soriana aggregate — Modern Trade
+SELL_OUT,FORMAT,WM-BOD AURRERA EXPRESS,WM-BOD AURRERA EXPRESS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_discount,CONFIRMED,Bodega Aurrera Express (Walmart) — organized trade discount format
+SELL_OUT,FORMAT,WM-BODEGA AURRERA,WM-BODEGA AURRERA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_discount,CONFIRMED,Bodega Aurrera (Walmart) — Modern Trade discount hypermarket
+SELL_OUT,FORMAT,WM-CEDIS,WM-CEDIS,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_distribution,CONFIRMED,Walmart distribution center — organized trade logistics
+SELL_OUT,FORMAT,WM-ECOMMERCE,WM-ECOMMERCE,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_ecommerce,CONFIRMED,Walmart e-commerce — Modern Trade digital channel
+SELL_OUT,FORMAT,WM-MEDIMART,WM-MEDIMART,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Walmart Medimart — Modern Trade format
+SELL_OUT,FORMAT,WM-MI BODEGA AURRERA,WM-MI BODEGA AURRERA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_discount,CONFIRMED,Mi Bodega Aurrera (Walmart) — smaller discount format; organized trade
+SELL_OUT,FORMAT,WM-SUPER CENTER,WM-SUPER CENTER,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_hypermarket,CONFIRMED,Walmart Super Center — Modern Trade hypermarket flagship
+SELL_OUT,FORMAT,WM-SUPERAMA,WM-SUPERAMA,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_supermarket,CONFIRMED,Superama (Walmart) — premium Modern Trade supermarket
+SELL_OUT,FORMAT,ZORRO,ZORRO,L1_FORMAT,UTT,RETAIL_FORMAT,YES,Modern_trade_regional,CONFIRMED,Zorro regional supermarket — organized trade (NW Mexico)
