@@ -382,21 +382,17 @@ SOURCE_REGISTRY = [
     {
         "source": "NIELSEN_EDP", "db": DB_PRD_MEX, "brand_col": "INP_56985",
         "sql": """
-            -- Subquery required: Snowflake JDBC cannot resolve hierarchy_level in WHERE directly.
-            -- Filter applied after inner aggregation via alias hier_lvl.
-            SELECT raw_variant, brand_original, grain_count, source_column, source_system
-            FROM (
-                SELECT TRIM(UPPER(INP_56985))    AS raw_variant,
-                       INP_56985                 AS brand_original,
-                       COUNT(DISTINCT PRDC_CD)   AS grain_count,
-                       'INP_56985'               AS source_column,
-                       'NIELSEN_EDP'             AS source_system,
-                       hierarchy_level           AS hier_lvl
-                FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
-                WHERE INP_56985 IS NOT NULL
-                GROUP BY 1,2,6
-            ) t
-            WHERE hier_lvl = 11
+            -- hierarchy_level filter NOT applied here: MARCA extraction needs all brand names
+            -- regardless of hierarchy level. Deduplication handled by GROUP BY.
+            -- (hierarchy_level filter is only needed in build_cat_upc.py for P0 bridge)
+            SELECT TRIM(UPPER(INP_56985))    AS raw_variant,
+                   INP_56985                 AS brand_original,
+                   COUNT(*)                  AS grain_count,
+                   'INP_56985'               AS source_column,
+                   'NIELSEN_EDP'             AS source_system
+            FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IR_YOG_GEL_MT_NLSN_PROD_DIM
+            WHERE INP_56985 IS NOT NULL
+            GROUP BY 1,2
         """,
     },
     {
@@ -415,41 +411,30 @@ SOURCE_REGISTRY = [
     {
         "source": "NIELSEN_WATER_ST", "db": DB_PRD_MEX, "brand_col": "CSTM_310589",
         "sql": """
-            -- Subquery required: Snowflake JDBC cannot resolve hierarchy_level in WHERE directly.
-            SELECT raw_variant, brand_original, grain_count, source_column, source_system
-            FROM (
-                SELECT TRIM(UPPER(CSTM_310589))  AS raw_variant,
-                       CSTM_310589               AS brand_original,
-                       COUNT(DISTINCT PRDC_CD)   AS grain_count,
-                       'CSTM_310589'             AS source_column,
-                       'NIELSEN_WATER_ST'        AS source_system,
-                       hierarchy_level           AS hier_lvl
-                FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM
-                WHERE CSTM_310589 IS NOT NULL
-                GROUP BY 1,2,6
-            ) t
-            WHERE hier_lvl = 11
+            -- hierarchy_level filter removed: MARCA extraction only needs distinct brand names.
+            SELECT TRIM(UPPER(CSTM_310589))  AS raw_variant,
+                   CSTM_310589               AS brand_original,
+                   COUNT(*)                  AS grain_count,
+                   'CSTM_310589'             AS source_column,
+                   'NIELSEN_WATER_ST'        AS source_system
+            FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_PROD_DIM
+            WHERE CSTM_310589 IS NOT NULL
+            GROUP BY 1,2
         """,
     },
     {
         "source": "NIELSEN_WATER_RT", "db": DB_PRD_MEX, "brand_col": "CSTM_310589",
         "sql": """
-            -- Water Retail: PRDC_CD does not exist in this view (confirmed: hierarchy max = 9, presentation pack).
-            -- Grain = COUNT(*) at brand level. No UPC grain — MARCA only contribution.
-            -- Subquery used to filter hierarchy_level after aliasing.
-            SELECT raw_variant, brand_original, grain_count, source_column, source_system
-            FROM (
-                SELECT TRIM(UPPER(CSTM_310589))  AS raw_variant,
-                       CSTM_310589               AS brand_original,
-                       COUNT(*)                  AS grain_count,
-                       'CSTM_310589'             AS source_column,
-                       'NIELSEN_WATER_RT'        AS source_system,
-                       hierarchy_level           AS hier_lvl
-                FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM
-                WHERE CSTM_310589 IS NOT NULL
-                GROUP BY 1,2,6
-            ) t
-            WHERE hier_lvl = 9
+            -- hierarchy_level filter removed: MARCA extraction only needs distinct brand names.
+            -- PRDC_CD also removed: not available in Water Retail view (presentation pack only).
+            SELECT TRIM(UPPER(CSTM_310589))  AS raw_variant,
+                   CSTM_310589               AS brand_original,
+                   COUNT(*)                  AS grain_count,
+                   'CSTM_310589'             AS source_column,
+                   'NIELSEN_WATER_RT'        AS source_system
+            FROM PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_RT_NLSN_PROD_DIM
+            WHERE CSTM_310589 IS NOT NULL
+            GROUP BY 1,2
         """,
     },
 ]
