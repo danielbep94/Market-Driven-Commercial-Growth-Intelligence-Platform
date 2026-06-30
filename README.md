@@ -28,8 +28,8 @@ Build a unified **MDM Master Catalog Standardization** pipeline that bridges fiv
 | Phase 1 | Assessment & catalog extraction | ✅ Complete |
 | Phase 2 | MDM Sign-Off & data quality | ✅ Complete |
 | Phase 3 — Silver | All 5 standardization notebooks | ✅ Complete |
-| Phase 3 — Mappings | M1–M4 manual mappings | ✅ All CONFIRMED |
 | Phase 3 — Validation | `phase3_mdm_validation.py` | ✅ **🟢 GATE: CLEAR** (2026-06-27) |
+| Phase 4 — Master Catalogs | `cat_marca`, `cat_canal`, `cat_market` | ✅ Complete (UPC pending) |
 | Phase 4 — Gold KPI | `notebooks/phase4_gold/` (7 notebooks) | 🟡 In progress — commit 187fc77 |
 | Phase 5 | ML models | 🔲 Not started |
 
@@ -56,15 +56,10 @@ Market Growth Intelligence/
 │   └── ...
 │
 ├── logs/                                             # All notebook outputs (committed to repo)
-│   ├── sell_in_std.csv                               # 49,815 rows
-│   ├── sell_out_std.csv                              # 100,000 rows
-│   ├── nielsen_std.csv                               # 362 market strings
-│   ├── nielsen_facts_std.csv                         # ~1M fact rows
-│   ├── mkt_on_std.csv                                # 7,282 rows
-│   ├── mkt_off_std.csv                               # 100,000 rows
-│   ├── signoff_03_nielsen_markets.csv                # M1: 362/362 CONFIRMED
-│   ├── signoff_05_store_chain_classification.csv     # M3: 19/19 CONFIRMED
-│   ├── signoff_05_store_format_classification.csv    # M4: 86/86 CONFIRMED
+│   ├── catalog_eda/                                  # Catalog profiling and execution reports
+│   │   ├── build_cat_market_report.txt               # 100% coverage execution log for Market
+│   │   └── canal_dim_validation_report.txt           # Canal cross-validation log
+│   ├── signoff_03_nielsen_markets.csv                # M1: 473/473 CONFIRMED (moved to configs/catalog_seeds)
 │   ├── phase3_standardization_audit_log.txt          # Primary validation log ← read this
 │   ├── phase3_mapping_coverage_report.txt            # Coverage by dimension
 │   ├── phase3_null_rate_validation.txt               # NULL rates per column
@@ -72,6 +67,10 @@ Market Growth Intelligence/
 │   └── phase3_join_safety_assertions.txt             # A1–A3 JOIN_REGISTRY results
 │
 ├── notebooks/
+│   ├── master_catalog/                               # Phase 4 Master Catalog Builders
+│   │   ├── build_cat_canal.py                        # Builds dbfs:/mnt/mdp/mdm/master_catalog/canal/cat_canal.csv
+│   │   ├── build_cat_marca.py                        # Builds dbfs:/mnt/mdp/mdm/master_catalog/marca/cat_marca.csv
+│   │   └── build_cat_market.py                       # Builds dbfs:/mnt/mdp/mdm/master_catalog/market/cat_market.csv
 │   ├── phase2_mdm_signoff.py                         # Phase 2 (completed — do not modify)
 │   ├── phase3_mdm_validation.py                      # Master validation ← gate confirmed CLEAR
 │   └── phase3_silver/

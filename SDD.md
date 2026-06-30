@@ -1,9 +1,9 @@
 # Software Design Document — Market Driven Commercial Growth Intelligence Platform
 
-**Version:** 3.0  
-**Date:** 2026-06-27  
+**Version:** 3.1  
+**Date:** 2026-06-30  
 **Author:** MDM Project (Victor Hernandez)  
-**Status:** 🟡 Phase 4 Gold KPI — IN PROGRESS — commit 187fc77
+**Status:** 🟡 Phase 4 Master Catalogs — 3/4 Complete (UPC pending)
 
 ---
 
@@ -97,6 +97,27 @@ These are **PASS** in validation with `ARCHITECTURAL_EXEMPTION` label. Threshold
 |---|---|
 | R11 | Fuzzy matches are quarantine-only — PROHIBITED from auto-promotion to `*_std` outputs |
 | R12 | All mapping rules from YAML/CSV config — never hardcoded in SQL or Python |
+
+---
+
+## 4. Master Catalogs (Phase 4)
+
+The Master Catalogs form the foundational Semantic Layer of the platform, bridging all disparate dimensions into unified datasets. They are built incrementally using strict validation gates.
+
+| Catalog | Build Script | Status | DBFS Output Path |
+|---|---|---|---|
+| **Market** (`cat_market`) | `notebooks/master_catalog/build_cat_market.py` | ✅ Complete (100% coverage) | `dbfs:/mnt/mdp/mdm/master_catalog/market/cat_market.csv` |
+| **Canal** (`cat_canal`) | `notebooks/master_catalog/build_cat_canal.py` | ✅ Complete | `dbfs:/mnt/mdp/mdm/master_catalog/canal/cat_canal.csv` |
+| **Marca** (`cat_marca`) | `notebooks/master_catalog/build_cat_marca.py` | ✅ Complete | `dbfs:/mnt/mdp/mdm/master_catalog/marca/cat_marca.csv` |
+| **UPC/Product** (`cat_upc`) | Pending | 🔲 Not started | `dbfs:/mnt/mdp/mdm/master_catalog/upc/cat_upc.csv` |
+
+### Market Catalog (`cat_market`)
+- **Grain:** `source_cbu × mrkt_dsc_shrt_norm`
+- **Output:** 473 promoted records across EDP, WATER_ST, WATER_RT, and PB.
+- **Process:** Reads live Nielsen CBUs against the `configs/catalog_seeds/market/signoff_03_nielsen_markets.csv` governed seed. Validates against a closed catalog of 14 `canal_std` values and ensures the `region_type` hierarchy (NATIONAL, AREA, CITY, VDM) is fully populated without NULLs.
+
+### Canal Catalog (`cat_canal`)
+- **Process:** Built via `build_cat_canal.py`, this script extracts channel dimensions and ensures strict 1-to-1 mappings into the closed `canal_std` catalog. Validates integrity against `canal_unified_seed.csv` and profiles IBP, SELL_IN, and SELL_OUT channel hierarchies.
 
 ---
 
