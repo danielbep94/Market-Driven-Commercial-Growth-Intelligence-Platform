@@ -5,6 +5,10 @@
 
 # COMMAND ----------
 
+# MAGIC %run ./silver_homologation_apply
+
+# COMMAND ----------
+
 import datetime
 from pyspark.sql import functions as F, types as T
 
@@ -33,12 +37,12 @@ SQL_WASTE_SRC = """
 """
 
 try:
-    df_waste = spark.sql(SQL_WASTE_SRC)
+    # Use Snowflake pushdown instead of spark.sql (Unity Catalog is not enabled)
+    df_waste = run_sf(DB_PRD_MDP, SQL_WASTE_SRC)
     log("S1", f"Loaded raw waste data: {df_waste.count()} rows")
 except Exception as e:
-    log("S1", f"Failed to load raw waste data via direct spark.sql, assuming Snowflake wrapper needed: {e}", "WARNING")
-    # Stub for snowflake wrapper if it was present:
-    # df_waste = run_sf(SQL_WASTE_SRC, "PRD_MDP")
+    log("S1", f"Failed to load raw waste data via Snowflake wrapper: {e}", "BLOCKER")
+    raise e
 
 # Apply target enterprise hierarchy
 df_waste_mapped = (
