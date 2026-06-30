@@ -233,6 +233,9 @@ df_signoff = (
 _signoff_total = df_signoff.count()
 info("S0_SEED", f"Signoff seed loaded: {_signoff_total} rows")
 
+_cbu_counts = df_signoff.groupBy("NIELSEN_SOURCE_TABLE").count().collect()
+_cbu_summary = ", ".join([f"{r['NIELSEN_SOURCE_TABLE']} ({r['count']})" for r in _cbu_counts])
+
 # Gate M11 BLOCKER — no duplicate source-aware join keys
 _signoff_dup_count = df_signoff.groupBy("join_key").count().filter("count > 1").count()
 if _signoff_dup_count > 0:
@@ -391,35 +394,53 @@ else:
 # Gate M8 WARN — WATER_ST has no taxonomy
 warn("M8", "WATER_ST: all markets PENDING — is_total_mexico cannot be determined (governance debt)")
 
-# All WATER_ST rows are PENDING — no signoff join
-df_wst_joined = (
+# Standard join against the signoff seed (governance debt is now closed in seed)
+df_wst_norm = (
     df_wst_raw
     .withColumn("mrkt_dsc_shrt",        F.col("MRKT_DSC_SHRT"))
     .withColumn("mrkt_dsc_shrt_norm",   F.trim(F.upper(F.col("MRKT_DSC_SHRT"))))
     .withColumn("source_cbu",           F.lit("WATER_ST"))
     .withColumn("source_table",         F.lit("PRD_MEX.MEX_DSP_DPH_MKT.VW_IND_AGUA_BNF_ST_NLSN_MKT_DIM"))
     .withColumn("nielsen_source_table", F.lit("WATER_NIELSEN_ST"))
-    .withColumn("canal_std",            F.lit(None).cast(T.StringType()))
-    .withColumn("canal_lvl1",           F.lit(None).cast(T.StringType()))
-    .withColumn("canal_lvl2",           F.lit(None).cast(T.StringType()))
-    .withColumn("agg_level",            F.lit(None).cast(T.StringType()))
-    .withColumn("region_type",          F.lit(None).cast(T.StringType()))
-    .withColumn("region_std",           F.lit(None).cast(T.StringType()))
-    .withColumn("region_detail",        F.lit(None).cast(T.StringType()))
-    .withColumn("is_total_mexico",      F.lit("NO"))
-    .withColumn("is_scanning",          F.lit("NO"))
-    .withColumn("promoted",             F.lit("PENDING"))
-    .withColumn("confirmation_status",  F.lit("PENDING"))
-    .withColumn("market_key", _market_key_udf(F.lit("WATER_ST"), F.trim(F.upper(F.col("MRKT_DSC_SHRT")))))
-    .withColumn("catalog_date",    F.lit(RUN_DATE))
-    .withColumn("catalog_version", F.lit(CATALOG_VERSION))
-    .withColumn("notes",           F.lit("WATER_ST governance debt — not classified in signoff seed"))
 )
 
-_wst_confirmed = 0
-_wst_pending   = _wst_name_count
-_wst_pct       = 0.0
-info("S2_WST", f"Coverage: 0/{_wst_name_count} classified (0%) — governance debt")
+df_signoff_wst = df_signoff.filter(F.col("source_cbu") == "WATER_ST").select(
+    F.col("mrkt_norm"),
+    F.col("CANAL_LVL1").alias("canal_lvl1"),
+    F.col("CANAL_LVL2").alias("canal_lvl2"),
+    F.col("canal_std"),
+    F.col("AGG_LEVEL").alias("agg_level"),
+    F.col("REGION_TYPE").alias("region_type"),
+    F.col("REGION_STD").alias("region_std"),
+    F.col("REGION_DETAIL").alias("region_detail"),
+    F.col("REVIEW_STATUS").alias("review_status"),
+)
+
+df_wst_joined = (
+    df_wst_norm
+    .join(df_signoff_wst, df_wst_norm["mrkt_dsc_shrt_norm"] == df_signoff_wst["mrkt_norm"], "left")
+    .withColumn("promoted",
+        F.when(F.col("review_status").isNotNull(), F.lit("YES")).otherwise(F.lit("PENDING")))
+    .withColumn("confirmation_status",
+        F.when(F.col("review_status").isNotNull(), F.lit("CONFIRMED")).otherwise(F.lit("PENDING")))
+    .withColumn("is_total_mexico",
+        F.when(F.trim(F.upper(F.col("region_std"))) == "TOTAL_MEXICO", F.lit("YES")).otherwise(F.lit("NO")))
+    .withColumn("is_scanning",
+        F.when(F.col("canal_std").like("%SCANNING%"), F.lit("YES")).otherwise(F.lit("NO")))
+    .withColumn("market_key", _market_key_udf(F.col("source_cbu"), F.col("mrkt_dsc_shrt_norm")))
+    .withColumn("catalog_date",    F.lit(RUN_DATE))
+    .withColumn("catalog_version", F.lit(CATALOG_VERSION))
+    .withColumn("notes",
+        F.when(F.col("promoted") == "PENDING", F.lit("No match in signoff seed"))
+         .otherwise(F.lit(None).cast(T.StringType())))
+    .drop("mrkt_norm", "review_status")
+)
+
+_wst_confirmed = df_wst_joined.filter(F.col("promoted") == "YES").count()
+_wst_pending   = df_wst_joined.filter(F.col("promoted") == "PENDING").count()
+_wst_pct       = 100.0 * _wst_confirmed / _wst_name_count if _wst_name_count > 0 else 0.0
+
+info("S2_WST", f"Coverage: {_wst_confirmed}/{_wst_name_count} classified ({_wst_pct:.1f}%)")
 
 df_wst_profile = df_wst_joined.select(
     "mrkt_dsc_shrt", "mrkt_dsc_shrt_norm", "market_key",
@@ -430,7 +451,7 @@ df_wst_profile = df_wst_joined.select(
 df_wst_profile.coalesce(1).write.mode("overwrite").option("header", True).csv(
     f"{DBFS_BASE}/profiles/water_st_market_profile.csv"
 )
-info("S2_WST", f"Written: water_st_market_profile.csv ({_wst_name_count} rows — all PENDING)")
+info("S2_WST", f"Written: water_st_market_profile.csv ({_wst_name_count} rows)")
 
 # COMMAND ----------
 
@@ -1115,8 +1136,7 @@ _report_lines = [
     f"  Rows:    {_signoff_total}",
     f"  Dup keys:{_signoff_dup_count}   ← M11",
     f"  canal_std exceptions: {_seed_exceptions if _seed_exceptions else 'None'}  ← M17",
-    "  CBUs covered: EDP_NIELSEN (155), WATER_NIELSEN_RIE (73), PB_NIELSEN (134)",
-    "  CBUs MISSING: WATER_NIELSEN_ST — governance debt (82 → PENDING)",
+    f"  CBUs covered: {_cbu_summary}",
     "",
     "CBU COVERAGE REPORT:",
     f"  {'CBU':<10} {'Live':>6} {'Classified':>12} {'Pending':>9} {'Coverage':>10}",
@@ -1131,13 +1151,12 @@ _report_lines += [
     f"  {'TOTAL':<10} {_total_live_nielsen:>6} {_total_confirmed:>12} {_total_pending_n:>9} {_total_pct:>9.1f}%",
     "",
     "GOVERNANCE DEBT:",
-    "  WATER_ST: 0% coverage — 82 markets unclassified.",
-    "  Action: classify WATER_ST markets, add to signoff seed with",
-    "          NIELSEN_SOURCE_TABLE='WATER_NIELSEN_ST', then re-run.",
+    f"  WATER_ST: {_wst_pending} markets unclassified.",
+    f"  PB:       {_pb_pending} markets unclassified." if _pb_pending > 0 else "  PB:       0 pending.",
     "",
     "NAME STABILITY (distinct MRKT_DSC_SHRT per view):",
     f"  EDP:      {_edp_name_count} distinct names",
-    f"  WATER_ST: {_wst_name_count} distinct names  (all PENDING — governance debt)",
+    f"  WATER_ST: {_wst_name_count} distinct names" + ("  (has PENDING — governance debt)" if _wst_pending > 0 else ""),
     f"  WATER_RT: {_wrt_name_count} distinct names",
     f"  PB:       {_pb_name_count} distinct names",
     "  NOTE: Nielsen market views do not expose a market_id PK column.",
@@ -1188,7 +1207,7 @@ _report_lines += [
     f"  cat_market_pending.csv:      {_pending_count} rows",
     f"  cat_market_reference.csv:    {_reference_count} rows",
     f"  profiles/edp_market_profile.csv:      {_edp_name_count} rows",
-    f"  profiles/water_st_market_profile.csv: {_wst_name_count} rows  (all PENDING)",
+    f"  profiles/water_st_market_profile.csv: {_wst_name_count} rows",
     f"  profiles/water_rt_market_profile.csv: {_wrt_name_count} rows",
     f"  profiles/pb_market_profile.csv:       {_pb_name_count} rows",
     f"  profiles/ibp_mercado_profile.csv:     {_ibp_count} rows",
