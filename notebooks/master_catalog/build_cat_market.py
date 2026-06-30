@@ -214,6 +214,7 @@ _CBU_MAP = {
     "EDP_NIELSEN":       "EDP",
     "WATER_NIELSEN_RIE": "WATER_RT",
     "PB_NIELSEN":        "PB",
+    "WATER_NIELSEN_ST":  "WATER_ST",   # added pre-emptively for Run-2 governance debt closure
 }
 _cbu_map_udf = F.udf(
     lambda x: _CBU_MAP.get(str(x).strip().upper(), "UNKNOWN") if x else "UNKNOWN",
