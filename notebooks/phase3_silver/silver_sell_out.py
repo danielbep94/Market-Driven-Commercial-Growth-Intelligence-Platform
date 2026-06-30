@@ -252,41 +252,55 @@ assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × VW_D_PRODUCT_RM", _S)
 # =============================================================================
 log("INFO", "Phase D: Applying enterprise hierarchy from seed", _S)
 
-# Target enterprise seed
-df_seed = load_mapping_csv(
-    "configs/catalog_seeds/channel_hierarchy_seed.csv",
-    key_col="source_value", section=_S)
+# Read seed directly and filter to SELL_OUT BEFORE uniqueness check.
+# NOTE: load_mapping_csv checks uniqueness across the entire file — but source_value
+# (e.g. "MODERNO", "UTT") is intentionally repeated across source systems (WASTE, NIELSEN, IBP).
+# We must filter first, then validate uniqueness within SELL_OUT scope only.
+_seed_path = os.path.join(REPO_ROOT, "configs", "catalog_seeds", "channel_hierarchy_seed.csv")
+df_seed_raw = spark.read.csv(f"file:{_seed_path}", header=True, inferSchema=False)
 
-df_seed_so = df_seed.filter((F.col("source_system") == "SELL_OUT") & (F.col("mapping_status") == "CONFIRMED"))
+df_seed_so = df_seed_raw.filter(
+    (F.upper(F.trim(F.col("source_system"))) == "SELL_OUT") &
+    (F.upper(F.trim(F.col("mapping_status"))) == "CONFIRMED")
+).select(
+    F.upper(F.trim(F.col("source_value"))).alias("source_value"),
+    F.upper(F.trim(F.col("gran_canal_grp"))).alias("gran_canal_grp"),
+    F.upper(F.trim(F.col("channel_standard"))).alias("channel_standard"),
+    F.upper(F.trim(F.col("chain_standard"))).alias("chain_standard"),
+    F.upper(F.trim(F.col("format_standard"))).alias("format_standard"),
+)
+
+# Assert uniqueness within SELL_OUT scope
+n_seed_so  = df_seed_so.count()
+n_seed_uniq = df_seed_so.dropDuplicates(["source_value"]).count()
+blocker(n_seed_so != n_seed_uniq,
+        f"SELL_OUT seed has {n_seed_so - n_seed_uniq} duplicate source_value entries — fix seed before joining.",
+        _S)
+log("INFO", f"SELL_OUT seed validated: {n_seed_so} unique FORMAT mappings", _S)
+
+df_seed_so.cache()
 
 df_so = df_so.join(
-    df_seed_so.select(
-        F.col("source_value"),
-        F.col("gran_canal_grp"),
-        F.col("channel_standard"),
-        F.col("chain_standard"),
-        F.col("format_standard")
-    ),
-    df_so["format"] == df_seed_so["source_value"],
+    df_seed_so,
+    F.upper(F.trim(df_so["format"])) == df_seed_so["source_value"],
     "left"
 )
-register_join("silver_sell_out", "sell_out", "channel_hierarchy_seed",
-              "format=source_value", "left")
+register_join("silver_sell_out", "sell_out", "channel_hierarchy_seed[SELL_OUT]",
+              "UPPER(format)=source_value", "left")
 assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × enterprise seed", _S)
 
-# Validation gates
+# Validation gates — strict enterprise vocabulary enforcement
 if n_so_agg > 0:
-    import pandas as pd
     valid_channels = {"MODERNO", "TRADICIONAL", "INTERNOS"}
-    valid_gran = {"UTT", "DTT", "INTERNAL"}
-    
-    actual_channels = set(df_so.select("channel_standard").dropna().distinct().toPandas()["channel_standard"])
-    actual_gran = set(df_so.select("gran_canal_grp").dropna().distinct().toPandas()["gran_canal_grp"])
-    
-    assert actual_channels <= valid_channels, f"Invalid channel_standard found: {actual_channels - valid_channels}"
-    assert actual_gran <= valid_gran, f"Invalid gran_canal_grp found: {actual_gran - valid_gran}"
+    valid_gran     = {"UTT", "DTT", "INTERNAL"}
 
-# Quarantine unmapped
+    actual_channels = set(df_so.select("channel_standard").dropna().distinct().toPandas()["channel_standard"])
+    actual_gran     = set(df_so.select("gran_canal_grp").dropna().distinct().toPandas()["gran_canal_grp"])
+
+    assert actual_channels <= valid_channels, f"Invalid channel_standard found: {actual_channels - valid_channels}"
+    assert actual_gran     <= valid_gran,     f"Invalid gran_canal_grp found: {actual_gran - valid_gran}"
+
+# Quarantine unmapped FORMATs for seed expansion
 quarantine(df_so.filter(F.col("chain_standard").isNull()),
            "SELL_OUT_CHAIN_NEEDS_REVIEW",
            "PENDING: FORMAT not yet mapped to chain_standard", _S)
