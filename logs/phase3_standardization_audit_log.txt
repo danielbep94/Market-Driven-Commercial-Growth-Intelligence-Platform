@@ -1,44 +1,45 @@
-[2026-06-30 22:04:33] [INFO] [INIT] ======================================================================
-[2026-06-30 22:04:33] [INFO] [INIT] Phase 3 shared utilities — silver_homologation_apply.py loaded
-[2026-06-30 22:04:33] [INFO] [INIT] REPO_ROOT     : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform
-[2026-06-30 22:04:33] [INFO] [INIT] REPO_LOGS_DIR : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
-[2026-06-30 22:04:33] [INFO] [INIT] DBFS_ROOT     : dbfs:/mnt/mdp/mdm/phase3_std
-[2026-06-30 22:04:33] [INFO] [INIT] ACTIVE_CATALOG_FILTER (R4, locked): 'SKU_EAN_COD IS NOT NULL'
-[2026-06-30 22:04:33] [INFO] [INIT] Credentials: PRD_MEX and PRD_MDP profiles ready.
-[2026-06-30 22:04:33] [INFO] [INIT] JOIN_REGISTRY initialized (call register_join() after every join).
-[2026-06-30 22:04:33] [INFO] [INIT] ======================================================================
-[2026-06-30 22:04:33] [INFO] [SELL_OUT] Starting SELL_OUT standardization (Snowflake-pushdown pattern)
-[2026-06-30 22:04:33] [INFO] [SELL_OUT] VW_FACT_SELL_OUT has 200M+ rows — aggregation runs in Snowflake.
-[2026-06-30 22:04:33] [INFO] [SELL_OUT] Phase A: Row count probe + small dimension tables
-[2026-06-30 22:05:31] [INFO] [SELL_OUT] VW_FACT_SELL_OUT (2025+): 353,608,927 rows | 1,148 UPCs | 6,070 stores | period: 20250101 → 20260629
-[2026-06-30 22:05:34] [INFO] [SELL_OUT] VW_D_PRODUCT_RM: 2,622 rows with non-null UPC
-[2026-06-30 22:05:38] [INFO] [SELL_OUT] VW_D_STORE_RM: 136,042 stores
-[2026-06-30 22:05:46] [INFO] [SELL_OUT] EAN dedup: 2,946 unique EANs → 1 MAT_IDT each (R10)
-[2026-06-30 22:05:47] [INFO] [SELL_OUT] Phase B: Snowflake-side aggregation of VW_FACT_SELL_OUT (200M+ rows)
-[2026-06-30 22:05:47] [INFO] [SELL_OUT] FACT joins to STORE on STORE=INT_ID in Snowflake. UPC is the product key.
-[2026-06-30 22:05:47] [INFO] [SELL_OUT] Executing Snowflake pushdown — estimated 5–10 min
-[2026-06-30 22:08:06] [INFO] [SELL_OUT] Aggregated SELL_OUT from Snowflake: 12,848,138 rows
-[2026-06-30 22:08:06] [INFO] [JOIN_REGISTRY] JOIN: silver_sell_out | VW_FACT_SELL_OUT ↔ VW_D_STORE_RM ON [STORE=INT_ID (pushdown in Snowflake)] (left)
-[2026-06-30 22:08:07] [INFO] [SELL_OUT] Phase C: UPC bridge — fact.UPC = V_D_ITEM.SKU_EAN_COD
-[2026-06-30 22:08:07] [INFO] [JOIN_REGISTRY] JOIN: silver_sell_out | sell_out_agg ↔ V_D_ITEM_ean_dedup ON [upc=sku_ean_cod] (left)
-[2026-06-30 22:08:09] [✅ PASS] [SELL_OUT] SELL_OUT agg × EAN dedup: row count preserved — 12,848,138 rows.
-[2026-06-30 22:08:14] [✅ PASS] [SELL_OUT] A5/A6: 0 UPC fanouts — 1:1 UPC→MAT_IDT confirmed
-[2026-06-30 22:08:18] [⚠️  WARNING] [SELL_OUT] 332,211 rows quarantined from 'SELL_OUT_UPC_NO_EAN_MATCH': 96 distinct UPCs in SELL_OUT not found in V_D_ITEM EAN catalog
-[2026-06-30 22:08:18] [⚠️  WARNING] [SELL_OUT] 96 SELL_OUT UPCs have no match in V_D_ITEM
-[2026-06-30 22:08:18] [INFO] [JOIN_REGISTRY] JOIN: silver_sell_out | sell_out ↔ VW_D_PRODUCT_RM ON [upc=sell_out_int_id (FACT.UPC=PRODUCT.INT_ID)] (left)
-[2026-06-30 22:08:21] [🚨 BLOCKER] [SELL_OUT] ROW COUNT FANOUT in 'SELL_OUT × VW_D_PRODUCT_RM': before=12,848,138, after=16,100,142 (+3,252,004). Mapping table has duplicate join keys. Check load_mapping_csv uniqueness assertion for this join.
-[2026-06-30 22:08:21] [INFO] [SELL_OUT] Phase D: Applying enterprise hierarchy from seed
-[2026-06-30 22:08:24] [🚨 BLOCKER] [SELL_OUT] MAPPING UNIQUENESS VIOLATION — channel_hierarchy_seed.csv: 4 duplicate values on key_col='source_value'. Fix the mapping file before joining. Total=27, unique=23.
-[2026-06-30 22:08:24] [INFO] [JOIN_REGISTRY] JOIN: silver_sell_out | sell_out ↔ channel_hierarchy_seed ON [format=source_value] (left)
-[2026-06-30 22:08:28] [🚨 BLOCKER] [SELL_OUT] ROW COUNT FANOUT in 'SELL_OUT × enterprise seed': before=12,848,138, after=16,100,142 (+3,252,004). Mapping table has duplicate join keys. Check load_mapping_csv uniqueness assertion for this join.
-[2026-06-30 22:08:40] [⚠️  WARNING] [SELL_OUT] 3,133,316 rows quarantined from 'SELL_OUT_CHAIN_NEEDS_REVIEW': PENDING: FORMAT not yet mapped to chain_standard
-[2026-06-30 22:08:43] [⚠️  WARNING] [SELL_OUT] 3,133,316 rows quarantined from 'SELL_OUT_CANAL_NEEDS_REVIEW': PENDING: FORMAT not yet mapped to channel_standard
-[2026-06-30 22:08:43] [INFO] [SELL_OUT] marca_std derived from so_brand (UPPER TRIM)
-[2026-06-30 22:08:46] [INFO] [SELL_OUT] sell_out_std final: 16,100,142 rows
-[2026-06-30 22:08:49] [INFO] [SELL_OUT] NULL rate — mat_idt: 463,092 / 16,100,142 = 2.88%
-[2026-06-30 22:08:52] [INFO] [SELL_OUT] NULL rate — chain_standard: 3,133,316 / 16,100,142 = 19.46%
-[2026-06-30 22:08:55] [INFO] [SELL_OUT] NULL rate — channel_standard: 3,133,316 / 16,100,142 = 19.46%
-[2026-06-30 22:08:56] [INFO] [SELL_OUT] NULL rate — revenue_sell_out: 0 / 16,100,142 = 0.0%
-[2026-06-30 22:08:59] [INFO] [SELL_OUT] NULL rate — so_brand: 89 / 16,100,142 = 0.0%
-[2026-06-30 22:12:10] [INFO] [SELL_OUT] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/sell_out_std.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/sell_out_std.csv
-[2026-06-30 22:12:10] [INFO] [SELL_OUT] sell_out_std saved. SELL_OUT standardization complete.
+[2026-06-30 22:30:13] [INFO] [INIT] ======================================================================
+[2026-06-30 22:30:13] [INFO] [INIT] Phase 3 shared utilities — silver_homologation_apply.py loaded
+[2026-06-30 22:30:13] [INFO] [INIT] REPO_ROOT     : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform
+[2026-06-30 22:30:13] [INFO] [INIT] REPO_LOGS_DIR : /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs
+[2026-06-30 22:30:13] [INFO] [INIT] DBFS_ROOT     : dbfs:/mnt/mdp/mdm/phase3_std
+[2026-06-30 22:30:13] [INFO] [INIT] ACTIVE_CATALOG_FILTER (R4, locked): 'SKU_EAN_COD IS NOT NULL'
+[2026-06-30 22:30:13] [INFO] [INIT] Credentials: PRD_MEX and PRD_MDP profiles ready.
+[2026-06-30 22:30:13] [INFO] [INIT] JOIN_REGISTRY initialized (call register_join() after every join).
+[2026-06-30 22:30:13] [INFO] [INIT] ======================================================================
+[2026-06-30 22:30:13] [INFO] [SELL_OUT] Starting SELL_OUT standardization (Snowflake-pushdown pattern)
+[2026-06-30 22:30:13] [INFO] [SELL_OUT] VW_FACT_SELL_OUT has 200M+ rows — aggregation runs in Snowflake.
+[2026-06-30 22:30:14] [INFO] [SELL_OUT] Phase A: Row count probe + small dimension tables
+[2026-06-30 22:30:22] [INFO] [SELL_OUT] VW_FACT_SELL_OUT (2025+): 353,608,927 rows | 1,148 UPCs | 6,070 stores | period: 20250101 → 20260629
+[2026-06-30 22:30:24] [INFO] [SELL_OUT] VW_D_PRODUCT_RM: 2,622 rows with non-null UPC
+[2026-06-30 22:30:25] [INFO] [SELL_OUT] VW_D_PRODUCT_RM dedup: 2,622 → 1,950 rows (672 INT_ID duplicates removed, R14)
+[2026-06-30 22:30:25] [INFO] [SELL_OUT] VW_D_STORE_RM: 136,042 stores
+[2026-06-30 22:30:27] [INFO] [SELL_OUT] EAN dedup: 2,946 unique EANs → 1 MAT_IDT each (R10)
+[2026-06-30 22:30:27] [INFO] [SELL_OUT] Phase B: Snowflake-side aggregation of VW_FACT_SELL_OUT (200M+ rows)
+[2026-06-30 22:30:27] [INFO] [SELL_OUT] FACT joins to STORE on STORE=INT_ID in Snowflake. UPC is the product key.
+[2026-06-30 22:30:27] [INFO] [SELL_OUT] Executing Snowflake pushdown — estimated 5–10 min
+[2026-06-30 22:30:28] [INFO] [SELL_OUT] Aggregated SELL_OUT from Snowflake: 12,848,138 rows
+[2026-06-30 22:30:28] [INFO] [JOIN_REGISTRY] JOIN: silver_sell_out | VW_FACT_SELL_OUT ↔ VW_D_STORE_RM ON [STORE=INT_ID (pushdown in Snowflake)] (left)
+[2026-06-30 22:30:28] [INFO] [SELL_OUT] Phase C: UPC bridge — fact.UPC = V_D_ITEM.SKU_EAN_COD
+[2026-06-30 22:30:28] [INFO] [JOIN_REGISTRY] JOIN: silver_sell_out | sell_out_agg ↔ V_D_ITEM_ean_dedup ON [upc=sku_ean_cod] (left)
+[2026-06-30 22:30:30] [✅ PASS] [SELL_OUT] SELL_OUT agg × EAN dedup: row count preserved — 12,848,138 rows.
+[2026-06-30 22:30:34] [✅ PASS] [SELL_OUT] A5/A6: 0 UPC fanouts — 1:1 UPC→MAT_IDT confirmed
+[2026-06-30 22:30:37] [⚠️  WARNING] [SELL_OUT] 332,211 rows quarantined from 'SELL_OUT_UPC_NO_EAN_MATCH': 96 distinct UPCs in SELL_OUT not found in V_D_ITEM EAN catalog
+[2026-06-30 22:30:37] [⚠️  WARNING] [SELL_OUT] 96 SELL_OUT UPCs have no match in V_D_ITEM
+[2026-06-30 22:30:37] [INFO] [JOIN_REGISTRY] JOIN: silver_sell_out | sell_out ↔ VW_D_PRODUCT_RM_dedup ON [upc=sell_out_int_id (FACT.UPC=PRODUCT.INT_ID, deduped)] (left)
+[2026-06-30 22:30:39] [✅ PASS] [SELL_OUT] SELL_OUT × VW_D_PRODUCT_RM: row count preserved — 12,848,138 rows.
+[2026-06-30 22:30:39] [INFO] [SELL_OUT] Phase D: Applying enterprise hierarchy from seed
+[2026-06-30 22:30:44] [INFO] [SELL_OUT] SELL_OUT seed validated: 17 unique FORMAT mappings
+[2026-06-30 22:30:44] [INFO] [JOIN_REGISTRY] JOIN: silver_sell_out | sell_out ↔ channel_hierarchy_seed[SELL_OUT] ON [UPPER(format)=source_value] (left)
+[2026-06-30 22:30:48] [✅ PASS] [SELL_OUT] SELL_OUT × enterprise seed: row count preserved — 12,848,138 rows.
+[2026-06-30 22:30:58] [⚠️  WARNING] [SELL_OUT] 2,589,243 rows quarantined from 'SELL_OUT_CHAIN_NEEDS_REVIEW': PENDING: FORMAT not yet mapped to chain_standard
+[2026-06-30 22:31:00] [⚠️  WARNING] [SELL_OUT] 2,589,243 rows quarantined from 'SELL_OUT_CANAL_NEEDS_REVIEW': PENDING: FORMAT not yet mapped to channel_standard
+[2026-06-30 22:31:00] [INFO] [SELL_OUT] marca_std derived from so_brand (UPPER TRIM)
+[2026-06-30 22:31:03] [INFO] [SELL_OUT] sell_out_std final: 12,848,138 rows
+[2026-06-30 22:31:05] [INFO] [SELL_OUT] NULL rate — mat_idt: 332,211 / 12,848,138 = 2.59%
+[2026-06-30 22:31:08] [INFO] [SELL_OUT] NULL rate — chain_standard: 2,589,243 / 12,848,138 = 20.15%
+[2026-06-30 22:31:10] [INFO] [SELL_OUT] NULL rate — channel_standard: 2,589,243 / 12,848,138 = 20.15%
+[2026-06-30 22:31:11] [INFO] [SELL_OUT] NULL rate — revenue_sell_out: 0 / 12,848,138 = 0.0%
+[2026-06-30 22:31:14] [INFO] [SELL_OUT] NULL rate — so_brand: 89 / 12,848,138 = 0.0%
+[2026-06-30 22:33:56] [INFO] [SELL_OUT] Saved → DBFS: dbfs:/mnt/mdp/mdm/phase3_std/sell_out_std.csv  |  REPO: /Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/logs/sell_out_std.csv
+[2026-06-30 22:33:56] [INFO] [SELL_OUT] sell_out_std saved. SELL_OUT standardization complete.
