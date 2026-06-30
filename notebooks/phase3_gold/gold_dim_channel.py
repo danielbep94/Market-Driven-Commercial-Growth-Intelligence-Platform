@@ -17,6 +17,9 @@ def log(tag, msg, level="INFO"):
 log("S0", f"Starting gold_dim_channel.py on {RUN_DATE}")
 
 SEED_DBFS_PATH = "dbfs:/mnt/mdp/mdm/master_catalog/canal/seed/channel_hierarchy_seed.csv"
+import os
+_current_dir = os.getcwd()
+SEED_REPO_PATH = os.path.normpath(os.path.join(_current_dir, "../..", "configs", "catalog_seeds", "channel_hierarchy_seed.csv"))
 
 _SEED_SCHEMA = T.StructType([
     T.StructField("source_system",       T.StringType()),
@@ -30,6 +33,12 @@ _SEED_SCHEMA = T.StructType([
     T.StructField("mapping_status",      T.StringType()),
     T.StructField("notes",               T.StringType()),
 ])
+
+
+try:
+    dbutils.fs.cp(f"file:{SEED_REPO_PATH}", SEED_DBFS_PATH, recurse=False)
+except Exception as e:
+    log("S0", f"Failed to copy seed to DBFS: {e}", "WARNING")
 
 try:
     df_seed = spark.read.csv(SEED_DBFS_PATH, header=True, schema=_SEED_SCHEMA)

@@ -13,7 +13,10 @@ CATALOG_VERSION   = "7.0.0"
 RUN_DATE          = datetime.date.today().isoformat()
 DBFS_BASE         = "dbfs:/mnt/mdp/mdm/master_catalog/canal"
 SEED_DBFS_PATH    = "dbfs:/mnt/mdp/mdm/master_catalog/canal/seed/channel_hierarchy_seed.csv"
-SEED_REPO_PATH    = "/Workspace/Users/victor.hernandez29@danone.com/Market-Driven-Commercial-Growth-Intelligence-Platform/configs/catalog_seeds/channel_hierarchy_seed.csv"
+import os
+# Dynamically resolve repo path based on current notebook location
+_current_dir = os.getcwd()
+SEED_REPO_PATH = os.path.normpath(os.path.join(_current_dir, "../..", "configs", "catalog_seeds", "channel_hierarchy_seed.csv"))
 
 def log(tag, msg, level="INFO"):
     print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}][{level}][{tag}] {msg}")
