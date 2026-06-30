@@ -230,55 +230,51 @@ assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × VW_D_PRODUCT_RM", _S)
 # COMMAND ----------
 
 # =============================================================================
-# PHASE D — Apply M3/M4 chain/format mapping (cadena_std, canal_std)
+# PHASE D — Apply Enterprise Channel Hierarchy (M3/M4 Replacement)
 # =============================================================================
-log("INFO", "Phase D: Applying M3 chain→cadena_std, M4 format→canal_std", _S)
+log("INFO", "Phase D: Applying enterprise hierarchy from seed", _S)
 
-# M3: chain → cadena_std
-df_chain_map = load_mapping_csv(
-    "logs/signoff_05_store_chain_classification.csv",
-    key_col="chain_value", section=_S)
+# Target enterprise seed
+df_seed = load_mapping_csv(
+    "configs/catalog_seeds/channel_hierarchy_seed.csv",
+    key_col="source_value", section=_S)
+
+df_seed_so = df_seed.filter((F.col("source_system") == "SELL_OUT") & (F.col("mapping_status") == "CONFIRMED"))
+
 df_so = df_so.join(
-    df_chain_map.select(
-        F.col("chain_value"),
-        F.col("cadena_std").alias("cadena_std_mapped"),   # fix W4: alias to avoid ambiguity
-        F.col("mapping_status").alias("cadena_mapping_status")),
-    df_so["chain"] == df_chain_map["chain_value"], "left")
-register_join("silver_sell_out", "sell_out", "chain_classification",
-              "chain=chain_value", "left")
-assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × chain_classification (M3)", _S)
+    df_seed_so.select(
+        F.col("source_value"),
+        F.col("gran_canal_grp"),
+        F.col("channel_standard"),
+        F.col("chain_standard"),
+        F.col("format_standard")
+    ),
+    df_so["format"] == df_seed_so["source_value"],
+    "left"
+)
+register_join("silver_sell_out", "sell_out", "channel_hierarchy_seed",
+              "format=source_value", "left")
+assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × enterprise seed", _S)
 
-df_so = df_so.withColumn(
-    "cadena_std",
-    F.when(F.col("cadena_mapping_status") == "CONFIRMED", F.col("cadena_std_mapped"))
-     .otherwise(F.lit(None).cast("string")))
+# Validation gates
+if n_so_agg > 0:
+    import pandas as pd
+    valid_channels = {"MODERNO", "TRADICIONAL", "INTERNOS"}
+    valid_gran = {"UTT", "DTT", "INTERNAL"}
+    
+    actual_channels = set(df_so.select("channel_standard").dropna().distinct().toPandas()["channel_standard"])
+    actual_gran = set(df_so.select("gran_canal_grp").dropna().distinct().toPandas()["gran_canal_grp"])
+    
+    assert actual_channels <= valid_channels, f"Invalid channel_standard found: {actual_channels - valid_channels}"
+    assert actual_gran <= valid_gran, f"Invalid gran_canal_grp found: {actual_gran - valid_gran}"
 
-# M4: format → canal_std
-df_format_map = load_mapping_csv(
-    "logs/signoff_05_store_format_classification.csv",
-    key_col="format_value", section=_S)
-df_so = df_so.join(
-    df_format_map.select(
-        F.col("format_value"),
-        F.col("canal_std").alias("canal_std_mapped"),     # fix W5: alias to avoid ambiguity
-        F.col("mapping_status").alias("canal_mapping_status")),
-    df_so["format"] == df_format_map["format_value"], "left")
-register_join("silver_sell_out", "sell_out", "format_classification",
-              "format=format_value", "left")
-assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × format_classification (M4)", _S)
-
-df_so = df_so.withColumn(
-    "canal_std",
-    F.when(F.col("canal_mapping_status") == "CONFIRMED", F.col("canal_std_mapped"))
-     .otherwise(F.lit(None).cast("string")))
-
-# Quarantine NEEDS_REVIEW
-quarantine(df_so.filter(F.col("cadena_std").isNull()),
-           "SELL_OUT_CADENA_NEEDS_REVIEW",
-           "M3 PENDING: CHAIN not yet mapped to cadena_std", _S)
-quarantine(df_so.filter(F.col("canal_std").isNull()),
+# Quarantine unmapped
+quarantine(df_so.filter(F.col("chain_standard").isNull()),
+           "SELL_OUT_CHAIN_NEEDS_REVIEW",
+           "PENDING: FORMAT not yet mapped to chain_standard", _S)
+quarantine(df_so.filter(F.col("channel_standard").isNull()),
            "SELL_OUT_CANAL_NEEDS_REVIEW",
-           "M4 PENDING: FORMAT not yet mapped to canal_std", _S)
+           "PENDING: FORMAT not yet mapped to channel_standard", _S)
 
 # marca_std = normalized brand from VW_D_PRODUCT_RM.BRAND (so_brand)
 # Upper+trim for consistency with sell_in_std.marca_std and other sources
@@ -294,7 +290,7 @@ df_so = df_so.withColumn("source_system", F.lit("SELL_OUT")) \
 # Null rate audit + save
 n_so = df_so.count()
 log("INFO", f"sell_out_std final: {n_so:,} rows", _S)
-for col_name in ["mat_idt", "cadena_std", "canal_std", "revenue_sell_out", "so_brand"]:
+for col_name in ["mat_idt", "chain_standard", "channel_standard", "revenue_sell_out", "so_brand"]:
     if col_name in [c.lower() for c in df_so.columns]:
         n_null = df_so.filter(F.col(col_name).isNull()).count()
         pct = round(n_null / n_so * 100, 2) if n_so > 0 else 0.0
