@@ -1,5 +1,5 @@
 ======================================================================
-MARKET CATALOG BUILD SUMMARY  v1.0.0  --  2026-06-29  2026-06-29 23:03:32
+MARKET CATALOG BUILD SUMMARY  v1.0.0  --  2026-06-30  2026-06-30 04:26:31
 ======================================================================
 TAXONOMY:            Danone Nielsen Market Catalog (signoff_03 governed)
 SNOWFLAKE_ACCESS:    READ-ONLY ✅
@@ -10,29 +10,27 @@ CREDENTIAL PROFILES USED:
 
 SIGNOFF SEED:
   Path:    configs/catalog_seeds/market/signoff_03_nielsen_markets.csv
-  Rows:    362
+  Rows:    473
   Dup keys:0   ← M11
   canal_std exceptions: None  ← M17
-  CBUs covered: EDP_NIELSEN (155), WATER_NIELSEN_RIE (73), PB_NIELSEN (134)
-  CBUs MISSING: WATER_NIELSEN_ST — governance debt (82 → PENDING)
+  CBUs covered: EDP_NIELSEN (155), WATER_NIELSEN_ST (82), PB_NIELSEN (163), WATER_NIELSEN_RIE (73)
 
 CBU COVERAGE REPORT:
   CBU          Live   Classified   Pending   Coverage
   ----------------------------------------------------
   EDP           155          155         0     100.0%
-  WATER_ST       82            0        82       0.0%  ⚠️  GOVERNANCE DEBT
+  WATER_ST       82           82         0     100.0%  ⚠️  GOVERNANCE DEBT
   WATER_RT       73           73         0     100.0%
-  PB            163          134        29      82.2%
-  TOTAL         473          362       111      76.5%
+  PB            163          163         0     100.0%
+  TOTAL         473          473         0     100.0%
 
 GOVERNANCE DEBT:
-  WATER_ST: 0% coverage — 82 markets unclassified.
-  Action: classify WATER_ST markets, add to signoff seed with
-          NIELSEN_SOURCE_TABLE='WATER_NIELSEN_ST', then re-run.
+  WATER_ST: 0 markets unclassified.
+  PB:       0 pending.
 
 NAME STABILITY (distinct MRKT_DSC_SHRT per view):
   EDP:      155 distinct names
-  WATER_ST: 82 distinct names  (all PENDING — governance debt)
+  WATER_ST: 82 distinct names
   WATER_RT: 73 distinct names
   PB:       163 distinct names
   NOTE: Nielsen market views do not expose a market_id PK column.
@@ -40,26 +38,26 @@ NAME STABILITY (distinct MRKT_DSC_SHRT per view):
 
 GEOGRAPHIC HIERARCHY DISTRIBUTION (promoted rows):
   NATIONAL: 16
-  AREA:     104
-  CITY:     231
+  AREA:     128
+  CITY:     232
   VDM:      11
 
 CROSS-CBU OVERLAP (descriptive — not a quality criterion):
   IN_ALL_4: 0 | EDP∩WST: 29 | EDP∩WRT: 0 | EDP∩PB: 29
 
 PROMOTED / PENDING SUMMARY:
-  Expected promoted (live join):  362
-  Actual promoted:                362
-  Pending Nielsen rows:           111
+  Expected promoted (live join):  473
+  Actual promoted:                473
+  Pending Nielsen rows:           0
   Total live Nielsen:             473
-  Pending %:                      23.5%
+  Pending %:                      0.0%
   M9b (promo+pend=live):          PASS
 
 is_total_mexico PER CBU (M8 — WARN only, informational):
   EDP:      YES
   WATER_ST: N/A (all PENDING)
   WATER_RT: YES
-  PB:       NO
+  PB:       YES
 
 DUPLICATE MARKET_KEY AUDIT:
   Conflicting: 0  ← M12
@@ -79,11 +77,11 @@ SOURCE TABLES QUERIED:
   PRD_MEX.MEX_DSP_OTC.V_D_CLIENT                             (S6 SELL_IN)
 
 OUTPUT FILES:
-  cat_market.csv:              362 rows  (promoted=YES)
-  cat_market_pending.csv:      111 rows
+  cat_market.csv:              473 rows  (promoted=YES)
+  cat_market_pending.csv:      0 rows
   cat_market_reference.csv:    496 rows
   profiles/edp_market_profile.csv:      155 rows
-  profiles/water_st_market_profile.csv: 82 rows  (all PENDING)
+  profiles/water_st_market_profile.csv: 82 rows
   profiles/water_rt_market_profile.csv: 73 rows
   profiles/pb_market_profile.csv:       163 rows
   profiles/ibp_mercado_profile.csv:     5 rows
@@ -99,11 +97,11 @@ VALIDATION GATES:
   M4   PB distinct >= 50:              PASS (163)
   M5   IBP MERCADO >= 5:               PASS (5)
   M6   SELL_IN geo rows > 0:           PASS (1590)
-  M7   PENDING <= 5%:                  WARN (23.5%)
+  M7   PENDING <= 5%:                  PASS (0.0%)
   M8   is_total_mexico per CBU:        WARN only — informational
-  M9a  promoted = live join result:    PASS (362 vs 362)
+  M9a  promoted = live join result:    PASS (473 vs 473)
   M9b  promoted+pending = live:        PASS
-  M10  pending rows = 0:               WARN (111)
+  M10  pending rows = 0:               PASS (0)
   M11  signoff no dup keys:            PASS
   M12  no conflicting dup keys:        PASS
   M12W identical dups deduplicated:    PASS
@@ -114,6 +112,6 @@ VALIDATION GATES:
   M17  canal_std in governed catalog:  PASS
   RO   Snowflake read-only:            PASS
 
-WARNINGS:  4
+WARNINGS:  1
 BLOCKERS:  0
 ======================================================================
