@@ -183,9 +183,11 @@ display(df_si.limit(20))
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 7
 # =============================================================================
 # STEP 3 — Apply cadena_std mapping (M2 gate — Spark side, small DataFrame)
 # =============================================================================
+import pyspark.sql.types as T
 log("INFO", "Step 3: Applying dimension standardization mappings (Spark side)", _S)
 
 # M2 gate: CADENA source
@@ -297,4 +299,5 @@ log("INFO", "sell_in_std saved. SELL_IN standardization complete.", _S)
 flush_log("phase3_standardization_audit_log.txt")
 
 # COMMAND ----------
+
 

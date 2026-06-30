@@ -5,6 +5,7 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 2
 import hashlib
 import datetime
 from pyspark.sql import functions as F, types as T
@@ -64,9 +65,9 @@ df_fact_waste_out = df_fact_waste.select(
     "fuente",
     "waste_amount",
     "waste_kg",
-    "business_route", # Exposing business route explicitly on the fact
-    "gran_canal_grp",
-    "channel_standard"
+    df_waste_std["business_route"], # Exposing business route explicitly on the fact
+    df_waste_std["gran_canal_grp"],
+    df_waste_std["channel_standard"]
 ).withColumn("created_at", F.current_timestamp())
 
 # Validation: ensure no missing channel keys

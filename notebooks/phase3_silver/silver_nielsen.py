@@ -149,9 +149,11 @@ blocker(dup_mkt > 0,
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 6
 # =============================================================================
 # STEP B — Apply M1 mapping (canal_std / region_std) — Spark on small dim
 # =============================================================================
+import pyspark.sql.types as T
 log("INFO", "Step B: Applying M1 market mapping (signoff_03_nielsen_markets.csv)", _S)
 
 # ── DEFINITIVE FIX for region_std ambiguity ─────────────────────────────────
@@ -357,4 +359,5 @@ flush_log("phase3_standardization_audit_log.txt")
 log("INFO", "NIELSEN standardization complete.", _S)
 
 # COMMAND ----------
+
 

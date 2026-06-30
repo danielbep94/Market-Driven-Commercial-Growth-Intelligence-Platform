@@ -9,6 +9,7 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 3
 import datetime
 from pyspark.sql import functions as F, types as T
 
@@ -30,8 +31,8 @@ SQL_WASTE_SRC = """
         UPPER(TRIM(formato)) AS formato_raw,
         UPPER(TRIM(canal))   AS canal_raw,
         UPPER(TRIM(fuente))  AS fuente,
-        waste_amount,
-        waste_kg
+        "Waste ($)" AS waste_amount,
+        "Waste (KG)" AS waste_kg
     FROM PRD_MDP.MDP_STG.VW_WASTE
     WHERE UPPER(TRIM(fuente)) = 'TOPLINE'
 """
