@@ -183,9 +183,11 @@ display(df_si.limit(20))
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 7
 # =============================================================================
 # STEP 3 — Apply cadena_std mapping (M2 gate — Spark side, small DataFrame)
 # =============================================================================
+import pyspark.sql.types as T
 log("INFO", "Step 3: Applying dimension standardization mappings (Spark side)", _S)
 
 # M2 gate: CADENA source
@@ -213,17 +215,63 @@ if cadena_col_confirmed and cadena_col_confirmed.lower() in cols_lower:
 else:
     df_si = df_si.withColumn("cadena_std", F.lit(None).cast("string"))
 
-# canal_std from canal_raw (CUS_GRN_CHL_DSC — 5 confirmed grand-channel values)
+# Apply enterprise channel hierarchy mappings
+CHANNEL_STANDARD_MAP = {
+    "UTT": "MODERNO",
+    "DTT": "TRADICIONAL",
+    "INTERNAL": "INTERNOS",
+    "MODERNO": "MODERNO",
+    "NC MODERNO": "MODERNO",
+    "TRADICIONAL": "TRADICIONAL",
+    "INTERNOS": "INTERNOS",
+}
+
+GRAN_CANAL_MAP = {
+    "MODERNO": "UTT",
+    "TRADICIONAL": "DTT",
+    "INTERNOS": "INTERNAL",
+}
+
+@F.udf(T.StringType())
+def udf_channel_standard(v):
+    if not v: return None
+    return CHANNEL_STANDARD_MAP.get(str(v).strip().upper())
+
+@F.udf(T.StringType())
+def udf_gran_canal(v):
+    if not v: return None
+    return GRAN_CANAL_MAP.get(str(v).strip().upper())
+
 if "canal_raw" in cols_lower:
-    df_si = df_si.withColumn("canal_std", F.col("canal_raw"))
+    df_si = df_si.withColumn("channel_standard", udf_channel_standard(F.col("canal_raw")))
+    df_si = df_si.withColumn("gran_canal_grp", udf_gran_canal(F.col("channel_standard")))
+    df_si = df_si.withColumn("chain_standard", F.lit(None).cast("string"))
+    df_si = df_si.withColumn("format_standard", F.lit(None).cast("string"))
+    df_si = df_si.withColumn("canal_std", F.col("channel_standard")) # legacy column 
 else:
+    df_si = df_si.withColumn("channel_standard", F.lit(None).cast("string"))
+    df_si = df_si.withColumn("gran_canal_grp", F.lit(None).cast("string"))
+    df_si = df_si.withColumn("chain_standard", F.lit(None).cast("string"))
+    df_si = df_si.withColumn("format_standard", F.lit(None).cast("string"))
     df_si = df_si.withColumn("canal_std", F.lit(None).cast("string"))
-    warn(True, "CUS_GRN_CHL_DSC not in pushdown result — canal_std=NULL", _S)
+    warn(True, "CUS_GRN_CHL_DSC not in pushdown result — channel_standard=NULL", _S)
+
+# Validation gates for target model
+if n_si > 0:
+    import pandas as pd
+    valid_channels = {"MODERNO", "TRADICIONAL", "INTERNOS"}
+    valid_gran = {"UTT", "DTT", "INTERNAL"}
+    
+    actual_channels = set(df_si.select("channel_standard").dropna().distinct().toPandas()["channel_standard"])
+    actual_gran = set(df_si.select("gran_canal_grp").dropna().distinct().toPandas()["gran_canal_grp"])
+    
+    assert actual_channels <= valid_channels, f"Invalid channel_standard found: {actual_channels - valid_channels}"
+    assert actual_gran <= valid_gran, f"Invalid gran_canal_grp found: {actual_gran - valid_gran}"
 
 # Quarantine CADENA NULLs for M2 review
 if cadena_col_confirmed is None:
     df_cadena_null = df_si.filter(F.col("cadena_std").isNull()) \
-                           .select("mat_idt", "sku_ean_cod", "canal_std", "year_month")
+                           .select("mat_idt", "sku_ean_cod", "channel_standard", "year_month")
     quarantine(df_cadena_null, "SELL_IN_CADENA_NULL",
                "M2 PENDING: cadena_std source not confirmed", _S)
 
@@ -251,4 +299,5 @@ log("INFO", "sell_in_std saved. SELL_IN standardization complete.", _S)
 flush_log("phase3_standardization_audit_log.txt")
 
 # COMMAND ----------
+
 

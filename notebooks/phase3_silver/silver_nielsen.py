@@ -149,9 +149,11 @@ blocker(dup_mkt > 0,
 
 # COMMAND ----------
 
+# DBTITLE 1,Cell 6
 # =============================================================================
 # STEP B — Apply M1 mapping (canal_std / region_std) — Spark on small dim
 # =============================================================================
+import pyspark.sql.types as T
 log("INFO", "Step B: Applying M1 market mapping (signoff_03_nielsen_markets.csv)", _S)
 
 # ── DEFINITIVE FIX for region_std ambiguity ─────────────────────────────────
@@ -200,9 +202,38 @@ register_join("silver_nielsen", "nielsen_market_dim", "signoff_03_nielsen_market
 assert_row_count_exact(df_nielsen_dim, df_nielsen_std,
                        "nielsen_std x M1 market mapping", _S)
 
-# Resolve _m1 aliases back to canonical column names (avoids ambiguity with dim frame columns)
+# Apply enterprise channel standard mapping
+NIELSEN_MKT_TO_CHANNEL = {
+    "AUTOSERVICIO": "MODERNO",
+    "AUTOSERVICIO_SCANNING": "MODERNO",
+    "AUTOSERVICIO_SURTIDO_COMPLETO": "MODERNO",
+    "MODERNO_TOTAL": "MODERNO",
+    "CONVENIENCIA": "MODERNO",
+    "FARMACIAS": "MODERNO",
+    "MINISUPER": "MODERNO",
+    "MAYOREO": "TRADICIONAL",
+    "TRADICIONAL": "TRADICIONAL",
+    "MODERNO": "MODERNO"
+}
+
+@F.udf(T.StringType())
+def udf_nielsen_enterprise_channel(v):
+    if not v: return None
+    return NIELSEN_MKT_TO_CHANNEL.get(str(v).strip().upper())
+
+@F.udf(T.StringType())
+def udf_gran_canal(v):
+    if not v: return None
+    mapping = {"MODERNO": "UTT", "TRADICIONAL": "DTT", "INTERNOS": "INTERNAL"}
+    return mapping.get(str(v).strip().upper())
+
+# Resolve _m1 aliases back to canonical column names and add enterprise columns
 df_nielsen_std = df_nielsen_std \
-    .withColumn("canal_std",  F.col("canal_std_m1")) \
+    .withColumn("channel_standard", udf_nielsen_enterprise_channel(F.col("canal_std_m1"))) \
+    .withColumn("gran_canal_grp", udf_gran_canal(F.col("channel_standard"))) \
+    .withColumn("chain_standard", F.lit(None).cast("string")) \
+    .withColumn("format_standard", F.lit(None).cast("string")) \
+    .withColumn("canal_std", F.col("channel_standard")) \
     .withColumn("region_std", F.col("region_std_m1"))
 
 df_nr = df_nielsen_std.filter(
@@ -278,11 +309,14 @@ for cbu_label, tbls in _CBU_TABLES.items():
         n_cbu = df_cbu.count()
         log("INFO", f"{cbu_label}: {n_cbu:,} aggregated rows returned from Snowflake", _S)
 
-        # Join to nielsen_std for canal_std / region_std (Spark — both small)
+        # Join to nielsen_std for enterprise channels (Spark — both small)
         df_cbu_std = df_cbu.join(
             df_nielsen_std.select(
                 F.col("MRKT_DSC_SHRT"),
-                F.col("canal_std"),
+                F.col("channel_standard"),
+                F.col("gran_canal_grp"),
+                F.col("chain_standard"),
+                F.col("format_standard"),
                 F.col("region_std"),
                 F.col("mapping_status").alias("market_mapping_status")),
             on="MRKT_DSC_SHRT",
@@ -291,6 +325,17 @@ for cbu_label, tbls in _CBU_TABLES.items():
                       "MRKT_DSC_SHRT", "left")
         assert_row_count_exact(df_cbu, df_cbu_std,
                                f"{cbu_label} agg x nielsen_std", _S)
+
+        # Validation assertions
+        if n_cbu > 0:
+            import pandas as pd
+            valid_channels = {"MODERNO", "TRADICIONAL", "INTERNOS"}
+            valid_gran = {"UTT", "DTT", "INTERNAL"}
+            actual_channels = set(df_cbu_std.select("channel_standard").dropna().distinct().toPandas()["channel_standard"])
+            actual_gran = set(df_cbu_std.select("gran_canal_grp").dropna().distinct().toPandas()["gran_canal_grp"])
+            assert actual_channels <= valid_channels, f"Invalid channel_standard found: {actual_channels - valid_channels}"
+            assert actual_gran <= valid_gran, f"Invalid gran_canal_grp found: {actual_gran - valid_gran}"
+
 
         df_cbu_std = (df_cbu_std
                       .withColumn("cbu_source",     F.lit(cbu_label))
@@ -314,4 +359,5 @@ flush_log("phase3_standardization_audit_log.txt")
 log("INFO", "NIELSEN standardization complete.", _S)
 
 # COMMAND ----------
+
 

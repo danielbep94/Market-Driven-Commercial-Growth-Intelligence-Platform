@@ -88,6 +88,24 @@ df_product.cache()
 n_product = df_product.count()
 log("INFO", f"VW_D_PRODUCT_RM: {n_product:,} rows with non-null UPC", _S)
 
+# Deduplicate product dim on INT_ID (sell_out_int_id) — prevent fanout at join time (R14)
+# VW_D_PRODUCT_RM may have multiple rows per INT_ID (e.g. multi-CBU duplicates)
+# Use MIN(CBU_ID) to deterministically pick one row per INT_ID
+df_product_dedup = df_product.groupBy("sell_out_int_id").agg(
+    F.min("so_name").alias("so_name"),
+    F.min("so_brand").alias("so_brand"),
+    F.min("so_category").alias("so_category"),
+    F.min("CBU_ID").alias("CBU_ID")
+)
+n_product_dedup = df_product_dedup.count()
+dup_removed = n_product - n_product_dedup
+if dup_removed > 0:
+    log("INFO",
+        f"VW_D_PRODUCT_RM dedup: {n_product:,} → {n_product_dedup:,} rows "
+        f"({dup_removed:,} INT_ID duplicates removed, R14)", _S)
+else:
+    log("INFO", f"VW_D_PRODUCT_RM: no INT_ID duplicates found ({n_product_dedup:,} rows)", _S)
+
 # VW_D_STORE_RM — CONFIRMED: no NAME column, use STORE_DSC
 df_store = run_sf(DB_PRD_MDP, """
     SELECT
@@ -215,70 +233,80 @@ if n_unmatched > 0:
 else:
     passed("All SELL_OUT UPCs matched to V_D_ITEM EAN catalog", _S)
 
-# Join product dim (VW_D_PRODUCT_RM) for brand/name enrichment
+# Join product dim (VW_D_PRODUCT_RM) for brand/name enrichment — use deduped table (R14 anti-fanout)
 # IMPORTANT: VW_FACT_SELL_OUT.UPC = internal product code = VW_D_PRODUCT_RM.INT_ID
 # VW_D_PRODUCT_RM.UPC is the EAN barcode — joining upc=upc produces 0 matches
 df_so = df_so.join(
-    df_product.select(
+    df_product_dedup.select(
         F.col("sell_out_int_id").alias("upc_key"),  # INT_ID matches FACT.UPC
         F.col("so_name"), F.col("so_brand"), F.col("so_category"), F.col("CBU_ID")),
     df_so["upc"] == F.col("upc_key"), "left")
-register_join("silver_sell_out", "sell_out", "VW_D_PRODUCT_RM",
-              "upc=sell_out_int_id (FACT.UPC=PRODUCT.INT_ID)", "left")
+register_join("silver_sell_out", "sell_out", "VW_D_PRODUCT_RM_dedup",
+              "upc=sell_out_int_id (FACT.UPC=PRODUCT.INT_ID, deduped)", "left")
 assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × VW_D_PRODUCT_RM", _S)
 
 # COMMAND ----------
 
 # =============================================================================
-# PHASE D — Apply M3/M4 chain/format mapping (cadena_std, canal_std)
+# PHASE D — Apply Enterprise Channel Hierarchy (M3/M4 Replacement)
 # =============================================================================
-log("INFO", "Phase D: Applying M3 chain→cadena_std, M4 format→canal_std", _S)
+log("INFO", "Phase D: Applying enterprise hierarchy from seed", _S)
 
-# M3: chain → cadena_std
-df_chain_map = load_mapping_csv(
-    "logs/signoff_05_store_chain_classification.csv",
-    key_col="chain_value", section=_S)
+# Read seed directly and filter to SELL_OUT BEFORE uniqueness check.
+# NOTE: load_mapping_csv checks uniqueness across the entire file — but source_value
+# (e.g. "MODERNO", "UTT") is intentionally repeated across source systems (WASTE, NIELSEN, IBP).
+# We must filter first, then validate uniqueness within SELL_OUT scope only.
+_seed_path = os.path.join(REPO_ROOT, "configs", "catalog_seeds", "channel_hierarchy_seed.csv")
+df_seed_raw = spark.read.csv(f"file:{_seed_path}", header=True, inferSchema=False)
+
+df_seed_so = df_seed_raw.filter(
+    (F.upper(F.trim(F.col("source_system"))) == "SELL_OUT") &
+    (F.upper(F.trim(F.col("mapping_status"))) == "CONFIRMED")
+).select(
+    F.upper(F.trim(F.col("source_value"))).alias("source_value"),
+    F.upper(F.trim(F.col("gran_canal_grp"))).alias("gran_canal_grp"),
+    F.upper(F.trim(F.col("channel_standard"))).alias("channel_standard"),
+    F.upper(F.trim(F.col("chain_standard"))).alias("chain_standard"),
+    F.upper(F.trim(F.col("format_standard"))).alias("format_standard"),
+)
+
+# Assert uniqueness within SELL_OUT scope
+n_seed_so  = df_seed_so.count()
+n_seed_uniq = df_seed_so.dropDuplicates(["source_value"]).count()
+blocker(n_seed_so != n_seed_uniq,
+        f"SELL_OUT seed has {n_seed_so - n_seed_uniq} duplicate source_value entries — fix seed before joining.",
+        _S)
+log("INFO", f"SELL_OUT seed validated: {n_seed_so} unique FORMAT mappings", _S)
+
+df_seed_so.cache()
+
 df_so = df_so.join(
-    df_chain_map.select(
-        F.col("chain_value"),
-        F.col("cadena_std").alias("cadena_std_mapped"),   # fix W4: alias to avoid ambiguity
-        F.col("mapping_status").alias("cadena_mapping_status")),
-    df_so["chain"] == df_chain_map["chain_value"], "left")
-register_join("silver_sell_out", "sell_out", "chain_classification",
-              "chain=chain_value", "left")
-assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × chain_classification (M3)", _S)
+    df_seed_so,
+    F.upper(F.trim(df_so["format"])) == df_seed_so["source_value"],
+    "left"
+)
+register_join("silver_sell_out", "sell_out", "channel_hierarchy_seed[SELL_OUT]",
+              "UPPER(format)=source_value", "left")
+assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × enterprise seed", _S)
 
-df_so = df_so.withColumn(
-    "cadena_std",
-    F.when(F.col("cadena_mapping_status") == "CONFIRMED", F.col("cadena_std_mapped"))
-     .otherwise(F.lit(None).cast("string")))
+# Validation gates — strict enterprise vocabulary enforcement
+if n_so_agg > 0:
+    valid_channels = {"MODERNO", "TRADICIONAL", "INTERNOS"}
+    valid_gran     = {"UTT", "DTT", "INTERNAL"}
 
-# M4: format → canal_std
-df_format_map = load_mapping_csv(
-    "logs/signoff_05_store_format_classification.csv",
-    key_col="format_value", section=_S)
-df_so = df_so.join(
-    df_format_map.select(
-        F.col("format_value"),
-        F.col("canal_std").alias("canal_std_mapped"),     # fix W5: alias to avoid ambiguity
-        F.col("mapping_status").alias("canal_mapping_status")),
-    df_so["format"] == df_format_map["format_value"], "left")
-register_join("silver_sell_out", "sell_out", "format_classification",
-              "format=format_value", "left")
-assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × format_classification (M4)", _S)
+    actual_channels = set(df_so.select("channel_standard").dropna().distinct().toPandas()["channel_standard"])
+    actual_gran     = set(df_so.select("gran_canal_grp").dropna().distinct().toPandas()["gran_canal_grp"])
 
-df_so = df_so.withColumn(
-    "canal_std",
-    F.when(F.col("canal_mapping_status") == "CONFIRMED", F.col("canal_std_mapped"))
-     .otherwise(F.lit(None).cast("string")))
+    assert actual_channels <= valid_channels, f"Invalid channel_standard found: {actual_channels - valid_channels}"
+    assert actual_gran     <= valid_gran,     f"Invalid gran_canal_grp found: {actual_gran - valid_gran}"
 
-# Quarantine NEEDS_REVIEW
-quarantine(df_so.filter(F.col("cadena_std").isNull()),
-           "SELL_OUT_CADENA_NEEDS_REVIEW",
-           "M3 PENDING: CHAIN not yet mapped to cadena_std", _S)
-quarantine(df_so.filter(F.col("canal_std").isNull()),
+# Quarantine unmapped FORMATs for seed expansion
+quarantine(df_so.filter(F.col("chain_standard").isNull()),
+           "SELL_OUT_CHAIN_NEEDS_REVIEW",
+           "PENDING: FORMAT not yet mapped to chain_standard", _S)
+quarantine(df_so.filter(F.col("channel_standard").isNull()),
            "SELL_OUT_CANAL_NEEDS_REVIEW",
-           "M4 PENDING: FORMAT not yet mapped to canal_std", _S)
+           "PENDING: FORMAT not yet mapped to channel_standard", _S)
 
 # marca_std = normalized brand from VW_D_PRODUCT_RM.BRAND (so_brand)
 # Upper+trim for consistency with sell_in_std.marca_std and other sources
@@ -294,7 +322,7 @@ df_so = df_so.withColumn("source_system", F.lit("SELL_OUT")) \
 # Null rate audit + save
 n_so = df_so.count()
 log("INFO", f"sell_out_std final: {n_so:,} rows", _S)
-for col_name in ["mat_idt", "cadena_std", "canal_std", "revenue_sell_out", "so_brand"]:
+for col_name in ["mat_idt", "chain_standard", "channel_standard", "revenue_sell_out", "so_brand"]:
     if col_name in [c.lower() for c in df_so.columns]:
         n_null = df_so.filter(F.col(col_name).isNull()).count()
         pct = round(n_null / n_so * 100, 2) if n_so > 0 else 0.0
