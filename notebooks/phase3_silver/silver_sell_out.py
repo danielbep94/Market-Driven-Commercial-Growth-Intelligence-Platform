@@ -88,6 +88,24 @@ df_product.cache()
 n_product = df_product.count()
 log("INFO", f"VW_D_PRODUCT_RM: {n_product:,} rows with non-null UPC", _S)
 
+# Deduplicate product dim on INT_ID (sell_out_int_id) — prevent fanout at join time (R14)
+# VW_D_PRODUCT_RM may have multiple rows per INT_ID (e.g. multi-CBU duplicates)
+# Use MIN(CBU_ID) to deterministically pick one row per INT_ID
+df_product_dedup = df_product.groupBy("sell_out_int_id").agg(
+    F.min("so_name").alias("so_name"),
+    F.min("so_brand").alias("so_brand"),
+    F.min("so_category").alias("so_category"),
+    F.min("CBU_ID").alias("CBU_ID")
+)
+n_product_dedup = df_product_dedup.count()
+dup_removed = n_product - n_product_dedup
+if dup_removed > 0:
+    log("INFO",
+        f"VW_D_PRODUCT_RM dedup: {n_product:,} → {n_product_dedup:,} rows "
+        f"({dup_removed:,} INT_ID duplicates removed, R14)", _S)
+else:
+    log("INFO", f"VW_D_PRODUCT_RM: no INT_ID duplicates found ({n_product_dedup:,} rows)", _S)
+
 # VW_D_STORE_RM — CONFIRMED: no NAME column, use STORE_DSC
 df_store = run_sf(DB_PRD_MDP, """
     SELECT
@@ -215,16 +233,16 @@ if n_unmatched > 0:
 else:
     passed("All SELL_OUT UPCs matched to V_D_ITEM EAN catalog", _S)
 
-# Join product dim (VW_D_PRODUCT_RM) for brand/name enrichment
+# Join product dim (VW_D_PRODUCT_RM) for brand/name enrichment — use deduped table (R14 anti-fanout)
 # IMPORTANT: VW_FACT_SELL_OUT.UPC = internal product code = VW_D_PRODUCT_RM.INT_ID
 # VW_D_PRODUCT_RM.UPC is the EAN barcode — joining upc=upc produces 0 matches
 df_so = df_so.join(
-    df_product.select(
+    df_product_dedup.select(
         F.col("sell_out_int_id").alias("upc_key"),  # INT_ID matches FACT.UPC
         F.col("so_name"), F.col("so_brand"), F.col("so_category"), F.col("CBU_ID")),
     df_so["upc"] == F.col("upc_key"), "left")
-register_join("silver_sell_out", "sell_out", "VW_D_PRODUCT_RM",
-              "upc=sell_out_int_id (FACT.UPC=PRODUCT.INT_ID)", "left")
+register_join("silver_sell_out", "sell_out", "VW_D_PRODUCT_RM_dedup",
+              "upc=sell_out_int_id (FACT.UPC=PRODUCT.INT_ID, deduped)", "left")
 assert_row_count_exact(df_so_agg, df_so, "SELL_OUT × VW_D_PRODUCT_RM", _S)
 
 # COMMAND ----------
